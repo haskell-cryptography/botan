@@ -23,3 +23,10 @@ Use homebrew: `brew install botan`
 ### Unix
 
 See your appropriate package manager.
+
+
+
+# TODO LIST
+
+- Use `MonadIO m => m a` instead of `IO a` wherever possible.
+- Use `Text` and `ByteArray`.
