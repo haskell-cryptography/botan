@@ -70,6 +70,8 @@ hashClear (Hash hashForeignPtr) = withForeignPtr hashForeignPtr $ \ hashPtr -> d
     hash <- peek hashPtr
     throwBotanIfNegative_ $ botan_hash_clear hash
 
+-- TODO: int botan_hash_block_size(botan_hash_t hash, size_t* block_size);
+
 foreign import ccall unsafe botan_hash_output_length :: OpaqueHash -> Ptr CSize -> IO Int
 
 hashOutputLength :: Hash -> IO Int

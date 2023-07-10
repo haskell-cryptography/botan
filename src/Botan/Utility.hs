@@ -55,6 +55,8 @@ botanConstantTimeCompare x y = if ByteString.length x == ByteString.length y
                     _ -> return False
     else False 
 
+-- TODO: int botan_scrub_mem(void* mem, size_t bytes);
+
 -- | int botan_hex_encode(const uint8_t *x, size_t len, char *out, uint32_t flags)
 -- NOTE: Return type is CInt, not BotanErrorCode. Function is explicit about return values.
 foreign import ccall unsafe botan_hex_encode :: Ptr Word8 -> CSize -> Ptr CChar -> Word32 -> IO CInt
@@ -93,3 +95,7 @@ botanHexDecodeText txt = unsafePerformIO ba where
         withBytes bs $ \ hex -> do
             alloca $ \ szPtr -> do
                 throwBotanIfNegative_ $ botan_hex_decode hex (fromIntegral hexlen) bytes szPtr
+
+-- TODO: int botan_base64_encode(const uint8_t* x, size_t len, char* out, size_t* out_len);
+
+-- TODO: int botan_base64_decode(const char* base64_str, size_t in_len, uint8_t* out, size_t* out_len);
