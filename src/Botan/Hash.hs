@@ -106,7 +106,7 @@ hashUpdate (Hash hashForeignPtr) ba = withForeignPtr hashForeignPtr $ \ hashPtr 
 -- int botan_hash_final(botan_hash_t hash, uint8_t out[])
 foreign import ccall unsafe botan_hash_final :: OpaqueHash -> Ptr Word8 -> IO BotanErrorCode
 
--- TODO: Digest
+-- TODO: Digest type
 hashFinal :: Hash -> IO ByteString
 hashFinal (Hash hashForeignPtr) = withForeignPtr hashForeignPtr $ \ hashPtr -> do
     hash <- peek hashPtr

@@ -68,6 +68,12 @@ botanScrubMem :: ForeignPtr a -> Int -> IO ()
 botanScrubMem foreignPtr sz = withForeignPtr foreignPtr $ \ ptr -> do
     throwBotanIfNegative_ $ botan_scrub_mem (castPtr ptr) (fromIntegral sz)
 
+type BotanHexFlag = Word32
+
+-- NOTE: Not actually a botan constant
+pattern BOTAN_FFI_HEX_NONE = 0 :: BotanHexFlag
+pattern BOTAN_FFI_HEX_LOWER_CASE = 1 :: BotanHexFlag
+
 -- | int botan_hex_encode(const uint8_t *x, size_t len, char *out, uint32_t flags)
 -- NOTE: Return type is CInt, not BotanErrorCode. Function is explicit about return values.
 foreign import ccall unsafe botan_hex_encode :: Ptr Word8 -> CSize -> Ptr CChar -> Word32 -> IO CInt
@@ -77,13 +83,15 @@ foreign import ccall unsafe botan_hex_encode :: Ptr Word8 -> CSize -> Ptr CChar 
 -- TODO: USE FLAG ARGUMENT?
 -- DISCUSS: Handling of positive return code / BOTAN_FFI_INVALID_VERIFIER?
 -- DISCUSS: Use of Text.decodeUtf8 - bad, partial function! - but safe here?
-botanHexEncodeText :: ByteString -> Text
-botanHexEncodeText ba = Text.decodeUtf8 $ unsafePerformIO hex where 
+botanHexEncodeText :: Bool -> ByteString -> Text
+botanHexEncodeText lower ba = Text.decodeUtf8 $ unsafePerformIO hex where 
     bytelen = ByteString.length ba
     hexlen = 2 * bytelen
     hex = withBytes ba $ \ ba' -> do
         allocBytes hexlen $ \ bb -> do
-            throwBotanIfNegative_ $ botan_hex_encode ba' (fromIntegral bytelen) bb 0
+            throwBotanIfNegative_ $ botan_hex_encode ba' (fromIntegral bytelen) bb $ if lower
+                then BOTAN_FFI_HEX_LOWER_CASE
+                else BOTAN_FFI_HEX_NONE
 
 -- | int botan_hex_decode(const char *hex_str, size_t in_len, uint8_t *out, size_t *out_len)
 foreign import ccall unsafe botan_hex_decode :: Ptr CChar -> CSize -> Ptr Word8 -> Ptr CSize -> IO BotanErrorCode
