@@ -60,7 +60,12 @@ hashName (Hash hashForeignPtr) = withForeignPtr hashForeignPtr $ \ hashPtr -> do
 foreign import ccall unsafe botan_hash_copy_state :: Ptr OpaqueHash -> OpaqueHash -> IO BotanErrorCode
 
 hashCopyState :: Hash -> IO Hash
-hashCopyState = undefined
+hashCopyState (Hash sourceForeignPtr) = withForeignPtr sourceForeignPtr $ \ sourcePtr -> do
+    source <- peek sourcePtr
+    destForeignPtr <- alloca $ newForeignPtr botan_hash_destroy
+    withForeignPtr destForeignPtr $ \ destPtr -> do
+        throwBotanIfNegative_ $ botan_hash_copy_state destPtr source
+    return $ Hash destForeignPtr
 
 -- int botan_hash_clear(botan_hash_t hash)
 foreign import ccall unsafe botan_hash_clear :: OpaqueHash -> IO BotanErrorCode
@@ -70,9 +75,17 @@ hashClear (Hash hashForeignPtr) = withForeignPtr hashForeignPtr $ \ hashPtr -> d
     hash <- peek hashPtr
     throwBotanIfNegative_ $ botan_hash_clear hash
 
--- TODO: int botan_hash_block_size(botan_hash_t hash, size_t* block_size);
+-- int botan_hash_block_size(botan_hash_t hash, size_t* block_size);
+foreign import ccall unsafe botan_hash_block_size :: OpaqueHash -> Ptr CSize -> IO BotanErrorCode
 
-foreign import ccall unsafe botan_hash_output_length :: OpaqueHash -> Ptr CSize -> IO Int
+hashBlockSize :: Hash -> IO Int
+hashBlockSize (Hash hashForeignPtr) = withForeignPtr hashForeignPtr $ \ hashPtr -> do
+    hash <- peek hashPtr
+    alloca $ \ szPtr -> do
+        throwBotanIfNegative_ $ botan_hash_block_size hash szPtr
+        fromIntegral <$> peek szPtr
+
+foreign import ccall unsafe botan_hash_output_length :: OpaqueHash -> Ptr CSize -> IO BotanErrorCode
 
 hashOutputLength :: Hash -> IO Int
 hashOutputLength (Hash hashForeignPtr) = withForeignPtr hashForeignPtr $ \ hashPtr -> do
