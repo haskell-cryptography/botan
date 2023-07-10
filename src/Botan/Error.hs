@@ -18,7 +18,11 @@ module Botan.Error
 , pattern BOTAN_FFI_ERROR_INVALID_OBJECT_STATE
 , pattern BOTAN_FFI_ERROR_NOT_IMPLEMENTED
 , pattern BOTAN_FFI_ERROR_INVALID_OBJECT
+, pattern BOTAN_FFI_ERROR_TLS_ERROR
+, pattern BOTAN_FFI_ERROR_HTTP_ERROR
+, pattern BOTAN_FFI_ERROR_ROUGHTIME_ERROR
 , pattern BOTAN_FFI_ERROR_UNKNOWN_ERROR
+, botanErrorDescription
 , botanErrorLastExceptionMessage
 , SomeBotanException(..)
 , toBotanException
@@ -65,6 +69,8 @@ import Foreign.C.Types (CInt(..))
 import GHC.Stack
 
 import Botan.Prelude
+
+-- TODO: Maybe use *.hsc for this one file (or Botan/Enums.hsc)
 
 -- | Error values below -10000 are reserved for the application (these can be returned from view functions).
 type BotanErrorCode = CInt
@@ -124,8 +130,19 @@ pattern BOTAN_FFI_ERROR_NOT_IMPLEMENTED = -40 :: BotanErrorCode
 -- | This is used if an object provided did not match the function. For example calling botan_hash_destroy on a botan_rng_t object will cause this error.
 pattern BOTAN_FFI_ERROR_INVALID_OBJECT = -50 :: BotanErrorCode
 
+pattern BOTAN_FFI_ERROR_TLS_ERROR = -75 :: BotanErrorCode
+pattern BOTAN_FFI_ERROR_HTTP_ERROR = -76 :: BotanErrorCode
+pattern BOTAN_FFI_ERROR_ROUGHTIME_ERROR = -77 :: BotanErrorCode
+
 -- | Something bad happened, but we are not sure why or how.
 pattern BOTAN_FFI_ERROR_UNKNOWN_ERROR = -100 :: BotanErrorCode
+
+-- | const char* botan_error_description(int err);
+foreign import ccall unsafe botan_error_description :: BotanErrorCode -> IO CString
+
+-- | Convert an error code into a string. Returns "Unknown error" if the error code is not a known one.
+botanErrorDescription :: BotanErrorCode -> IO Text
+botanErrorDescription e = botan_error_description e >>= peekCStringText
 
 -- | const char *botan_error_last_exception_message()
 foreign import ccall unsafe botan_error_last_exception_message :: IO CString
