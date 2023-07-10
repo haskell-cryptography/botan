@@ -5,9 +5,7 @@ import Prelude
 import Control.Monad
 
 import Data.ByteString (ByteString)
-
-import Data.ByteArray (ByteArrayAccess(..), ByteArray(..))
-import qualified Data.ByteArray as ByteArray
+import qualified Data.ByteString as ByteString
 
 import Data.Word
 
@@ -20,6 +18,7 @@ import Foreign.Ptr
 import Foreign.Storable
 
 import Botan.Error
+import Botan.Prelude
 
 import GHC.Stack
 
@@ -35,8 +34,9 @@ foreign import ccall "&botan_hash_destroy" botan_hash_destroy :: FunPtr (Ptr Opa
 
 -- TODO: Discuss naming, eg init vs hashInit
 --  It depends on whether we intend qualified import or not
-hashInitName :: (ByteArray ba) => ba -> IO Hash
-hashInitName name = withByteArray name $ \ namePtr -> do
+-- TODO: ByteString vs Text
+hashInitName :: ByteString -> IO Hash
+hashInitName name = withBytes name $ \ namePtr -> do
     hashForeignPtr <- alloca $ newForeignPtr botan_hash_destroy
     withForeignPtr hashForeignPtr $ \ hashPtr -> do
         throwBotanIfNegative_ $ botan_hash_init hashPtr namePtr 0
@@ -44,14 +44,17 @@ hashInitName name = withByteArray name $ \ namePtr -> do
 
 foreign import ccall unsafe botan_hash_name :: OpaqueHash -> Ptr CChar -> Ptr CSize -> IO BotanErrorCode
 
-hashName :: (ByteArray ba) => Hash -> IO ba
+-- TODO: hashNameByteString vs hashNameText
+hashName :: Hash -> IO ByteString
 hashName (Hash hashForeignPtr) = withForeignPtr hashForeignPtr $ \ hashPtr -> do
     hash <- peek hashPtr
+    -- TODO: use ByteString.Internal.createAndTrim?
     alloca $ \ szPtr -> do
-        bs <- ByteArray.alloc 64 $ \ bytes -> do
+        bs <- allocBytes 64 $ \ bytes -> do
             throwBotanIfNegative_ $ botan_hash_name hash bytes szPtr
         sz <- peek szPtr
-        return $ ByteArray.take (fromIntegral sz) bs
+        -- NOTE: COPY TO MIMIC ByteArray.take (which copies!) so we can drop the rest of the bytestring
+        return $ ByteString.copy $ ByteString.take (fromIntegral sz) bs
 
 -- int botan_hash_copy_state(botan_hash_t *dest, const botan_hash_t source)
 foreign import ccall unsafe botan_hash_copy_state :: Ptr OpaqueHash -> OpaqueHash -> IO BotanErrorCode
@@ -79,20 +82,21 @@ hashOutputLength (Hash hashForeignPtr) = withForeignPtr hashForeignPtr $ \ hashP
 -- int botan_hash_update(botan_hash_t hash, const uint8_t *input, size_t len)
 foreign import ccall unsafe botan_hash_update :: OpaqueHash -> Ptr Word8  -> CSize -> IO BotanErrorCode
 
-hashUpdate :: (ByteArray ba) => Hash -> ba -> IO ()
+hashUpdate :: Hash -> ByteString -> IO ()
 hashUpdate (Hash hashForeignPtr) ba = withForeignPtr hashForeignPtr $ \ hashPtr -> do
     hash <- peek hashPtr
-    withByteArray ba $ \ baPtr -> do
-        throwBotanIfNegative_ $ botan_hash_update hash baPtr (fromIntegral $ ByteArray.length ba)
+    withBytes ba $ \ baPtr -> do
+        throwBotanIfNegative_ $ botan_hash_update hash baPtr (fromIntegral $ ByteString.length ba)
 
 -- int botan_hash_final(botan_hash_t hash, uint8_t out[])
 foreign import ccall unsafe botan_hash_final :: OpaqueHash -> Ptr Word8 -> IO BotanErrorCode
 
-hashFinal :: (ByteArray ba) => Hash -> IO ba
+-- TODO: Digest
+hashFinal :: Hash -> IO ByteString
 hashFinal (Hash hashForeignPtr) = withForeignPtr hashForeignPtr $ \ hashPtr -> do
     hash <- peek hashPtr
     sz <- alloca $ \ szPtr -> do
         throwBotanIfNegative_ $ botan_hash_output_length hash szPtr
         fromIntegral <$> peek szPtr
-    ByteArray.alloc sz $ \ bytes -> do
+    allocBytes sz $ \ bytes -> do
         throwBotanIfNegative_ $ botan_hash_final hash bytes

@@ -10,9 +10,6 @@ import Control.Monad
 
 import Data.Bool
 
-import Data.ByteArray (ByteArrayAccess(withByteArray), ByteArray(..))
-import qualified Data.ByteArray as ByteArray
-
 import Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
@@ -30,6 +27,7 @@ import Foreign.C.Types
 import Foreign.Marshal.Alloc
 
 import Botan.Error
+import Botan.Prelude
 
 -- NOTE: I just discovered:
 --  https://hackage.haskell.org/package/memory-0.18.0/docs/Data-ByteArray-Encoding.html
@@ -45,12 +43,13 @@ foreign import ccall unsafe botan_constant_time_compare :: Ptr Word8 -> Ptr Word
 -- | Returns 0 if x[0..len] == y[0..len], -1 otherwise.
 -- NOTE: Here for completeness, because Data.ByteArray.constEq already exists.
 -- DISCUSS: Should this be used in favor of Data.ByteArray.constEq?
-botanConstantTimeCompare :: (ByteArrayAccess ba) => ba -> ba -> Bool
-botanConstantTimeCompare x y = if ByteArray.length x == ByteArray.length y
+-- TODO: Expose explicit length? Compare up to length of shorter? Compare up to length of 1st? (Error if len first > second)
+botanConstantTimeCompare :: ByteString -> ByteString -> Bool
+botanConstantTimeCompare x y = if ByteString.length x == ByteString.length y
     then unsafePerformIO $ do
-        withByteArray x $ \ x' -> do
-            withByteArray y $ \ y' -> do
-                result <- botan_constant_time_compare x' y' (fromIntegral $ ByteArray.length x)
+        withBytes x $ \ x' -> do
+            withBytes y $ \ y' -> do
+                result <- botan_constant_time_compare x' y' (fromIntegral $ ByteString.length x)
                 case result of
                     0 -> return True
                     _ -> return False
@@ -65,12 +64,12 @@ foreign import ccall unsafe botan_hex_encode :: Ptr Word8 -> CSize -> Ptr CChar 
 -- TODO: USE FLAG ARGUMENT?
 -- DISCUSS: Handling of positive return code / BOTAN_FFI_INVALID_VERIFIER?
 -- DISCUSS: Use of Text.decodeUtf8 - bad, partial function! - but safe here?
-botanHexEncodeText :: (ByteArrayAccess ba) => ba -> Text
+botanHexEncodeText :: ByteString -> Text
 botanHexEncodeText ba = Text.decodeUtf8 $ unsafePerformIO hex where 
-    bytelen = ByteArray.length ba
+    bytelen = ByteString.length ba
     hexlen = 2 * bytelen
-    hex = withByteArray ba $ \ ba' -> do
-        ByteArray.alloc hexlen $ \ bb -> do
+    hex = withBytes ba $ \ ba' -> do
+        allocBytes hexlen $ \ bb -> do
             throwBotanIfNegative_ $ botan_hex_encode ba' (fromIntegral bytelen) bb 0
 
 -- | int botan_hex_decode(const char *hex_str, size_t in_len, uint8_t *out, size_t *out_len)
@@ -85,12 +84,12 @@ foreign import ccall unsafe botan_hex_decode :: Ptr CChar -> CSize -> Ptr Word8 
 --  that the Text only include hex chars and is of even length
 -- DISCUSS: Ignoring the Ptr CSize that returns the actual decoded length.
 --  We need the array (and thus its length) /before/ we call botan_hex_decode :/
-botanHexDecodeText :: (ByteArray ba) => Text -> ba
+botanHexDecodeText :: Text -> ByteString
 botanHexDecodeText txt = unsafePerformIO ba where 
     bs = Text.encodeUtf8 txt
     hexlen = Text.length txt
     bytelen = div (hexlen + 1) 2
-    ba = ByteArray.alloc bytelen $ \ bytes -> do
-        withByteArray bs $ \ hex -> do
+    ba = allocBytes bytelen $ \ bytes -> do
+        withBytes bs $ \ hex -> do
             alloca $ \ szPtr -> do
                 throwBotanIfNegative_ $ botan_hex_decode hex (fromIntegral hexlen) bytes szPtr
