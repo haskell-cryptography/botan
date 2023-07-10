@@ -1,7 +1,10 @@
 module Botan.Utility
 ( botanConstantTimeCompare
+, botanScrubMem
 , botanHexEncodeText
 , botanHexDecodeText
+, botanBase64EncodeText
+, botanBase64DecodeText
 ) where
 
 import Prelude
@@ -22,9 +25,10 @@ import Data.Word
 import System.IO
 import System.IO.Unsafe
 
-import Foreign.Ptr
 import Foreign.C.Types
+import Foreign.ForeignPtr
 import Foreign.Marshal.Alloc
+import Foreign.Ptr
 
 import Botan.Error
 import Botan.Prelude
@@ -55,7 +59,14 @@ botanConstantTimeCompare x y = if ByteString.length x == ByteString.length y
                     _ -> return False
     else False 
 
--- TODO: int botan_scrub_mem(void* mem, size_t bytes);
+-- | int botan_scrub_mem(void* mem, size_t bytes);
+foreign import ccall unsafe botan_scrub_mem :: Ptr () -> CSize -> IO CInt
+
+-- I'm not entirely sure what this should be
+-- Rather, this should be used in a `ScrubedBytes` implementation
+botanScrubMem :: ForeignPtr a -> Int -> IO ()
+botanScrubMem foreignPtr sz = withForeignPtr foreignPtr $ \ ptr -> do
+    throwBotanIfNegative_ $ botan_scrub_mem (castPtr ptr) (fromIntegral sz)
 
 -- | int botan_hex_encode(const uint8_t *x, size_t len, char *out, uint32_t flags)
 -- NOTE: Return type is CInt, not BotanErrorCode. Function is explicit about return values.
@@ -96,6 +107,32 @@ botanHexDecodeText txt = unsafePerformIO ba where
             alloca $ \ szPtr -> do
                 throwBotanIfNegative_ $ botan_hex_decode hex (fromIntegral hexlen) bytes szPtr
 
--- TODO: int botan_base64_encode(const uint8_t* x, size_t len, char* out, size_t* out_len);
+-- | int botan_base64_encode(const uint8_t* x, size_t len, char* out, size_t* out_len);
+foreign import ccall unsafe botan_base64_encode :: Ptr Word8 -> CSize -> Ptr CChar -> Ptr CSize -> IO BotanErrorCode
 
--- TODO: int botan_base64_decode(const char* base64_str, size_t in_len, uint8_t* out, size_t* out_len);
+-- NOTE: Does not check tht base64Len == peek sizePtr
+-- DISCUSS: Ignoring the Ptr CSize that returns the actual decoded length.
+botanBase64EncodeText :: ByteString -> Text
+botanBase64EncodeText ba = Text.decodeUtf8 $ unsafePerformIO base64 where 
+    bytelen = ByteString.length ba
+    base64Len = 4 * ceiling (fromIntegral bytelen / 3)
+    base64 = withBytes ba $ \ ba' -> do
+        allocBytes base64Len $ \ bb -> do
+            alloca $ \ szPtr -> do
+                throwBotanIfNegative_ $ botan_base64_encode ba' (fromIntegral bytelen) bb szPtr
+
+-- | int botan_base64_decode(const char* base64_str, size_t in_len, uint8_t* out, size_t* out_len);
+foreign import ccall unsafe botan_base64_decode :: Ptr CChar -> CSize -> Ptr Word8 -> Ptr CSize -> IO BotanErrorCode
+
+-- | Ditto everything botanHexDecodeText
+-- NOTE: Since must be
+botanBase64DecodeText :: Text -> ByteString
+botanBase64DecodeText txt = unsafePerformIO ba where 
+    bs = Text.encodeUtf8 txt
+    base64Len = Text.length txt
+    padLen = Text.length $ Text.takeWhileEnd (== '=') txt
+    bytelen = (3 * (div base64Len 4)) - (padLen)
+    ba = allocBytes bytelen $ \ bytes -> do
+        withBytes bs $ \ base64 -> do
+            alloca $ \ szPtr -> do
+                throwBotanIfNegative_ $ botan_base64_decode base64 (fromIntegral base64Len) bytes szPtr
