@@ -39,6 +39,7 @@ import Botan.Error
 --  idempotent crypto functions in order to 'make them pure'.
 
 -- | int botan_constant_time_compare(const uint8_t *x, const uint8_t *y, size_t len)
+-- NOTE: Return type is CInt, not BotanErrorCode. Function is explicit about return values.
 foreign import ccall unsafe botan_constant_time_compare :: Ptr Word8 -> Ptr Word8 -> CSize -> IO CInt
 
 -- | Returns 0 if x[0..len] == y[0..len], -1 otherwise.
@@ -56,6 +57,7 @@ botanConstantTimeCompare x y = if ByteArray.length x == ByteArray.length y
     else False 
 
 -- | int botan_hex_encode(const uint8_t *x, size_t len, char *out, uint32_t flags)
+-- NOTE: Return type is CInt, not BotanErrorCode. Function is explicit about return values.
 foreign import ccall unsafe botan_hex_encode :: Ptr Word8 -> CSize -> Ptr CChar -> Word32 -> IO CInt
 
 -- | Performs hex encoding of binary data in x of size len bytes. The output buffer out must be of at least x*2 bytes in size. If flags contains BOTAN_FFI_HEX_LOWER_CASE, hex encoding will only contain lower-case letters, upper-case letters otherwise. Returns 0 on success, 1 otherwise.
@@ -72,7 +74,7 @@ botanHexEncodeText ba = Text.decodeUtf8 $ unsafePerformIO hex where
             throwBotanIfNegative_ $ botan_hex_encode ba' (fromIntegral bytelen) bb 0
 
 -- | int botan_hex_decode(const char *hex_str, size_t in_len, uint8_t *out, size_t *out_len)
-foreign import ccall unsafe botan_hex_decode :: Ptr CChar -> CSize -> Ptr Word8 -> Ptr CSize -> IO CInt
+foreign import ccall unsafe botan_hex_decode :: Ptr CChar -> CSize -> Ptr Word8 -> Ptr CSize -> IO BotanErrorCode
 
 -- | "Hex decode some data"
 -- NOTE: Should this be used vs Data.ByteArray.Encoding ?

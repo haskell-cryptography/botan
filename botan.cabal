@@ -21,9 +21,11 @@ library
         OverloadedStrings
         PatternSynonyms
         ScopedTypeVariables
+        TypeApplications
     exposed-modules:
         Botan
         Botan.Error
+        Botan.Hash
         Botan.Utility
         Botan.Version
     other-modules:
@@ -41,7 +43,5 @@ library
         extra-libraries: botan-3
     else
         pkgconfig-depends: botan-3 >= 3.0.0
-    cc-options:     -Wall
-    ghc-options:    -Wall -funbox-strict-fields     
-
-    
+    -- cc-options:     -Wall
+    -- ghc-options:    -Wall -funbox-strict-fields     

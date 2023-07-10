@@ -37,12 +37,6 @@ import Botan.Prelude
 
 -- https://botan.randombit.net/handbook/api_ref/ffi.html#versioning
 
--- NOTE: We should be using `capi` instead of `ccall`, a la: 
---  https://wiki.haskell.org/Foreign_Function_Interface
--- However, this causes issues, eg:
---  error: call to undeclared function 'botan_version_string'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
---  warning: incompatible integer to pointer conversion returning 'int' from a function with result type 'char *' [-Wint-conversion]
-
 -- NOTE: Regarding unsafeDupablePerormIO:
 --  https://botan.randombit.net/handbook/api_ref/footguns.html#multithreaded-access
 
