@@ -64,6 +64,10 @@ foreign import ccall unsafe botan_scrub_mem :: Ptr () -> CSize -> IO CInt
 
 -- I'm not entirely sure what this should be
 -- Rather, this should be used in a `ScrubedBytes` implementation
+-- This will require a custom version of allocBytes / mallocByteString that calls scrubmem before freeing
+-- See: https://stackoverflow.com/questions/47609959/exporting-importing-via-ffi-vs-using-the-ffi-wrapper
+--  Need to mix the wrapper with a closure that also frees the allocated wrapper funptr
+--  inside of an allocScrubbed function (or something...)
 botanScrubMem :: ForeignPtr a -> Int -> IO ()
 botanScrubMem foreignPtr sz = withForeignPtr foreignPtr $ \ ptr -> do
     throwBotanIfNegative_ $ botan_scrub_mem (castPtr ptr) (fromIntegral sz)

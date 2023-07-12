@@ -26,6 +26,7 @@ library
         Botan
         Botan.Error
         Botan.Hash
+        Botan.Random
         Botan.Utility
         Botan.Version
     other-modules:

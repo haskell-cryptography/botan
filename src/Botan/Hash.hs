@@ -10,6 +10,7 @@ import qualified Data.ByteString as ByteString
 import Data.Word
 
 import System.IO
+import System.IO.Unsafe
 
 import Foreign.C.Types
 import Foreign.ForeignPtr
@@ -37,7 +38,7 @@ foreign import ccall "&botan_hash_destroy" botan_hash_destroy :: FunPtr (Ptr Opa
 -- TODO: ByteString vs Text
 hashInitName :: ByteString -> IO Hash
 hashInitName name = withBytes name $ \ namePtr -> do
-    hashForeignPtr <- alloca $ newForeignPtr botan_hash_destroy
+    hashForeignPtr <- malloc >>= newForeignPtr botan_hash_destroy
     withForeignPtr hashForeignPtr $ \ hashPtr -> do
         throwBotanIfNegative_ $ botan_hash_init hashPtr namePtr 0
     return $ Hash hashForeignPtr
@@ -59,6 +60,8 @@ hashName (Hash hashForeignPtr) = withForeignPtr hashForeignPtr $ \ hashPtr -> do
 -- int botan_hash_copy_state(botan_hash_t *dest, const botan_hash_t source)
 foreign import ccall unsafe botan_hash_copy_state :: Ptr OpaqueHash -> OpaqueHash -> IO BotanErrorCode
 
+-- TODO: This is more akin to a hashCopy / hashDuplicate, rather than hashCopyState.
+--  It does not copy state from one hash to another, it generates a new one.
 hashCopyState :: Hash -> IO Hash
 hashCopyState (Hash sourceForeignPtr) = withForeignPtr sourceForeignPtr $ \ sourcePtr -> do
     source <- peek sourcePtr
@@ -115,3 +118,16 @@ hashFinal (Hash hashForeignPtr) = withForeignPtr hashForeignPtr $ \ hashPtr -> d
         fromIntegral <$> peek szPtr
     allocBytes sz $ \ bytes -> do
         throwBotanIfNegative_ $ botan_hash_final hash bytes
+
+hashWith :: ByteString -> ByteString -> ByteString
+hashWith name bs = unsafePerformIO $ do
+    h <- hashInitName name
+    hashUpdate h bs
+    dg <- hashFinal h
+    return dg
+
+-- TODO: The version that uses type inference 
+--  hash :: Hash ha => ByteString -> Digest ha
+-- VS: The version that takes explicit parameters
+--  hashWith :: HashAlg ha => Hash ha -> ByteString -> Digest ha
+-- The former works well with type families, the latter with fundeps
