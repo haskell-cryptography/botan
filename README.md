@@ -27,6 +27,7 @@ See your appropriate package manager.
 # TODO LIST
 
 - Documentation / fix existing documentation
+- Consistent / better nomenclature - get rid of explicit 'botan' except for a few explicit things
 - Use [the actual headers](https://github.com/randombit/botan/blob/release-3/src/lib/ffi/ffi.h) because [the documentation is sometimes wrong / missing](https://botan.randombit.net/handbook/api_ref/ffi.html).
 - Use `MonadIO m => m a` instead of `IO a` wherever possible.
 - Use `Text` and ~~`ByteArray`~~ `ByteString`.
@@ -48,6 +49,9 @@ See your appropriate package manager.
         - I used alloc when replacing ByteArray.alloc, but that actually uses `Bytestring.mallocByteString`
     - New way: `opaqueForeignPtr <- malloc >>= newForeignPtr botan_hash_destroy`
         - Switched to `malloc `, now mostly just looking for sanity check / confirmation that this was the correct thing to do.
+- Consistency (in particular, `Random` is bad with `randomFoo :: Int -> foo -> result` vs `foo -> Int -> result`)
+- Replace some `Ptr CChar` with `CString` as appropriate (when null-terminated).
+- Reusing data types / constants between modules: eg, some `MacType` expect a `HashType` a la `HMAC SHA256` / `HMAC(SHA-256)`
 
 
 # Issues
