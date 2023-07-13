@@ -26,8 +26,12 @@ import Botan.Prelude
 -- */
 -- typedef struct botan_mac_struct* botan_mac_t;
 data MacStruct
-type OpaqueMac = Ptr MacStruct
+type MacPtr = Ptr MacStruct
+
 newtype Mac = MkMac { getMacForeignPtr :: ForeignPtr MacStruct }
+
+withMacPtr :: Mac -> (MacPtr -> IO a) -> IO a
+withMacPtr = withForeignPtr . getMacForeignPtr
 
 data MacType
     = HMAC_SHA256
@@ -46,7 +50,7 @@ type MacFlags = Word32
 -- * @return 0 on success, a negative value on failure
 -- */
 -- BOTAN_PUBLIC_API(2,0) int botan_mac_init(botan_mac_t* mac, const char* mac_name, uint32_t flags);
-foreign import ccall unsafe botan_mac_init :: Ptr (Ptr MacStruct) -> CString -> MacFlags -> IO BotanErrorCode
+foreign import ccall unsafe botan_mac_init :: Ptr MacPtr -> CString -> MacFlags -> IO BotanErrorCode
 
 -- /**
 -- * Frees all resources of the MAC object
@@ -81,10 +85,10 @@ macInitName name = do
 -- * @return 0 on success, a negative value on failure
 -- */
 -- BOTAN_PUBLIC_API(2,0) int botan_mac_output_length(botan_mac_t mac, size_t* output_length);
-foreign import ccall unsafe botan_mac_output_length :: OpaqueMac -> Ptr CSize -> IO BotanErrorCode
+foreign import ccall unsafe botan_mac_output_length :: MacPtr -> Ptr CSize -> IO BotanErrorCode
 
 macOutputLength :: Mac -> IO Int
-macOutputLength (MkMac macForeignPtr) = withForeignPtr macForeignPtr $ \ macPtr -> do
+macOutputLength mac = withMacPtr mac $ \ macPtr -> do
     alloca $ \ szPtr -> do
         throwBotanIfNegative_ $ botan_mac_output_length macPtr szPtr
         fromIntegral <$> peek szPtr
@@ -97,10 +101,10 @@ macOutputLength (MkMac macForeignPtr) = withForeignPtr macForeignPtr $ \ macPtr 
 -- * @return 0 on success, a negative value on failure
 -- */
 -- BOTAN_PUBLIC_API(2,0) int botan_mac_set_key(botan_mac_t mac, const uint8_t* key, size_t key_len);
-foreign import ccall unsafe botan_mac_set_key :: OpaqueMac -> Ptr Word8 -> CSize -> IO BotanErrorCode
+foreign import ccall unsafe botan_mac_set_key :: MacPtr -> Ptr Word8 -> CSize -> IO BotanErrorCode
 
 macSetKey :: Mac -> ByteString -> IO ()
-macSetKey (MkMac macForeignPtr) keyBytes = withForeignPtr macForeignPtr $ \ macPtr -> do
+macSetKey mac keyBytes = withMacPtr mac $ \ macPtr -> do
     ByteString.useAsCStringLen keyBytes $ \ (keyPtr, keyLen) -> do
         throwBotanIfNegative_ $ botan_mac_set_key macPtr (castPtr keyPtr) (fromIntegral keyLen)
 
@@ -112,13 +116,13 @@ macSetKey (MkMac macForeignPtr) keyBytes = withForeignPtr macForeignPtr $ \ macP
 -- * @return 0 on success, a negative value on failure
 -- */
 -- BOTAN_PUBLIC_API(3,0) int botan_mac_set_nonce(botan_mac_t mac, const uint8_t* nonce, size_t nonce_len);
-foreign import ccall unsafe botan_mac_set_nonce :: OpaqueMac -> Ptr Word8 -> CSize -> IO BotanErrorCode
+foreign import ccall unsafe botan_mac_set_nonce :: MacPtr -> Ptr Word8 -> CSize -> IO BotanErrorCode
 
 -- NOTE: Not all MACs require a nonce
 --  Eg, GMAC and Poly1305 require a nonce
 --  Other MACs do not require a nonce, and will cause a BadParameterException (-32)
 macSetNonce :: Mac -> ByteString -> IO ()
-macSetNonce (MkMac macForeignPtr) nonceBytes = withForeignPtr macForeignPtr $ \ macPtr -> do
+macSetNonce mac nonceBytes = withMacPtr mac $ \ macPtr -> do
     ByteString.useAsCStringLen nonceBytes $ \ (noncePtr, nonceLen) -> do
         throwBotanIfNegative_ $ botan_mac_set_nonce macPtr (castPtr noncePtr) (fromIntegral nonceLen)
 
@@ -130,10 +134,10 @@ macSetNonce (MkMac macForeignPtr) nonceBytes = withForeignPtr macForeignPtr $ \ 
 -- * @return 0 on success, a negative value on failure
 -- */
 -- BOTAN_PUBLIC_API(2,0) int botan_mac_update(botan_mac_t mac, const uint8_t* buf, size_t len);
-foreign import ccall unsafe botan_mac_update :: OpaqueMac -> Ptr Word8 -> CSize -> IO BotanErrorCode
+foreign import ccall unsafe botan_mac_update :: MacPtr -> Ptr Word8 -> CSize -> IO BotanErrorCode
 
 macUpdate :: Mac -> ByteString -> IO ()
-macUpdate (MkMac macForeignPtr) bytes = withForeignPtr macForeignPtr $ \ macPtr -> do
+macUpdate mac bytes = withMacPtr mac $ \ macPtr -> do
     ByteString.useAsCStringLen bytes $ \ (bytesPtr, bytesLen) -> do
         throwBotanIfNegative_ $ botan_mac_update macPtr (castPtr bytesPtr) (fromIntegral bytesLen)
 
@@ -146,11 +150,11 @@ macUpdate (MkMac macForeignPtr) bytes = withForeignPtr macForeignPtr $ \ macPtr 
 -- * @return 0 on success, a negative value on failure
 -- */
 -- BOTAN_PUBLIC_API(2,0) int botan_mac_final(botan_mac_t mac, uint8_t out[]);
-foreign import ccall unsafe botan_mac_final :: OpaqueMac -> Ptr Word8 -> IO BotanErrorCode
+foreign import ccall unsafe botan_mac_final :: MacPtr -> Ptr Word8 -> IO BotanErrorCode
 
 -- TODO: Digest type
 macFinal :: Mac -> IO ByteString
-macFinal (MkMac macForeignPtr) = withForeignPtr macForeignPtr $ \ macPtr -> do
+macFinal mac = withMacPtr mac $ \ macPtr -> do
     sz <- alloca $ \ szPtr -> do
         throwBotanIfNegative_ $ botan_mac_output_length macPtr szPtr
         fromIntegral <$> peek szPtr
@@ -164,10 +168,10 @@ macFinal (MkMac macForeignPtr) = withForeignPtr macForeignPtr $ \ macPtr -> do
 -- * @return 0 on success, a negative value on failure
 -- */
 -- BOTAN_PUBLIC_API(2,0) int botan_mac_clear(botan_mac_t mac);
-foreign import ccall unsafe botan_mac_clear :: OpaqueMac -> IO BotanErrorCode
+foreign import ccall unsafe botan_mac_clear :: MacPtr -> IO BotanErrorCode
 
 macClear :: Mac -> IO ()
-macClear (MkMac macForeignPtr) = withForeignPtr macForeignPtr $ \ macPtr -> do
+macClear mac = withMacPtr mac $ \ macPtr -> do
     throwBotanIfNegative_ $ botan_mac_clear macPtr
 
 -- /**
@@ -177,11 +181,11 @@ macClear (MkMac macForeignPtr) = withForeignPtr macForeignPtr $ \ macPtr -> do
 -- * @param name_len on input, the length of buffer, on success the number of bytes written
 -- */
 -- BOTAN_PUBLIC_API(2,8) int botan_mac_name(botan_mac_t mac, char* name, size_t* name_len);
-foreign import ccall unsafe botan_mac_name :: OpaqueMac -> Ptr CChar -> Ptr CSize -> IO BotanErrorCode
+foreign import ccall unsafe botan_mac_name :: MacPtr -> Ptr CChar -> Ptr CSize -> IO BotanErrorCode
 
 -- TODO: Unify with other -Name function which are effectively copies.
 macName :: Mac -> IO ByteString
-macName (MkMac macForeignPtr) = withForeignPtr macForeignPtr $ \ macPtr -> do
+macName mac = withMacPtr mac $ \ macPtr -> do
     -- TODO: use ByteString.Internal.createAndTrim?
     alloca $ \ szPtr -> do
         bytes <- allocBytes 64 $ \ bytesPtr -> do
@@ -202,14 +206,14 @@ macName (MkMac macForeignPtr) = withForeignPtr macForeignPtr $ \ macPtr -> do
 --                                                  size_t* out_maximum_keylength,
 --                                                  size_t* out_keylength_modulo);
 foreign import ccall unsafe botan_mac_get_keyspec
-    :: OpaqueMac
+    :: MacPtr
     -> Ptr CSize 
     -> Ptr CSize 
     -> Ptr CSize 
     -> IO BotanErrorCode
 
 macGetKeyspec :: Mac -> IO (Int,Int,Int)
-macGetKeyspec (MkMac macForeignPtr) = withForeignPtr macForeignPtr $ \ macPtr -> do
+macGetKeyspec mac = withMacPtr mac $ \ macPtr -> do
     alloca $ \ minPtr -> do
         alloca $ \ maxPtr -> do
             alloca $ \ modPtr -> do
