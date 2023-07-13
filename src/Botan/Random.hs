@@ -23,9 +23,25 @@ import Botan.Prelude
 
 -- NOTE: Went with `Random` nomenclature rather than `RNG` because oof.
 
-type OpaqueRandom = Ptr ()
+data RandomStruct
+type RandomPtr = Ptr RandomStruct
 
-newtype Random = Random { randomForeignPtr :: ForeignPtr OpaqueRandom }
+newtype Random = MkRandom { getRandomForeignPtr :: ForeignPtr RandomStruct }
+
+withRandomPtr :: Random -> (RandomPtr -> IO a) -> IO a
+withRandomPtr = withForeignPtr . getRandomForeignPtr
+
+data RandomType
+    = System
+    | User
+    | UserThreadsafe
+    | Rdrand    -- NOTE: gives -40 (NotImplementedException) on my machine
+
+randomTypeName :: RandomType -> ByteString
+randomTypeName System           = "system"
+randomTypeName User             = "user"
+randomTypeName UserThreadsafe   = "user-threadsafe"
+randomTypeName Rdrand           = "rdrand"
 
 -- /**
 -- * Initialize a random number generator object
@@ -38,7 +54,7 @@ newtype Random = Random { randomForeignPtr :: ForeignPtr OpaqueRandom }
 -- * Set rng_type to null to let the library choose some default.
 -- */
 -- BOTAN_PUBLIC_API(2,0) int botan_rng_init(botan_rng_t* rng, const char* rng_type);
-foreign import ccall unsafe botan_rng_init :: Ptr OpaqueRandom -> Ptr CChar -> IO BotanErrorCode
+foreign import ccall unsafe botan_rng_init :: Ptr RandomPtr -> Ptr CChar -> IO BotanErrorCode
 -- NOTE: Inconsistincies in init process - other objects accept a ptr + len
 --  I presume that it expects a null-terminated C-String.
 
@@ -50,17 +66,8 @@ foreign import ccall unsafe botan_rng_init :: Ptr OpaqueRandom -> Ptr CChar -> I
 -- * @return 0 if success, error if invalid object handle
 -- */
 -- BOTAN_PUBLIC_API(2,0) int botan_rng_destroy(botan_rng_t rng);
-foreign import ccall unsafe "&botan_rng_destroy" botan_rng_destroy :: FunPtr (Ptr OpaqueRandom -> IO ())
+foreign import ccall unsafe "&botan_rng_destroy" botan_rng_destroy :: FinalizerPtr RandomStruct
 
-randomInit :: IO Random
-randomInit = randomInitWith Default
-
-data RandomType
-    = Default
-    | System
-    | User
-    | UserThreadsafe
-    | Rdrand    -- NOTE: gives -40 (NotImplementedException) on my machine
 -- NOTE: NOT ACTUAL CONSTANTS
 -- type RNGType = CString
 -- pattern BOTAN_RNG_DEFAULT           = ??? :: RNGType -- NOTE: Would be null pointer
@@ -69,20 +76,17 @@ data RandomType
 -- pattern BOTAN_RNG_USER_THREADSAFE   = "user-threadsafe" :: RNGType
 -- pattern BOTAN_RNG_RDRAND            = "rdrand" :: RNGType
 
-withRandomType :: RandomType -> (CString -> IO a) -> IO a
-withRandomType System           = ByteString.useAsCString "system"
-withRandomType User             = ByteString.useAsCString "user"
-withRandomType UserThreadsafe   = ByteString.useAsCString "user-threadsafe"
-withRandomType Rdrand           = ByteString.useAsCString "rdrand"
-withRandomType _                = ($ nullPtr)
+randomInitType :: RandomType -> IO Random
+randomInitType = randomInitName . randomTypeName
 
-randomInitWith :: RandomType -> IO Random
-randomInitWith randomType = do
-    randomForeignPtr <- malloc >>= newForeignPtr botan_rng_destroy
-    withForeignPtr randomForeignPtr $ \ randomPtr -> do
-        withRandomType randomType $ \ randomTypePtr -> do
-            throwBotanIfNegative_ $ botan_rng_init randomPtr randomTypePtr
-    return $ Random randomForeignPtr
+randomInitName :: ByteString -> IO Random
+randomInitName name = do
+    alloca $ \ outPtr -> do
+        ByteString.useAsCString name $ \ namePtr -> do 
+            throwBotanIfNegative_ $ botan_rng_init outPtr namePtr
+        out <- peek outPtr
+        macForeignPtr <- newForeignPtr botan_rng_destroy out
+        return $ MkRandom macForeignPtr
 
 -- /**
 -- * Get random bytes from a random number generator
@@ -92,14 +96,13 @@ randomInitWith randomType = do
 -- * @return 0 on success, negative on failure
 -- */
 -- BOTAN_PUBLIC_API(2,0) int botan_rng_get(botan_rng_t rng, uint8_t* out, size_t out_len);
-foreign import ccall unsafe botan_rng_get :: OpaqueRandom -> Ptr Word8 -> CSize -> IO BotanErrorCode
+foreign import ccall unsafe botan_rng_get :: RandomPtr -> Ptr Word8 -> CSize -> IO BotanErrorCode
 
 randomGet :: Int -> Random -> IO ByteString
-randomGet len (Random randomForeignPtr) = do
-    withForeignPtr randomForeignPtr $ \ randomPtr -> do
-        random <- peek randomPtr
+randomGet len random = do
+    withRandomPtr random $ \ randomPtr -> do
         bytes <- allocBytes len $ \ bytesPtr -> do
-            throwBotanIfNegative_ $ botan_rng_get random bytesPtr (fromIntegral len)
+            throwBotanIfNegative_ $ botan_rng_get randomPtr bytesPtr (fromIntegral len)
         return bytes
 
 -- /**
@@ -124,13 +127,12 @@ systemRandomGet len = allocBytes len $ \ bytesPtr -> do
 -- * @return 0 on success, a negative value on failure
 -- */
 -- BOTAN_PUBLIC_API(2,0) int botan_rng_reseed(botan_rng_t rng, size_t bits);
-foreign import ccall unsafe botan_rng_reseed :: OpaqueRandom -> CSize -> IO BotanErrorCode
+foreign import ccall unsafe botan_rng_reseed :: RandomPtr -> CSize -> IO BotanErrorCode
 
 randomReseed :: Random -> Int -> IO ()
-randomReseed (Random randomForeignPtr) bits = do
-    withForeignPtr randomForeignPtr $ \ randomPtr -> do
-        random <- peek randomPtr
-        throwBotanIfNegative_ $ botan_rng_reseed random (fromIntegral bits)
+randomReseed random bits = do
+    withRandomPtr random $ \ randomPtr -> do
+        throwBotanIfNegative_ $ botan_rng_reseed randomPtr (fromIntegral bits)
 
 -- /**
 -- * Reseed a random number generator
@@ -143,15 +145,13 @@ randomReseed (Random randomForeignPtr) bits = do
 -- BOTAN_PUBLIC_API(2,8) int botan_rng_reseed_from_rng(botan_rng_t rng,
 --                                                     botan_rng_t source_rng,
 --                                                     size_t bits);
-foreign import ccall unsafe botan_rng_reseed_from_rng :: OpaqueRandom -> OpaqueRandom -> CSize -> IO BotanErrorCode
+foreign import ccall unsafe botan_rng_reseed_from_rng :: RandomPtr -> RandomPtr -> CSize -> IO BotanErrorCode
 
 randomReseedFromRandom :: Random -> Random -> Int -> IO ()
-randomReseedFromRandom (Random randomForeignPtr) (Random srcForeignPtr) bits = do
-    withForeignPtr randomForeignPtr $ \ randomPtr -> do
-        random <- peek randomPtr
-        withForeignPtr srcForeignPtr $ \ srcPtr -> do
-            src <- peek srcPtr
-            throwBotanIfNegative_ $ botan_rng_reseed_from_rng random src (fromIntegral bits)
+randomReseedFromRandom random source bits = do
+    withRandomPtr random $ \ randomPtr -> do
+        withRandomPtr source $ \ sourcePtr -> do
+            throwBotanIfNegative_ $ botan_rng_reseed_from_rng randomPtr sourcePtr (fromIntegral bits)
 
 -- /**
 -- * Add some seed material to a random number generator
@@ -164,11 +164,10 @@ randomReseedFromRandom (Random randomForeignPtr) (Random srcForeignPtr) bits = d
 -- BOTAN_PUBLIC_API(2,8) int botan_rng_add_entropy(botan_rng_t rng,
 --                                                 const uint8_t* entropy,
 --                                                 size_t entropy_len);
-foreign import ccall unsafe botan_rng_add_entropy :: OpaqueRandom -> Ptr Word8 -> CSize -> IO BotanErrorCode
+foreign import ccall unsafe botan_rng_add_entropy :: RandomPtr -> Ptr Word8 -> CSize -> IO BotanErrorCode
 
 randomAddEntropy :: Random -> ByteString -> IO ()
-randomAddEntropy (Random randomForeignPtr) bytes = do
-    withForeignPtr randomForeignPtr $ \ randomPtr -> do
-        random <- peek randomPtr
+randomAddEntropy random bytes = do
+    withRandomPtr random $ \ randomPtr -> do
         withBytes bytes $ \ bytesPtr -> do
-            throwBotanIfNegative_ $ botan_rng_add_entropy random bytesPtr (fromIntegral $ ByteString.length bytes)
+            throwBotanIfNegative_ $ botan_rng_add_entropy randomPtr bytesPtr (fromIntegral $ ByteString.length bytes)
