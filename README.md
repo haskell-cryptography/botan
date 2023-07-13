@@ -52,6 +52,10 @@ See your appropriate package manager.
 - Consistency (in particular, `Random` is bad with `randomFoo :: Int -> foo -> result` vs `foo -> Int -> result`)
 - Replace some `Ptr CChar` with `CString` as appropriate (when null-terminated).
 - Reusing data types / constants between modules: eg, some `MacType` expect a `HashType` a la `HMAC SHA256` / `HMAC(SHA-256)`
+- Discuss ffi `unsafe` and destructors
+    - I do not remember why I did not mark them as `unsafe` in the first place
+    - After reading this, I am inclined to believe that it is fine for them to be `unsafe`.
+        - https://frasertweedale.github.io/blog-fp/posts/2022-09-23-ffi-safety-and-gc.html
 
 
 # Issues

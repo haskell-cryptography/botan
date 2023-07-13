@@ -31,7 +31,7 @@ type OpaqueHash = Ptr ()
 newtype Hash = Hash { hashForeignPtr :: ForeignPtr OpaqueHash }
 
 foreign import ccall unsafe botan_hash_init :: Ptr OpaqueHash -> Ptr CChar -> Word32 -> IO BotanErrorCode
-foreign import ccall "&botan_hash_destroy" botan_hash_destroy :: FunPtr (Ptr OpaqueHash -> IO ())
+foreign import ccall unsafe "&botan_hash_destroy" botan_hash_destroy :: FunPtr (Ptr OpaqueHash -> IO ())
 
 -- TODO: Discuss naming, eg init vs hashInit
 --  It depends on whether we intend qualified import or not

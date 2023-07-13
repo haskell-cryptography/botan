@@ -50,7 +50,7 @@ foreign import ccall unsafe botan_rng_init :: Ptr OpaqueRandom -> Ptr CChar -> I
 -- * @return 0 if success, error if invalid object handle
 -- */
 -- BOTAN_PUBLIC_API(2,0) int botan_rng_destroy(botan_rng_t rng);
-foreign import ccall "&botan_rng_destroy" botan_rng_destroy :: FunPtr (Ptr OpaqueRandom -> IO ())
+foreign import ccall unsafe "&botan_rng_destroy" botan_rng_destroy :: FunPtr (Ptr OpaqueRandom -> IO ())
 
 randomInit :: IO Random
 randomInit = randomInitWith Default

@@ -54,7 +54,7 @@ foreign import ccall unsafe botan_mac_init :: Ptr (Ptr MacStruct) -> CString -> 
 -- * @return 0 if success, error if invalid object handle
 -- */
 -- BOTAN_PUBLIC_API(2,0) int botan_mac_destroy(botan_mac_t mac);
-foreign import ccall "&botan_mac_destroy" botan_mac_destroy :: FinalizerPtr MacStruct
+foreign import ccall unsafe "&botan_mac_destroy" botan_mac_destroy :: FinalizerPtr MacStruct
 
 macInit :: MacType -> IO Mac
 macInit macType = do
