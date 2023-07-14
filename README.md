@@ -57,6 +57,15 @@ See your appropriate package manager.
     - I do not remember why I did not mark them as `unsafe` in the first place
     - After reading this, I am inclined to believe that it is fine for them to be `unsafe`.
         - https://frasertweedale.github.io/blog-fp/posts/2022-09-23-ffi-safety-and-gc.html
+- Vanish `Text` and then only reintroduce after safely wrapping types (Text is just in the way right now)
+- Examine copy-safety regarding `withBytes` and `ByteString.unsafeUseAs...`
+    - Use the faster unsafe variants as applicable.
+- The terminology of `ByteString.useAsCString` vs `CString.withCString`
+    - We will use `asCString` and `asBytes` to avoid colliding nomenclature
+    - Having implemented the `as-` helpers, they probably do some unnecessary copying
+        - We've likey overreached on the safety vs speed aspect, re: unnecessary copying
+- Some `CString` trailing `NUL` handling, eg: `macName m` yields `"HMAC(SHA-384)\NUL"`
+- Use `CString` / `Text` for null-terminated strings, bytestrings otherwise.
 
 
 # Issues

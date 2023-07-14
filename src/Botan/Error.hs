@@ -44,9 +44,11 @@ module Botan.Error
 , NotImplementedException(..)
 , InvalidObjectException(..)
 , UnknownException(..)
+, throwBotanError
 , throwBotanIfNegative
 , throwBotanIfNegative_
-, throwBotanError
+, throwBotanCatchingBool
+, throwBotanCatchingPositive
 , throwBotanErrorWithCallstack
 ) where
 
@@ -312,21 +314,39 @@ instance Exception UnknownException where
     toException = toBotanException
     fromException = fromBotanException
 
--- | NOTE: The integral constraint is due to how botan uses the positive result as a value sometimes
-throwBotanIfNegative :: (HasCallStack, Integral a) => IO a -> IO a
+throwBotanError :: HasCallStack => BotanErrorCode -> IO a
+throwBotanError r = throwBotanErrorWithCallstack r callStack
+
+throwBotanIfNegative :: HasCallStack => IO BotanErrorCode -> IO BotanErrorCode
 throwBotanIfNegative act = do
     e <- act
     when (e < 0) $ throwBotanErrorWithCallstack (fromIntegral e) callStack
     return e
 
--- | NOTE: The integral constraint is due to how botan uses the positive result as a value sometimes
-throwBotanIfNegative_ :: (HasCallStack, Integral a) => IO a -> IO ()
+throwBotanIfNegative_ :: HasCallStack => IO BotanErrorCode -> IO ()
 throwBotanIfNegative_ act = do
     e <- act
     when (e < 0) $ throwBotanErrorWithCallstack (fromIntegral e) callStack
 
-throwBotanError :: HasCallStack => BotanErrorCode -> IO a
-throwBotanError r = throwBotanErrorWithCallstack r callStack
+
+-- NOTE: Catches Success as True and InvalidIdentifier as False, throws all other values
+throwBotanCatchingBool :: HasCallStack => IO BotanErrorCode -> IO Bool
+throwBotanCatchingBool act = do
+    result <- act
+    when (result < 0) $ throwBotanErrorWithCallstack (fromIntegral result) callStack
+    case result of
+        BOTAN_FFI_SUCCESS           -> return True
+        -- _                           -> return False
+        BOTAN_FFI_INVALID_VERIFIER  -> return False
+        _                           -> throwBotanErrorWithCallstack (fromIntegral result) callStack
+
+
+-- NOTE: Catches positive numbers including zero, throws all other values
+throwBotanCatchingPositive :: HasCallStack => IO BotanErrorCode -> IO Int
+throwBotanCatchingPositive act = do
+    result <- act
+    when (result < 0) $ throwBotanErrorWithCallstack (fromIntegral result) callStack
+    return (fromIntegral result)
 
 throwBotanErrorWithCallstack :: BotanErrorCode -> CallStack -> IO a
 throwBotanErrorWithCallstack e cs =  case e of

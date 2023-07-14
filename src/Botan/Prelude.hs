@@ -5,6 +5,7 @@ import Prelude
 import Control.Monad
 
 import Data.ByteString (ByteString)
+import qualified Data.ByteString as ByteString
 import qualified Data.ByteString.Internal as ByteString
 import qualified Data.ByteString.Unsafe as ByteString
 
@@ -44,3 +45,21 @@ allocBytes sz f
         fptr <- ByteString.mallocByteString sz
         _ <- withForeignPtr fptr (f . castPtr)
         return $ ByteString.PS fptr 0 sz
+
+asCString :: ByteString -> (Ptr CChar -> IO a) -> IO a
+asCString = ByteString.useAsCString
+
+asCStringLen :: ByteString -> (Ptr CChar -> CSize -> IO a) -> IO a
+asCStringLen bs f = ByteString.useAsCStringLen bs (\ (ptr,len) -> f ptr (fromIntegral len))
+
+asBytes :: ByteString -> (Ptr byte -> IO a) -> IO a
+asBytes bs f = asBytesLen bs (\ ptr _ -> f ptr) 
+
+unsafeAsBytes :: ByteString -> (Ptr byte -> IO a) -> IO a
+unsafeAsBytes bs f = unsafeAsBytesLen bs (\ ptr _ -> f ptr) 
+
+asBytesLen :: ByteString -> (Ptr byte -> CSize -> IO a) -> IO a
+asBytesLen bs f = ByteString.useAsCStringLen bs (\ (ptr,len) -> f (castPtr ptr) (fromIntegral len))
+
+unsafeAsBytesLen :: ByteString -> (Ptr byte -> CSize -> IO a) -> IO a
+unsafeAsBytesLen bs f = ByteString.unsafeUseAsCStringLen bs (\ (ptr,len) -> f (castPtr ptr) (fromIntegral len))
