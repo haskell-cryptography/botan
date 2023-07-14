@@ -1,10 +1,10 @@
 module Botan.Utility
-( botanConstantTimeCompare
-, botanScrubMem
-, botanHexEncodeText
-, botanHexDecodeText
-, botanBase64EncodeText
-, botanBase64DecodeText
+( constantTimeCompare
+, scrubMem
+, hexEncode
+, hexDecode
+, base64Encode
+, base64Decode
 ) where
 
 import Prelude
@@ -48,16 +48,17 @@ foreign import ccall unsafe botan_constant_time_compare :: Ptr Word8 -> Ptr Word
 -- NOTE: Here for completeness, because Data.ByteArray.constEq already exists.
 -- DISCUSS: Should this be used in favor of Data.ByteArray.constEq?
 -- TODO: Expose explicit length? Compare up to length of shorter? Compare up to length of 1st? (Error if len first > second)
-botanConstantTimeCompare :: ByteString -> ByteString -> Bool
-botanConstantTimeCompare x y = if ByteString.length x == ByteString.length y
-    then unsafePerformIO $ do
-        withBytes x $ \ x' -> do
-            withBytes y $ \ y' -> do
-                result <- botan_constant_time_compare x' y' (fromIntegral $ ByteString.length x)
+constantTimeCompare :: ByteString -> ByteString -> Bool
+constantTimeCompare x y = unsafePerformIO $ do
+    asBytesLen x $ \ xPtr xlen -> do
+        asBytesLen y $ \ yPtr ylen -> do
+            if xlen == ylen
+            then do
+                result <- botan_constant_time_compare xPtr yPtr xlen
                 case result of
                     0 -> return True
                     _ -> return False
-    else False 
+            else return False
 
 -- | int botan_scrub_mem(void* mem, size_t bytes);
 foreign import ccall unsafe botan_scrub_mem :: Ptr () -> CSize -> IO CInt
@@ -68,8 +69,8 @@ foreign import ccall unsafe botan_scrub_mem :: Ptr () -> CSize -> IO CInt
 -- See: https://stackoverflow.com/questions/47609959/exporting-importing-via-ffi-vs-using-the-ffi-wrapper
 --  Need to mix the wrapper with a closure that also frees the allocated wrapper funptr
 --  inside of an allocScrubbed function (or something...)
-botanScrubMem :: ForeignPtr a -> Int -> IO ()
-botanScrubMem foreignPtr sz = withForeignPtr foreignPtr $ \ ptr -> do
+scrubMem :: ForeignPtr a -> Int -> IO ()
+scrubMem foreignPtr sz = withForeignPtr foreignPtr $ \ ptr -> do
     throwBotanIfNegative_ $ botan_scrub_mem (castPtr ptr) (fromIntegral sz)
 
 type BotanHexFlag = Word32
@@ -87,15 +88,15 @@ foreign import ccall unsafe botan_hex_encode :: Ptr Word8 -> CSize -> Ptr CChar 
 -- TODO: USE FLAG ARGUMENT?
 -- DISCUSS: Handling of positive return code / BOTAN_FFI_INVALID_VERIFIER?
 -- DISCUSS: Use of Text.decodeUtf8 - bad, partial function! - but safe here?
-botanHexEncodeText :: Bool -> ByteString -> Text
-botanHexEncodeText lower ba = Text.decodeUtf8 $ unsafePerformIO hex where 
-    bytelen = ByteString.length ba
-    hexlen = 2 * bytelen
-    hex = withBytes ba $ \ ba' -> do
-        allocBytes hexlen $ \ bb -> do
-            throwBotanIfNegative_ $ botan_hex_encode ba' (fromIntegral bytelen) bb $ if lower
+hexEncode :: Bool -> ByteString -> Text
+hexEncode lower bytes = Text.decodeUtf8 $ unsafePerformIO $ do
+    asBytesLen bytes $ \ bytesPtr bytesLen -> do
+        allocBytes (fromIntegral $ 2 * bytesLen) $ \ hexPtr -> do
+            throwBotanIfNegative_ $ botan_hex_encode bytesPtr bytesLen hexPtr $ if lower
                 then BOTAN_FFI_HEX_LOWER_CASE
                 else BOTAN_FFI_HEX_NONE
+
+
 
 -- | int botan_hex_decode(const char *hex_str, size_t in_len, uint8_t *out, size_t *out_len)
 foreign import ccall unsafe botan_hex_decode :: Ptr CChar -> CSize -> Ptr Word8 -> Ptr CSize -> IO BotanErrorCode
@@ -109,42 +110,34 @@ foreign import ccall unsafe botan_hex_decode :: Ptr CChar -> CSize -> Ptr Word8 
 --  that the Text only include hex chars and is of even length
 -- DISCUSS: Ignoring the Ptr CSize that returns the actual decoded length.
 --  We need the array (and thus its length) /before/ we call botan_hex_decode :/
-botanHexDecodeText :: Text -> ByteString
-botanHexDecodeText txt = unsafePerformIO ba where 
-    bs = Text.encodeUtf8 txt
-    hexlen = Text.length txt
-    bytelen = div (hexlen + 1) 2
-    ba = allocBytes bytelen $ \ bytes -> do
-        withBytes bs $ \ hex -> do
+hexDecode :: Text -> ByteString
+hexDecode txt = unsafePerformIO $ do
+    asBytesLen (Text.encodeUtf8 txt) $ \ hexPtr hexLen -> do
+        allocBytes (fromIntegral $ div (hexLen + 1) 2) $ \ bytesPtr -> do
             alloca $ \ szPtr -> do
-                throwBotanIfNegative_ $ botan_hex_decode hex (fromIntegral hexlen) bytes szPtr
+                throwBotanIfNegative_ $ botan_hex_decode hexPtr hexLen bytesPtr szPtr
 
 -- | int botan_base64_encode(const uint8_t* x, size_t len, char* out, size_t* out_len);
 foreign import ccall unsafe botan_base64_encode :: Ptr Word8 -> CSize -> Ptr CChar -> Ptr CSize -> IO BotanErrorCode
 
 -- NOTE: Does not check tht base64Len == peek sizePtr
 -- DISCUSS: Ignoring the Ptr CSize that returns the actual decoded length.
-botanBase64EncodeText :: ByteString -> Text
-botanBase64EncodeText ba = Text.decodeUtf8 $ unsafePerformIO base64 where 
-    bytelen = ByteString.length ba
-    base64Len = 4 * ceiling (fromIntegral bytelen / 3)
-    base64 = withBytes ba $ \ ba' -> do
-        allocBytes base64Len $ \ bb -> do
+base64Encode :: ByteString -> Text
+base64Encode bytes = Text.decodeUtf8 $ unsafePerformIO $ do
+    asBytesLen bytes $ \ bytesPtr bytesLen -> do
+        allocBytes (4 * ceiling (fromIntegral bytesLen / 3)) $ \ base64Ptr -> do
             alloca $ \ szPtr -> do
-                throwBotanIfNegative_ $ botan_base64_encode ba' (fromIntegral bytelen) bb szPtr
+                throwBotanIfNegative_ $ botan_base64_encode bytesPtr bytesLen base64Ptr szPtr
 
 -- | int botan_base64_decode(const char* base64_str, size_t in_len, uint8_t* out, size_t* out_len);
 foreign import ccall unsafe botan_base64_decode :: Ptr CChar -> CSize -> Ptr Word8 -> Ptr CSize -> IO BotanErrorCode
 
--- | Ditto everything botanHexDecodeText
+-- | Ditto everything hexDecode
 -- NOTE: Since must be
-botanBase64DecodeText :: Text -> ByteString
-botanBase64DecodeText txt = unsafePerformIO ba where 
-    bs = Text.encodeUtf8 txt
-    base64Len = Text.length txt
-    padLen = Text.length $ Text.takeWhileEnd (== '=') txt
-    bytelen = (3 * (div base64Len 4)) - (padLen)
-    ba = allocBytes bytelen $ \ bytes -> do
-        withBytes bs $ \ base64 -> do
+base64Decode :: Text -> ByteString
+base64Decode txt = unsafePerformIO $ do
+    asBytesLen (Text.encodeUtf8 txt) $ \ base64Ptr base64Len -> do
+        let padLen = fromIntegral $ Text.length $ Text.takeWhileEnd (== '=') txt
+        allocBytes (fromIntegral $ (3 * (div base64Len 4)) - padLen) $ \ bytesPtr -> do
             alloca $ \ szPtr -> do
-                throwBotanIfNegative_ $ botan_base64_decode base64 (fromIntegral base64Len) bytes szPtr
+                throwBotanIfNegative_ $ botan_base64_decode base64Ptr base64Len bytesPtr szPtr
