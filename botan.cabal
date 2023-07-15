@@ -20,13 +20,16 @@ library
         NoImplicitPrelude
         OverloadedStrings
         PatternSynonyms
+        RankNTypes
         ScopedTypeVariables
         TypeApplications
     exposed-modules:
         Botan
+        Botan.Cipher
         Botan.Error
         Botan.Hash
         Botan.Mac
+        Botan.Make
         Botan.Random
         Botan.Utility
         Botan.Version
