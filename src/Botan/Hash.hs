@@ -19,6 +19,7 @@ import Foreign.Ptr
 import Foreign.Storable
 
 import Botan.Error
+import Botan.Make
 import Botan.Prelude
 
 import GHC.Stack
@@ -41,27 +42,13 @@ foreign import ccall unsafe "&botan_hash_destroy" botan_hash_destroy :: Finalize
 --  It depends on whether we intend qualified import or not
 -- TODO: ByteString vs Text
 hashInitName :: ByteString -> IO Hash
-hashInitName name = do
-    alloca $ \ outPtr -> do
-        ByteString.useAsCString name $ \ namePtr -> do 
-            throwBotanIfNegative_ $ botan_hash_init outPtr namePtr 0
-        out <- peek outPtr
-        hashForeignPtr <- newForeignPtr botan_hash_destroy out
-        return $ MkHash hashForeignPtr
+hashInitName name = mkInit_name_flags MkHash botan_hash_init botan_hash_destroy name 0
 
 foreign import ccall unsafe botan_hash_name :: HashPtr -> Ptr CChar -> Ptr CSize -> IO BotanErrorCode
 
 -- TODO: hashNameByteString vs hashNameText
--- TODO: Unify with other -Name function which are effectively copies.
 hashName :: Hash -> IO ByteString
-hashName hash = withHashPtr hash $ \ hashPtr -> do
-    -- TODO: use ByteString.Internal.createAndTrim?
-    alloca $ \ szPtr -> do
-        bytes <- allocBytes 64 $ \ bytesPtr -> do
-            throwBotanIfNegative_ $ botan_hash_name hashPtr bytesPtr szPtr
-        sz <- peek szPtr
-        -- NOTE: COPY TO MIMIC ByteArray.take (which copies!) so we can drop the rest of the bytestring
-        return $ ByteString.copy $ ByteString.take (fromIntegral sz) bytes
+hashName = mkGetName withHashPtr botan_hash_name
 
 -- int botan_hash_copy_state(botan_hash_t *dest, const botan_hash_t source)
 foreign import ccall unsafe botan_hash_copy_state :: Ptr HashPtr -> HashPtr -> IO BotanErrorCode
@@ -81,33 +68,24 @@ hashCopyState source = withHashPtr source $ \ sourcePtr -> do
 foreign import ccall unsafe botan_hash_clear :: HashPtr -> IO BotanErrorCode
 
 hashClear :: Hash -> IO ()
-hashClear hash = withHashPtr hash $ \ hashPtr -> do
-    throwBotanIfNegative_ $ botan_hash_clear hashPtr
+hashClear =  mkAction withHashPtr botan_hash_clear
 
 -- int botan_hash_block_size(botan_hash_t hash, size_t* block_size);
 foreign import ccall unsafe botan_hash_block_size :: HashPtr -> Ptr CSize -> IO BotanErrorCode
 
 hashBlockSize :: Hash -> IO Int
-hashBlockSize hash = withHashPtr hash $ \ hashPtr -> do
-    alloca $ \ szPtr -> do
-        throwBotanIfNegative_ $ botan_hash_block_size hashPtr szPtr
-        fromIntegral <$> peek szPtr
+hashBlockSize = mkGetSize withHashPtr botan_hash_block_size
 
 foreign import ccall unsafe botan_hash_output_length :: HashPtr -> Ptr CSize -> IO BotanErrorCode
 
 hashOutputLength :: Hash -> IO Int
-hashOutputLength hash = withHashPtr hash $ \ hashPtr -> do
-    alloca $ \ szPtr -> do
-        throwBotanIfNegative_ $ botan_hash_output_length hashPtr szPtr
-        fromIntegral <$> peek szPtr
+hashOutputLength = mkGetSize withHashPtr botan_hash_output_length
 
 -- int botan_hash_update(botan_hash_t hash, const uint8_t *input, size_t len)
 foreign import ccall unsafe botan_hash_update :: HashPtr -> Ptr Word8  -> CSize -> IO BotanErrorCode
 
 hashUpdate :: Hash -> ByteString -> IO ()
-hashUpdate hash ba = withHashPtr hash $ \ hashPtr -> do
-    withBytes ba $ \ baPtr -> do
-        throwBotanIfNegative_ $ botan_hash_update hashPtr baPtr (fromIntegral $ ByteString.length ba)
+hashUpdate = mkSetBytesLen withHashPtr botan_hash_update
 
 -- int botan_hash_final(botan_hash_t hash, uint8_t out[])
 foreign import ccall unsafe botan_hash_final :: HashPtr -> Ptr Word8 -> IO BotanErrorCode
@@ -115,11 +93,9 @@ foreign import ccall unsafe botan_hash_final :: HashPtr -> Ptr Word8 -> IO Botan
 -- TODO: Digest type
 hashFinal :: Hash -> IO ByteString
 hashFinal hash = withHashPtr hash $ \ hashPtr -> do
-    sz <- alloca $ \ szPtr -> do
-        throwBotanIfNegative_ $ botan_hash_output_length hashPtr szPtr
-        fromIntegral <$> peek szPtr
-    allocBytes sz $ \ bytes -> do
-        throwBotanIfNegative_ $ botan_hash_final hashPtr bytes
+    sz <- hashOutputLength hash
+    allocBytes sz $ \ digestPtr -> do
+        throwBotanIfNegative_ $ botan_hash_final hashPtr digestPtr
 
 hashWith :: ByteString -> ByteString -> ByteString
 hashWith name bs = unsafePerformIO $ do
