@@ -28,8 +28,10 @@ library
         Botan.Cipher
         Botan.Error
         Botan.Hash
+        Botan.KDF
         Botan.Mac
         Botan.Make
+        Botan.Password
         Botan.Random
         Botan.Utility
         Botan.Version

@@ -27,11 +27,6 @@ peekCStringText cs = do
     bs <- ByteString.unsafePackCString cs
     return $! Text.decodeUtf8 bs
 
--- A cheap knockoff of ByteArray.withByteArray
--- We'll make this safer in the future
-withBytes :: ByteString -> (Ptr p -> IO a) -> IO a 
-withBytes bs f = ByteString.unsafeUseAsCString bs (f . castPtr)
-
 -- A cheap knockoff of ByteArray.alloc / allocRet
 -- We'll make this safer in the future
 -- NOTE: THIS IS NOT LIKE Foriegn.Marshal.Alloc.allocaBytes, though it is close

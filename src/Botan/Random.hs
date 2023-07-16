@@ -23,6 +23,8 @@ import Botan.Prelude
 
 -- NOTE: Went with `Random` nomenclature rather than `RNG` because oof.
 
+-- TODO: Make this use the new `Botan.Make` functions
+
 data RandomStruct
 type RandomPtr = Ptr RandomStruct
 
@@ -82,7 +84,7 @@ randomInitType = randomInitName . randomTypeName
 randomInitName :: ByteString -> IO Random
 randomInitName name = do
     alloca $ \ outPtr -> do
-        ByteString.useAsCString name $ \ namePtr -> do 
+        asCString name $ \ namePtr -> do 
             throwBotanIfNegative_ $ botan_rng_init outPtr namePtr
         out <- peek outPtr
         macForeignPtr <- newForeignPtr botan_rng_destroy out
@@ -169,5 +171,5 @@ foreign import ccall unsafe botan_rng_add_entropy :: RandomPtr -> Ptr Word8 -> C
 randomAddEntropy :: Random -> ByteString -> IO ()
 randomAddEntropy random bytes = do
     withRandomPtr random $ \ randomPtr -> do
-        withBytes bytes $ \ bytesPtr -> do
-            throwBotanIfNegative_ $ botan_rng_add_entropy randomPtr bytesPtr (fromIntegral $ ByteString.length bytes)
+        asBytesLen bytes $ \ bytesPtr bytesLen -> do
+            throwBotanIfNegative_ $ botan_rng_add_entropy randomPtr bytesPtr bytesLen
