@@ -19,6 +19,7 @@ import Foreign.Ptr
 import Foreign.Storable
 
 import Botan.Error
+import Botan.Make
 import Botan.Prelude
 
 -- /*
@@ -33,11 +34,13 @@ newtype Mac = MkMac { getMacForeignPtr :: ForeignPtr MacStruct }
 withMacPtr :: Mac -> (MacPtr -> IO a) -> IO a
 withMacPtr = withForeignPtr . getMacForeignPtr
 
-data MacType
-    = HMAC_SHA256
+type MacName = ByteString
 
-withMacType :: MacType -> (CString -> IO a) -> IO a
-withMacType HMAC_SHA256 = ByteString.useAsCString "HMAC(SHA-256)"
+-- data MacType
+--     = HMAC_SHA256
+
+-- withMacType :: MacType -> (CString -> IO a) -> IO a
+-- withMacType HMAC_SHA256 = ByteString.useAsCString "HMAC(SHA-256)"
 
 type MacFlags = Word32
 
@@ -60,23 +63,8 @@ foreign import ccall unsafe botan_mac_init :: Ptr MacPtr -> CString -> MacFlags 
 -- BOTAN_PUBLIC_API(2,0) int botan_mac_destroy(botan_mac_t mac);
 foreign import ccall unsafe "&botan_mac_destroy" botan_mac_destroy :: FinalizerPtr MacStruct
 
-macInit :: MacType -> IO Mac
-macInit macType = do
-    alloca $ \ outPtr -> do
-        withMacType macType $ \ macTypePtr -> do 
-            throwBotanIfNegative_ $ botan_mac_init outPtr macTypePtr 0
-        out <- peek outPtr
-        macForeignPtr <- newForeignPtr botan_mac_destroy out
-        return $ MkMac macForeignPtr
-
-macInitName :: ByteString -> IO Mac
-macInitName name = do
-    alloca $ \ outPtr -> do
-        ByteString.useAsCString name $ \ namePtr -> do 
-            throwBotanIfNegative_ $ botan_mac_init outPtr namePtr 0
-        out <- peek outPtr
-        macForeignPtr <- newForeignPtr botan_mac_destroy out
-        return $ MkMac macForeignPtr
+macInit :: MacName -> IO Mac
+macInit name = mkInit_name_flags MkMac botan_mac_init botan_mac_destroy name 0
 
 -- /**
 -- * Writes the output length of the message authentication code to *output_length
@@ -88,10 +76,7 @@ macInitName name = do
 foreign import ccall unsafe botan_mac_output_length :: MacPtr -> Ptr CSize -> IO BotanErrorCode
 
 macOutputLength :: Mac -> IO Int
-macOutputLength mac = withMacPtr mac $ \ macPtr -> do
-    alloca $ \ szPtr -> do
-        throwBotanIfNegative_ $ botan_mac_output_length macPtr szPtr
-        fromIntegral <$> peek szPtr
+macOutputLength = mkGetSize withMacPtr botan_mac_output_length
 
 -- /**
 -- * Sets the key on the MAC
@@ -104,9 +89,7 @@ macOutputLength mac = withMacPtr mac $ \ macPtr -> do
 foreign import ccall unsafe botan_mac_set_key :: MacPtr -> Ptr Word8 -> CSize -> IO BotanErrorCode
 
 macSetKey :: Mac -> ByteString -> IO ()
-macSetKey mac keyBytes = withMacPtr mac $ \ macPtr -> do
-    ByteString.useAsCStringLen keyBytes $ \ (keyPtr, keyLen) -> do
-        throwBotanIfNegative_ $ botan_mac_set_key macPtr (castPtr keyPtr) (fromIntegral keyLen)
+macSetKey = mkSetBytesLen withMacPtr botan_mac_set_key
 
 -- /**
 -- * Sets the nonce on the MAC
@@ -122,9 +105,7 @@ foreign import ccall unsafe botan_mac_set_nonce :: MacPtr -> Ptr Word8 -> CSize 
 --  Eg, GMAC and Poly1305 require a nonce
 --  Other MACs do not require a nonce, and will cause a BadParameterException (-32)
 macSetNonce :: Mac -> ByteString -> IO ()
-macSetNonce mac nonceBytes = withMacPtr mac $ \ macPtr -> do
-    ByteString.useAsCStringLen nonceBytes $ \ (noncePtr, nonceLen) -> do
-        throwBotanIfNegative_ $ botan_mac_set_nonce macPtr (castPtr noncePtr) (fromIntegral nonceLen)
+macSetNonce = mkSetBytesLen withMacPtr botan_mac_set_nonce
 
 -- /**
 -- * Send more input to the message authentication code
@@ -137,9 +118,7 @@ macSetNonce mac nonceBytes = withMacPtr mac $ \ macPtr -> do
 foreign import ccall unsafe botan_mac_update :: MacPtr -> Ptr Word8 -> CSize -> IO BotanErrorCode
 
 macUpdate :: Mac -> ByteString -> IO ()
-macUpdate mac bytes = withMacPtr mac $ \ macPtr -> do
-    ByteString.useAsCStringLen bytes $ \ (bytesPtr, bytesLen) -> do
-        throwBotanIfNegative_ $ botan_mac_update macPtr (castPtr bytesPtr) (fromIntegral bytesLen)
+macUpdate = mkSetBytesLen withMacPtr botan_mac_update
 
 -- /**
 -- * Finalizes the MAC computation and writes the output to
@@ -155,9 +134,10 @@ foreign import ccall unsafe botan_mac_final :: MacPtr -> Ptr Word8 -> IO BotanEr
 -- TODO: Digest type
 macFinal :: Mac -> IO ByteString
 macFinal mac = withMacPtr mac $ \ macPtr -> do
-    sz <- alloca $ \ szPtr -> do
-        throwBotanIfNegative_ $ botan_mac_output_length macPtr szPtr
-        fromIntegral <$> peek szPtr
+    -- sz <- alloca $ \ szPtr -> do
+    --     throwBotanIfNegative_ $ botan_mac_output_length macPtr szPtr
+    --     fromIntegral <$> peek szPtr
+    sz <- macOutputLength mac
     allocBytes sz $ \ bytesPtr -> do
         throwBotanIfNegative_ $ botan_mac_final macPtr bytesPtr
 
@@ -171,8 +151,7 @@ macFinal mac = withMacPtr mac $ \ macPtr -> do
 foreign import ccall unsafe botan_mac_clear :: MacPtr -> IO BotanErrorCode
 
 macClear :: Mac -> IO ()
-macClear mac = withMacPtr mac $ \ macPtr -> do
-    throwBotanIfNegative_ $ botan_mac_clear macPtr
+macClear = mkAction withMacPtr botan_mac_clear
 
 -- /**
 -- * Get the name of this MAC
@@ -183,16 +162,8 @@ macClear mac = withMacPtr mac $ \ macPtr -> do
 -- BOTAN_PUBLIC_API(2,8) int botan_mac_name(botan_mac_t mac, char* name, size_t* name_len);
 foreign import ccall unsafe botan_mac_name :: MacPtr -> Ptr CChar -> Ptr CSize -> IO BotanErrorCode
 
--- TODO: Unify with other -Name function which are effectively copies.
 macName :: Mac -> IO ByteString
-macName mac = withMacPtr mac $ \ macPtr -> do
-    -- TODO: use ByteString.Internal.createAndTrim?
-    alloca $ \ szPtr -> do
-        bytes <- allocBytes 64 $ \ bytesPtr -> do
-            throwBotanIfNegative_ $ botan_mac_name macPtr bytesPtr szPtr
-        sz <- peek szPtr
-        -- NOTE: COPY TO MIMIC ByteArray.take (which copies!) so we can drop the rest of the bytestring
-        return $ ByteString.copy $ ByteString.take (fromIntegral sz) bytes
+macName = mkGetName withMacPtr botan_mac_name
 
 -- /**
 -- * Get the key length limits of this auth code
@@ -213,15 +184,7 @@ foreign import ccall unsafe botan_mac_get_keyspec
     -> IO BotanErrorCode
 
 macGetKeyspec :: Mac -> IO (Int,Int,Int)
-macGetKeyspec mac = withMacPtr mac $ \ macPtr -> do
-    alloca $ \ minPtr -> do
-        alloca $ \ maxPtr -> do
-            alloca $ \ modPtr -> do
-                throwBotanIfNegative_ $ botan_mac_get_keyspec macPtr minPtr maxPtr modPtr
-                min <- peek minPtr
-                max <- peek maxPtr
-                mod <- peek modPtr
-                return (fromIntegral min, fromIntegral max, fromIntegral mod)
+macGetKeyspec = mkGetSizes3 withMacPtr botan_mac_get_keyspec
 
 -- TODO: Proper MACType
 
