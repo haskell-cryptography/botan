@@ -25,6 +25,7 @@ library
         TypeApplications
     exposed-modules:
         Botan
+        Botan.BlockCipher
         Botan.Cipher
         Botan.Error
         Botan.Hash

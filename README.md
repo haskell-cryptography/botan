@@ -66,6 +66,9 @@ See your appropriate package manager.
         - We've likey overreached on the safety vs speed aspect, re: unnecessary copying
 - Some `CString` trailing `NUL` handling, eg: `macName m` yields `"HMAC(SHA-384)\NUL"`
 - Use `CString` / `Text` for null-terminated strings, bytestrings otherwise.
+- `BlockCipher` encrypt / decrypt should throw an error upon improper length
+    - Padding on encrypt is a stopgap
+    - Requires remembering length to lop off padding on decrypt
 
 
 # Issues
