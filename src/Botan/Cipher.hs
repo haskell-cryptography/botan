@@ -39,20 +39,22 @@ withCipherPtr :: Cipher -> (CipherPtr -> IO a) -> IO a
 withCipherPtr = withForeignPtr . getCipherForeignPtr
 
 type CipherName = ByteString
+type CipherNonce = ByteString
+type CipherKey = ByteString
 
-type CipherFlags = Word32
+type CipherInitFlags = Word32
 
 -- #define BOTAN_CIPHER_INIT_FLAG_MASK_DIRECTION 1 -- Use is not documented, equal to decrypt
 -- #define BOTAN_CIPHER_INIT_FLAG_ENCRYPT 0
 -- #define BOTAN_CIPHER_INIT_FLAG_DECRYPT 1
-pattern BOTAN_CIPHER_INIT_FLAG_ENCRYPT = 0 :: CipherFlags
-pattern BOTAN_CIPHER_INIT_FLAG_DECRYPT = 1 :: CipherFlags
+pattern BOTAN_CIPHER_INIT_FLAG_ENCRYPT = 0 :: CipherInitFlags
+pattern BOTAN_CIPHER_INIT_FLAG_DECRYPT = 1 :: CipherInitFlags
 
 -- /**
 -- * Initialize a cipher object
 -- */
 -- BOTAN_PUBLIC_API(2,0) int botan_cipher_init(botan_cipher_t* cipher, const char* name, uint32_t flags);
-foreign import ccall unsafe botan_cipher_init :: Ptr CipherPtr -> CString -> CipherFlags -> IO BotanErrorCode
+foreign import ccall unsafe botan_cipher_init :: Ptr CipherPtr -> CString -> CipherInitFlags -> IO BotanErrorCode
 
 -- /**
 -- * Destroy the cipher object
@@ -61,7 +63,7 @@ foreign import ccall unsafe botan_cipher_init :: Ptr CipherPtr -> CString -> Cip
 -- BOTAN_PUBLIC_API(2,0) int botan_cipher_destroy(botan_cipher_t cipher);
 foreign import ccall unsafe "&botan_cipher_destroy" botan_cipher_destroy :: FinalizerPtr CipherStruct
 
-cipherInit :: CipherName -> CipherFlags -> IO Cipher
+cipherInit :: CipherName -> CipherInitFlags -> IO Cipher
 cipherInit = mkInit_name_flags MkCipher botan_cipher_init botan_cipher_destroy
 
 -- /**
@@ -87,11 +89,12 @@ cipherOutputLength = mkGetSize_csize withCipherPtr botan_cipher_output_length
 -- * Return if the specified nonce length is valid for this cipher
 -- */
 -- BOTAN_PUBLIC_API(2,0) int botan_cipher_valid_nonce_length(botan_cipher_t cipher, size_t nl);
+-- NOTE: returns 0 / SUCCESS if valid, 1 / INVALID_IDENTIFIER if not
 foreign import ccall unsafe botan_cipher_valid_nonce_length :: CipherPtr -> CSize -> IO BotanErrorCode
 
 -- NOTE: Unique function form?
 cipherValidNonceLength :: Cipher -> Int -> IO Bool
-cipherValidNonceLength = mkGetBoolCode_csize withCipherPtr botan_cipher_valid_nonce_length
+cipherValidNonceLength = mkGetSuccessCode_csize withCipherPtr botan_cipher_valid_nonce_length
 
 -- /**
 -- * Get the tag length of the cipher (0 for non-AEAD modes)
@@ -227,7 +230,7 @@ foreign import ccall unsafe botan_cipher_update
     -> Ptr CSize    -- input_consumed
     -> IO BotanErrorCode
 
-cipherUpdate :: Cipher -> CipherUpdateFlags-> Int -> ByteString -> IO (Int,ByteString)
+cipherUpdate :: Cipher -> CipherUpdateFlags -> Int -> ByteString -> IO (Int,ByteString)
 cipherUpdate cipher flags outputSz input = withCipherPtr cipher $ \ cipherPtr -> do
     asBytesLen input $ \ inputPtr inputSz -> do
         alloca $ \ consumedPtr -> do

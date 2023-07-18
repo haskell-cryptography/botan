@@ -4,6 +4,9 @@ Low-level Haskell bindings for the Botan cryptography library
 
 These are bindings to Botan's [low-level C89 FFI module](https://botan.randombit.net/handbook/api_ref/ffi.html), which should pair excellently with Haskell's own `CApiFFI` - see [here](https://downloads.haskell.org/ghc/9.0.1/docs/html/users_guide/exts/ffi.html?highlight=capiffi#extension-CApiFFI) for more details.
 
+- [Devlog](https://discourse.haskell.org/t/botan-bindings-devlog/6855?u=apothecalabs)
+- [Github](https://github.com/apotheca/botan) - see a bug? [Open a ticket!](https://github.com/apotheca/botan/issues/new)
+
 ## Installing Botan
 
 Botan 3 must be installed for this library to work.
@@ -69,7 +72,20 @@ See your appropriate package manager.
 - `BlockCipher` encrypt / decrypt should throw an error upon improper length
     - Padding on encrypt is a stopgap
     - Requires remembering length to lop off padding on decrypt
-
+- Turn this TODO list into github tickets
+    - Also any specific issues mentioned by contributors, readers, and testers, such as [this](https://discourse.haskell.org/t/botan-bindings-devlog/6855/30?u=apothecalabs).
+- Better `CSize` vs `Int` handling
+    - Expose `Int` to haskell, `CSize` to c, use `fromIntegral` in the `mk-` functions
+- Organization
+    - Botan.Bindings.*
+        - Lowest-level 1:1 bindings
+        - Matches Botan FFI as closely as possible
+        - Not wrapped with unsafePerformIO
+    - Botan.Low.*
+        - Low-level idiomatic bindings
+        - Hides initialization / copying to preserve referential transparency
+        - Wrap relevant things in unsafePerformIO
+    - Botan.* - exports or re-exports highest-level bindings available (eg, Botan.Fundep or Botan.Tyfam)
 
 # Issues
 

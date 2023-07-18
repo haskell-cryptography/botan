@@ -27,9 +27,9 @@ Basic botan type template
 
 {-
 data TypStruct
-type TypPtr = Ptr (TypStruct)
+type TypPtr = Ptr TypStruct
 
-newtype Typ = MkTyp { getTypForeignPtr :: ForeignPtr (TypStruct) }
+newtype Typ = MkTyp { getTypForeignPtr :: ForeignPtr TypStruct }
 
 withTypPtr :: Typ -> (TypPtr -> IO a) -> IO a
 withTypPtr = withForeignPtr . getTypForeignPtr
@@ -114,6 +114,17 @@ mkGetName withPtr get typ = withPtr typ $ \ typPtr -> do
         sz <- peek szPtr
         return $ ByteString.copy $ ByteString.take (fromIntegral sz) bytes
 
+type GetInt ptr = ptr -> Ptr CInt -> IO BotanErrorCode
+
+mkGetInt
+    :: WithPtr typ ptr
+    -> GetInt ptr
+    -> typ -> IO Int
+mkGetInt withPtr get typ = withPtr typ $ \ typPtr -> do
+    alloca $ \ szPtr -> do
+        throwBotanIfNegative_ $ get typPtr szPtr
+        fromIntegral <$> peek szPtr
+
 type GetSize ptr = ptr -> Ptr CSize -> IO BotanErrorCode
 type GetSize_csize ptr = ptr -> CSize -> Ptr CSize -> IO BotanErrorCode
 type GetSizes2 ptr = ptr -> Ptr CSize -> Ptr CSize -> IO BotanErrorCode
@@ -162,6 +173,29 @@ mkGetSizes3 withPtr get typ = withPtr typ $ \ typPtr -> do
 
 -- type GetBytes ptr = ptr -> Ptr Word8 -> CSize -> IO BotanErrorCode
 
+-- NOTE: Get...Code nomenclature signifies that we get the desired return value
+--  from the error code error code, eg they use something other than throwBotanIfNegative_
+--      
+
+
+type GetSuccessCode ptr = ptr -> IO BotanErrorCode
+type GetSuccessCode_csize ptr = ptr -> CSize -> IO BotanErrorCode
+
+mkGetSuccessCode
+    :: WithPtr typ ptr
+    -> GetSuccessCode ptr
+    -> typ -> IO Bool
+mkGetSuccessCode withPtr get typ = withPtr typ $ \ typPtr -> do
+    throwBotanCatchingSuccess $ get typPtr
+
+mkGetSuccessCode_csize
+    :: WithPtr typ ptr
+    -> GetSuccessCode_csize ptr
+    -> typ -> Int -> IO Bool
+mkGetSuccessCode_csize withPtr get typ sz = withPtr typ $ \ typPtr -> do
+    throwBotanCatchingSuccess $ get typPtr (fromIntegral sz)
+
+
 type GetBoolCode ptr = ptr -> IO BotanErrorCode
 type GetBoolCode_csize ptr = ptr -> CSize -> IO BotanErrorCode
 
@@ -187,14 +221,14 @@ mkGetIntCode
     -> GetIntCode ptr
     -> typ -> IO Int
 mkGetIntCode withPtr get typ = withPtr typ $ \ typPtr -> do
-    throwBotanCatchingPositive $ get typPtr
+    throwBotanCatchingInt $ get typPtr
 
 mkGetIntCode_csize
     :: WithPtr typ ptr
     -> GetIntCode_csize ptr
     -> typ -> CSize -> IO Int
 mkGetIntCode_csize withPtr get typ sz = withPtr typ $ \ typPtr -> do
-    throwBotanCatchingPositive $ get typPtr sz
+    throwBotanCatchingInt $ get typPtr sz
 
 {-
 Effectful actions
@@ -208,8 +242,25 @@ mkAction
 mkAction withPtr action typ = withPtr typ $ \ typPtr -> do
     throwBotanIfNegative_ $ action typPtr
 
+type SetCSize ptr = ptr -> CSize -> IO BotanErrorCode
+type SetCInt ptr = ptr -> CInt -> IO BotanErrorCode
+
+mkSetCSize
+    :: WithPtr typ ptr
+    -> SetCSize ptr
+    -> typ -> Int -> IO ()
+mkSetCSize withPtr set typ sz = withPtr typ $ \ typPtr -> do
+    throwBotanIfNegative_ $ set typPtr (fromIntegral sz)
+
+mkSetCInt
+    :: WithPtr typ ptr
+    -> SetCInt ptr
+    -> typ -> Int -> IO ()
+mkSetCInt withPtr set typ sz = withPtr typ $ \ typPtr -> do
+    throwBotanIfNegative_ $ set typPtr (fromIntegral sz)
+
 type SetCString ptr = ptr -> CString -> IO BotanErrorCode
-type SetBytesLen ptr = ptr -> Ptr Word8 -> CSize -> IO BotanErrorCode
+type SetCString_csize ptr = ptr -> CString -> CSize -> IO BotanErrorCode
 
 mkSetCString
     :: WithPtr typ ptr
@@ -218,6 +269,16 @@ mkSetCString
 mkSetCString withPtr set typ cstring = withPtr typ $ \ typPtr -> do
     asCString cstring $ \ cstringPtr -> do 
         throwBotanIfNegative_ $ set typPtr cstringPtr
+
+mkSetCString_csize
+    :: WithPtr typ ptr
+    -> SetCString_csize ptr
+    -> typ -> ByteString -> Int -> IO ()
+mkSetCString_csize withPtr set typ cstring sz = withPtr typ $ \ typPtr -> do
+    asCString cstring $ \ cstringPtr -> do 
+        throwBotanIfNegative_ $ set typPtr cstringPtr (fromIntegral sz)
+
+type SetBytesLen ptr = ptr -> Ptr Word8 -> CSize -> IO BotanErrorCode
 
 mkSetBytesLen
     :: WithPtr typ ptr

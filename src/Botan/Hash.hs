@@ -46,15 +46,15 @@ hashInitName name = mkInit_name_flags MkHash botan_hash_init botan_hash_destroy 
 
 foreign import ccall unsafe botan_hash_name :: HashPtr -> Ptr CChar -> Ptr CSize -> IO BotanErrorCode
 
--- TODO: hashNameByteString vs hashNameText
 hashName :: Hash -> IO ByteString
 hashName = mkGetName withHashPtr botan_hash_name
 
 -- int botan_hash_copy_state(botan_hash_t *dest, const botan_hash_t source)
 foreign import ccall unsafe botan_hash_copy_state :: Ptr HashPtr -> HashPtr -> IO BotanErrorCode
 
--- TODO: This is more akin to a hashCopy / hashDuplicate, rather than hashCopyState.
---  It does not copy state from one hash to another, it generates a new one.
+-- NOTE: This does the correct thing - see C++ docs:
+--  Return a newly allocated HashFunction object of the same type as this one,
+--  whose internal state matches the current state of this.
 hashCopyState :: Hash -> IO Hash
 hashCopyState source = withHashPtr source $ \ sourcePtr -> do
     alloca $ \ outPtr -> do

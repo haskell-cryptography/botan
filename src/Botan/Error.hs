@@ -47,8 +47,9 @@ module Botan.Error
 , throwBotanError
 , throwBotanIfNegative
 , throwBotanIfNegative_
+, throwBotanCatchingSuccess
 , throwBotanCatchingBool
-, throwBotanCatchingPositive
+, throwBotanCatchingInt
 , throwBotanErrorWithCallstack
 ) where
 
@@ -329,21 +330,29 @@ throwBotanIfNegative_ act = do
     when (e < 0) $ throwBotanErrorWithCallstack (fromIntegral e) callStack
 
 
--- NOTE: Catches Success as True and InvalidIdentifier as False, throws all other values
-throwBotanCatchingBool :: HasCallStack => IO BotanErrorCode -> IO Bool
-throwBotanCatchingBool act = do
+-- NOTE: Catches 0 / Success as True and 1 / InvalidIdentifier as False, throws all other values
+throwBotanCatchingSuccess :: HasCallStack => IO BotanErrorCode -> IO Bool
+throwBotanCatchingSuccess act = do
     result <- act
-    when (result < 0) $ throwBotanErrorWithCallstack (fromIntegral result) callStack
     case result of
         BOTAN_FFI_SUCCESS           -> return True
-        -- _                           -> return False
         BOTAN_FFI_INVALID_VERIFIER  -> return False
         _                           -> throwBotanErrorWithCallstack (fromIntegral result) callStack
 
+-- NOTE: Catches 1 as True and 0 as False, throws all other values
+throwBotanCatchingBool :: HasCallStack => IO BotanErrorCode -> IO Bool
+throwBotanCatchingBool act = do
+    result <- act
+    case result of
+        0 -> return False
+        1 -> return True
+        _ -> throwBotanErrorWithCallstack result callStack
+
 
 -- NOTE: Catches positive numbers including zero, throws all other values
-throwBotanCatchingPositive :: HasCallStack => IO BotanErrorCode -> IO Int
-throwBotanCatchingPositive act = do
+-- Equivalent to fromIntegral . throwBotanIfNegative
+throwBotanCatchingInt :: HasCallStack => IO BotanErrorCode -> IO Int
+throwBotanCatchingInt act = do
     result <- act
     when (result < 0) $ throwBotanErrorWithCallstack (fromIntegral result) callStack
     return (fromIntegral result)
