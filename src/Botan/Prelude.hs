@@ -86,3 +86,10 @@ asPaddedBytes bytes blockSize = asBytes (padBytes bytes blockSize)
 
 asPaddedBytesLen :: ByteString -> Int -> (Ptr byte -> CSize -> IO a) -> IO a
 asPaddedBytesLen bytes blockSize = asBytesLen (padBytes bytes blockSize)
+
+-- Formula for length of an n-digit base-b string encoded into base k is:
+--  ceiling $ n * log b / log k
+-- hlint suggests the equivalent:
+--  ceiling $ n * logBase k b
+baseLength :: Int -> Int -> Int -> Int
+baseLength n b k = ceiling $ fromIntegral n * logBase (fromIntegral k) (fromIntegral b)

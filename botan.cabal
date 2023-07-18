@@ -32,6 +32,7 @@ library
         Botan.KDF
         Botan.Mac
         Botan.Make
+        Botan.MPI
         Botan.Password
         Botan.Random
         Botan.Utility
