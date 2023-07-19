@@ -86,6 +86,7 @@ See your appropriate package manager.
         - Hides initialization / copying to preserve referential transparency
         - Wrap relevant things in unsafePerformIO
     - Botan.* - exports or re-exports highest-level bindings available (eg, Botan.Fundep or Botan.Tyfam)
+- A [bcrypt-like](https://en.wikipedia.org/wiki/Bcrypt#Description) generalized format for hashes / digest / cryptexts
 
 # Issues
 
