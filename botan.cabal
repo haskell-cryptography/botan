@@ -33,6 +33,7 @@ library
         Botan.KDF
         Botan.Mac
         Botan.MPI
+        Botan.PubKey
         Botan.PwdHash
         Botan.Random
         Botan.Utility

@@ -88,6 +88,14 @@ See your appropriate package manager.
     - Botan.* - exports or re-exports highest-level bindings available (eg, Botan.Fundep or Botan.Tyfam)
 - A [bcrypt-like](https://en.wikipedia.org/wiki/Bcrypt#Description) generalized format for hashes / digest / cryptexts
 - Use `mask / bracket` in the right places (like `freeViewBytesLenFunPtr / freeViewCStringFunPtr`)
+- Correct capitalization of algorithm names
+- NOTE: Have discovered in `botan_privkey_export`
+    -   -- * On input *out_len is number of bytes in out[]
+        -- * On output *out_len is number of bytes written (or required)
+        -- * If out is not big enough no output is written, *out_len is set and 1 is returned
+    - Some other (including already-implemented) functions probably follow this rule
+    - We have not encountered issues due to ignoring the outlen and calculating sizes explicitly so far
+    - SEE: ignoring szPtrx
 
 # Issues
 
