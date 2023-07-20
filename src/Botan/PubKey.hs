@@ -300,9 +300,24 @@ withPubKeyPtr = withForeignPtr . getPubKeyForeignPtr
 
 type PubKeyName = ByteString
 
+-- /**
+-- * @return 0 if success, error if invalid object handle
+-- */
+-- BOTAN_PUBLIC_API(2,0) int botan_pubkey_destroy(botan_pubkey_t key);
+foreign import ccall unsafe "&botan_pubkey_destroy" botan_pubkey_destroy :: FinalizerPtr PubKeyStruct
+
 -- BOTAN_PUBLIC_API(2,0) int botan_pubkey_load(botan_pubkey_t* key, const uint8_t bits[], size_t len);
 
 -- BOTAN_PUBLIC_API(2,0) int botan_privkey_export_pubkey(botan_pubkey_t* out, botan_privkey_t in);
+foreign import ccall unsafe botan_privkey_export_pubkey :: Ptr PubKeyPtr -> PrivKeyPtr -> IO BotanErrorCode
+
+privKeyExportPubKey :: PrivKey -> IO PubKey
+privKeyExportPubKey sk = alloca $ \ outPtr -> do
+    withPrivKeyPtr sk $ \ skPtr -> do
+        throwBotanIfNegative_ $ botan_privkey_export_pubkey outPtr skPtr
+        out <- peek outPtr
+        foreignPtr <- newForeignPtr botan_pubkey_destroy out
+        return $ MkPubKey foreignPtr
 
 -- BOTAN_PUBLIC_API(2,0) int botan_pubkey_export(botan_pubkey_t key, uint8_t out[], size_t* out_len, uint32_t flags);
 
@@ -333,11 +348,6 @@ type PubKeyName = ByteString
 
 -- BOTAN_PUBLIC_API(2,0) int botan_pubkey_fingerprint(botan_pubkey_t key, const char* hash,
 --                                        uint8_t out[], size_t* out_len);
-
--- /**
--- * @return 0 if success, error if invalid object handle
--- */
--- BOTAN_PUBLIC_API(2,0) int botan_pubkey_destroy(botan_pubkey_t key);
 
 -- /*
 -- * Get arbitrary named fields from public or private keys

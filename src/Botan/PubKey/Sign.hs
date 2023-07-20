@@ -37,21 +37,21 @@ newtype Sign = MkSign { getSignForeignPtr :: ForeignPtr SignStruct }
 withSignPtr :: Sign -> (SignPtr -> IO a) -> IO a
 withSignPtr = withForeignPtr . getSignForeignPtr
 
-type SignAlgo = ByteString
+type SigningAlgo = ByteString
 
 -- #define BOTAN_PUBKEY_DER_FORMAT_SIGNATURE 1
-type SignFlags = Word32
+type SigningFlags = Word32
 
 -- NOTE: Ugh. Bad names. Will rename. Or make a general BOTAN_FLAGS_NONE?
-pattern BOTAN_PUBKEY_SIGNING_FLAGS_NONE = 0 :: SignFlags -- NOTE: NOT ACTUAL FLAG.
-pattern BOTAN_PUBKEY_DER_FORMAT_SIGNATURE = 1 :: SignFlags
+pattern BOTAN_PUBKEY_SIGNING_FLAGS_NONE = 0 :: SigningFlags -- NOTE: NOT ACTUAL FLAG.
+pattern BOTAN_PUBKEY_DER_FORMAT_SIGNATURE = 1 :: SigningFlags
 
 -- BOTAN_PUBLIC_API(2,0)
 -- int botan_pk_op_sign_create(botan_pk_op_sign_t* op,
 --                             botan_privkey_t key,
 --                             const char* hash_and_padding,
 --                             uint32_t flags);
-foreign import ccall unsafe botan_pk_op_sign_create :: Ptr SignPtr -> PrivKeyPtr -> CString -> SignFlags -> IO BotanErrorCode
+foreign import ccall unsafe botan_pk_op_sign_create :: Ptr SignPtr -> PrivKeyPtr -> CString -> SigningFlags -> IO BotanErrorCode
 
 -- /**
 -- * @return 0 if success, error if invalid object handle
@@ -59,7 +59,7 @@ foreign import ccall unsafe botan_pk_op_sign_create :: Ptr SignPtr -> PrivKeyPtr
 -- BOTAN_PUBLIC_API(2,0) int botan_pk_op_sign_destroy(botan_pk_op_sign_t op);
 foreign import ccall unsafe "&botan_pk_op_sign_destroy" botan_pk_op_sign_destroy :: FinalizerPtr SignStruct
 
-signCreate :: PrivKey -> SignAlgo -> SignFlags -> IO Sign
+signCreate :: PrivKey -> SigningAlgo -> SigningFlags -> IO Sign
 signCreate sk algo flags = alloca $ \ outPtr -> do
     withPrivKeyPtr sk $ \ skPtr -> do
         asCString algo $ \ algoPtr -> do

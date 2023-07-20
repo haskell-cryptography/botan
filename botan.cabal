@@ -35,6 +35,7 @@ library
         Botan.MPI
         Botan.PubKey
         Botan.PubKey.Sign
+        Botan.PubKey.Verify
         Botan.PwdHash
         Botan.Random
         Botan.Utility
