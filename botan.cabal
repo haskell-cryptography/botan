@@ -34,6 +34,7 @@ library
         Botan.Mac
         Botan.MPI
         Botan.PubKey
+        Botan.PubKey.Sign
         Botan.PwdHash
         Botan.Random
         Botan.Utility
