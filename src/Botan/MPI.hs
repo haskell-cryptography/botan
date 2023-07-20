@@ -188,6 +188,7 @@ mpCopy mp = do
 -- * Set the MPI value from a string
 -- */
 -- BOTAN_PUBLIC_API(2,1) int botan_mp_set_from_str(botan_mp_t dest, const char* str);
+-- NOTE: leading prefix 0x is accepted
 foreign import ccall unsafe botan_mp_set_from_str :: MPPtr -> CString -> IO BotanErrorCode
 
 mpSetFromStr :: MP -> ByteString -> IO ()

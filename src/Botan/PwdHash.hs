@@ -1,4 +1,4 @@
-module Botan.Password where
+module Botan.PwdHash where
 
 import Prelude
 

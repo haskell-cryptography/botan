@@ -32,15 +32,15 @@ library
         Botan.Hash
         Botan.KDF
         Botan.Mac
-        Botan.Make
         Botan.MPI
-        Botan.Password
+        Botan.PwdHash
         Botan.Random
         Botan.Utility
         Botan.Version
         Botan.View
     other-modules:
         Botan.Prelude
+        Botan.Make
         Paths_botan
     build-depends:
         base >= 4 && < 5,
