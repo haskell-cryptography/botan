@@ -38,6 +38,7 @@ library
         Botan.Random
         Botan.Utility
         Botan.Version
+        Botan.View
     other-modules:
         Botan.Prelude
         Paths_botan

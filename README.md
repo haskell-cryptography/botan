@@ -87,6 +87,7 @@ See your appropriate package manager.
         - Wrap relevant things in unsafePerformIO
     - Botan.* - exports or re-exports highest-level bindings available (eg, Botan.Fundep or Botan.Tyfam)
 - A [bcrypt-like](https://en.wikipedia.org/wiki/Bcrypt#Description) generalized format for hashes / digest / cryptexts
+- Use `mask / bracket` in the right places (like `freeViewBytesLenFunPtr / freeViewCStringFunPtr`)
 
 # Issues
 
