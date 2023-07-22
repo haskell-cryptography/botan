@@ -57,6 +57,7 @@ foreign import ccall unsafe botan_privkey_create :: Ptr PrivKeyPtr -> Ptr CChar 
 -- BOTAN_PUBLIC_API(2,0) int botan_privkey_destroy(botan_privkey_t key);
 foreign import ccall unsafe "&botan_privkey_destroy" botan_privkey_destroy :: FinalizerPtr PrivKeyStruct
 
+privKeyCreate :: ByteString -> ByteString -> Random -> IO PrivKey
 privKeyCreate name params random = alloca $ \ outPtr -> do
     asCString name $ \ namePtr -> do
         asCString params $ \ paramsPtr -> do
@@ -67,8 +68,19 @@ privKeyCreate name params random = alloca $ \ outPtr -> do
                 return $ MkPrivKey foreignPtr
 
 -- #define BOTAN_CHECK_KEY_EXPENSIVE_TESTS 1
+type PubKeyCheckKeyFlags = Word32
+pattern BOTAN_PUBKEY_CHECK_KEY_FLAGS_NONE = 0 :: PubKeyCheckKeyFlags -- NOTE: NOT ACTUAL FLAG.
+pattern BOTAN_PUBKEYCHECK_KEY_FLAGS_EXPENSIVE_TESTS = 1 :: PubKeyCheckKeyFlags
 
+-- NOTE: returns -1 (INVALID_INPUT) if key is wrong?
 -- BOTAN_PUBLIC_API(2,0) int botan_privkey_check_key(botan_privkey_t key, botan_rng_t rng, uint32_t flags);
+foreign import ccall unsafe botan_privkey_check_key :: PrivKeyPtr -> RandomPtr -> PubKeyCheckKeyFlags -> IO BotanErrorCode
+
+-- TODO: Probably catch -1 (INVALID_INPUT), return Bool
+privKeyCheckKey :: PrivKey -> Random -> PubKeyCheckKeyFlags -> IO ()
+privKeyCheckKey sk random flags = withPrivKeyPtr sk $ \ skPtr -> do
+    withRandomPtr random $ \ randomPtr -> do
+        throwBotanIfNegative_ $ botan_privkey_check_key skPtr randomPtr flags 
 
 -- BOTAN_DEPRECATED("Use botan_privkey_create") BOTAN_PUBLIC_API(2,0)
 -- int botan_privkey_create_rsa(botan_privkey_t* key, botan_rng_t rng, size_t n_bits);
@@ -139,6 +151,21 @@ privKeyCreate name params random = alloca $ \ outPtr -> do
 --                                              botan_rng_t rng,
 --                                              const uint8_t bits[], size_t len,
 --                                              const char* password);
+foreign import ccall unsafe botan_privkey_load :: Ptr PrivKeyPtr -> RandomPtr -> Ptr Word8 -> CSize -> CString -> IO BotanErrorCode
+
+-- NOTE: Expectes PKCS #8 / PEM structure
+-- botan_privkey_export -> null password? and botan_privkey_export_encrypted_... -> use a password?
+privKeyLoad :: ByteString -> ByteString -> IO PrivKey
+privKeyLoad bits password = alloca $ \ outPtr -> do
+    asBytesLen bits $ \ bitsPtr bitsLen -> do
+        let asCStringNullable str act = if ByteString.null str
+            then act nullPtr
+            else asCString str act
+        asCStringNullable password $ \ passwordPtr -> do
+            throwBotanIfNegative_ $ botan_privkey_load outPtr nullPtr bitsPtr bitsLen passwordPtr
+            out <- peek outPtr
+            foreignPtr <- newForeignPtr botan_privkey_destroy out
+            return $ MkPrivKey foreignPtr
 
 -- #define BOTAN_PRIVKEY_EXPORT_FLAG_DER 0
 -- #define BOTAN_PRIVKEY_EXPORT_FLAG_PEM 1
@@ -158,6 +185,7 @@ pattern BOTAN_PRIVKEY_EXPORT_FLAG_PEM = 1 :: PrivKeyExportFlags
 --                                    uint32_t flags);
 foreign import ccall unsafe botan_privkey_export :: PrivKeyPtr -> Ptr Word8 -> Ptr CSize -> PrivKeyExportFlags -> IO BotanErrorCode
 
+privKeyExport :: PrivKey -> PrivKeyExportFlags -> IO ByteString
 privKeyExport sk flags = withPrivKeyPtr sk $ \ skPtr -> do
     alloca $ \szPtr -> do
         -- NOTE: Peek once with buffer sz zero - inefficient
@@ -359,6 +387,7 @@ privKeyExportPubKey sk = alloca $ \ outPtr -> do
 -- BOTAN_PUBLIC_API(2,0) int botan_privkey_get_field(botan_mp_t output,
 --                                       botan_privkey_t key,
 --                                       const char* field_name);
+
 
 -- /*
 -- * Algorithm specific key operations: ECDSA and ECDH

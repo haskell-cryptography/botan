@@ -44,6 +44,8 @@ import Botan.Random
 --                                     uint32_t flags);
 foreign import ccall unsafe botan_bcrypt_generate :: Ptr Word8 -> Ptr CSize -> Ptr CChar -> RandomPtr -> CSize -> Word32 -> IO BotanErrorCode
 
+-- NOTE: "@param out buffer holding the password hash, should be of length 64 bytes"
+--  allocBytes 64 *is correct*
 bcryptGenerate :: ByteString -> Random -> Int -> IO ByteString
 bcryptGenerate password random factor = asCString password $ \ passwordPtr -> do
     withRandomPtr random $ \ randomPtr -> do
@@ -68,9 +70,9 @@ bcryptGenerate password random factor = asCString password $ \ passwordPtr -> do
 -- *       negative on error
 -- */
 -- BOTAN_PUBLIC_API(2,0) int botan_bcrypt_is_valid(const char* pass, const char* hash);
-foreign import ccall unsafe botan_is_valid :: Ptr CChar -> Ptr CChar -> IO BotanErrorCode
+foreign import ccall unsafe botan_bcrypt_is_valid :: Ptr CChar -> Ptr CChar -> IO BotanErrorCode
 
 bcryptIsValid :: ByteString -> ByteString -> IO Bool
 bcryptIsValid password hash = asCString password $ \ passwordPtr -> do
     asCString hash $ \ hashPtr -> do
-        throwBotanCatchingSuccess $ botan_is_valid passwordPtr hashPtr
+        throwBotanCatchingSuccess $ botan_bcrypt_is_valid passwordPtr hashPtr

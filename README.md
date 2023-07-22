@@ -52,6 +52,7 @@ See your appropriate package manager.
         - I used alloc when replacing ByteArray.alloc, but that actually uses `Bytestring.mallocByteString`
     - New way: `opaqueForeignPtr <- malloc >>= newForeignPtr botan_hash_destroy`
         - Switched to `malloc `, now mostly just looking for sanity check / confirmation that this was the correct thing to do.
+    - STALE - SEE Botan.Make
 - Consistency (in particular, `Random` is bad with `randomFoo :: Int -> foo -> result` vs `foo -> Int -> result`)
 - Replace some `Ptr CChar` with `CString` as appropriate (when null-terminated).
 - Reusing data types / constants between modules: eg, some `MacType` expect a `HashType` a la `HMAC SHA256` / `HMAC(SHA-256)`
@@ -93,9 +94,16 @@ See your appropriate package manager.
     -   -- * On input *out_len is number of bytes in out[]
         -- * On output *out_len is number of bytes written (or required)
         -- * If out is not big enough no output is written, *out_len is set and 1 is returned
+        - 1 is INVALID_VERIFIER
     - Some other (including already-implemented) functions probably follow this rule
     - We have not encountered issues due to ignoring the outlen and calculating sizes explicitly so far
-    - SEE: ignoring szPtrx
+    - SEE: ignoring szPtr
+- Conformance layers for libraries like `libsodium` and [raaz](https://hackage.haskell.org/package/raaz)
+- Take advantage of size pointers properly, see docs:
+    -   "If exporting a value (a string or a blob) the function takes a pointer to the output array and a read/write pointer to the length. If the length is insufficient, an error is returned. So passing nullptr/0 allows querying the final value."
+    -   "... the application typically passes both an output buffer and a pointer to a length field. On entry, the length field should be set to the number of bytes available in the output buffer. If there is sufficient room, the output is written to the buffer, the actual number of bytes written is returned in the length field, and the function returns 0 (success). Otherwise, the number of bytes required is placed in the length parameter, and then BOTAN_FFI_ERROR_INSUFFICIENT_BUFFER_SPACE is returned."
+    - Use `allocBytesQuerying` (or whatever it turns into)
+    - Some functions differ slightly or greatly - see `botan_privkey_export`
 
 # Issues
 

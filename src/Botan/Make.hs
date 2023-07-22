@@ -287,3 +287,25 @@ mkSetBytesLen
 mkSetBytesLen withPtr set typ bytes = withPtr typ $ \ typPtr -> do
     asBytesLen bytes $ \ bytesPtr bytesLen -> do 
         throwBotanIfNegative_ $ set typPtr bytesPtr bytesLen
+
+-- EXPERIMENTAL
+
+-- NOTE: This properly takes advantage of szPtr, queries the buffer size - use this elsewhere
+allocBytesQuerying :: (Ptr byte -> Ptr CSize -> IO BotanErrorCode) -> IO ByteString
+allocBytesQuerying fn = do
+    alloca $ \ szPtr -> do
+        -- _ <- fn nullPtr szPtr
+        -- sz <- fromIntegral <$> peek szPtr
+        -- allocBytes sz $ \ outPtr -> throwBotanIfNegative_ $ fn outPtr szPtr
+        code <- fn nullPtr szPtr
+        case code of
+            BOTAN_FFI_ERROR_INSUFFICIENT_BUFFER_SPACE   -> do
+                sz <- fromIntegral <$> peek szPtr
+                allocBytes sz $ \ outPtr -> throwBotanIfNegative_ $ fn outPtr szPtr
+            _                                           -> do
+                throwBotanError code
+
+--  Alternative is to try with an initial size, and catch INSUFFICIENT_BUFFER_SPACE
+-- TODO: Tries with an allocated buffer of specific size
+-- allogBytesCatchingInsufficientBufferSpace :: Int -> fn -> args -> IO ByteString
+-- allogBytesCatchingInsufficientBufferSpace = undefined

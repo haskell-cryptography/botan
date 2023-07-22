@@ -29,18 +29,38 @@ library
         Botan.BlockCipher
         Botan.Cipher
         Botan.Error
+        -- Botan.FPE
         Botan.Hash
+        -- Botan.HOTP
         Botan.KDF
+        Botan.KeyWrap
+        -- TODO: Rename Botan.MAC
         Botan.Mac
         Botan.MPI
+        -- Botan.PBKDF
         Botan.PubKey
+        Botan.PubKey.Decrypt
+        -- Botan.PubKey.DiffieHellman
+        -- Botan.PubKey.DSA
+        -- Botan.PubKey.Ed25519
+        -- Botan.PubKey.ElGamal
+        Botan.PubKey.Encrypt
+        -- Botan.PubKey.KeyAgreement
+        -- Botan.PubKey.KeyEncapsulation
+        -- Botan.PubKey.RSA
         Botan.PubKey.Sign
         Botan.PubKey.Verify
+        -- Botan.PubKey.X25519
         Botan.PwdHash
         Botan.Random
+        -- Botan.Scrypt
+        -- Botan.SRP6
+        -- Botan.TOTP
         Botan.Utility
         Botan.Version
         Botan.View
+        -- Botan.X509
+        -- Botan.ZFEC
     other-modules:
         Botan.Prelude
         Botan.Make
