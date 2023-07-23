@@ -31,7 +31,7 @@ library
         Botan.Error
         -- Botan.FPE
         Botan.Hash
-        -- Botan.HOTP
+        Botan.HOTP
         Botan.KDF
         Botan.KeyWrap
         -- TODO: Rename Botan.MAC
