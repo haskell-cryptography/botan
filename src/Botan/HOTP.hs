@@ -1,6 +1,5 @@
 module Botan.HOTP where
 
-
 import Prelude
 
 import Control.Monad
