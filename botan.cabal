@@ -45,8 +45,8 @@ library
         Botan.PubKey.Ed25519
         Botan.PubKey.ElGamal
         Botan.PubKey.Encrypt
-        -- Botan.PubKey.KeyAgreement
         -- Botan.PubKey.KeyEncapsulation
+        Botan.PubKey.KeyAgreement
         Botan.PubKey.RSA
         Botan.PubKey.Sign
         Botan.PubKey.Verify
