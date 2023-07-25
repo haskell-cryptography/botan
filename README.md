@@ -105,6 +105,7 @@ See your appropriate package manager.
     - Use `allocBytesQuerying` (or whatever it turns into)
     - Some functions differ slightly or greatly - see `botan_privkey_export`
 - `withFoo` clashes with `withFooPtr` - the former signifies a temporary object, the latter as casting to its ptr
+- Convenience functions for deprecated-because-specific-subset
 
 # Issues
 

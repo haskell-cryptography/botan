@@ -59,6 +59,8 @@ type Constr struct typ = ForeignPtr struct -> typ
 type Initializer struct = Ptr (Ptr struct) -> IO BotanErrorCode
 type Initializer_name struct = Ptr (Ptr struct) -> CString -> IO BotanErrorCode
 type Initializer_name_flags struct = Ptr (Ptr struct) -> CString -> Word32 -> IO BotanErrorCode
+type Initializer_bytes struct = Ptr (Ptr struct) -> Ptr Word8 -> IO BotanErrorCode
+type Initializer_bytes_len struct = Ptr (Ptr struct) -> Ptr Word8 -> CSize -> IO BotanErrorCode
 
 type Destructor struct = FinalizerPtr struct
 
@@ -100,6 +102,51 @@ mkInit_name_flags constr init destroy name flags = do
         foreignPtr <- newForeignPtr destroy out
         return $ constr foreignPtr
 
+-- NOTE: Assumes that length is known
+mkInit_bytes
+    :: Constr struct typ
+    -> Initializer_bytes struct
+    -> Destructor struct
+    -> ByteString -> IO typ
+mkInit_bytes constr init destroy bytes = do
+    asBytes bytes $ \ bytesPtr -> do 
+        alloca $ \ outPtr -> do
+            throwBotanIfNegative_ $ init outPtr bytesPtr
+            out <- peek outPtr
+            foreignPtr <- newForeignPtr destroy out
+            return $ constr foreignPtr
+
+mkInit_bytes_len
+    :: Constr struct typ
+    -> Initializer_bytes_len struct
+    -> Destructor struct
+    -> ByteString -> IO typ
+mkInit_bytes_len constr init destroy bytes = do
+    asBytesLen bytes $ \ bytesPtr bytesLen -> do 
+        alloca $ \ outPtr -> do
+            throwBotanIfNegative_ $ init outPtr bytesPtr bytesLen
+            out <- peek outPtr
+            foreignPtr <- newForeignPtr destroy out
+            return $ constr foreignPtr
+
+-- Initializing with another botan object
+-- TODO: Use this in already-implemented functions as appropriate
+
+type Initializer_with struct withptr = Ptr (Ptr struct) -> withptr -> IO BotanErrorCode
+
+mkInit_with
+    :: Constr struct typ
+    -> Initializer_with struct withptr
+    -> Destructor struct
+    -> (withtyp -> (withptr -> IO typ) -> IO typ)
+    -> withtyp -> IO typ
+mkInit_with constr init destroy withTypPtr typ = alloca $ \ outPtr -> do
+    withTypPtr typ $ \ typPtr -> do
+        throwBotanIfNegative_ $ init outPtr typPtr
+        out <- peek outPtr
+        foreignPtr <- newForeignPtr destroy out
+        return $ constr foreignPtr
+
 {-
 Non-effectful queries
 -}
@@ -111,6 +158,7 @@ mkGetName
     -> GetName ptr
     -> typ -> IO ByteString
 mkGetName withPtr get typ = withPtr typ $ \ typPtr -> do
+    -- TODO: Take advantage of allocBytesQuerying
     -- TODO: use ByteString.Internal.createAndTrim?
     -- NOTE: This uses copy to mimic ByteArray.take (which copies!) so we can drop the rest of the bytestring
     alloca $ \ szPtr -> do
