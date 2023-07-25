@@ -56,6 +56,12 @@ foreign import ccall unsafe "&botan_block_cipher_destroy" botan_block_cipher_des
 blockCipherInit :: BlockCipherName -> IO BlockCipher
 blockCipherInit = mkInit_name MkBlockCipher botan_block_cipher_init botan_block_cipher_destroy
 
+blockCipherDestroy :: BlockCipher -> IO ()
+blockCipherDestroy blockCipher = finalizeForeignPtr (getBlockCipherForeignPtr blockCipher)
+
+withBlockCipher :: BlockCipherName -> (BlockCipher -> IO a) -> IO a
+withBlockCipher = mkWithTemp1 blockCipherInit blockCipherDestroy
+
 -- /**
 -- * Reinitializes the block cipher
 -- * @return 0 on success, a negative value on failure

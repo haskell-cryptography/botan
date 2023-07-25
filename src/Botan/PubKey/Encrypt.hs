@@ -64,6 +64,12 @@ encryptCreate pk padding flags = alloca $ \ outPtr -> do
             foreignPtr <- newForeignPtr botan_pk_op_encrypt_destroy out
             return $ MkEncrypt foreignPtr
 
+encryptDestroy :: Encrypt -> IO ()
+encryptDestroy encrypt = finalizeForeignPtr (getEncryptForeignPtr encrypt)
+
+withEncrypt :: PubKey -> EncryptPadding -> EncryptFlags -> (Encrypt -> IO a) -> IO a
+withEncrypt = mkWithTemp3 encryptCreate encryptDestroy
+
 -- BOTAN_PUBLIC_API(2,8) int botan_pk_op_encrypt_output_length(botan_pk_op_encrypt_t op,
 --                                                             size_t ptext_len,
 --                                                             size_t* ctext_len);

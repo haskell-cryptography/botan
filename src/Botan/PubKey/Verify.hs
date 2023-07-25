@@ -62,6 +62,12 @@ verifyCreate pk algo flags = alloca $ \ outPtr -> do
             foreignPtr <- newForeignPtr botan_pk_op_verify_destroy out
             return $ MkVerify foreignPtr
 
+verifyDestroy :: Verify -> IO ()
+verifyDestroy verify = finalizeForeignPtr (getVerifyForeignPtr verify)
+
+withVerify :: PubKey -> SigningAlgo -> SigningFlags -> (Verify -> IO a) -> IO a
+withVerify = mkWithTemp3 verifyCreate verifyDestroy
+
 -- BOTAN_PUBLIC_API(2,0) int botan_pk_op_verify_update(botan_pk_op_verify_t op, const uint8_t in[], size_t in_len);
 foreign import ccall unsafe botan_pk_op_verify_update :: VerifyPtr -> Ptr Word8  -> CSize -> IO BotanErrorCode
 

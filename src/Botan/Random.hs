@@ -19,6 +19,7 @@ import Foreign.Ptr
 import Foreign.Storable
 
 import Botan.Error
+import Botan.Make
 import Botan.Prelude
 
 -- NOTE: Went with `Random` nomenclature rather than `RNG` because oof.
@@ -89,6 +90,12 @@ randomInitName name = do
         out <- peek outPtr
         macForeignPtr <- newForeignPtr botan_rng_destroy out
         return $ MkRandom macForeignPtr
+
+randomDestroy :: Random -> IO ()
+randomDestroy random = finalizeForeignPtr (getRandomForeignPtr random)
+
+withRandom :: ByteString -> (Random -> IO a) -> IO a
+withRandom = mkWithTemp1 randomInitName randomDestroy
 
 -- /**
 -- * Get random bytes from a random number generator

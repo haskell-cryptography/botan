@@ -77,6 +77,11 @@ totpInit key algo digits timestep = alloca $ \ outPtr -> do
             foreignPtr <- newForeignPtr botan_totp_destroy out
             return $ MkTOTP foreignPtr
 
+totpDestroy :: TOTP -> IO ()
+totpDestroy totp = finalizeForeignPtr (getTOTPForeignPtr totp)
+
+withTOTP :: ByteString -> ByteString -> Int -> TOTPTimestep -> (TOTP -> IO a) -> IO a
+withTOTP = mkWithTemp4 totpInit totpDestroy
 
 -- /**
 -- * Generate a TOTP code for the provided timestamp

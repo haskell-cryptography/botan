@@ -64,6 +64,12 @@ decryptCreate sk padding flags = alloca $ \ outPtr -> do
             foreignPtr <- newForeignPtr botan_pk_op_decrypt_destroy out
             return $ MkDecrypt foreignPtr
 
+decryptDestroy :: Decrypt -> IO ()
+decryptDestroy decrypt = finalizeForeignPtr (getDecryptForeignPtr decrypt)
+
+withDecrypt :: PrivKey -> DecryptPadding -> DecryptFlags -> (Decrypt -> IO a) -> IO a
+withDecrypt = mkWithTemp3 decryptCreate decryptDestroy
+
 -- BOTAN_PUBLIC_API(2,8) int botan_pk_op_decrypt_output_length(botan_pk_op_decrypt_t op,
 --                                                             size_t ctext_len,
 --                                                             size_t* ptext_len);

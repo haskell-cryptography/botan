@@ -74,6 +74,12 @@ hotpInit key algo digits = alloca $ \ outPtr -> do
             foreignPtr <- newForeignPtr botan_hotp_destroy out
             return $ MkHOTP foreignPtr
 
+hotpDestroy :: HOTP -> IO ()
+hotpDestroy hotp = finalizeForeignPtr (getHOTPForeignPtr hotp)
+
+withHOTP :: ByteString -> ByteString -> Int -> (HOTP -> IO a) -> IO a
+withHOTP = mkWithTemp3 hotpInit hotpDestroy
+
 -- /**
 -- * Generate a HOTP code for the provided counter
 -- */

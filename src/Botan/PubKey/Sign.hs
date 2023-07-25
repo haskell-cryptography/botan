@@ -68,6 +68,12 @@ signCreate sk algo flags = alloca $ \ outPtr -> do
             foreignPtr <- newForeignPtr botan_pk_op_sign_destroy out
             return $ MkSign foreignPtr
 
+signDestroy :: Sign -> IO ()
+signDestroy sign = finalizeForeignPtr (getSignForeignPtr sign)
+
+withSign :: PrivKey -> SigningAlgo -> SigningFlags -> (Sign -> IO a) -> IO a
+withSign = mkWithTemp3 signCreate signDestroy
+
 -- BOTAN_PUBLIC_API(2,8) int botan_pk_op_sign_output_length(botan_pk_op_sign_t op, size_t* olen);
 foreign import ccall unsafe botan_pk_op_sign_output_length :: SignPtr -> Ptr CSize -> IO BotanErrorCode
 

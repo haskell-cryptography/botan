@@ -38,11 +38,14 @@ withHashPtr = withForeignPtr . getHashForeignPtr
 foreign import ccall unsafe botan_hash_init :: Ptr HashPtr -> Ptr CChar -> Word32 -> IO BotanErrorCode
 foreign import ccall unsafe "&botan_hash_destroy" botan_hash_destroy :: FinalizerPtr HashStruct
 
--- TODO: Discuss naming, eg init vs hashInit
---  It depends on whether we intend qualified import or not
--- TODO: ByteString vs Text
-hashInitName :: ByteString -> IO Hash
-hashInitName name = mkInit_name_flags MkHash botan_hash_init botan_hash_destroy name 0
+hashInit :: ByteString -> IO Hash
+hashInit name = mkInit_name_flags MkHash botan_hash_init botan_hash_destroy name 0
+
+hashDestroy :: Hash -> IO ()
+hashDestroy hash = finalizeForeignPtr (getHashForeignPtr hash)
+
+withHash :: ByteString -> (Hash -> IO a) -> IO a
+withHash = mkWithTemp1 hashInit hashDestroy
 
 foreign import ccall unsafe botan_hash_name :: HashPtr -> Ptr CChar -> Ptr CSize -> IO BotanErrorCode
 
@@ -99,7 +102,7 @@ hashFinal hash = withHashPtr hash $ \ hashPtr -> do
 
 hashWith :: ByteString -> ByteString -> ByteString
 hashWith name bs = unsafePerformIO $ do
-    h <- hashInitName name
+    h <- hashInit name
     hashUpdate h bs
     dg <- hashFinal h
     return dg

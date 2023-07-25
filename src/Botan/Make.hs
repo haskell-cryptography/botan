@@ -2,6 +2,7 @@ module Botan.Make where
 
 import Prelude
 
+import Control.Exception
 import Control.Monad
 
 import Data.ByteString (ByteString)
@@ -44,6 +45,10 @@ Helper types
 -}
 
 type WithPtr typ ptr = (forall a . typ -> (ptr -> IO a) -> IO a)
+-- NOTE: WithPtr typ ptr ~ typ -> Codensity IO ptr 
+--  where: type Codensity m a = forall b . (a -> m b) -> m b
+-- TODO: Refine further per:
+--  https://discourse.haskell.org/t/questions-about-ffi-foreignptr-and-opaque-types/6914/21?u=apothecalabs
 
 {-
 Initializers and destroyers
@@ -291,6 +296,7 @@ mkSetBytesLen withPtr set typ bytes = withPtr typ $ \ typPtr -> do
 -- EXPERIMENTAL
 
 -- NOTE: This properly takes advantage of szPtr, queries the buffer size - use this elsewhere
+-- NOTE: This throws any botan codes other than BOTAN_FFI_ERROR_INSUFFICIENT_BUFFER_SPACE
 allocBytesQuerying :: (Ptr byte -> Ptr CSize -> IO BotanErrorCode) -> IO ByteString
 allocBytesQuerying fn = do
     alloca $ \ szPtr -> do
@@ -309,3 +315,22 @@ allocBytesQuerying fn = do
 -- TODO: Tries with an allocated buffer of specific size
 -- allogBytesCatchingInsufficientBufferSpace :: Int -> fn -> args -> IO ByteString
 -- allogBytesCatchingInsufficientBufferSpace = undefined
+
+-- ALSO EXPERIMENTAL
+
+-- LAZY BUT EFFECTIVE
+
+mkWithTemp :: IO t -> (t -> IO ()) -> (t -> IO a) -> IO a
+mkWithTemp = bracket
+
+mkWithTemp1 :: (x -> IO t) -> (t -> IO ()) -> x -> (t -> IO a) -> IO a
+mkWithTemp1 init destroy x = bracket (init x) destroy
+
+mkWithTemp2 :: (x -> y -> IO t) -> (t -> IO ()) -> x -> y -> (t -> IO a) -> IO a
+mkWithTemp2 init destroy x y = bracket (init x y) destroy
+
+mkWithTemp3 :: (x -> y -> z -> IO t) -> (t -> IO ()) -> x -> y -> z -> (t -> IO a) -> IO a
+mkWithTemp3 init destroy x y z = bracket (init x y z) destroy
+
+mkWithTemp4 :: (x -> y -> z -> w -> IO t) -> (t -> IO ()) -> x -> y -> z -> w -> (t -> IO a) -> IO a
+mkWithTemp4 init destroy x y z w = bracket (init x y z w) destroy

@@ -66,6 +66,12 @@ foreign import ccall unsafe "&botan_cipher_destroy" botan_cipher_destroy :: Fina
 cipherInit :: CipherName -> CipherInitFlags -> IO Cipher
 cipherInit = mkInit_name_flags MkCipher botan_cipher_init botan_cipher_destroy
 
+cipherDestroy :: Cipher -> IO ()
+cipherDestroy cipher = finalizeForeignPtr (getCipherForeignPtr cipher)
+
+withCipher :: CipherName -> CipherInitFlags -> (Cipher -> IO a) -> IO a
+withCipher = mkWithTemp2 cipherInit cipherDestroy
+
 -- /**
 -- * Return the name of the cipher object
 -- */

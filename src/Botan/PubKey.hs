@@ -67,6 +67,13 @@ privKeyCreate name params random = alloca $ \ outPtr -> do
                 foreignPtr <- newForeignPtr botan_privkey_destroy out
                 return $ MkPrivKey foreignPtr
 
+privKeyDestroy :: PrivKey -> IO ()
+privKeyDestroy privKey = finalizeForeignPtr (getPrivKeyForeignPtr privKey)
+
+-- NOTE: Multiple ways of creating priv keys - need multiple withPrivKeys?
+-- withPrivKey :: ByteString -> ByteString -> Random -> (PrivKey -> IO a) -> IO a
+-- withPrivKey = mkWithTemp3 privKeyCreate privKeyDestroy
+
 -- #define BOTAN_CHECK_KEY_EXPENSIVE_TESTS 1
 type PubKeyCheckKeyFlags = Word32
 pattern BOTAN_PUBKEY_CHECK_KEY_FLAGS_NONE = 0 :: PubKeyCheckKeyFlags -- NOTE: NOT ACTUAL FLAG.
@@ -334,7 +341,16 @@ type PubKeyName = ByteString
 -- BOTAN_PUBLIC_API(2,0) int botan_pubkey_destroy(botan_pubkey_t key);
 foreign import ccall unsafe "&botan_pubkey_destroy" botan_pubkey_destroy :: FinalizerPtr PubKeyStruct
 
+pubKeyDestroy :: PubKey -> IO ()
+pubKeyDestroy pubKey = finalizeForeignPtr (getPubKeyForeignPtr pubKey)
+
 -- BOTAN_PUBLIC_API(2,0) int botan_pubkey_load(botan_pubkey_t* key, const uint8_t bits[], size_t len);
+
+-- pubKeyLoad :: ByteString -> IO PubKey
+-- pubKeyLoad = undefined
+
+-- withLoadedPubKey :: ByteString -> (PubKey -> IO a) -> IO a
+-- withLoadedPubKey = mkWithTemp1 pubKeyLoad pubKeyDestroy
 
 -- BOTAN_PUBLIC_API(2,0) int botan_privkey_export_pubkey(botan_pubkey_t* out, botan_privkey_t in);
 foreign import ccall unsafe botan_privkey_export_pubkey :: Ptr PubKeyPtr -> PrivKeyPtr -> IO BotanErrorCode
@@ -346,6 +362,9 @@ privKeyExportPubKey sk = alloca $ \ outPtr -> do
         out <- peek outPtr
         foreignPtr <- newForeignPtr botan_pubkey_destroy out
         return $ MkPubKey foreignPtr
+
+withExportedPubKey :: PrivKey -> (PubKey -> IO a) -> IO a
+withExportedPubKey = mkWithTemp1 privKeyExportPubKey pubKeyDestroy
 
 -- BOTAN_PUBLIC_API(2,0) int botan_pubkey_export(botan_pubkey_t key, uint8_t out[], size_t* out_len, uint32_t flags);
 

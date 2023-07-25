@@ -33,7 +33,10 @@ import Botan.Prelude
 --  exception is thrown."
 -- This does not appear to actually be true - it accepts an algo parameter?
 
--- NOTE: Untested, I am getting NotImplementedException (-40) for cursory tests.
+-- NOTE: Requires base algo, not extended, eg:
+--  > nistKeyWrapEncode "AES-256" 1 "Fee fi fo fum!" =<< systemRandomGet 32
+-- "\237\205\178vhP\223\163d%S\ENQ=\170!\222\161tA~\162\155\212\EM"
+-- NOTE The 'padded' argument denotes if the key needs to be padded.
 
 -- /**
 --  * Key wrapping as per RFC 3394

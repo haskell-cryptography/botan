@@ -51,3 +51,21 @@ fooDoSomething foo = withFooPtr foo $ \ fooPtr -> do
 ```
 
 This pattern should be followed, unless we come across an construct that is initialized in a different manner. If any portion of it is found unsafe, the fix may then be readily applied to all constructs.
+
+# Temporary objects with guaranteed immediate cleanup
+
+The above pattern creates objects that will stay alive as long as they are referenced, and will eventually destroy themselves safely when they are not. However, they do not guarantee prompt cleanup.
+
+For temporary objects with guaranteed immediate cleanup, we may simply wrap them as such.
+
+```haskell
+-- TODO: Generalize / reuse pattern
+withCipher :: CipherName -> CipherInitFlags -> (Cipher -> IO a) -> IO a
+withCipher name flags act = do
+    cipher <- cipherInit name flags
+    act cipher <* cipherDestroy cipher
+-- or withCipher = mkWithTemp2 cipherInit cipherDestroy
+
+cipherDestroy :: Cipher -> IO ()
+cipherDestroy cipher = finalizeForeignPtr (getCipherForeignPtr cipher)
+```

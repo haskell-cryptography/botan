@@ -66,6 +66,12 @@ foreign import ccall unsafe "&botan_mac_destroy" botan_mac_destroy :: FinalizerP
 macInit :: MacName -> IO Mac
 macInit name = mkInit_name_flags MkMac botan_mac_init botan_mac_destroy name 0
 
+macDestroy :: Mac -> IO ()
+macDestroy mac = finalizeForeignPtr (getMacForeignPtr mac)
+
+withMac :: MacName -> (Mac -> IO a) -> IO a
+withMac = mkWithTemp1 macInit macDestroy
+
 -- /**
 -- * Writes the output length of the message authentication code to *output_length
 -- * @param mac mac object
