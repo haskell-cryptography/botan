@@ -42,7 +42,7 @@ library
         Botan.PubKey.Decrypt
         Botan.PubKey.DH
         Botan.PubKey.DSA
-        -- Botan.PubKey.Ed25519
+        Botan.PubKey.Ed25519
         Botan.PubKey.ElGamal
         Botan.PubKey.Encrypt
         -- Botan.PubKey.KeyAgreement
