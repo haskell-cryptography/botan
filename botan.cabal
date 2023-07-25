@@ -40,14 +40,14 @@ library
         -- Botan.PBKDF
         Botan.PubKey
         Botan.PubKey.Decrypt
-        -- Botan.PubKey.DiffieHellman
-        -- Botan.PubKey.DSA
+        Botan.PubKey.DH
+        Botan.PubKey.DSA
         -- Botan.PubKey.Ed25519
-        -- Botan.PubKey.ElGamal
+        Botan.PubKey.ElGamal
         Botan.PubKey.Encrypt
         -- Botan.PubKey.KeyAgreement
         -- Botan.PubKey.KeyEncapsulation
-        -- Botan.PubKey.RSA
+        Botan.PubKey.RSA
         Botan.PubKey.Sign
         Botan.PubKey.Verify
         -- Botan.PubKey.X25519

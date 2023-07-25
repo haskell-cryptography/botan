@@ -20,6 +20,7 @@ import Foreign.Storable
 
 import Botan.Error
 import Botan.Make
+import Botan.MPI
 import Botan.Prelude
 import Botan.Random
     
@@ -470,3 +471,59 @@ withExportedPubKey = mkWithTemp1 privKeyExportPubKey pubKeyDestroy
 --    const botan_pubkey_t key,
 --    botan_view_ctx ctx,
 --    botan_view_bin_fn view);
+
+-- Helpers
+
+mkPrivKeyLoad3
+    :: (Ptr PrivKeyPtr -> MPPtr -> MPPtr -> MPPtr -> IO BotanErrorCode)
+    -> MP -> MP -> MP -> IO PrivKey
+mkPrivKeyLoad3 load a b c = alloca $ \ outPtr -> do
+    withPtrs withMPPtr [a,b,c] $ \ [aPtr,bPtr,cPtr] -> do
+        throwBotanIfNegative_ $ load outPtr aPtr bPtr cPtr
+        out <- peek outPtr
+        foreignPtr <- newForeignPtr botan_privkey_destroy out
+        return $ MkPrivKey foreignPtr
+
+mkPrivKeyLoad4
+    :: (Ptr PrivKeyPtr-> MPPtr -> MPPtr -> MPPtr -> MPPtr -> IO BotanErrorCode)
+    -> MP -> MP -> MP -> MP -> IO PrivKey
+mkPrivKeyLoad4 load a b c d = alloca $ \ outPtr -> do
+    withPtrs withMPPtr [a,b,c,d] $ \ [aPtr,bPtr,cPtr,dPtr] -> do
+        throwBotanIfNegative_ $ load outPtr aPtr bPtr cPtr dPtr
+        out <- peek outPtr
+        foreignPtr <- newForeignPtr botan_privkey_destroy out
+        return $ MkPrivKey foreignPtr
+
+--
+
+
+
+mkPubKeyLoad2
+    :: (Ptr PubKeyPtr -> MPPtr -> MPPtr -> IO BotanErrorCode)
+    -> MP -> MP -> IO PubKey
+mkPubKeyLoad2 load a b = alloca $ \ outPtr -> do
+    withPtrs withMPPtr [a,b] $ \ [aPtr,bPtr] -> do
+        throwBotanIfNegative_ $ load outPtr aPtr bPtr
+        out <- peek outPtr
+        foreignPtr <- newForeignPtr botan_pubkey_destroy out
+        return $ MkPubKey foreignPtr
+
+mkPubKeyLoad3
+    :: (Ptr PubKeyPtr -> MPPtr -> MPPtr -> MPPtr -> IO BotanErrorCode)
+    -> MP -> MP -> MP -> IO PubKey
+mkPubKeyLoad3 load a b c = alloca $ \ outPtr -> do
+    withPtrs withMPPtr [a,b,c] $ \ [aPtr,bPtr,cPtr] -> do
+        throwBotanIfNegative_ $ load outPtr aPtr bPtr cPtr
+        out <- peek outPtr
+        foreignPtr <- newForeignPtr botan_pubkey_destroy out
+        return $ MkPubKey foreignPtr
+
+mkPubKeyLoad4
+    :: (Ptr PubKeyPtr-> MPPtr -> MPPtr -> MPPtr -> MPPtr -> IO BotanErrorCode)
+    -> MP -> MP -> MP -> MP -> IO PubKey
+mkPubKeyLoad4 load a b c d = alloca $ \ outPtr -> do
+    withPtrs withMPPtr [a,b,c,d] $ \ [aPtr,bPtr,cPtr,dPtr] -> do
+        throwBotanIfNegative_ $ load outPtr aPtr bPtr cPtr dPtr
+        out <- peek outPtr
+        foreignPtr <- newForeignPtr botan_pubkey_destroy out
+        return $ MkPubKey foreignPtr

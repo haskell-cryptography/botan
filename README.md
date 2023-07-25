@@ -104,6 +104,7 @@ See your appropriate package manager.
     -   "... the application typically passes both an output buffer and a pointer to a length field. On entry, the length field should be set to the number of bytes available in the output buffer. If there is sufficient room, the output is written to the buffer, the actual number of bytes written is returned in the length field, and the function returns 0 (success). Otherwise, the number of bytes required is placed in the length parameter, and then BOTAN_FFI_ERROR_INSUFFICIENT_BUFFER_SPACE is returned."
     - Use `allocBytesQuerying` (or whatever it turns into)
     - Some functions differ slightly or greatly - see `botan_privkey_export`
+- `withFoo` clashes with `withFooPtr` - the former signifies a temporary object, the latter as casting to its ptr
 
 # Issues
 
