@@ -29,7 +29,7 @@ library
         Botan.BlockCipher
         Botan.Cipher
         Botan.Error
-        -- Botan.FPE
+        Botan.FPE
         Botan.Hash
         Botan.HOTP
         Botan.KDF
