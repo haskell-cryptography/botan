@@ -78,7 +78,6 @@ withCipher = mkWithTemp2 cipherInit cipherDestroy
 -- BOTAN_PUBLIC_API(2,8) int botan_cipher_name(botan_cipher_t cipher, char* name, size_t* name_len);
 foreign import ccall unsafe botan_cipher_name :: CipherPtr -> Ptr CChar -> Ptr CSize -> IO BotanErrorCode
 
--- TODO: Unify with other -Name function which are effectively copies.
 cipherName :: Cipher -> IO CipherName
 cipherName = mkGetName withCipherPtr botan_cipher_name
 

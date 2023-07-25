@@ -34,17 +34,28 @@ newtype Random = MkRandom { getRandomForeignPtr :: ForeignPtr RandomStruct }
 withRandomPtr :: Random -> (RandomPtr -> IO a) -> IO a
 withRandomPtr = withForeignPtr . getRandomForeignPtr
 
-data RandomType
-    = System
-    | User
-    | UserThreadsafe
-    | Rdrand    -- NOTE: gives -40 (NotImplementedException) on my machine
+-- TODO: Later, higher-level
+-- data RandomType
+--     = System
+--     | User
+--     | UserThreadsafe
+--     | Rdrand    -- NOTE: gives -40 (NotImplementedException) on my machine
 
-randomTypeName :: RandomType -> ByteString
-randomTypeName System           = "system"
-randomTypeName User             = "user"
-randomTypeName UserThreadsafe   = "user-threadsafe"
-randomTypeName Rdrand           = "rdrand"
+-- randomTypeName :: RandomType -> ByteString
+-- randomTypeName System           = "system"
+-- randomTypeName User             = "user"
+-- randomTypeName UserThreadsafe   = "user-threadsafe"
+-- randomTypeName Rdrand           = "rdrand"
+
+-- randomInitType :: RandomType -> IO Random
+-- randomInitType = randomInitName . randomTypeName
+
+type RandomType = ByteString
+
+pattern BOTAN_RANDOM_TYPE_SYSTEM            = "system"          :: RandomType
+pattern BOTAN_RANDOM_TYPE_USER              = "user"            :: RandomType
+pattern BOTAN_RANDOM_TYPE_USER_THREADSAFE   = "user-threadsafe" :: RandomType
+pattern BOTAN_RANDOM_TYPE_RDRAND            = "rdrand"          :: RandomType
 
 -- /**
 -- * Initialize a random number generator object
@@ -61,7 +72,35 @@ foreign import ccall unsafe botan_rng_init :: Ptr RandomPtr -> Ptr CChar -> IO B
 -- NOTE: Inconsistincies in init process - other objects accept a ptr + len
 --  I presume that it expects a null-terminated C-String.
 
--- TODO: int botan_rng_init_custom
+randomInit :: ByteString -> IO Random
+randomInit name = do
+    alloca $ \ outPtr -> do
+        asCString name $ \ namePtr -> do 
+            throwBotanIfNegative_ $ botan_rng_init outPtr namePtr
+        out <- peek outPtr
+        macForeignPtr <- newForeignPtr botan_rng_destroy out
+        return $ MkRandom macForeignPtr
+
+withRandom :: ByteString -> (Random -> IO a) -> IO a
+withRandom = mkWithTemp1 randomInit randomDestroy
+
+-- /**
+-- * Initialize a custom random number generator from a set of callback functions
+-- * @param rng_out rng object to create
+-- * @param rng_name name of the rng
+-- * @param context An application-specific context passed to the callback functions
+-- * @param get_cb Callback for getting random bytes from the rng, return 0 for success
+-- * @param add_entropy_cb Callback for adding entropy to the rng, return 0 for success, may be NULL
+-- * @param destroy_cb Callback called when rng is destroyed, may be NULL
+-- */
+-- BOTAN_FFI_EXPORT(3, 0)
+-- int botan_rng_init_custom(botan_rng_t* rng_out,
+--                           const char* rng_name,
+--                           void* context,
+--                           int (*get_cb)(void* context, uint8_t* out, size_t out_len),
+--                           int (*add_entropy_cb)(void* context, const uint8_t input[], size_t length),
+--                           void (*destroy_cb)(void* context));
+-- TODO: With / after higher-level interfaces.
 
 -- /**
 -- * Frees all resources of the random number generator object
@@ -71,31 +110,8 @@ foreign import ccall unsafe botan_rng_init :: Ptr RandomPtr -> Ptr CChar -> IO B
 -- BOTAN_PUBLIC_API(2,0) int botan_rng_destroy(botan_rng_t rng);
 foreign import ccall unsafe "&botan_rng_destroy" botan_rng_destroy :: FinalizerPtr RandomStruct
 
--- NOTE: NOT ACTUAL CONSTANTS
--- type RNGType = CString
--- pattern BOTAN_RNG_DEFAULT           = ??? :: RNGType -- NOTE: Would be null pointer
--- pattern BOTAN_RNG_SYSTEM            = "system" :: RNGType
--- pattern BOTAN_RNG_USER              = "user" :: RNGType
--- pattern BOTAN_RNG_USER_THREADSAFE   = "user-threadsafe" :: RNGType
--- pattern BOTAN_RNG_RDRAND            = "rdrand" :: RNGType
-
-randomInitType :: RandomType -> IO Random
-randomInitType = randomInitName . randomTypeName
-
-randomInitName :: ByteString -> IO Random
-randomInitName name = do
-    alloca $ \ outPtr -> do
-        asCString name $ \ namePtr -> do 
-            throwBotanIfNegative_ $ botan_rng_init outPtr namePtr
-        out <- peek outPtr
-        macForeignPtr <- newForeignPtr botan_rng_destroy out
-        return $ MkRandom macForeignPtr
-
 randomDestroy :: Random -> IO ()
 randomDestroy random = finalizeForeignPtr (getRandomForeignPtr random)
-
-withRandom :: ByteString -> (Random -> IO a) -> IO a
-withRandom = mkWithTemp1 randomInitName randomDestroy
 
 -- /**
 -- * Get random bytes from a random number generator
