@@ -54,7 +54,7 @@ library
         Botan.PwdHash
         Botan.Random
         -- Botan.Scrypt
-        -- Botan.SRP6
+        Botan.SRP6
         Botan.TOTP
         Botan.Utility
         Botan.Version
