@@ -34,12 +34,15 @@ peekCStringText cs = do
 --  Also, allocaBytes frees the memory after, but this is a malloc freed on garbage collect.
 -- I basically ripped the relevant bits from ByteArray for ease of continuity
 allocBytes :: Int -> (Ptr p -> IO ()) -> IO ByteString
-allocBytes sz f
-    | sz < 0    = allocBytes 0 f
+allocBytes sz f = snd <$> allocBytesWith sz f
+
+allocBytesWith :: Int -> (Ptr p -> IO a) -> IO (a, ByteString)
+allocBytesWith sz f
+    | sz < 0    = allocBytesWith 0 f
     | otherwise = do
         fptr <- ByteString.mallocByteString sz
-        _ <- withForeignPtr fptr (f . castPtr)
-        return $ ByteString.PS fptr 0 sz
+        a <- withForeignPtr fptr (f . castPtr)
+        return (a, ByteString.PS fptr 0 sz)
 
 asCString :: ByteString -> (Ptr CChar -> IO a) -> IO a
 asCString = ByteString.useAsCString
