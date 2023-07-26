@@ -106,3 +106,4 @@ signFinish sign random = withSignPtr sign $ \ signPtr -> do
 -- */
 
 -- BOTAN_PUBLIC_API(2,0) int botan_pkcs_hash_id(const char* hash_name, uint8_t pkcs_id[], size_t* pkcs_id_len);
+foreign import ccall unsafe botan_pkcs_hash_id :: CString -> Ptr Word8 -> Ptr CSize -> IO BotanErrorCode

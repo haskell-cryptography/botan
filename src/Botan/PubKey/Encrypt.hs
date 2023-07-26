@@ -49,12 +49,6 @@ pattern BOTAN_PUBKEY_ENCRYPT_FLAGS_NONE = 0 :: EncryptFlags -- NOTE: NOT ACTUAL 
 --                                          uint32_t flags);
 foreign import ccall unsafe botan_pk_op_encrypt_create :: Ptr EncryptPtr -> PubKeyPtr -> CString -> EncryptFlags -> IO BotanErrorCode
 
--- /**
--- * @return 0 if success, error if invalid object handle
--- */
--- BOTAN_PUBLIC_API(2,0) int botan_pk_op_encrypt_destroy(botan_pk_op_encrypt_t op);
-foreign import ccall unsafe "&botan_pk_op_encrypt_destroy" botan_pk_op_encrypt_destroy :: FinalizerPtr EncryptStruct
-
 encryptCreate :: PubKey -> EncryptPadding -> EncryptFlags -> IO Encrypt
 encryptCreate pk padding flags = alloca $ \ outPtr -> do
     withPubKeyPtr pk $ \ pkPtr -> do
@@ -64,11 +58,17 @@ encryptCreate pk padding flags = alloca $ \ outPtr -> do
             foreignPtr <- newForeignPtr botan_pk_op_encrypt_destroy out
             return $ MkEncrypt foreignPtr
 
-encryptDestroy :: Encrypt -> IO ()
-encryptDestroy encrypt = finalizeForeignPtr (getEncryptForeignPtr encrypt)
-
 withEncrypt :: PubKey -> EncryptPadding -> EncryptFlags -> (Encrypt -> IO a) -> IO a
 withEncrypt = mkWithTemp3 encryptCreate encryptDestroy
+
+-- /**
+-- * @return 0 if success, error if invalid object handle
+-- */
+-- BOTAN_PUBLIC_API(2,0) int botan_pk_op_encrypt_destroy(botan_pk_op_encrypt_t op);
+foreign import ccall unsafe "&botan_pk_op_encrypt_destroy" botan_pk_op_encrypt_destroy :: FinalizerPtr EncryptStruct
+
+encryptDestroy :: Encrypt -> IO ()
+encryptDestroy encrypt = finalizeForeignPtr (getEncryptForeignPtr encrypt)
 
 -- BOTAN_PUBLIC_API(2,8) int botan_pk_op_encrypt_output_length(botan_pk_op_encrypt_t op,
 --                                                             size_t ptext_len,
