@@ -80,8 +80,8 @@ foreign import ccall unsafe botan_x509_cert_not_after :: X509CertPtr -> Ptr Word
 -- BOTAN_PUBLIC_API(2,0) int botan_x509_cert_get_fingerprint(botan_x509_cert_t cert, const char* hash, uint8_t out[], size_t* out_len);
 foreign import ccall unsafe botan_x509_cert_get_fingerprint :: X509CertPtr -> CString -> Ptr Word8 -> Ptr CSize -> IO BotanErrorCode
 
-pubKeyFingerprint :: X509Cert -> ByteString -> IO ByteString
-pubKeyFingerprint cert algo = withX509CertPtr cert $ \ certPtr -> do
+x509CertGetPubKeyFingerprint :: X509Cert -> ByteString -> IO ByteString
+x509CertGetPubKeyFingerprint cert algo = withX509CertPtr cert $ \ certPtr -> do
     asCString algo $ \ algoPtr -> do
         allocBytesQuerying $ \ outPtr outLen -> botan_x509_cert_get_fingerprint
             certPtr
