@@ -165,11 +165,27 @@ withKEDecryptPtr = withForeignPtr . getKEDecryptForeignPtr
 --    const char* kdf);
 foreign import ccall unsafe botan_pk_op_kem_decrypt_create :: Ptr KEDecryptPtr -> PrivKeyPtr -> CString -> IO BotanErrorCode
 
+keDecryptCreate :: PrivKey -> ByteString -> IO KEDecrypt
+keDecryptCreate sk algo = alloca $ \ outPtr -> do
+    withPrivKeyPtr sk $ \ skPtr -> do
+        asCString algo $ \ algoPtr -> do
+            throwBotanIfNegative $ botan_pk_op_kem_decrypt_create outPtr skPtr algoPtr
+            out <- peek outPtr
+            foreignPtr <- newForeignPtr botan_pk_op_kem_decrypt_destroy out
+            return $ MkKEDecrypt foreignPtr
+
+withKEDecryptCreate :: PrivKey -> ByteString -> (KEDecrypt -> IO a) -> IO a
+withKEDecryptCreate = mkWithTemp2 keDecryptCreate keDecryptDestroy
+
+
 -- /**
 -- * @return 0 if success, error if invalid object handle
 -- */
 -- BOTAN_PUBLIC_API(3,0) int botan_pk_op_kem_decrypt_destroy(botan_pk_op_kem_decrypt_t op);
 foreign import ccall unsafe "&botan_pk_op_kem_decrypt_destroy" botan_pk_op_kem_decrypt_destroy :: FinalizerPtr KEDecryptStruct
+
+keDecryptDestroy :: KEDecrypt -> IO ()
+keDecryptDestroy keDecrypt = finalizeForeignPtr (getKEDecryptForeignPtr keDecrypt)
 
 -- BOTAN_PUBLIC_API(3,0)
 -- int botan_pk_op_kem_decrypt_shared_key_length(

@@ -24,9 +24,6 @@ import Botan.Error
 import Botan.Make
 import Botan.Prelude
 
--- NOTE: This is *symmetric* ciphers
---  For the 'raw' interface to ECB mode block ciphers, see BlockCipher.hs
-
 -- typedef void* botan_view_ctx;
 type ViewCtx = Ptr Void
 
