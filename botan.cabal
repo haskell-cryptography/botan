@@ -50,7 +50,7 @@ library
         Botan.PubKey.RSA
         Botan.PubKey.Sign
         Botan.PubKey.Verify
-        -- Botan.PubKey.X25519
+        Botan.PubKey.X25519
         Botan.PwdHash
         Botan.Random
         -- Botan.Scrypt
