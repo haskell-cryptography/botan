@@ -22,6 +22,7 @@ library
         PatternSynonyms
         RankNTypes
         ScopedTypeVariables
+        TupleSections
         TypeApplications
     exposed-modules:
         Botan
@@ -59,7 +60,7 @@ library
         Botan.Utility
         Botan.Version
         Botan.View
-        -- Botan.X509
+        Botan.X509
         -- Botan.ZFEC
     other-modules:
         Botan.Prelude
