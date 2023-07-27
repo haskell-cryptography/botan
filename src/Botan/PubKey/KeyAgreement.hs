@@ -46,22 +46,22 @@ pattern BOTAN_PUBKEY_KeyAgreement_FLAGS_NONE = 0 :: KeyAgreementFlags -- NOTE: N
 --                                      botan_privkey_t key,
 --                                      const char* kdf,
 --                                      uint32_t flags);
-foreign import ccall unsafe botan_pk_op_ka_create :: Ptr KeyAgreementPtr -> PrivKeyPtr -> CString -> KeyAgreementFlags -> IO BotanErrorCode
+foreign import ccall unsafe botan_pk_op_key_agreement_create :: Ptr KeyAgreementPtr -> PrivKeyPtr -> CString -> KeyAgreementFlags -> IO BotanErrorCode
 
 -- /**
 -- * @return 0 if success, error if invalid object handle
 -- */
 -- BOTAN_PUBLIC_API(2,0) int botan_pk_op_key_agreement_destroy(botan_pk_op_ka_t op);
-foreign import ccall unsafe "&botan_pk_op_ka_destroy" botan_pk_op_ka_destroy :: FinalizerPtr KeyAgreementStruct
+foreign import ccall unsafe "&botan_pk_op_key_agreement_destroy" botan_pk_op_key_agreement_destroy :: FinalizerPtr KeyAgreementStruct
 
 -- NOTE: Is same as Encrypt - unify?
 keyAgreementCreate :: PrivKey -> ByteString -> KeyAgreementFlags -> IO KeyAgreement
 keyAgreementCreate sk algo flags = alloca $ \ outPtr -> do
     withPrivKeyPtr sk $ \ skPtr -> do
         asCString algo $ \ algoPtr -> do
-            throwBotanIfNegative_ $ botan_pk_op_ka_create outPtr skPtr algoPtr flags
+            throwBotanIfNegative_ $ botan_pk_op_key_agreement_create outPtr skPtr algoPtr flags
             out <- peek outPtr
-            foreignPtr <- newForeignPtr botan_pk_op_ka_destroy out
+            foreignPtr <- newForeignPtr botan_pk_op_key_agreement_destroy out
             return $ MkKeyAgreement foreignPtr
 
 keyAgreementDestroy :: KeyAgreement -> IO ()
