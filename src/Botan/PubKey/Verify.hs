@@ -24,7 +24,6 @@ import Botan.Prelude
 import Botan.Random
 import Botan.PubKey
 import Botan.PubKey.Sign (SigningAlgo(..), SigningFlags(..))
-import Botan (throwBotanCatchingSuccess)
 
 -- /*
 -- * Signature Verification

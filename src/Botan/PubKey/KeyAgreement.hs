@@ -39,7 +39,7 @@ withKeyAgreementPtr = withForeignPtr . getKeyAgreementForeignPtr
 -- TODO: Figure out what the flags actually are
 type KeyAgreementFlags = Word32
 
-pattern BOTAN_PUBKEY_KeyAgreement_FLAGS_NONE = 0 :: KeyAgreementFlags -- NOTE: NOT ACTUAL FLAG
+pattern BOTAN_PUBKEY_KEYAGREEMENT_FLAGS_NONE = 0 :: KeyAgreementFlags -- NOTE: NOT ACTUAL FLAG
 
 -- BOTAN_PUBLIC_API(2,0)
 -- int botan_pk_op_key_agreement_create(botan_pk_op_ka_t* op,

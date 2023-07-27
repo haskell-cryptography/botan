@@ -106,7 +106,7 @@ foreign import ccall unsafe botan_x509_cert_get_public_key_bits :: X509CertPtr -
 --    botan_view_bin_fn view);
 
 -- BOTAN_PUBLIC_API(2,0) int botan_x509_cert_get_public_key(botan_x509_cert_t cert, botan_pubkey_t* key);
-foreign import ccall unsafe botan_x509_cert_get_public_key :: X509CertPtr -> Ptr PubKey -> IO BotanErrorCode
+foreign import ccall unsafe botan_x509_cert_get_public_key :: X509CertPtr -> Ptr PubKeyPtr -> IO BotanErrorCode
 
 -- BOTAN_PUBLIC_API(2,0)
 -- int botan_x509_cert_get_issuer_dn(botan_x509_cert_t cert,
