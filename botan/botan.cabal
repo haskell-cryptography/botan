@@ -1,0 +1,37 @@
+cabal-version:  3.0
+name:           botan
+version:        0.0.1
+license:        BSD-3-Clause
+author:         Leo D.
+maintainer:     leo@apotheca.io
+build-type:     Simple
+description:
+    Bindings to the Botan cryptography library
+
+source-repository head
+  type:     git
+  location: https://github.com/apotheca/botan.git
+
+library
+    hs-source-dirs:   src
+    default-language: Haskell2010
+    default-extensions:
+        NoImplicitPrelude
+        OverloadedStrings
+        PatternSynonyms
+        ScopedTypeVariables
+    exposed-modules:
+        Botan.Error
+        Botan.Utility
+        Botan.Version
+    other-modules:
+        Botan.Prelude
+        Paths_botan
+    build-depends:
+        base >= 4 && < 5,
+        botan-bindings,
+        botan-low,
+        bytestring,
+        text
+    -- cc-options:     -Wall
+    -- ghc-options:    -Wall -funbox-strict-fields     

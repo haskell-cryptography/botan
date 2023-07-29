@@ -1,0 +1,75 @@
+cabal-version:  3.0
+name:           botan-bindings
+version:        0.0.1
+license:        BSD-3-Clause
+author:         Leo D.
+maintainer:     leo@apotheca.io
+build-type:     Simple
+description:
+    Raw bindings to the Botan cryptography library
+
+source-repository head
+  type:     git
+  location: https://github.com/apotheca/botan.git
+
+library
+    hs-source-dirs:   src
+    default-language: Haskell2010
+    default-extensions:
+        NoImplicitPrelude
+        OverloadedStrings
+        PatternSynonyms
+        ScopedTypeVariables
+    exposed-modules:
+        Botan.Bindings.Bcrypt
+        Botan.Bindings.BlockCipher
+        Botan.Bindings.Cipher
+        Botan.Bindings.Error
+        Botan.Bindings.FPE
+        Botan.Bindings.Hash
+        Botan.Bindings.HOTP
+        Botan.Bindings.KDF
+        Botan.Bindings.KeyWrap
+        -- TODO: Rename Botan.Bindings.MAC
+        Botan.Bindings.Mac
+        Botan.Bindings.MPI
+        -- Botan.Bindings.PBKDF
+        Botan.Bindings.PubKey
+        Botan.Bindings.PubKey.Decrypt
+        Botan.Bindings.PubKey.DH
+        Botan.Bindings.PubKey.DSA
+        Botan.Bindings.PubKey.Ed25519
+        Botan.Bindings.PubKey.ElGamal
+        Botan.Bindings.PubKey.Encrypt
+        Botan.Bindings.PubKey.KeyAgreement
+        Botan.Bindings.PubKey.KeyEncapsulation
+        Botan.Bindings.PubKey.RSA
+        Botan.Bindings.PubKey.Sign
+        Botan.Bindings.PubKey.Verify
+        Botan.Bindings.PubKey.X25519
+        Botan.Bindings.PwdHash
+        Botan.Bindings.Random
+        -- Botan.Bindings.Scrypt
+        Botan.Bindings.SRP6
+        Botan.Bindings.TOTP
+        Botan.Bindings.Utility
+        Botan.Bindings.Version
+        Botan.Bindings.View
+        Botan.Bindings.X509
+        Botan.Bindings.ZFEC
+    other-modules:
+        Botan.Bindings.Prelude
+        Paths_botan_bindings
+    build-depends:
+        base >= 4 && < 5,
+        bytestring,
+        text
+    includes:
+        botan/ffi.h
+    if os(windows)
+        -- UNTESTED, PROBABLY WRONG
+        extra-libraries: botan-3
+    else
+        pkgconfig-depends: botan-3 >= 3.0.0
+    -- cc-options:     -Wall
+    -- ghc-options:    -Wall -funbox-strict-fields     

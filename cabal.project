@@ -1,2 +1,22 @@
 packages:
-    botan.cabal
+
+    -- Raw FFI bindings
+    botan-bindings     
+    
+    -- Low-level ByteString / IO interface             
+    botan-low
+
+    -- High-level idiomatic interface                   
+    botan
+
+    -- a command-line tool
+    -- botany
+
+    -- a cryptonite-compatible interface
+    -- botanite
+    
+    -- High-level backend-agnostic abstract cryptography interface
+    -- cryptography-schemes
+
+    -- Botan backend 
+    -- cryptography-schemes-botan

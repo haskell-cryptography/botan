@@ -106,6 +106,18 @@ See your appropriate package manager.
     - Some functions differ slightly or greatly - see `botan_privkey_export`
 - `withFoo` clashes with `withFooPtr` - the former signifies a temporary object, the latter as casting to its ptr
 - Convenience functions for deprecated-because-specific-subset
+- Prettier READMEs
+    - https://readme.so/editor
+    - https://shields.io/badges
+- Differentiate throwBotanCatchingSuccess and throwBotanCatchingInvalidIdentifier
+    - throwBotanCatchingSuccess should be (0 = True, _ = False)
+    - throwBotanCatchingInvalidIdentifier should be (0 = True, 1 = False, _ = Error)
+
+# Helpful References
+
+- https://botan.randombit.net/handbook/api_ref/ffi.html#versioning
+
+- NOTE: Regarding unsafeDupablePerormIO: https://botan.randombit.net/handbook/api_ref/footguns.html#multithreaded-access
 
 # Issues
 

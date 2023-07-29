@@ -1,0 +1,74 @@
+cabal-version:  3.0
+name:           botan-low
+version:        0.0.1
+license:        BSD-3-Clause
+author:         Leo D.
+maintainer:     leo@apotheca.io
+build-type:     Simple
+description:
+    Low-level bindings to the Botan cryptography library
+
+source-repository head
+  type:     git
+  location: https://github.com/apotheca/botan.git
+
+library
+    hs-source-dirs:   src
+    default-language: Haskell2010
+    default-extensions:
+        ExistentialQuantification
+        NoImplicitPrelude
+        OverloadedStrings
+        PatternSynonyms
+        RankNTypes
+        ScopedTypeVariables
+        TupleSections
+        TypeApplications
+    exposed-modules:
+        Botan.Low.Bcrypt
+        Botan.Low.BlockCipher
+        Botan.Low.Cipher
+        Botan.Low.Error
+        Botan.Low.FPE
+        Botan.Low.Hash
+        Botan.Low.HOTP
+        Botan.Low.KDF
+        Botan.Low.KeyWrap
+        -- TODO: Rename Botan.Low.MAC
+        Botan.Low.Mac
+        Botan.Low.MPI
+        -- Botan.Low.PBKDF
+        Botan.Low.PubKey
+        Botan.Low.PubKey.Decrypt
+        Botan.Low.PubKey.DH
+        Botan.Low.PubKey.DSA
+        Botan.Low.PubKey.Ed25519
+        Botan.Low.PubKey.ElGamal
+        Botan.Low.PubKey.Encrypt
+        Botan.Low.PubKey.KeyAgreement
+        Botan.Low.PubKey.KeyEncapsulation
+        Botan.Low.PubKey.RSA
+        Botan.Low.PubKey.Sign
+        Botan.Low.PubKey.Verify
+        Botan.Low.PubKey.X25519
+        Botan.Low.PwdHash
+        Botan.Low.Random
+        -- Botan.Low.Scrypt
+        Botan.Low.SRP6
+        Botan.Low.TOTP
+        Botan.Low.Utility
+        Botan.Low.Version
+        Botan.Low.View
+        Botan.Low.X509
+        Botan.Low.ZFEC
+    other-modules:
+        Botan.Low.Prelude
+        Botan.Low.Make
+        Paths_botan_low
+    build-depends:
+        base >= 4 && < 5,
+        botan-bindings,
+        bytestring,
+        text
+    -- cc-options:     -Wall
+    -- ghc-options:    -Wall -funbox-strict-fields     
