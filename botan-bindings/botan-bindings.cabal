@@ -43,6 +43,7 @@ library
         Botan.Bindings.PubKey.Encrypt
         Botan.Bindings.PubKey.KeyAgreement
         Botan.Bindings.PubKey.KeyEncapsulation
+        -- TODO: Botan.Bindings.PubKey.Kyber
         Botan.Bindings.PubKey.RSA
         Botan.Bindings.PubKey.Sign
         Botan.Bindings.PubKey.Verify

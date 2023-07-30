@@ -1,3 +1,13 @@
+{-|
+Module      : Botan.Bindings.Error
+Description : Error codes and exception handling
+Copyright   : (c) Leo D, 2023
+License     : BSD-3-Clause
+Maintainer  : leo@apotheca.io
+Stability   : experimental
+Portability : POSIX
+-}
+
 module Botan.Bindings.Error where
 
 import Botan.Bindings.Prelude

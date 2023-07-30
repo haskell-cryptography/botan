@@ -1,3 +1,13 @@
+{-|
+Module      : Botan.Bindings.DSA
+Description : Algorithm specific key operations: DSA
+Copyright   : (c) Leo D, 2023
+License     : BSD-3-Clause
+Maintainer  : leo@apotheca.io
+Stability   : experimental
+Portability : POSIX
+-}
+
 module Botan.Bindings.PubKey.DSA where
 
 import Botan.Bindings.Error
@@ -5,14 +15,17 @@ import Botan.Bindings.MPI
 import Botan.Bindings.Prelude
 import Botan.Bindings.PubKey
 
--- /*
--- * Algorithm specific key operations: DSA
--- */
--- BOTAN_PUBLIC_API(2,0) int botan_privkey_load_dsa(botan_privkey_t* key,
---                                      botan_mp_t p,
---                                      botan_mp_t q,
---                                      botan_mp_t g,
---                                      botan_mp_t x);
+{-
+Algorithm specific key operations: DSA
+-}
+
+{-|
+@BOTAN_PUBLIC_API(2,0) int botan_privkey_load_dsa(botan_privkey_t* key,
+                                     botan_mp_t p,
+                                     botan_mp_t q,
+                                     botan_mp_t g,
+                                     botan_mp_t x);@
+-}
 foreign import ccall unsafe botan_privkey_load_dsa
     :: Ptr PrivKeyPtr   -- key
     -> MPPtr            -- p
@@ -21,11 +34,13 @@ foreign import ccall unsafe botan_privkey_load_dsa
     -> MPPtr            -- x
     -> IO BotanErrorCode
 
--- BOTAN_PUBLIC_API(2,0) int botan_pubkey_load_dsa(botan_pubkey_t* key,
---                                     botan_mp_t p,
---                                     botan_mp_t q,
---                                     botan_mp_t g,
---                                     botan_mp_t y);
+{-|
+@BOTAN_PUBLIC_API(2,0) int botan_pubkey_load_dsa(botan_pubkey_t* key,
+                                    botan_mp_t p,
+                                    botan_mp_t q,
+                                    botan_mp_t g,
+                                    botan_mp_t y);@
+-}
 foreign import ccall unsafe botan_pubkey_load_dsa
     :: Ptr PubKeyPtr   -- key
     -> MPPtr            -- p
