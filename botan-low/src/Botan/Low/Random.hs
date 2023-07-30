@@ -1,3 +1,13 @@
+{-|
+Module      : Botan.Low.Random
+Description : Random number generators
+Copyright   : (c) Leo D, 2023
+License     : BSD-3-Clause
+Maintainer  : leo@apotheca.io
+Stability   : experimental
+Portability : POSIX
+-}
+
 module Botan.Low.Random where
 
 import qualified Data.ByteString as ByteString

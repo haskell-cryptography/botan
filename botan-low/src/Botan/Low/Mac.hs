@@ -1,3 +1,39 @@
+{-|
+Module      : Botan.Low.Mac
+Description : Message Authentication Codes (MAC)
+Copyright   : (c) Leo D, 2023
+License     : BSD-3-Clause
+Maintainer  : leo@apotheca.io
+Stability   : experimental
+Portability : POSIX
+
+A Message Authentication Code algorithm computes a tag over a
+message utilizing a shared secret key. Thus a valid tag confirms
+the authenticity and integrity of the message. Only entities in
+possession of the shared secret key are able to verify the tag.
+
+Note
+
+When combining a MAC with unauthenticated encryption mode, prefer
+to first encrypt the message and then MAC the ciphertext. The
+alternative is to MAC the plaintext, which depending on exact usage
+can suffer serious security issues. For a detailed discussion of
+this issue see the paper “The Order of Encryption and Authentication
+for Protecting Communications” by Hugo Krawczyk
+
+The Botan MAC computation is split into five stages.
+
+- Instantiate the MAC algorithm.
+
+- Set the secret key.
+
+- Process IV.
+
+- Process data.
+
+- Finalize the MAC computation.
+-}
+
 module Botan.Low.Mac where
 
 import qualified Data.ByteString as ByteString

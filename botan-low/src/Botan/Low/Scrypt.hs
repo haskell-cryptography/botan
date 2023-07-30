@@ -1,3 +1,13 @@
+{-|
+Module      : Botan.Low.Scrypt
+Description : Scrypt password hashing
+Copyright   : (c) Leo D, 2023
+License     : BSD-3-Clause
+Maintainer  : leo@apotheca.io
+Stability   : experimental
+Portability : POSIX
+-}
+
 module Botan.Low.Scrypt where
 
 -- /**

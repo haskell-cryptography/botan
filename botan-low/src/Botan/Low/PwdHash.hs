@@ -1,3 +1,15 @@
+{-|
+Module      : Botan.Low.PwdHash
+Description : Password hashing
+Copyright   : (c) Leo D, 2023
+License     : BSD-3-Clause
+Maintainer  : leo@apotheca.io
+Stability   : experimental
+Portability : POSIX
+
+Derive a key from a passphrase
+-}
+
 module Botan.Low.PwdHash where
 
 import qualified Data.ByteString as ByteString

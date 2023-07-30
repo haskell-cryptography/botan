@@ -1,3 +1,13 @@
+{-|
+Module      : Botan.Low.Utility
+Description : Utility functions
+Copyright   : (c) Leo D, 2023
+License     : BSD-3-Clause
+Maintainer  : leo@apotheca.io
+Stability   : experimental
+Portability : POSIX
+-}
+
 module Botan.Low.Utility
 ( constantTimeCompare
 , scrubMem

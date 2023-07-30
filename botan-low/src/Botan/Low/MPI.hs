@@ -1,3 +1,13 @@
+{-|
+Module      : Botan.Low.MPI
+Description : Multiple Precision Integers
+Copyright   : (c) Leo D, 2023
+License     : BSD-3-Clause
+Maintainer  : leo@apotheca.io
+Stability   : experimental
+Portability : POSIX
+-}
+
 module Botan.Low.MPI where
 
 import qualified Data.ByteString as ByteString

@@ -1,4 +1,12 @@
-{-# LANGUAGE CApiFFI #-}
+{-|
+Module      : Botan.Low.Version
+Description : Botan version info
+Copyright   : (c) Leo D, 2023
+License     : BSD-3-Clause
+Maintainer  : leo@apotheca.io
+Stability   : experimental
+Portability : POSIX
+-}
 
 module Botan.Low.Version
 ( botanFFIAPIVersion

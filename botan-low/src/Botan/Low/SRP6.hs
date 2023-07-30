@@ -1,3 +1,34 @@
+{-|
+Module      : Botan.Low.SRP6
+Description : Secure remote password
+Copyright   : (c) Leo D, 2023
+License     : BSD-3-Clause
+Maintainer  : leo@apotheca.io
+Stability   : experimental
+Portability : POSIX
+
+The library contains an implementation of the SRP6-a password
+authenticated key exchange protocol.
+
+A SRP client provides what is called a SRP verifier to the server.
+This verifier is based on a password, but the password cannot be
+easily derived from the verifier (however brute force attacks are
+possible). Later, the client and server can perform an SRP exchange,
+which results in a shared secret key. This key can be used for
+mutual authentication and/or encryption.
+
+SRP works in a discrete logarithm group. Special parameter sets for
+SRP6 are defined, denoted in the library as “modp/srp/<size>”, for
+example “modp/srp/2048”.
+
+Warning
+
+While knowledge of the verifier does not easily allow an attacker to
+get the raw password, they could still use the verifier to impersonate
+the server to the client, so verifiers should be protected as carefully
+as a plaintext password would be.
+-}
+
 module Botan.Low.SRP6 where
 
 import qualified Data.ByteString as ByteString

@@ -1,3 +1,16 @@
+{-|
+Module      : Botan.Low.PubKey
+Description : Public key cryptography
+Copyright   : (c) Leo D, 2023
+License     : BSD-3-Clause
+Maintainer  : leo@apotheca.io
+Stability   : experimental
+Portability : POSIX
+
+Public key cryptography is a collection of techniques allowing
+for encryption, signatures, and key agreement.
+-}
+
 module Botan.Low.PubKey where
 
 import qualified Data.ByteString as ByteString

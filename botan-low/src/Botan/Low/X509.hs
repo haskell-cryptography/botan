@@ -1,3 +1,23 @@
+{-|
+Module      : Botan.Low.X509
+Description : X.509 Certificates and CRLs
+Copyright   : (c) Leo D, 2023
+License     : BSD-3-Clause
+Maintainer  : leo@apotheca.io
+Stability   : experimental
+Portability : POSIX
+
+A certificate is a binding between some identifying information
+(called a subject) and a public key. This binding is asserted by
+a signature on the certificate, which is placed there by some
+authority (the issuer) that at least claims that it knows the
+subject named in the certificate really “owns” the private key
+corresponding to the public key in the certificate.
+
+The major certificate format in use today is X.509v3, used for
+instance in the Transport Layer Security (TLS) protocol.
+-}
+
 module Botan.Low.X509 where
 
 import qualified Data.ByteString as ByteString

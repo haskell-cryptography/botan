@@ -1,3 +1,37 @@
+{-|
+Module      : Botan.Low.FPE
+Description : Format Preserving Encryption
+Copyright   : (c) Leo D, 2023
+License     : BSD-3-Clause
+Maintainer  : leo@apotheca.io
+Stability   : experimental
+Portability : POSIX
+
+Format preserving encryption (FPE) refers to a set of techniques
+for encrypting data such that the ciphertext has the same format
+as the plaintext. For instance, you can use FPE to encrypt credit
+card numbers with valid checksums such that the ciphertext is also
+an credit card number with a valid checksum, or similarly for bank
+account numbers, US Social Security numbers, or even more general
+mappings like English words onto other English words.
+
+The scheme currently implemented in botan is called FE1, and described
+in the paper Format Preserving Encryption by Mihir Bellare, Thomas
+Ristenpart, Phillip Rogaway, and Till Stegers. FPE is an area of
+ongoing standardization and it is likely that other schemes will be
+included in the future.
+
+To encrypt an arbitrary value using FE1, you need to use a ranking
+method. Basically, the idea is to assign an integer to every value
+you might encrypt. For instance, a 16 digit credit card number consists
+of a 15 digit code plus a 1 digit checksum. So to encrypt a credit card
+number, you first remove the checksum, encrypt the 15 digit value modulo
+1015, and then calculate what the checksum is for the new (ciphertext)
+number. Or, if you were encrypting words in a dictionary, you could rank
+the words by their lexicographical order, and choose the modulus to be
+the number of words in the dictionary.
+-}
+
 module Botan.Low.FPE where
 
 import qualified Data.ByteString as ByteString

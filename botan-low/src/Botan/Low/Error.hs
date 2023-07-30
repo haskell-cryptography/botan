@@ -1,3 +1,13 @@
+{-|
+Module      : Botan.Low.Error
+Description : Error codes and exception handling
+Copyright   : (c) Leo D, 2023
+License     : BSD-3-Clause
+Maintainer  : leo@apotheca.io
+Stability   : experimental
+Portability : POSIX
+-}
+
 module Botan.Low.Error
 ( BotanErrorCode(..)
 , pattern Success

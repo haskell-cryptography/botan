@@ -1,3 +1,13 @@
+{-|
+Module      : Botan.Low.PBKDF
+Description : Passphrase-based key derivation functions
+Copyright   : (c) Leo D, 2023
+License     : BSD-3-Clause
+Maintainer  : leo@apotheca.io
+Stability   : experimental
+Portability : POSIX
+-}
+
 module Botan.Low.PBKDF where
 
 

@@ -1,3 +1,13 @@
+{-|
+Module      : Botan.Low.X25519
+Description : Algorithm specific key operations: X25519
+Copyright   : (c) Leo D, 2023
+License     : BSD-3-Clause
+Maintainer  : leo@apotheca.io
+Stability   : experimental
+Portability : POSIX
+-}
+
 module Botan.Low.PubKey.X25519 where
 
 import qualified Data.ByteString as ByteString

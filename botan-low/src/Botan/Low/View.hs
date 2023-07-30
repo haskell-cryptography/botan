@@ -1,3 +1,13 @@
+{-|
+Module      : Botan.Low.View
+Description : View functions
+Copyright   : (c) Leo D, 2023
+License     : BSD-3-Clause
+Maintainer  : leo@apotheca.io
+Stability   : experimental
+Portability : POSIX
+-}
+
 module Botan.Low.View where
 
 import qualified Data.ByteString as ByteString

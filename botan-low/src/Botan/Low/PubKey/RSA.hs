@@ -1,3 +1,13 @@
+{-|
+Module      : Botan.Low.RSA
+Description : Algorithm specific key operations: RSA
+Copyright   : (c) Leo D, 2023
+License     : BSD-3-Clause
+Maintainer  : leo@apotheca.io
+Stability   : experimental
+Portability : POSIX
+-}
+
 module Botan.Low.PubKey.RSA where
 
 import qualified Data.ByteString as ByteString
