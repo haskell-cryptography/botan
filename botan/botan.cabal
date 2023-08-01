@@ -20,8 +20,16 @@ library
         OverloadedStrings
         PatternSynonyms
         ScopedTypeVariables
+        -- Higher-level
+        FlexibleInstances
+        DerivingStrategies
+        GeneralizedNewtypeDeriving
+        TypeApplications
+        TypeFamilies
     exposed-modules:
+        Botan.Cipher
         Botan.Error
+        Botan.Hash
         Botan.Utility
         Botan.Version
     other-modules:

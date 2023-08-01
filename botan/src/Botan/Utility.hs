@@ -34,6 +34,7 @@ constantTimeCompare x y len = unsafePerformIO $ Low.constantTimeCompare x y len
 -- scrubMemWith :: WithPtr typ ptr -> typ -> Int -> IO ()
 -- scrubMemWith withPtr typ sz = withPtr typ $ \ ptr -> Low.scrubMem ptr sz
 
+-- TODO: Discuss ergonomics of flipping argument order
 hexEncode :: ByteString -> HexEncodingFlags -> Text
 hexEncode bytes flags = unsafePerformIO $ Low.hexEncode bytes flags
 

@@ -112,6 +112,7 @@ See your appropriate package manager.
 - Differentiate throwBotanCatchingSuccess and throwBotanCatchingInvalidIdentifier
     - throwBotanCatchingSuccess should be (0 = True, _ = False)
     - throwBotanCatchingInvalidIdentifier should be (0 = True, 1 = False, _ = Error)
+- Consideration of strict and lazy bytestring in APIs
 
 # Helpful References
 

@@ -45,7 +45,6 @@ type CipherKey = ByteString
 cipherInit :: CipherName -> CipherInitFlags -> IO Cipher
 cipherInit = mkInit_name_flags MkCipher botan_cipher_init botan_cipher_destroy
 
-
 -- |Destroy the cipher object
 cipherDestroy :: Cipher -> IO ()
 cipherDestroy cipher = finalizeForeignPtr (getCipherForeignPtr cipher)

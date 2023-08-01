@@ -32,6 +32,7 @@ foreign import ccall unsafe botan_foo_do_something :: FooPtr -> IO BotanErrorCod
 This allows us to define the following type and initializer, which will create objects that are safely destroyed when garbage-collected:
 
 ```haskell
+-- TODO: Maybe rename FooCtx?
 newtype Foo = Foo { getFooForeignPtr :: ForeignPtr FooStruct }  -- Haskell newtype wrapper
 
 withFooPtr :: Foo -> (FooPtr -> IO a) -> IO a                   -- Convenience function
