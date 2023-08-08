@@ -13,7 +13,7 @@ module Botan.Bindings.PubKey.Encrypt where
 import Botan.Bindings.Error
 import Botan.Bindings.Prelude
 import Botan.Bindings.PubKey
-import Botan.Bindings.Random
+import Botan.Bindings.RNG
 
 {-
 Public Key Encryption
@@ -62,7 +62,7 @@ foreign import ccall unsafe botan_pk_op_encrypt_output_length :: EncryptPtr -> C
 -}
 foreign import ccall unsafe botan_pk_op_encrypt
     :: EncryptPtr
-    -> RandomPtr
+    -> RNGPtr
     -> Ptr Word8    -- Out
     -> Ptr CSize    -- Out len
     -> Ptr Word8    -- Plaintext

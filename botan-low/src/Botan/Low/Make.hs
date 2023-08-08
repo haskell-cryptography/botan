@@ -151,7 +151,7 @@ mkGetName withPtr get typ = withPtr typ $ \ typPtr -> do
         bytes <- allocBytes 64 $ \ bytesPtr -> do
             throwBotanIfNegative_ $ get typPtr bytesPtr szPtr
         sz <- peek szPtr
-        return $ ByteString.copy $ ByteString.take (fromIntegral sz) bytes
+        return $! ByteString.copy $! ByteString.take (fromIntegral sz) bytes
 
 type GetBytes ptr = ptr -> Ptr Word8 -> Ptr CSize -> IO BotanErrorCode
 

@@ -1,5 +1,7 @@
 # Usage examples
 
+> WARNING: OUT OF DATE since refactor
+
 ## Cipher
 
 ### ChaCha

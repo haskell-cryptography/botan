@@ -13,7 +13,7 @@ module Botan.Bindings.PubKey.KeyEncapsulation where
 import Botan.Bindings.Error
 import Botan.Bindings.Prelude
 import Botan.Bindings.PubKey
-import Botan.Bindings.Random
+import Botan.Bindings.RNG
 
 {-
 Key Encapsulation
@@ -78,7 +78,7 @@ foreign import ccall unsafe botan_pk_op_kem_encrypt_encapsulated_key_length
 -}
 foreign import ccall unsafe botan_pk_op_kem_encrypt_create_shared_key
     :: KEMEncryptPtr
-    -> RandomPtr
+    -> RNGPtr
     -> Ptr Word8    -- Salt
     -> CSize        -- Salt len
     -> CSize        -- Desired shared key len

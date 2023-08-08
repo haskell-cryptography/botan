@@ -44,27 +44,27 @@ newtype X509Cert = MkX509Cert { getX509CertForeignPtr :: ForeignPtr X509CertStru
 withX509CertPtr :: X509Cert -> (X509CertPtr -> IO a) -> IO a
 withX509CertPtr = withForeignPtr . getX509CertForeignPtr
 
-x509CertLoad :: ByteString -> IO X509Cert
-x509CertLoad = mkInit_bytes_len MkX509Cert botan_x509_cert_load botan_x509_cert_destroy
+x509CertLoadIO :: ByteString -> IO X509Cert
+x509CertLoadIO = mkInit_bytes_len MkX509Cert botan_x509_cert_load botan_x509_cert_destroy
 
-x509CertLoadFile :: FilePath -> IO X509Cert
-x509CertLoadFile = mkInit_name MkX509Cert botan_x509_cert_load_file botan_x509_cert_destroy . Char8.pack
+x509CertLoadFileIO :: FilePath -> IO X509Cert
+x509CertLoadFileIO = mkInit_name MkX509Cert botan_x509_cert_load_file botan_x509_cert_destroy . Char8.pack
 
-x509CertDestroy :: X509Cert -> IO ()
-x509CertDestroy cert = finalizeForeignPtr (getX509CertForeignPtr cert)
+x509CertDestroyIO :: X509Cert -> IO ()
+x509CertDestroyIO cert = finalizeForeignPtr (getX509CertForeignPtr cert)
 
-x509CertDup :: X509Cert -> IO X509Cert
-x509CertDup = mkInit_with MkX509Cert botan_x509_cert_dup botan_x509_cert_destroy withX509CertPtr
+x509CertDupIO :: X509Cert -> IO X509Cert
+x509CertDupIO = mkInit_with MkX509Cert botan_x509_cert_dup botan_x509_cert_destroy withX509CertPtr
 
-x509CertGetTimeStarts :: X509Cert -> IO ByteString
-x509CertGetTimeStarts = mkGetCString withX509CertPtr botan_x509_cert_get_time_starts
+x509CertGetTimeStartsIO :: X509Cert -> IO ByteString
+x509CertGetTimeStartsIO = mkGetCString withX509CertPtr botan_x509_cert_get_time_starts
 
-x509CertGetTimeExpires :: X509Cert -> IO ByteString
-x509CertGetTimeExpires = mkGetCString withX509CertPtr botan_x509_cert_get_time_expires
+x509CertGetTimeExpiresIO :: X509Cert -> IO ByteString
+x509CertGetTimeExpiresIO = mkGetCString withX509CertPtr botan_x509_cert_get_time_expires
 
 -- TODO: mkGetIntegral
-x509CertNotBefore :: X509Cert -> IO Word64
-x509CertNotBefore cert = withX509CertPtr cert $ \ certPtr -> do
+x509CertNotBeforeIO :: X509Cert -> IO Word64
+x509CertNotBeforeIO cert = withX509CertPtr cert $ \ certPtr -> do
     alloca $ \ timePtr -> do
         botan_x509_cert_not_before
             certPtr
@@ -72,8 +72,8 @@ x509CertNotBefore cert = withX509CertPtr cert $ \ certPtr -> do
         fromIntegral <$> peek timePtr
 
 -- TODO: mkGetIntegral
-x509CertNotAfter :: X509Cert -> IO Word64
-x509CertNotAfter cert = withX509CertPtr cert $ \ certPtr -> do
+x509CertNotAfterIO :: X509Cert -> IO Word64
+x509CertNotAfterIO cert = withX509CertPtr cert $ \ certPtr -> do
     alloca $ \ timePtr -> do
         botan_x509_cert_not_after
             certPtr
@@ -81,8 +81,8 @@ x509CertNotAfter cert = withX509CertPtr cert $ \ certPtr -> do
         fromIntegral <$> peek timePtr
 
 
-x509CertGetPubKeyFingerprint :: X509Cert -> ByteString -> IO ByteString
-x509CertGetPubKeyFingerprint cert algo = withX509CertPtr cert $ \ certPtr -> do
+x509CertGetPubKeyFingerprintIO :: X509Cert -> ByteString -> IO ByteString
+x509CertGetPubKeyFingerprintIO cert algo = withX509CertPtr cert $ \ certPtr -> do
     asCString algo $ \ algoPtr -> do
         allocBytesQuerying $ \ outPtr outLen -> botan_x509_cert_get_fingerprint
             certPtr
@@ -90,27 +90,27 @@ x509CertGetPubKeyFingerprint cert algo = withX509CertPtr cert $ \ certPtr -> do
             outPtr
             outLen
 
-x509CertGetSerialNumber :: X509Cert -> IO ByteString
-x509CertGetSerialNumber = mkGetBytes withX509CertPtr botan_x509_cert_get_serial_number
+x509CertGetSerialNumberIO :: X509Cert -> IO ByteString
+x509CertGetSerialNumberIO = mkGetBytes withX509CertPtr botan_x509_cert_get_serial_number
 
-x509CertGetAuthorityKeyId :: X509Cert -> IO ByteString
-x509CertGetAuthorityKeyId = mkGetBytes withX509CertPtr botan_x509_cert_get_authority_key_id
+x509CertGetAuthorityKeyIdIO :: X509Cert -> IO ByteString
+x509CertGetAuthorityKeyIdIO = mkGetBytes withX509CertPtr botan_x509_cert_get_authority_key_id
 
-x509CertGetSubjectKeyId :: X509Cert -> IO ByteString
-x509CertGetSubjectKeyId = mkGetBytes withX509CertPtr botan_x509_cert_get_subject_key_id
+x509CertGetSubjectKeyIdIO :: X509Cert -> IO ByteString
+x509CertGetSubjectKeyIdIO = mkGetBytes withX509CertPtr botan_x509_cert_get_subject_key_id
 
-x509CertGetPublicKeyBits :: X509Cert -> IO ByteString
-x509CertGetPublicKeyBits = mkGetBytes withX509CertPtr botan_x509_cert_get_public_key_bits
+x509CertGetPublicKeyBitsIO :: X509Cert -> IO ByteString
+x509CertGetPublicKeyBitsIO = mkGetBytes withX509CertPtr botan_x509_cert_get_public_key_bits
 
 -- NOTE: Unique / quirk - the return value is the second argument?
 --  This necessitates the use of `flip`
-x509CertGetPublicKey :: X509Cert -> IO PubKey
-x509CertGetPublicKey = mkInit_with MkPubKey (flip botan_x509_cert_get_public_key) botan_pubkey_destroy withX509CertPtr
+x509CertGetPublicKeyIO :: X509Cert -> IO PubKey
+x509CertGetPublicKeyIO = mkInit_with MkPubKey (flip botan_x509_cert_get_public_key) botan_pubkey_destroy withX509CertPtr
 
 -- Distinguished Names
 --  SEE: https://www.ibm.com/docs/en/ibm-mq/7.5?topic=certificates-distinguished-names
-x509CertGetIssuerDN :: X509Cert -> ByteString -> Int -> IO ByteString
-x509CertGetIssuerDN cert key index = withX509CertPtr cert $ \ certPtr -> do
+x509CertGetIssuerDNIO :: X509Cert -> ByteString -> Int -> IO ByteString
+x509CertGetIssuerDNIO cert key index = withX509CertPtr cert $ \ certPtr -> do
     asCString key $ \ keyPtr -> do
         allocBytesQuerying $ \ outPtr outLen -> botan_x509_cert_get_issuer_dn
             certPtr
@@ -121,8 +121,8 @@ x509CertGetIssuerDN cert key index = withX509CertPtr cert $ \ certPtr -> do
 
 -- Distinguished Names
 --  SEE: https://www.ibm.com/docs/en/ibm-mq/7.5?topic=certificates-distinguished-names
-x509CertGetSubjectDN :: X509Cert -> ByteString -> Int -> IO ByteString
-x509CertGetSubjectDN cert key index = withX509CertPtr cert $ \ certPtr -> do
+x509CertGetSubjectDNIO :: X509Cert -> ByteString -> Int -> IO ByteString
+x509CertGetSubjectDNIO cert key index = withX509CertPtr cert $ \ certPtr -> do
     asCString key $ \ keyPtr -> do
         allocBytesQuerying $ \ outPtr outLen -> botan_x509_cert_get_issuer_dn
             certPtr
@@ -131,8 +131,8 @@ x509CertGetSubjectDN cert key index = withX509CertPtr cert $ \ certPtr -> do
             outPtr
             outLen
 
-x509CertToString :: X509Cert -> IO ByteString
-x509CertToString = mkGetCString withX509CertPtr botan_x509_cert_to_string
+x509CertToStringIO :: X509Cert -> IO ByteString
+x509CertToStringIO = mkGetCString withX509CertPtr botan_x509_cert_to_string
 
 pattern NoConstraints = BOTAN_X509_CERT_KEY_CONSTRAINTS_NO_CONSTRAINTS
 pattern DigitalSignature = BOTAN_X509_CERT_KEY_CONSTRAINTS_DIGITAL_SIGNATURE
@@ -145,21 +145,21 @@ pattern CRLSign = BOTAN_X509_CERT_KEY_CONSTRAINTS_CRL_SIGN
 pattern EncipherOnly = BOTAN_X509_CERT_KEY_CONSTRAINTS_ENCIPHER_ONLY
 pattern DecipherOnly = BOTAN_X509_CERT_KEY_CONSTRAINTS_DECIPHER_ONLY
 
-{-# WARNING x509CertAllowedUsage "Unexplained function, best-guess implementation" #-}
+{-# WARNING x509CertAllowedUsageIO "Unexplained function, best-guess implementation" #-}
 -- NOTE: This function lacks documentation, and it is unknown whether this is
 --  setting a value (as implied by Z-botan), or whether it is using either
 --  a negative error or INVALID_IDENTIFIER to return a bool
-x509CertAllowedUsage :: X509Cert -> X509CertKeyConstraints -> IO Bool
-x509CertAllowedUsage cert usage = withX509CertPtr cert $ \ certPtr -> do
+x509CertAllowedUsageIO :: X509Cert -> X509CertKeyConstraints -> IO Bool
+x509CertAllowedUsageIO cert usage = withX509CertPtr cert $ \ certPtr -> do
     throwBotanCatchingSuccess $ botan_x509_cert_allowed_usage certPtr usage
 
-{-# WARNING x509CertHostnameMatch "Unexplained function, best-guess implementation" #-}
-x509CertHostnameMatch :: X509Cert -> ByteString -> IO Bool
-x509CertHostnameMatch cert hostname = withX509CertPtr cert $ \ certPtr -> do
+{-# WARNING x509CertHostnameMatchIO "Unexplained function, best-guess implementation" #-}
+x509CertHostnameMatchIO :: X509Cert -> ByteString -> IO Bool
+x509CertHostnameMatchIO cert hostname = withX509CertPtr cert $ \ certPtr -> do
     asCString hostname $ \ hostnamePtr -> do
         throwBotanCatchingSuccess $ botan_x509_cert_hostname_match certPtr hostnamePtr
 
-x509CertVerify
+x509CertVerifyIO
     :: X509Cert
     -> [X509Cert]
     -> [X509Cert]
@@ -168,7 +168,7 @@ x509CertVerify
     -> ByteString
     -> Word64
     -> IO (Bool, Int)
-x509CertVerify cert icerts tcerts tpath strength hostname time = do
+x509CertVerifyIO cert icerts tcerts tpath strength hostname time = do
     withX509CertPtr cert $ \ certPtr -> do
         withPtrs withX509CertPtr icerts $ flip withArrayLen $ \ icertsLen icertsPtr -> do
             withPtrs withX509CertPtr tcerts $ flip withArrayLen $ \ tcertsLen tcertsPtr -> do
@@ -189,8 +189,8 @@ x509CertVerify cert icerts tcerts tpath strength hostname time = do
                             code <- fromIntegral <$> peek statusPtr
                             return (success, code)
 
-x509CertValidationStatus :: Int -> IO (Maybe ByteString)
-x509CertValidationStatus code = do
+x509CertValidationStatusIO :: Int -> IO (Maybe ByteString)
+x509CertValidationStatusIO code = do
     status <- botan_x509_cert_validation_status (fromIntegral code)
     if status == nullPtr
         then return Nothing
@@ -205,21 +205,21 @@ newtype X509CRL = MkX509CRL { getX509CRLForeignPtr :: ForeignPtr X509CRLStruct }
 withX509CRLPtr :: X509CRL -> (X509CRLPtr -> IO a) -> IO a
 withX509CRLPtr = withForeignPtr . getX509CRLForeignPtr
 
-x509CRLLoad :: ByteString -> IO X509CRL
-x509CRLLoad = mkInit_bytes_len MkX509CRL botan_x509_crl_load botan_x509_crl_destroy
+x509CRLLoadIO :: ByteString -> IO X509CRL
+x509CRLLoadIO = mkInit_bytes_len MkX509CRL botan_x509_crl_load botan_x509_crl_destroy
 
-x509CRLLoadFile :: FilePath -> IO X509CRL
-x509CRLLoadFile = mkInit_name MkX509CRL botan_x509_crl_load_file botan_x509_crl_destroy . Char8.pack
+x509CRLLoadFileIO :: FilePath -> IO X509CRL
+x509CRLLoadFileIO = mkInit_name MkX509CRL botan_x509_crl_load_file botan_x509_crl_destroy . Char8.pack
 
-x509CRLDestroy :: X509CRL -> IO ()
-x509CRLDestroy crl = finalizeForeignPtr (getX509CRLForeignPtr crl)
+x509CRLDestroyIO :: X509CRL -> IO ()
+x509CRLDestroyIO crl = finalizeForeignPtr (getX509CRLForeignPtr crl)
 
-x509IsRevoked :: X509CRL -> X509Cert -> IO Bool
-x509IsRevoked crl cert = withX509CRLPtr crl $ \ crlPtr -> do
+x509IsRevokedIO :: X509CRL -> X509Cert -> IO Bool
+x509IsRevokedIO crl cert = withX509CRLPtr crl $ \ crlPtr -> do
     withX509CertPtr cert $ \ certPtr -> do
         throwBotanCatchingSuccess $ botan_x509_is_revoked crlPtr certPtr
 
-x509CertVerifyWithCLR
+x509CertVerifyWithCLRIO
     :: X509Cert
     -> [X509Cert]
     -> [X509Cert]
@@ -229,7 +229,7 @@ x509CertVerifyWithCLR
     -> ByteString
     -> Word64
     -> IO (Bool, Int)
-x509CertVerifyWithCLR cert icerts tcerts crls tpath strength hostname time = do
+x509CertVerifyWithCLRIO cert icerts tcerts crls tpath strength hostname time = do
     withX509CertPtr cert $ \ certPtr -> do
         withPtrs withX509CertPtr icerts $ flip withArrayLen $ \ icertsLen icertsPtr -> do
             withPtrs withX509CertPtr tcerts $ flip withArrayLen $ \ tcertsLen tcertsPtr -> do

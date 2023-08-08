@@ -12,6 +12,7 @@ module Botan.Low.PubKey.ElGamal where
 
 import qualified Data.ByteString as ByteString
 
+import Botan.Bindings.PubKey
 import Botan.Bindings.PubKey.ElGamal
 
 import Botan.Low.Error
@@ -19,13 +20,22 @@ import Botan.Low.Make
 import Botan.Low.MPI
 import Botan.Low.Prelude
 import Botan.Low.PubKey
+import Botan.Low.RNG
 
 -- /*
 -- * Algorithm specific key operations: ElGamal
 -- */
 
-privKeyLoadElGamal :: MP -> MP -> MP -> IO PrivKey
-privKeyLoadElGamal = mkPrivKeyLoad3 botan_privkey_load_elgamal
+privKeyCreateElGamalIO :: RNGCtx -> Int -> Int -> IO PrivKey
+privKeyCreateElGamalIO rng pbits qbits = withRNGPtr rng $ \ rngPtr -> do
+    alloca $ \ outPtr -> do
+        throwBotanIfNegative_ $ botan_privkey_create_elgamal outPtr rngPtr (fromIntegral pbits) (fromIntegral qbits)
+        out <- peek outPtr
+        foreignPtr <- newForeignPtr botan_privkey_destroy out
+        return $ MkPrivKey foreignPtr
 
-pubKeyLoadElGamal :: MP -> MP -> MP -> IO PubKey
-pubKeyLoadElGamal = mkPubKeyLoad3 botan_pubkey_load_elgamal
+privKeyLoadElGamalIO :: MP -> MP -> MP -> IO PrivKey
+privKeyLoadElGamalIO = mkPrivKeyLoad3 botan_privkey_load_elgamal
+
+pubKeyLoadElGamalIO :: MP -> MP -> MP -> IO PubKey
+pubKeyLoadElGamalIO = mkPubKeyLoad3 botan_pubkey_load_elgamal

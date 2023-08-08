@@ -27,12 +27,13 @@ import qualified Data.ByteString as ByteString
 
 import Botan.Bindings.KeyWrap
 
+import Botan.Low.BlockCipher
 import Botan.Low.Error
 import Botan.Low.Make
 import Botan.Low.Prelude
 
-nistKeyWrapEncode :: ByteString -> Int -> ByteString -> ByteString -> IO ByteString
-nistKeyWrapEncode algo padded key kek = asCString algo $ \ algoPtr -> do
+nistKeyWrapEncodeIO :: BlockCipherName -> Int -> ByteString -> ByteString -> IO ByteString
+nistKeyWrapEncodeIO algo padded key kek = asCString algo $ \ algoPtr -> do
     asBytesLen key $ \ keyPtr keyLen -> do
         asBytesLen kek $ \ kekPtr kekLen -> do
             allocBytesQuerying $ \ wrappedKeyPtr wrappedKeyLen -> botan_nist_kw_enc
@@ -45,8 +46,8 @@ nistKeyWrapEncode algo padded key kek = asCString algo $ \ algoPtr -> do
                 wrappedKeyPtr
                 wrappedKeyLen
 
-nistKeyWrapDecode :: ByteString -> Int -> ByteString -> ByteString -> IO ByteString
-nistKeyWrapDecode algo padded wrappedKey kek = asCString algo $ \ algoPtr -> do
+nistKeyWrapDecodeIO :: BlockCipherName -> Int -> ByteString -> ByteString -> IO ByteString
+nistKeyWrapDecodeIO algo padded wrappedKey kek = asCString algo $ \ algoPtr -> do
     asBytesLen wrappedKey $ \ wrappedKeyPtr wrappedKeyLen -> do
         asBytesLen kek $ \ kekPtr kekLen -> do
             allocBytesQuerying $ \ keyPtr keyLen -> botan_nist_kw_dec

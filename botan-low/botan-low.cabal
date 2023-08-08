@@ -34,14 +34,15 @@ library
         Botan.Low.HOTP
         Botan.Low.KDF
         Botan.Low.KeyWrap
-        -- TODO: Rename Botan.Low.MAC
-        Botan.Low.Mac
+        Botan.Low.MAC
         Botan.Low.MPI
         -- Botan.Low.PBKDF
         Botan.Low.PubKey
         Botan.Low.PubKey.Decrypt
         Botan.Low.PubKey.DH
         Botan.Low.PubKey.DSA
+        Botan.Low.PubKey.ECDH
+        Botan.Low.PubKey.ECDSA
         Botan.Low.PubKey.Ed25519
         Botan.Low.PubKey.ElGamal
         Botan.Low.PubKey.Encrypt
@@ -49,10 +50,11 @@ library
         Botan.Low.PubKey.KeyEncapsulation
         Botan.Low.PubKey.RSA
         Botan.Low.PubKey.Sign
+        Botan.Low.PubKey.SM2
         Botan.Low.PubKey.Verify
         Botan.Low.PubKey.X25519
         Botan.Low.PwdHash
-        Botan.Low.Random
+        Botan.Low.RNG
         -- Botan.Low.Scrypt
         Botan.Low.SRP6
         Botan.Low.TOTP

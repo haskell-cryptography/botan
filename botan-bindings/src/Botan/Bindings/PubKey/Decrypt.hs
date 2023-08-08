@@ -13,7 +13,7 @@ module Botan.Bindings.PubKey.Decrypt where
 import Botan.Bindings.Error
 import Botan.Bindings.Prelude
 import Botan.Bindings.PubKey
-import Botan.Bindings.Random
+import Botan.Bindings.RNG
 
 {-
 Public Key Decryption

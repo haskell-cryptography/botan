@@ -27,19 +27,19 @@ import Botan.Low.PubKey
 -- */
 
 -- NOTE: Input must be exactly 32 bytes long
-privKeyLoadX25519 :: ByteString -> IO PrivKey
-privKeyLoadX25519 = mkInit_bytes MkPrivKey botan_privkey_load_x25519 botan_privkey_destroy
+privKeyLoadX25519IO :: ByteString -> IO PrivKey
+privKeyLoadX25519IO = mkInit_bytes MkPrivKey botan_privkey_load_x25519 botan_privkey_destroy
 
 -- NOTE: Input must be exactly 32 bytes long
-pubKeyLoadX25519 :: ByteString -> IO PubKey
-pubKeyLoadX25519 = mkInit_bytes MkPubKey botan_pubkey_load_x25519 botan_pubkey_destroy
+pubKeyLoadX25519IO :: ByteString -> IO PubKey
+pubKeyLoadX25519IO = mkInit_bytes MkPubKey botan_pubkey_load_x25519 botan_pubkey_destroy
 
-privKeyX25519GetPrivKey :: PrivKey -> IO ByteString
-privKeyX25519GetPrivKey sk = withPrivKeyPtr sk $ \ skPtr -> do
+privKeyX25519GetPrivKeyIO :: PrivKey -> IO ByteString
+privKeyX25519GetPrivKeyIO sk = withPrivKeyPtr sk $ \ skPtr -> do
     allocBytes 32 $ \ outPtr -> do
         throwBotanIfNegative_ $ botan_privkey_x25519_get_privkey skPtr outPtr
 
-pubKeyX25519GetPubKey :: PubKey -> IO ByteString
-pubKeyX25519GetPubKey pk = withPubKeyPtr pk $ \ pkPtr -> do
+pubKeyX25519GetPubKeyIO :: PubKey -> IO ByteString
+pubKeyX25519GetPubKeyIO pk = withPubKeyPtr pk $ \ pkPtr -> do
     allocBytes 32 $ \ outPtr -> do
         throwBotanIfNegative_ $ botan_pubkey_x25519_get_pubkey pkPtr outPtr

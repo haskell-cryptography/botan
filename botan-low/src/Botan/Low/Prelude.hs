@@ -31,6 +31,7 @@ module Botan.Low.Prelude
 , asPaddedBytes
 , asPaddedBytesLen
 , baseLength
+, showBytes
 ) where
 
 -- Re-exported modules
@@ -63,6 +64,8 @@ import qualified Data.ByteString as ByteString
 import qualified Data.ByteString.Internal as ByteString
 import qualified Data.ByteString.Unsafe as ByteString
 
+import qualified Data.ByteString.Char8 as Char8
+
 import qualified Data.Text.Encoding as Text
 
 -- Because:
@@ -88,7 +91,10 @@ allocBytesWith sz f
     | otherwise = do
         fptr <- ByteString.mallocByteString sz
         a <- withForeignPtr fptr (f . castPtr)
-        return (a, ByteString.PS fptr 0 sz)
+        -- return (a, ByteString.PS fptr 0 sz)
+        let bs = ByteString.PS fptr 0 sz
+            in bs `seq` return (a,bs)
+
 
 asCString :: ByteString -> (Ptr CChar -> IO a) -> IO a
 asCString = ByteString.useAsCString
@@ -142,3 +148,6 @@ asPaddedBytesLen bytes blockSize = asBytesLen (padBytes bytes blockSize)
 --  ceiling $ n * logBase k b
 baseLength :: Int -> Int -> Int -> Int
 baseLength n b k = ceiling $ fromIntegral n * logBase (fromIntegral k) (fromIntegral b)
+
+showBytes :: (Show a) => a -> ByteString
+showBytes = Char8.pack . show

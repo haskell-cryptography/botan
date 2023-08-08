@@ -16,22 +16,27 @@ library
     hs-source-dirs:   src
     default-language: Haskell2010
     default-extensions:
+        InstanceSigs
         NoImplicitPrelude
         OverloadedStrings
         PatternSynonyms
         ScopedTypeVariables
-        -- Higher-level
-        FlexibleInstances
-        DerivingStrategies
-        GeneralizedNewtypeDeriving
-        TypeApplications
-        TypeFamilies
     exposed-modules:
+        Botan.Bcrypt
+        Botan.BlockCipher
         Botan.Cipher
         Botan.Error
         Botan.Hash
+        Botan.KDF
+        Botan.KeyWrap
+        Botan.MAC
+        Botan.PubKey
+        Botan.PubKey.Sign
+        Botan.PwdHash
+        Botan.RNG
         Botan.Utility
         Botan.Version
+        Botan.ZFEC
     other-modules:
         Botan.Prelude
         Paths_botan
@@ -40,6 +45,7 @@ library
         botan-bindings,
         botan-low,
         bytestring,
+        deepseq,
         text
     -- cc-options:     -Wall
     -- ghc-options:    -Wall -funbox-strict-fields     

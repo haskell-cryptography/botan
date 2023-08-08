@@ -25,7 +25,26 @@ the arguments concatenated. After completing a hash computation (eg using
 hashFinal), the internal state is reset to begin hashing a new message.
 -}
 
-module Botan.Low.Hash where
+module Botan.Low.Hash
+( HashCtx(..)
+, HashName(..)
+, HashDigest(..)
+, withHashPtr
+, hashCtxInitIO
+, withHashCtxIO
+, hashCtxDestroyIO
+, hashCtxNameIO
+, hashCtxCopyStateIO
+, hashCtxClearIO
+, hashCtxBlockSizeIO
+, hashCtxOutputLengthIO
+, hashCtxUpdateIO
+, hashCtxFinalIO
+, hashCtxUpdateFinalizeIO
+, hashCtxUpdateFinalizeClearIO
+, hashCtxWithHashCtxIO
+, hashCtxWithNameIO
+) where
 
 import qualified Data.ByteString as ByteString
 
@@ -37,51 +56,76 @@ import Botan.Low.Error
 import Botan.Low.Make
 import Botan.Low.Prelude
 
--- NOTE: Noticed that "MD5" is not supported / was not built into this release of botan?
---  This may require conditional compilation checks or something.
+newtype HashCtx = MkHashCtx { getHashForeignPtr :: ForeignPtr HashStruct }
 
-newtype Hash = MkHash { getHashForeignPtr :: ForeignPtr HashStruct }
+type HashName = ByteString
+type HashDigest = ByteString
 
-withHashPtr :: Hash -> (HashPtr -> IO a) -> IO a
+withHashPtr :: HashCtx -> (HashPtr -> IO a) -> IO a
 withHashPtr = withForeignPtr . getHashForeignPtr
 
-hashInit :: ByteString -> IO Hash
-hashInit name = mkInit_name_flags MkHash botan_hash_init botan_hash_destroy name 0
+-- TODO: rename hashCtxInitNameIO
+hashCtxInitIO :: ByteString -> IO HashCtx
+hashCtxInitIO name = mkInit_name_flags MkHashCtx botan_hash_init botan_hash_destroy name 0
 
-withHash :: ByteString -> (Hash -> IO a) -> IO a
-withHash = mkWithTemp1 hashInit hashDestroy
+withHashCtxIO :: ByteString -> (HashCtx -> IO a) -> IO a
+withHashCtxIO = mkWithTemp1 hashCtxInitIO hashCtxDestroyIO
 
-hashDestroy :: Hash -> IO ()
-hashDestroy hash = finalizeForeignPtr (getHashForeignPtr hash)
+hashCtxDestroyIO :: HashCtx -> IO ()
+hashCtxDestroyIO hash = finalizeForeignPtr (getHashForeignPtr hash)
 
-hashName :: Hash -> IO ByteString
-hashName = mkGetName withHashPtr botan_hash_name
+hashCtxNameIO :: HashCtx -> IO HashDigest
+hashCtxNameIO = mkGetName withHashPtr botan_hash_name
 
 -- NOTE: This does the correct thing - see C++ docs:
 --  Return a newly allocated HashFunction object of the same type as this one,
 --  whose internal state matches the current state of this.
-hashCopyState :: Hash -> IO Hash
-hashCopyState source = withHashPtr source $ \ sourcePtr -> do
+hashCtxCopyStateIO :: HashCtx -> IO HashCtx
+hashCtxCopyStateIO source = withHashPtr source $ \ sourcePtr -> do
     alloca $ \ outPtr -> do
         throwBotanIfNegative_ $ botan_hash_copy_state outPtr sourcePtr
         out <- peek outPtr
         hashForeignPtr <- newForeignPtr botan_hash_destroy out
-        return $ MkHash hashForeignPtr
+        return $ MkHashCtx hashForeignPtr
 
-hashClear :: Hash -> IO ()
-hashClear =  mkAction withHashPtr botan_hash_clear
+hashCtxClearIO :: HashCtx -> IO ()
+hashCtxClearIO =  mkAction withHashPtr botan_hash_clear
 
-hashBlockSize :: Hash -> IO Int
-hashBlockSize = mkGetSize withHashPtr botan_hash_block_size
+hashCtxBlockSizeIO :: HashCtx -> IO Int
+hashCtxBlockSizeIO = mkGetSize withHashPtr botan_hash_block_size
 
-hashOutputLength :: Hash -> IO Int
-hashOutputLength = mkGetSize withHashPtr botan_hash_output_length
+hashCtxOutputLengthIO :: HashCtx -> IO Int
+hashCtxOutputLengthIO = mkGetSize withHashPtr botan_hash_output_length
 
-hashUpdate :: Hash -> ByteString -> IO ()
-hashUpdate = mkSetBytesLen withHashPtr botan_hash_update
+hashCtxUpdateIO :: HashCtx -> ByteString -> IO ()
+hashCtxUpdateIO = mkSetBytesLen withHashPtr botan_hash_update
 
-hashFinal :: Hash -> IO ByteString
-hashFinal hash = withHashPtr hash $ \ hashPtr -> do
-    sz <- hashOutputLength hash
+hashCtxFinalIO :: HashCtx -> IO HashDigest
+hashCtxFinalIO hash = withHashPtr hash $ \ hashPtr -> do
+    sz <- hashCtxOutputLengthIO hash
     allocBytes sz $ \ digestPtr -> do
         throwBotanIfNegative_ $ botan_hash_final hashPtr digestPtr
+
+-- Convenience
+
+hashCtxUpdateFinalizeIO :: HashCtx -> ByteString -> IO HashDigest
+hashCtxUpdateFinalizeIO ctx bytes = do
+    hashCtxUpdateIO ctx bytes
+    dg <- hashCtxFinalIO ctx
+    hashCtxClearIO ctx
+    return dg
+
+hashCtxUpdateFinalizeClearIO :: HashCtx -> ByteString -> IO HashDigest
+hashCtxUpdateFinalizeClearIO ctx bytes = do
+    dg <- hashCtxUpdateFinalizeIO ctx bytes
+    hashCtxClearIO ctx
+    return dg
+-- Or: hashCtxUpdateFinalizeIO ctx bytes <* hashCtxClearIO ctx
+
+hashCtxWithHashCtxIO :: HashCtx -> ByteString -> IO HashDigest
+hashCtxWithHashCtxIO = hashCtxUpdateFinalizeClearIO
+
+hashCtxWithNameIO :: HashName -> ByteString -> IO HashDigest
+hashCtxWithNameIO name bytes = do
+    ctx <- hashCtxInitIO name
+    hashCtxWithHashCtxIO ctx bytes

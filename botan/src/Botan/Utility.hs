@@ -12,18 +12,17 @@ module Botan.Utility
 
 import System.IO.Unsafe
 
-import Botan.Low.Utility (HexEncodingFlags, pattern Upper, pattern Lower)
-import qualified Botan.Low.Utility as Low
+import Botan.Low.Utility
 
 import Botan.Error
 import Botan.Prelude
 
 -- | Returns 0 if x[0..len] == y[0..len], -1 otherwise.
 constantTimeCompare :: ByteString -> ByteString -> Int -> Bool
-constantTimeCompare x y len = unsafePerformIO $ Low.constantTimeCompare x y len
+constantTimeCompare = unsafePerformIO3 constantTimeCompareIO
 
 -- I'm not entirely sure what this should be
--- Rather, this should be used in a `ScrubedBytes` implementation
+-- Rather, this should be used in a `ScrubbedBytes` implementation
 -- This will require a custom version of allocBytes / mallocByteString that calls scrubmem before freeing
 -- See: https://stackoverflow.com/questions/47609959/exporting-importing-via-ffi-vs-using-the-ffi-wrapper
 --  Need to mix the wrapper with a closure that also frees the allocated wrapper funptr
@@ -36,14 +35,14 @@ constantTimeCompare x y len = unsafePerformIO $ Low.constantTimeCompare x y len
 
 -- TODO: Discuss ergonomics of flipping argument order
 hexEncode :: ByteString -> HexEncodingFlags -> Text
-hexEncode bytes flags = unsafePerformIO $ Low.hexEncode bytes flags
+hexEncode = unsafePerformIO2 hexEncodeIO
 
 -- | "Hex decode some data"
 hexDecode :: Text -> ByteString
-hexDecode hex = unsafePerformIO $ Low.hexDecode hex
+hexDecode = unsafePerformIO1 hexDecodeIO
 
 base64Encode :: ByteString -> Text
-base64Encode bytes = unsafePerformIO $ Low.base64Encode bytes
+base64Encode = unsafePerformIO1 base64EncodeIO
 
 base64Decode :: Text -> ByteString
-base64Decode base64 = unsafePerformIO $ Low.base64Decode base64
+base64Decode = unsafePerformIO1 base64DecodeIO

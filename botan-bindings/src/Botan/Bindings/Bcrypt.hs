@@ -14,7 +14,7 @@ module Botan.Bindings.Bcrypt where
 
 import Botan.Bindings.Error
 import Botan.Bindings.Prelude
-import Botan.Bindings.Random
+import Botan.Bindings.RNG
 
 {-| Bcrypt password hashing -}
 
@@ -39,7 +39,7 @@ Output is formatted bcrypt $2a$...
                                     uint32_t flags);@
 -}
 
-foreign import ccall unsafe botan_bcrypt_generate :: Ptr Word8 -> Ptr CSize -> Ptr CChar -> RandomPtr -> CSize -> Word32 -> IO BotanErrorCode
+foreign import ccall unsafe botan_bcrypt_generate :: Ptr Word8 -> Ptr CSize -> Ptr CChar -> RNGPtr -> CSize -> Word32 -> IO BotanErrorCode
 
 {-|
 Check a previously created password hash

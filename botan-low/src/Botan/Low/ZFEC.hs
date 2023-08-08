@@ -56,8 +56,8 @@ import Botan.Low.Prelude
 type ZFECShare = (Int, ByteString)
 
 -- TODO: Better way of doing this?
-zfecEncode :: Int -> Int -> ByteString -> IO [ZFECShare]
-zfecEncode k n input = asBytesLen input $ \ inputPtr inputLen -> do
+zfecEncodeIO :: Int -> Int -> ByteString -> IO [ZFECShare]
+zfecEncodeIO k n input = asBytesLen input $ \ inputPtr inputLen -> do
     let shareSize = div (fromIntegral inputLen) k
     allocaBytes (n * shareSize) $ \ outPtr -> do
         allocaArray n $ \ (sharePtrArrayPtr :: Ptr (Ptr Word8)) -> do
@@ -72,9 +72,10 @@ zfecEncode k n input = asBytesLen input $ \ inputPtr inputLen -> do
             shares <- traverse (ByteString.packCStringLen . (,shareSize) . castPtr) sharePtrs
             return $ zip [0..(n-1)] shares
 
-{-# WARNING zfecDecode "Not implemented correctly, causes segfault." #-}
-zfecDecode :: Int -> Int -> [ZFECShare] -> Int -> IO ByteString
-zfecDecode k n shares shareSize = allocaArray k $ \ (indexesPtr :: Ptr CSize) -> do
+{-# WARNING zfecDecodeIO "Not implemented correctly, causes segfault." #-}
+-- NOTE: segfault may be related to strictness.
+zfecDecodeIO :: Int -> Int -> [ZFECShare] -> Int -> IO ByteString
+zfecDecodeIO k n shares shareSize = allocaArray k $ \ (indexesPtr :: Ptr CSize) -> do
     withPtrs unsafeAsBytes (fmap snd shares) $ \ (sharePtrs :: [Ptr Word8]) -> do
         allocaArray k $ \ (sharePtrArrayPtr :: Ptr (Ptr Word8)) -> do
             pokeArray indexesPtr $ fmap (fromIntegral . fst) shares
@@ -89,4 +90,4 @@ zfecDecode k n shares shareSize = allocaArray k $ \ (indexesPtr :: Ptr CSize) ->
                         (fromIntegral shareSize)
                         outPtrArrayPtr
                     decodedShares <- traverse (ByteString.unsafePackCStringLen . (,shareSize) . castPtr) outPtrs
-                    return $ ByteString.copy $ ByteString.concat decodedShares
+                    return $! ByteString.copy $! ByteString.concat decodedShares

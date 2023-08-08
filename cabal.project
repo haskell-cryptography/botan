@@ -16,7 +16,7 @@ packages:
     -- botanite
     
     -- High-level backend-agnostic abstract cryptography interface
-    -- cryptography-schemes
+    crypto-schemes
 
     -- Botan backend 
-    -- cryptography-schemes-botan
+    crypto-schemes-botan

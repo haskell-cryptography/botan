@@ -1,5 +1,5 @@
 {-|
-Module      : Botan.Bindings.Mac
+Module      : Botan.Bindings.MAC
 Description : Message Authentication Codes (MAC)
 Copyright   : (c) Leo D, 2023
 License     : BSD-3-Clause
@@ -34,7 +34,7 @@ The Botan MAC computation is split into five stages.
 - Finalize the MAC computation.
 -}
 
-module Botan.Bindings.Mac where
+module Botan.Bindings.MAC where
 
 import Botan.Bindings.Error
 import Botan.Bindings.Prelude
@@ -44,10 +44,10 @@ Message Authentication type
 
 @typedef struct botan_mac_struct* botan_mac_t;@
 -}
-data MacStruct
-type MacPtr = Ptr MacStruct
+data MACStruct
+type MACPtr = Ptr MACStruct
 
-type MacFlags = Word32
+type MACFlags = Word32
 
 {-|
 Initialize a message authentication code object
@@ -60,7 +60,7 @@ Initialize a message authentication code object
 
 @BOTAN_PUBLIC_API(2,0) int botan_mac_init(botan_mac_t* mac, const char* mac_name, uint32_t flags);@
 -}
-foreign import ccall unsafe botan_mac_init :: Ptr MacPtr -> CString -> MacFlags -> IO BotanErrorCode
+foreign import ccall unsafe botan_mac_init :: Ptr MACPtr -> CString -> MACFlags -> IO BotanErrorCode
 
 {-|
 Frees all resources of the MAC object
@@ -70,7 +70,7 @@ Frees all resources of the MAC object
 
 @BOTAN_PUBLIC_API(2,0) int botan_mac_destroy(botan_mac_t mac);@
 -}
-foreign import ccall unsafe "&botan_mac_destroy" botan_mac_destroy :: FinalizerPtr MacStruct
+foreign import ccall unsafe "&botan_mac_destroy" botan_mac_destroy :: FinalizerPtr MACStruct
 
 {-|
 Writes the output length of the message authentication code to *output_length
@@ -81,7 +81,7 @@ Writes the output length of the message authentication code to *output_length
 
 @BOTAN_PUBLIC_API(2,0) int botan_mac_output_length(botan_mac_t mac, size_t* output_length);@
 -}
-foreign import ccall unsafe botan_mac_output_length :: MacPtr -> Ptr CSize -> IO BotanErrorCode
+foreign import ccall unsafe botan_mac_output_length :: MACPtr -> Ptr CSize -> IO BotanErrorCode
 
 {-|
 Sets the key on the MAC
@@ -92,7 +92,7 @@ Sets the key on the MAC
 
 @BOTAN_PUBLIC_API(2,0) int botan_mac_set_key(botan_mac_t mac, const uint8_t* key, size_t key_len);@
 -}
-foreign import ccall unsafe botan_mac_set_key :: MacPtr -> Ptr Word8 -> CSize -> IO BotanErrorCode
+foreign import ccall unsafe botan_mac_set_key :: MACPtr -> Ptr Word8 -> CSize -> IO BotanErrorCode
 
 {-|
 Sets the nonce on the MAC
@@ -103,7 +103,7 @@ Sets the nonce on the MAC
 
 @BOTAN_PUBLIC_API(3,0) int botan_mac_set_nonce(botan_mac_t mac, const uint8_t* nonce, size_t nonce_len);@
 -}
-foreign import ccall unsafe botan_mac_set_nonce :: MacPtr -> Ptr Word8 -> CSize -> IO BotanErrorCode
+foreign import ccall unsafe botan_mac_set_nonce :: MACPtr -> Ptr Word8 -> CSize -> IO BotanErrorCode
 
 {-|
 Send more input to the message authentication code
@@ -115,7 +115,7 @@ Send more input to the message authentication code
 
 @BOTAN_PUBLIC_API(2,0) int botan_mac_update(botan_mac_t mac, const uint8_t* buf, size_t len);@
 -}
-foreign import ccall unsafe botan_mac_update :: MacPtr -> Ptr Word8 -> CSize -> IO BotanErrorCode
+foreign import ccall unsafe botan_mac_update :: MACPtr -> Ptr Word8 -> CSize -> IO BotanErrorCode
 
 {-|
 Finalizes the MAC computation and writes the output to
@@ -128,7 +128,7 @@ another MAC as if botan_mac_clear had been called.
 
 @BOTAN_PUBLIC_API(2,0) int botan_mac_final(botan_mac_t mac, uint8_t out[]);@
 -}
-foreign import ccall unsafe botan_mac_final :: MacPtr -> Ptr Word8 -> IO BotanErrorCode
+foreign import ccall unsafe botan_mac_final :: MACPtr -> Ptr Word8 -> IO BotanErrorCode
 
 {-|
 Reinitializes the state of the MAC computation. A MAC can
@@ -139,7 +139,7 @@ be computed (with update/final) immediately.
 
 @BOTAN_PUBLIC_API(2,0) int botan_mac_clear(botan_mac_t mac);@
 -}
-foreign import ccall unsafe botan_mac_clear :: MacPtr -> IO BotanErrorCode
+foreign import ccall unsafe botan_mac_clear :: MACPtr -> IO BotanErrorCode
 
 {-|
 Get the name of this MAC
@@ -150,7 +150,7 @@ Get the name of this MAC
 
 @BOTAN_PUBLIC_API(2,8) int botan_mac_name(botan_mac_t mac, char* name, size_t* name_len);@
 -}
-foreign import ccall unsafe botan_mac_name :: MacPtr -> Ptr CChar -> Ptr CSize -> IO BotanErrorCode
+foreign import ccall unsafe botan_mac_name :: MACPtr -> Ptr CChar -> Ptr CSize -> IO BotanErrorCode
 
 {-|
 Get the key length limits of this auth code
@@ -166,7 +166,7 @@ Get the key length limits of this auth code
                                                  size_t* out_keylength_modulo);@
 -}
 foreign import ccall unsafe botan_mac_get_keyspec
-    :: MacPtr
+    :: MACPtr
     -> Ptr CSize 
     -> Ptr CSize 
     -> Ptr CSize 

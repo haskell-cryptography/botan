@@ -30,14 +30,15 @@ library
         Botan.Bindings.HOTP
         Botan.Bindings.KDF
         Botan.Bindings.KeyWrap
-        -- TODO: Rename Botan.Bindings.MAC
-        Botan.Bindings.Mac
+        Botan.Bindings.MAC
         Botan.Bindings.MPI
         -- Botan.Bindings.PBKDF
         Botan.Bindings.PubKey
         Botan.Bindings.PubKey.Decrypt
         Botan.Bindings.PubKey.DH
         Botan.Bindings.PubKey.DSA
+        Botan.Bindings.PubKey.ECDH
+        Botan.Bindings.PubKey.ECDSA
         Botan.Bindings.PubKey.Ed25519
         Botan.Bindings.PubKey.ElGamal
         Botan.Bindings.PubKey.Encrypt
@@ -46,10 +47,11 @@ library
         -- TODO: Botan.Bindings.PubKey.Kyber
         Botan.Bindings.PubKey.RSA
         Botan.Bindings.PubKey.Sign
+        Botan.Bindings.PubKey.SM2
         Botan.Bindings.PubKey.Verify
         Botan.Bindings.PubKey.X25519
         Botan.Bindings.PwdHash
-        Botan.Bindings.Random
+        Botan.Bindings.RNG
         -- Botan.Bindings.Scrypt
         Botan.Bindings.SRP6
         Botan.Bindings.TOTP

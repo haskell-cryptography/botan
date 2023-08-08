@@ -46,47 +46,48 @@ import Botan.Low.Make
 import Botan.Low.Prelude
 
 -- NOTE: RFC 4226
+-- NOTE: I think this *only* takes SHA-2, specificaly "SHA-256" and "SHA-512",
+--  and probably because the RFC specifically uses it?
 
 -- /**
 -- * HOTP
 -- */
 
-newtype HOTP = MkHOTP { getHOTPForeignPtr :: ForeignPtr HOTPStruct }
+newtype HOTPCtx = MkHOTPCtx { getHOTPForeignPtr :: ForeignPtr HOTPStruct }
 
-withHOTPPtr :: HOTP -> (HOTPPtr -> IO a) -> IO a
+withHOTPPtr :: HOTPCtx -> (HOTPPtr -> IO a) -> IO a
 withHOTPPtr = withForeignPtr . getHOTPForeignPtr
 
 -- NOTE: Digits should be 6-8
-hotpInit :: ByteString -> ByteString -> Int -> IO HOTP
-hotpInit key algo digits = alloca $ \ outPtr -> do
+hotpCtxInitIO :: ByteString -> ByteString -> Int -> IO HOTPCtx
+hotpCtxInitIO key algo digits = alloca $ \ outPtr -> do
     asBytesLen key $ \ keyPtr keyLen -> do
         asCString algo $ \ algoPtr -> do
             throwBotanIfNegative $ botan_hotp_init outPtr keyPtr keyLen algoPtr (fromIntegral digits)
             out <- peek outPtr
             foreignPtr <- newForeignPtr botan_hotp_destroy out
-            return $ MkHOTP foreignPtr
+            return $ MkHOTPCtx foreignPtr
 
-hotpDestroy :: HOTP -> IO ()
-hotpDestroy hotp = finalizeForeignPtr (getHOTPForeignPtr hotp)
+hotpCtxDestroyIO :: HOTPCtx -> IO ()
+hotpCtxDestroyIO hotp = finalizeForeignPtr (getHOTPForeignPtr hotp)
 
-withHOTP :: ByteString -> ByteString -> Int -> (HOTP -> IO a) -> IO a
-withHOTP = mkWithTemp3 hotpInit hotpDestroy
+withHOTPCtxInitIO :: ByteString -> ByteString -> Int -> (HOTPCtx -> IO a) -> IO a
+withHOTPCtxInitIO = mkWithTemp3 hotpCtxInitIO hotpCtxDestroyIO
 
 -- NOTE: User is responsible for incrementing counter at this level
-hotpGenerate :: HOTP -> HOTPCounter -> IO HOTPCode
-hotpGenerate hotp counter = withHOTPPtr hotp $ \ hotpPtr -> do
+hotpCtxGenerateIO :: HOTPCtx -> HOTPCounter -> IO HOTPCode
+hotpCtxGenerateIO hotp counter = withHOTPPtr hotp $ \ hotpPtr -> do
     alloca $ \ outPtr -> do
         throwBotanIfNegative $ botan_hotp_generate hotpPtr outPtr counter
         peek outPtr
 
--- ~~TODO: Should probably return bool - see other similar cases~~
---  Struck:
+-- NOTE:
 --      "Returns a pair of (is_valid,next_counter_to_use). If the OTP is
 --      invalid then always returns (false,starting_counter), since the
 --      last successful authentication counter has not changed. ""
 -- NOTE: "Depending on the environment a resync_range of 3 to 10 might be appropriate."
-hotpCheck :: HOTP -> HOTPCode -> HOTPCounter -> Int -> IO (Bool, HOTPCounter)
-hotpCheck hotp code counter resync = withHOTPPtr hotp $ \ hotpPtr -> do
+hotpCtxCheckIO :: HOTPCtx -> HOTPCode -> HOTPCounter -> Int -> IO (Bool, HOTPCounter)
+hotpCtxCheckIO hotp code counter resync = withHOTPPtr hotp $ \ hotpPtr -> do
     alloca $ \ outPtr -> do
         valid <- throwBotanCatchingSuccess $ botan_hotp_check hotpPtr outPtr code counter (fromIntegral resync)
         nextCounter <- peek outPtr

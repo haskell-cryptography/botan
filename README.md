@@ -113,6 +113,14 @@ See your appropriate package manager.
     - throwBotanCatchingSuccess should be (0 = True, _ = False)
     - throwBotanCatchingInvalidIdentifier should be (0 = True, 1 = False, _ = Error)
 - Consideration of strict and lazy bytestring in APIs
+- Swap module nomenclature `Botan.Low.Cipher`, `Botan.Bindings.Cipher` with `Botan.Cipher.Low`, `Botan.Cipher.Bindings`
+- `Inline` and `NoInline` as appropriate
+- Strictify / force-evaluate results as necesary
+    - Example, bcryptGenerateIO (is bad function, needs cleanup anyway): 
+        - return $! ByteString.copy $! ByteString.take (fromIntegral sz) out
+- Use doxygen (https://botan.randombit.net/doxygen/) to dig into differentiating algo types
+- A bcrypt-like format for marking cryptexts
+    - `$h[hid]$...` for hashes, etc
 
 # Helpful References
 
@@ -121,6 +129,8 @@ See your appropriate package manager.
 - NOTE: Regarding unsafeDupablePerormIO: https://botan.randombit.net/handbook/api_ref/footguns.html#multithreaded-access
 
 # Issues
+
+## CAPI vs CCALL
 
 We should be trying to use `capi` instead of `ccall`, a la: 
 
@@ -141,3 +151,4 @@ type FinalizerPtr a = FunPtr (Ptr a -> IO ())
 ```
 
 It is therefore possible that we must use `ccall`. Further investigation is needed.
+

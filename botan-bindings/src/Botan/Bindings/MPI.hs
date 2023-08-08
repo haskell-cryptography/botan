@@ -12,7 +12,7 @@ module Botan.Bindings.MPI where
 
 import Botan.Bindings.Error
 import Botan.Bindings.Prelude
-import Botan.Bindings.Random
+import Botan.Bindings.RNG
 
 {-|
 Multiple precision integers (MPI)
@@ -245,13 +245,13 @@ foreign import ccall unsafe botan_mp_mod_inverse :: MPPtr -> MPPtr -> MPPtr -> I
 {-|
 @BOTAN_PUBLIC_API(2,1) int botan_mp_rand_bits(botan_mp_t rand_out, botan_rng_t rng, size_t bits);@
 -}
-foreign import ccall unsafe botan_mp_rand_bits :: MPPtr -> RandomPtr -> CSize -> IO BotanErrorCode
+foreign import ccall unsafe botan_mp_rand_bits :: MPPtr -> RNGPtr -> CSize -> IO BotanErrorCode
 
 {-|
 @BOTAN_PUBLIC_API(2,1) int botan_mp_rand_range(botan_mp_t rand_out, botan_rng_t rng,
                                   const botan_mp_t lower_bound, const botan_mp_t upper_bound);@
 -}
-foreign import ccall unsafe botan_mp_rand_range :: MPPtr -> RandomPtr -> MPPtr -> MPPtr -> IO BotanErrorCode
+foreign import ccall unsafe botan_mp_rand_range :: MPPtr -> RNGPtr -> MPPtr -> MPPtr -> IO BotanErrorCode
 
 {-|
 @BOTAN_PUBLIC_API(2,1) int botan_mp_gcd(botan_mp_t out, const botan_mp_t x, const botan_mp_t y);@
@@ -265,7 +265,7 @@ Returns negative number on error
 
 @BOTAN_PUBLIC_API(2,1) int botan_mp_is_prime(const botan_mp_t n, botan_rng_t rng, size_t test_prob);@
 -}
-foreign import ccall unsafe botan_mp_is_prime :: MPPtr -> RandomPtr -> CSize -> IO BotanErrorCode
+foreign import ccall unsafe botan_mp_is_prime :: MPPtr -> RNGPtr -> CSize -> IO BotanErrorCode
 
 {-|
 Returns 0 if specified bit of n is not set

@@ -19,18 +19,18 @@ import Botan.Bindings.Bcrypt
 import Botan.Low.Error
 import Botan.Low.Make
 import Botan.Low.Prelude
-import Botan.Low.Random
+import Botan.Low.RNG
 
 -- |Create a password hash using Bcrypt
 --
 --  Output is formatted bcrypt $2a$...
-bcryptGenerate
+bcryptGenerateIO
     :: ByteString   -- ^ The password
-    -> Random       -- ^ A random number generator
+    -> RNGCtx       -- ^ A random number generator
     -> Int          -- ^ A work factor to slow down guessing attacks (a value of 12 to 16 is probably fine).
     -> IO ByteString
-bcryptGenerate password random factor = asCString password $ \ passwordPtr -> do
-    withRandomPtr random $ \ randomPtr -> do
+bcryptGenerateIO password rng factor = asCString password $ \ passwordPtr -> do
+   withRNGPtr rng $ \ rngPtr -> do
         alloca $ \ szPtr -> do
             -- NOTE: Despite the documentation stating:
             --  "@param out buffer holding the password hash, should be of length 64 bytes"
@@ -41,21 +41,24 @@ bcryptGenerate password random factor = asCString password $ \ passwordPtr -> do
                     outPtr
                     szPtr
                     passwordPtr
-                    randomPtr
+                    rngPtr
                     (fromIntegral factor)
                     0   -- "@param flags should be 0 in current API revision, all other uses are reserved"
             sz <- peek szPtr
-            return $ ByteString.copy $ ByteString.take (fromIntegral sz) $ out
+            -- TODO: Enforce strictness similarly elsewhere as necessary
+            -- return $! ByteString.copy $! ByteString.take (fromIntegral sz) out
+            let bcrypt = ByteString.copy $! ByteString.take (fromIntegral sz) out
+                in bcrypt `seq` return bcrypt
 
 -- |Check a previously created password hash
 --
 --  Returns True iff this password/hash combination is valid,
 --  False if the combination is not valid (but otherwise well formed),
 --  and otherwise throws an exception on error
-bcryptIsValid
+bcryptIsValidIO
     :: ByteString   -- ^ The password to check against
     -> ByteString   -- ^ The stored hash to check against
     -> IO Bool
-bcryptIsValid password hash = asCString password $ \ passwordPtr -> do
+bcryptIsValidIO password hash = asCString password $ \ passwordPtr -> do
     asCString hash $ \ hashPtr -> do
         throwBotanCatchingSuccess $ botan_bcrypt_is_valid passwordPtr hashPtr

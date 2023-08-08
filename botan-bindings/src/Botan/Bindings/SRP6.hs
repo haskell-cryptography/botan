@@ -33,7 +33,7 @@ module Botan.Bindings.SRP6 where
 
 import Botan.Bindings.Error
 import Botan.Bindings.Prelude
-import Botan.Bindings.Random
+import Botan.Bindings.RNG
 
 {-|
 SRP-6 Server Session type
@@ -91,7 +91,7 @@ foreign import ccall unsafe botan_srp6_server_session_step1
     -> CSize        -- Verifier len
     -> CString      -- Group id
     -> CString      -- Hash id
-    -> RandomPtr
+    -> RNGPtr
     -> Ptr Word8    -- Out
     -> Ptr CSize    -- Out len
     -> IO BotanErrorCode
@@ -184,7 +184,7 @@ foreign import ccall unsafe botan_srp6_client_agree
     -> CSize        -- Salt len
     -> Ptr Word8    -- B
     -> CSize        -- B len
-    -> RandomPtr
+    -> RNGPtr
     -> Ptr Word8    -- A (Output)
     -> Ptr CSize    -- A len
     -> Ptr Word8    -- K (Output)

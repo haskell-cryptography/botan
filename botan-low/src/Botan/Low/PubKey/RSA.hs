@@ -24,12 +24,12 @@ import Botan.Low.PubKey
 -- * Algorithm specific key operations: RSA
 -- */
 
-privKeyLoadRSA :: MP -> MP -> MP -> IO PrivKey
-privKeyLoadRSA = mkPrivKeyLoad3 botan_privkey_load_rsa
+privKeyLoadRSAIO :: MP -> MP -> MP -> IO PrivKey
+privKeyLoadRSAIO = mkPrivKeyLoad3 botan_privkey_load_rsa
 
 -- TODO: botan_privkey_load_rsa_pkcs1
 
 -- TODO: botan_privkey_rsa_get_privkey
 
-pubKeyLoadDSA :: MP -> MP -> IO PubKey
-pubKeyLoadDSA = mkPubKeyLoad2 botan_pubkey_load_rsa
+pubKeyLoadDSAIO :: MP -> MP -> IO PubKey
+pubKeyLoadDSAIO = mkPubKeyLoad2 botan_pubkey_load_rsa

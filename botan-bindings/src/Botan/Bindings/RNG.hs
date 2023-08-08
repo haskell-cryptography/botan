@@ -1,5 +1,5 @@
 {-|
-Module      : Botan.Bindings.Random
+Module      : Botan.Bindings.RNG
 Description : Random number generators
 Copyright   : (c) Leo D, 2023
 License     : BSD-3-Clause
@@ -8,14 +8,12 @@ Stability   : experimental
 Portability : POSIX
 -}
 
-module Botan.Bindings.Random where
+module Botan.Bindings.RNG where
 
 import Data.ByteString (ByteString)
 
 import Botan.Bindings.Error
 import Botan.Bindings.Prelude
-
--- NOTE: Went with `Random` nomenclature rather than `RNG` because oof.
 
 {-|
 RNG type
@@ -23,31 +21,31 @@ RNG type
 @typedef struct botan_rng_struct* botan_rng_t;@
 -}
 
-data RandomStruct
-type RandomPtr = Ptr RandomStruct
+data RNGStruct
+type RNGPtr = Ptr RNGStruct
 
-type RandomType = ByteString
+type RNGName = ByteString
 
-pattern BOTAN_RANDOM_TYPE_SYSTEM            = "system"          :: RandomType
-pattern BOTAN_RANDOM_TYPE_USER              = "user"            :: RandomType
-pattern BOTAN_RANDOM_TYPE_USER_THREADSAFE   = "user-threadsafe" :: RandomType
-pattern BOTAN_RANDOM_TYPE_RDRAND            = "rdrand"          :: RandomType
+pattern BOTAN_RANDOM_TYPE_SYSTEM            = "system"          :: RNGName
+pattern BOTAN_RANDOM_TYPE_USER              = "user"            :: RNGName
+pattern BOTAN_RANDOM_TYPE_USER_THREADSAFE   = "user-threadsafe" :: RNGName
+pattern BOTAN_RANDOM_TYPE_RDRAND            = "rdrand"          :: RNGName
 
 {-|
 Initialize a random number generator object
 
 - \@param rng rng object
 - \@param rng_type type of the rng, possible values:
-   "system": system Random
-   "user": userspace Random
-   "user-threadsafe": userspace Random, with internal locking
+   "system": system RNG
+   "user": userspace RNG
+   "user-threadsafe": userspace RNG, with internal locking
    "rdrand": directly read RDRAND
 
 Set rng_type to null to let the library choose some default.
 
 @BOTAN_PUBLIC_API(2,0) int botan_rng_init(botan_rng_t* rng, const char* rng_type);@
 -}
-foreign import ccall unsafe botan_rng_init :: Ptr RandomPtr -> Ptr CChar -> IO BotanErrorCode
+foreign import ccall unsafe botan_rng_init :: Ptr RNGPtr -> Ptr CChar -> IO BotanErrorCode
 
 {-
 Initialize a custom random number generator from a set of callback functions
@@ -75,7 +73,7 @@ Frees all resources of the random number generator object
 
 @BOTAN_PUBLIC_API(2,0) int botan_rng_destroy(botan_rng_t rng);@
 -}
-foreign import ccall unsafe "&botan_rng_destroy" botan_rng_destroy :: FinalizerPtr RandomStruct
+foreign import ccall unsafe "&botan_rng_destroy" botan_rng_destroy :: FinalizerPtr RNGStruct
 
 {-|
 Get random bytes from a random number generator
@@ -87,7 +85,7 @@ Get random bytes from a random number generator
 
 @BOTAN_PUBLIC_API(2,0) int botan_rng_get(botan_rng_t rng, uint8_t* out, size_t out_len);@
 -}
-foreign import ccall unsafe botan_rng_get :: RandomPtr -> Ptr Word8 -> CSize -> IO BotanErrorCode
+foreign import ccall unsafe botan_rng_get :: RNGPtr -> Ptr Word8 -> CSize -> IO BotanErrorCode
 
 {-|
 Get random bytes from system random number generator
@@ -110,7 +108,7 @@ Uses the System_RNG as a seed generator.
 
 @BOTAN_PUBLIC_API(2,0) int botan_rng_reseed(botan_rng_t rng, size_t bits);@
 -}
-foreign import ccall unsafe botan_rng_reseed :: RandomPtr -> CSize -> IO BotanErrorCode
+foreign import ccall unsafe botan_rng_reseed :: RNGPtr -> CSize -> IO BotanErrorCode
 
 {-|
 Reseed a random number generator
@@ -124,7 +122,7 @@ Reseed a random number generator
                                                     botan_rng_t source_rng,
                                                     size_t bits);@
 -}
-foreign import ccall unsafe botan_rng_reseed_from_rng :: RandomPtr -> RandomPtr -> CSize -> IO BotanErrorCode
+foreign import ccall unsafe botan_rng_reseed_from_rng :: RNGPtr -> RNGPtr -> CSize -> IO BotanErrorCode
 
 {-|
 Add some seed material to a random number generator
@@ -138,4 +136,4 @@ Add some seed material to a random number generator
                                                 const uint8_t* entropy,
                                                 size_t entropy_len);@
 -}
-foreign import ccall unsafe botan_rng_add_entropy :: RandomPtr -> Ptr Word8 -> CSize -> IO BotanErrorCode
+foreign import ccall unsafe botan_rng_add_entropy :: RNGPtr -> Ptr Word8 -> CSize -> IO BotanErrorCode

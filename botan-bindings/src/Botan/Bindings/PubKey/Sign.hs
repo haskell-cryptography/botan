@@ -13,7 +13,7 @@ module Botan.Bindings.PubKey.Sign where
 import Botan.Bindings.Error
 import Botan.Bindings.Prelude
 import Botan.Bindings.PubKey
-import Botan.Bindings.Random
+import Botan.Bindings.RNG
 
 {-
 Signature Generation
@@ -63,7 +63,7 @@ foreign import ccall unsafe botan_pk_op_sign_update :: SignPtr -> Ptr Word8  -> 
 int botan_pk_op_sign_finish(botan_pk_op_sign_t op, botan_rng_t rng,
                             uint8_t sig[], size_t* sig_len);@
 -}
-foreign import ccall unsafe botan_pk_op_sign_finish :: SignPtr -> RandomPtr -> Ptr Word8 -> Ptr CSize -> IO BotanErrorCode
+foreign import ccall unsafe botan_pk_op_sign_finish :: SignPtr -> RNGPtr -> Ptr Word8 -> Ptr CSize -> IO BotanErrorCode
 
 {-|
 Signature Scheme Utility Functions
