@@ -1,5 +1,6 @@
 module Botan.Prelude
 ( module Prelude
+, module Control.Applicative
 , module Control.Monad
 , module Control.Exception
 , module Control.DeepSeq
@@ -32,6 +33,7 @@ module Botan.Prelude
 
 import Prelude
 
+import Control.Applicative
 import Control.Monad
 import Control.Exception
 import Control.DeepSeq
@@ -51,7 +53,7 @@ import Data.IORef
 -- Internal imports
 
 import qualified Data.ByteString.Char8 as Char8
-import qualified Data.ByteString as Bytes
+import qualified Data.ByteString as ByteString
 import qualified Data.Text as Text
 
 --
@@ -147,3 +149,23 @@ track val = do
         ( unsafePerformIO (writeIORef ref True) `seq` val
         , readIORef ref
         )
+
+-- A name type
+
+data Name
+    = Name ByteString           -- Foo
+    | NameFn ByteString [Name]  -- Foo(a,b,...,c)
+    | Names [Name]              -- a/b/.../c
+    | Param Int
+
+nameBytes :: Name -> ByteString
+nameBytes (Name name) = name
+nameBytes (NameFn name args) = name <> "(" <> inner <> ")" where
+    inner = ByteString.intercalate "," $ fmap nameBytes args
+
+-- TODO: Name parser
+
+-- TODO: Parser for custom Modular Crypt Format
+--  Like: https://passlib.readthedocs.io/en/stable/modular_crypt_format.html#mcf-identifiers
+
+-- #mode$alg:content or something

@@ -121,6 +121,10 @@ See your appropriate package manager.
 - Use doxygen (https://botan.randombit.net/doxygen/) to dig into differentiating algo types
 - A bcrypt-like format for marking cryptexts
     - `$h[hid]$...` for hashes, etc
+- Found the best / easiest docs
+    - https://botan.randombit.net/doxygen/ffi_8h.html
+    - Make a `Botan.Bindings.Macro/Constants` module for constants
+    - Cover all functions
 
 # Helpful References
 

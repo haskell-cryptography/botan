@@ -70,24 +70,55 @@ zfecEncodeIO k n input = asBytesLen input $ \ inputPtr inputLen -> do
                 inputLen
                 sharePtrArrayPtr
             shares <- traverse (ByteString.packCStringLen . (,shareSize) . castPtr) sharePtrs
-            return $ zip [0..(n-1)] shares
+            return $!! zip [0..(n-1)] shares
 
-{-# WARNING zfecDecodeIO "Not implemented correctly, causes segfault." #-}
--- NOTE: segfault may be related to strictness.
-zfecDecodeIO :: Int -> Int -> [ZFECShare] -> Int -> IO ByteString
-zfecDecodeIO k n shares shareSize = allocaArray k $ \ (indexesPtr :: Ptr CSize) -> do
-    withPtrs unsafeAsBytes (fmap snd shares) $ \ (sharePtrs :: [Ptr Word8]) -> do
-        allocaArray k $ \ (sharePtrArrayPtr :: Ptr (Ptr Word8)) -> do
-            pokeArray indexesPtr $ fmap (fromIntegral . fst) shares
-            withPtrs (const $ allocaBytes shareSize) [0..(k-1)] $ \ outPtrs -> do
-                allocaArray k $ \ outPtrArrayPtr -> do
-                    pokeArray outPtrArrayPtr outPtrs
-                    throwBotanIfNegative_ $ botan_zfec_decode
-                        (fromIntegral k)
-                        (fromIntegral n)
-                        indexesPtr
-                        sharePtrArrayPtr
-                        (fromIntegral shareSize)
-                        outPtrArrayPtr
-                    decodedShares <- traverse (ByteString.unsafePackCStringLen . (,shareSize) . castPtr) outPtrs
-                    return $! ByteString.copy $! ByteString.concat decodedShares
+-- TODO: Throw a fit if shares are not equal length, not k shares
+zfecDecodeIO :: Int -> Int -> [ZFECShare] -> IO ByteString
+zfecDecodeIO _ _ [] = return ""
+zfecDecodeIO k n shares@((_,share0):_) = do
+    allocaArray k $ \ (indexesPtr :: Ptr CSize) -> do
+        pokeArray indexesPtr shareIndexes
+        withPtrs unsafeAsBytes shareBytes $ \ (sharePtrs :: [Ptr Word8]) -> do
+            allocaArray k $ \ (sharePtrArrayPtr :: Ptr (Ptr Word8)) -> do
+                pokeArray sharePtrArrayPtr sharePtrs
+                -- NOTE: This extra work may potentially be avoided by allocating a
+                --  single contiguous block
+                -- withPtrs (const $ allocaBytes shareSize) [0..(k-1)] $ \ outPtrs -> do
+                --     allocaArray k $ \ outPtrArrayPtr -> do
+                --         pokeArray outPtrArrayPtr outPtrs
+                --         throwBotanIfNegative_ $ botan_zfec_decode
+                --             (fromIntegral k)
+                --             (fromIntegral n)
+                --             indexesPtr
+                --             sharePtrArrayPtr
+                --             (fromIntegral shareSize)
+                --             outPtrArrayPtr
+                --         decodedShares <- traverse (ByteString.unsafePackCStringLen . (,shareSize) . castPtr) outPtrs
+                --         return $!! ByteString.copy $ ByteString.concat decodedShares
+                -- Single contiguous block method
+                -- This way is probably superior absent any surprise alignment issues
+                allocBytes (k * shareSize) $ \ outPtr -> do
+                    allocaArray n $ \ (outPtrArrayPtr :: Ptr (Ptr Word8)) -> do
+                        let outPtrs = fmap (advancePtr outPtr . (* shareSize)) [0..(n-1)]
+                        pokeArray outPtrArrayPtr outPtrs
+                        throwBotanIfNegative_ $ botan_zfec_decode
+                            (fromIntegral k)
+                            (fromIntegral n)
+                            indexesPtr
+                            sharePtrArrayPtr
+                            (fromIntegral shareSize)
+                            outPtrArrayPtr
+    where
+        shareIndexes = fmap (fromIntegral . fst) shares
+        shareBytes = fmap snd shares
+        shareSize = ByteString.length share0
+
+{-
+k = 5
+n = 7
+testData = "0123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0123456789"
+shares@[a,b,c,d,e,f,g] <- zfecEncodeIO k n testData
+shares
+recoveredData <- zfecDecodeIO k n [a,c,e,f,g]
+recoveredData
+-}

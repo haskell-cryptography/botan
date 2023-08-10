@@ -2,6 +2,7 @@ module Botan.Low.Prelude
 ( module Prelude
 , module Control.Monad
 , module Control.Exception
+, module Control.DeepSeq
 , module Data.ByteString
 , module Data.Text
 , module Data.Word
@@ -40,6 +41,7 @@ import Prelude
 
 import Control.Monad
 import Control.Exception
+import Control.DeepSeq
 
 import Data.ByteString (ByteString)
 import Data.Text (Text)

@@ -6,6 +6,7 @@ import Botan.Low.Cipher
 import Botan.BlockCipher
 import Botan.Error
 import Botan.Prelude
+import qualified Data.ByteString as ByteString
 
 -- Cipher spec
 
@@ -103,28 +104,32 @@ aeadInitIO aead = cipherModeInitIO (AEAD aead)
 aeadInit :: AEAD -> AEADDirection -> AEADCtx
 aeadInit = unsafePerformIO2 aeadInitIO
 
--- NOTE: Need to patch botan stream cipher like Z-Botan
--- data StreamCipher
---     = CTR_BE BlockCipher
---     | OFB BlockCipher
---     | ChaCha8
---     | ChaCha12
---     | ChaCha20
---     | Salsa20
---     | SHAKE128XOF
---     | RC4
---   deriving (Show, Eq)
+-- Stream ciphers
 
--- streamCipherTypeToCBytes :: StreamCipherType -> CBytes
--- streamCipherTypeToCBytes s = case s of
---     CTR_BE b  -> CB.concat ["CTR-BE(", blockCipherTypeToCBytes b, ")"]
---     OFB b     -> CB.concat ["OFB(", blockCipherTypeToCBytes b, ")"]
---     ChaCha8   -> "ChaCha(8)"
---     ChaCha12  -> "ChaCha(12)"
---     ChaCha20  -> "ChaCha(20)"
---     Salsa20   -> "Salsa20"
---     SHAKE128XOF ->  "SHAKE-128"
---     RC4       -> "RC4"
+-- NOTE: Need to patch botan stream cipher like Z-Botan
+type StreamCipherName = ByteString
+
+data StreamCipher
+    = CTR_BE BlockCipher
+    | OFB BlockCipher
+    | ChaCha8
+    | ChaCha12
+    | ChaCha20
+    | Salsa20
+    | SHAKE128XOF
+    | RC4
+  deriving (Show, Eq)
+
+streamCipherName :: StreamCipher -> StreamCipherName
+streamCipherName s = case s of
+    CTR_BE b    -> "CTR-BE(" <> blockCipherName b <> ")"
+    OFB b       -> "OFB(" <> blockCipherName b <> ")"
+    ChaCha8     -> "ChaCha(8)"
+    ChaCha12    -> "ChaCha(12)"
+    ChaCha20    -> "ChaCha(20)"
+    Salsa20     -> "Salsa20"
+    SHAKE128XOF ->  "SHAKE-128"
+    RC4         -> "RC4"
 
 --
 
@@ -198,4 +203,3 @@ cipherCtxClear :: CipherCtx -> CipherCtx
 cipherCtxClear ctx = unsafePerformIO $ do
     cipherCtxClearIO ctx
     return ctx
-
