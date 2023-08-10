@@ -14,5 +14,5 @@ import Botan.Prelude
 zfecEncode :: Int -> Int -> ByteString -> [ZFECShare]
 zfecEncode = unsafePerformIO3 zfecEncodeIO
 
-zfecDecode :: Int -> Int -> [ZFECShare] -> Int -> ByteString
-zfecDecode = unsafePerformIO4 zfecDecodeIO
+zfecDecode :: Int -> Int -> [ZFECShare] -> ByteString
+zfecDecode = unsafePerformIO3 zfecDecodeIO
