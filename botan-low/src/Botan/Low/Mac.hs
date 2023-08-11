@@ -56,6 +56,7 @@ withMACPtr :: MACCtx -> (MACPtr -> IO a) -> IO a
 withMACPtr = withForeignPtr . getMACForeignPtr
 
 type MACName = ByteString
+type MACDigest = ByteString
 
 macCtxInitNameIO :: MACName -> IO MACCtx
 macCtxInitNameIO name = mkInit_name_flags MkMACCtx botan_mac_init botan_mac_destroy name 0
@@ -82,7 +83,7 @@ macCtxUpdateIO :: MACCtx -> ByteString -> IO ()
 macCtxUpdateIO = mkSetBytesLen withMACPtr botan_mac_update
 
 -- TODO: Digest type
-macCtxFinalIO :: MACCtx -> IO ByteString
+macCtxFinalIO :: MACCtx -> IO MACDigest
 macCtxFinalIO mac = withMACPtr mac $ \ macPtr -> do
     -- sz <- alloca $ \ szPtr -> do
     --     throwBotanIfNegative_ $ botan_mac_output_length macPtr szPtr

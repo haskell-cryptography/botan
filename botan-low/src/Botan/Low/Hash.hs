@@ -111,9 +111,7 @@ hashCtxFinalIO hash = withHashPtr hash $ \ hashPtr -> do
 hashCtxUpdateFinalizeIO :: HashCtx -> ByteString -> IO HashDigest
 hashCtxUpdateFinalizeIO ctx bytes = do
     hashCtxUpdateIO ctx bytes
-    dg <- hashCtxFinalIO ctx
-    hashCtxClearIO ctx
-    return dg
+    hashCtxFinalIO ctx
 
 hashCtxUpdateFinalizeClearIO :: HashCtx -> ByteString -> IO HashDigest
 hashCtxUpdateFinalizeClearIO ctx bytes = do
