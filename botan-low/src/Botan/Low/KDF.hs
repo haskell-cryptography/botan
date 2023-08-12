@@ -40,12 +40,7 @@ import Botan.Low.Prelude
 
 type KDFName = ByteString
 
--- NOTE: Untested. May be obsolete / deprecated.
---  No KDF algorithms are available on my Botan installation,
---  or at least I am getting NotImplementedException (-40) for all of them.
---  It is probable that there is a schema / format that I have not found yet.
 -- SEE: Algos here: https://botan.randombit.net/doxygen/classBotan_1_1KDF.html
--- NOTE: Found algos in Z-botan, see end of file
 kdfIO :: KDFName -> Int -> ByteString -> ByteString -> ByteString -> IO ByteString
 kdfIO algo outLen secret salt label = allocBytes outLen $ \ outPtr -> do
     asCString algo $ \ algoPtr -> do
@@ -62,11 +57,3 @@ kdfIO algo outLen secret salt label = allocBytes outLen $ \ outPtr -> do
                         saltLen
                         labelPtr
                         labelLen
-
--- This works:
---  > kdf "KDF1(SHA-256)" 32 "Fee fi fo fum!" "English" "Bread"
--- Some have constraints on key length, eg MD5:
---  > kdf "KDF1(MD5)" 32 "Fee fi fo fum!" "English" "Bread"
---  *** Exception: BadParameterException (-32) ...
---  > kdf "KDF1(MD5)" 16 "Fee fi fo fum!" "English" "Bread"
---  "\234\176\202\212A\162\154]\238J\131aKL\142\197"

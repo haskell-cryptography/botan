@@ -148,6 +148,7 @@ asPaddedBytesLen bytes blockSize = asBytesLen (padBytes bytes blockSize)
 --  ceiling $ n * log b / log k
 -- hlint suggests the equivalent:
 --  ceiling $ n * logBase k b
+-- TODO: Important enough to expose in expanded Botan.Utility
 baseLength :: Int -> Int -> Int -> Int
 baseLength n b k = ceiling $ fromIntegral n * logBase (fromIntegral k) (fromIntegral b)
 

@@ -55,7 +55,10 @@ import Botan.Low.Prelude
 
 type ZFECShare = (Int, ByteString)
 
--- TODO: Better way of doing this?
+-- Or should this be:
+-- zfecEncode :: Int -> Int -> Int -> Input -> IO [ZFECShare]
+-- zfecEncode k n shareSz input = ...
+-- ^ is more 'raw'.
 zfecEncodeIO :: Int -> Int -> ByteString -> IO [ZFECShare]
 zfecEncodeIO k n input = asBytesLen input $ \ inputPtr inputLen -> do
     let shareSize = div (fromIntegral inputLen) k

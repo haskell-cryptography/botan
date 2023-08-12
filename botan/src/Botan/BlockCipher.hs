@@ -22,7 +22,7 @@ blockCipherCtxInit :: BlockCipher -> BlockCipherCtx
 blockCipherCtxInit = blockCipherCtxInitName . blockCipherName
 
 blockCipherCtxInitName :: BlockCipherName -> BlockCipherCtx
-blockCipherCtxInitName = unsafePerformIO1 blockCipherCtxInitIO
+blockCipherCtxInitName = unsafePerformIO1 blockCipherCtxInitNameIO
 
 -- TODO:
 -- blockCipherCtxBlockCipher

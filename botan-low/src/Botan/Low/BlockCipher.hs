@@ -32,10 +32,10 @@ withBlockCipherPtr = withForeignPtr . getBlockCipherForeignPtr
 type BlockCipherName = ByteString
 
 -- |Initialize a block cipher object
-blockCipherCtxInitIO
+blockCipherCtxInitNameIO
     :: BlockCipherName -- ^ Cipher name
     -> IO BlockCipherCtx
-blockCipherCtxInitIO = mkInit_name MkBlockCipherCtx botan_block_cipher_init botan_block_cipher_destroy
+blockCipherCtxInitNameIO = mkInit_name MkBlockCipherCtx botan_block_cipher_init botan_block_cipher_destroy
 
 
 -- |Destroy a block cipher object immediately
@@ -44,8 +44,8 @@ blockCipherCtxDestroyIO
     -> IO ()
 blockCipherCtxDestroyIO blockCipher = finalizeForeignPtr (getBlockCipherForeignPtr blockCipher)
 
-withBlockCipherCtxIO :: BlockCipherName -> (BlockCipherCtx -> IO a) -> IO a
-withBlockCipherCtxIO = mkWithTemp1 blockCipherCtxInitIO blockCipherCtxDestroyIO
+withBlockCipherCtxInitNameIO :: BlockCipherName -> (BlockCipherCtx -> IO a) -> IO a
+withBlockCipherCtxInitNameIO = mkWithTemp1 blockCipherCtxInitNameIO blockCipherCtxDestroyIO
 
 -- |Reinitializes the block cipher
 blockCipherCtxClearIO

@@ -2,7 +2,7 @@ module Botan.Hash
 ( HashCtx(..)
 , HashName(..)
 , HashDigest(..)
-, hashCtxInit
+, hashCtxInitName
 , hashCtxUpdate
 , hashCtxUpdates
 , hashCtxFinalize
@@ -28,9 +28,9 @@ module Botan.Hash
 , Skein512Salt(..)
 , Hash(..)
 , hashName
-, hashCtxInitHashIO
+, hashCtxInitIO
 , hashWithHashIO
-, hashCtxInitHash
+, hashCtxInit
 , hashWithHash
 ) where
 
@@ -49,8 +49,8 @@ import Botan.Utility
 
 -- cryptonite-like interface
 
-hashCtxInit :: HashName -> HashCtx
-hashCtxInit = unsafePerformIO1 hashCtxInitIO
+hashCtxInitName :: HashName -> HashCtx
+hashCtxInitName = unsafePerformIO1 hashCtxInitNameIO
 
 hashCtxUpdate :: HashCtx -> ByteString -> HashCtx
 hashCtxUpdate ctx bytes = hashCtxUpdates ctx [bytes]
@@ -64,7 +64,7 @@ hashCtxUpdates ctx chunks = unsafePerformIO $ do
 -- NOTE hashFinalize vs hashFinal
 hashCtxFinalize :: HashCtx -> HashDigest
 hashCtxFinalize ctx = unsafePerformIO $ do
-    ctx' <- hashCtxCopyStateIO ctx
+    ctx' <- hashCtxCopyStateIO ctx -- Determine whether this is necessary. Does finalize ever mutate the context?
     hashCtxFinalIO ctx'
 
 hashCtxName :: HashCtx -> ByteString
@@ -80,10 +80,10 @@ hashCtxDigestSize = unsafePerformIO1 hashCtxOutputLengthIO
 -- Convenience
 
 hashWithHashCtx :: HashCtx -> ByteString -> HashDigest
-hashWithHashCtx = unsafePerformIO2 hashCtxWithHashCtxIO
+hashWithHashCtx = unsafePerformIO2 hashWithHashCtxIO
 
 hashWithName :: HashName -> ByteString -> HashDigest
-hashWithName = unsafePerformIO2 hashCtxWithNameIO
+hashWithName = unsafePerformIO2 hashWithNameIO
 
 -- Hash spec
 
@@ -215,16 +215,16 @@ hashName spec = case spec of
     CRC24           -> "CRC24"
     CRC32           -> "CRC32"
 
-hashCtxInitHashIO :: Hash -> IO HashCtx
-hashCtxInitHashIO = hashCtxInitIO . hashName
+hashCtxInitIO :: Hash -> IO HashCtx
+hashCtxInitIO = hashCtxInitNameIO . hashName
 
 hashWithHashIO :: Hash -> ByteString -> IO HashDigest
 hashWithHashIO spec bytes = do
-    ctx <- hashCtxInitHashIO spec
-    hashCtxWithHashCtxIO ctx bytes
+    ctx <- hashCtxInitIO spec
+    hashWithHashCtxIO ctx bytes
 
-hashCtxInitHash :: Hash -> HashCtx
-hashCtxInitHash = unsafePerformIO1 hashCtxInitHashIO
+hashCtxInit :: Hash -> HashCtx
+hashCtxInit = unsafePerformIO1 hashCtxInitIO
 
 hashWithHash :: Hash -> ByteString -> HashDigest
 hashWithHash = unsafePerformIO2 hashWithHashIO

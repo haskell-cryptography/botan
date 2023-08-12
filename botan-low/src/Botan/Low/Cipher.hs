@@ -107,7 +107,12 @@ cipherCtxSetAssociatedDataIO = mkSetBytesLen withCipherPtr botan_cipher_set_asso
 cipherCtxStartIO :: CipherCtx -> ByteString -> IO ()
 cipherCtxStartIO = mkSetBytesLen withCipherPtr botan_cipher_start
 
--- |Encrypt some data
+-- |"Encrypt some data"
+--
+--  This function is ill-documented.
+--
+--  See the source for authoritative details:
+--  https://github.com/randombit/botan/blob/72dc18bbf598f2c3bef81a4fb2915e9c3c524ac4/src/lib/ffi/ffi_cipher.cpp#L133
 cipherCtxUpdateIO :: CipherCtx -> CipherUpdateFlags -> Int -> ByteString -> IO (Int,ByteString)
 cipherCtxUpdateIO cipher flags outputSz input = withCipherPtr cipher $ \ cipherPtr -> do
     asBytesLen input $ \ inputPtr inputSz -> do
@@ -126,6 +131,7 @@ cipherCtxUpdateIO cipher flags outputSz input = withCipherPtr cipher $ \ cipherP
                         consumedPtr
                 consumed <- fromIntegral <$> peek consumedPtr
                 written <- fromIntegral <$> peek writtenPtr
+                -- NOTE: If written == outputSz we can just return output
                 let chunk = ByteString.copy $! ByteString.take written output
                     in chunk `seq` return (consumed, chunk)
 

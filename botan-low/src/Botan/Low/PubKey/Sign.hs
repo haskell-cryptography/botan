@@ -29,6 +29,7 @@ newtype SignCtx = MkSignCtx { getSignForeignPtr :: ForeignPtr SignStruct }
 withSignPtr :: SignCtx -> (SignPtr -> IO a) -> IO a
 withSignPtr = withForeignPtr . getSignForeignPtr
 
+-- TODO: Rename SignAlgoParams / SigningParams
 type SignAlgoName = ByteString
 
 pattern SigningNoFlags :: SigningFlags

@@ -30,8 +30,8 @@ module Botan.Low.Hash
 , HashName(..)
 , HashDigest(..)
 , withHashPtr
-, hashCtxInitIO
-, withHashCtxIO
+, hashCtxInitNameIO
+, withHashCtxInitNameIO
 , hashCtxDestroyIO
 , hashCtxNameIO
 , hashCtxCopyStateIO
@@ -42,8 +42,8 @@ module Botan.Low.Hash
 , hashCtxFinalIO
 , hashCtxUpdateFinalizeIO
 , hashCtxUpdateFinalizeClearIO
-, hashCtxWithHashCtxIO
-, hashCtxWithNameIO
+, hashWithHashCtxIO
+, hashWithNameIO
 ) where
 
 import qualified Data.ByteString as ByteString
@@ -64,12 +64,11 @@ type HashDigest = ByteString
 withHashPtr :: HashCtx -> (HashPtr -> IO a) -> IO a
 withHashPtr = withForeignPtr . getHashForeignPtr
 
--- TODO: rename hashCtxInitNameIO
-hashCtxInitIO :: ByteString -> IO HashCtx
-hashCtxInitIO name = mkInit_name_flags MkHashCtx botan_hash_init botan_hash_destroy name 0
+hashCtxInitNameIO :: HashName -> IO HashCtx
+hashCtxInitNameIO name = mkInit_name_flags MkHashCtx botan_hash_init botan_hash_destroy name 0
 
-withHashCtxIO :: ByteString -> (HashCtx -> IO a) -> IO a
-withHashCtxIO = mkWithTemp1 hashCtxInitIO hashCtxDestroyIO
+withHashCtxInitNameIO :: HashName -> (HashCtx -> IO a) -> IO a
+withHashCtxInitNameIO = mkWithTemp1 hashCtxInitNameIO hashCtxDestroyIO
 
 hashCtxDestroyIO :: HashCtx -> IO ()
 hashCtxDestroyIO hash = finalizeForeignPtr (getHashForeignPtr hash)
@@ -120,10 +119,10 @@ hashCtxUpdateFinalizeClearIO ctx bytes = do
     return dg
 -- Or: hashCtxUpdateFinalizeIO ctx bytes <* hashCtxClearIO ctx
 
-hashCtxWithHashCtxIO :: HashCtx -> ByteString -> IO HashDigest
-hashCtxWithHashCtxIO = hashCtxUpdateFinalizeClearIO
+hashWithHashCtxIO :: HashCtx -> ByteString -> IO HashDigest
+hashWithHashCtxIO = hashCtxUpdateFinalizeClearIO
 
-hashCtxWithNameIO :: HashName -> ByteString -> IO HashDigest
-hashCtxWithNameIO name bytes = do
-    ctx <- hashCtxInitIO name
-    hashCtxWithHashCtxIO ctx bytes
+hashWithNameIO :: HashName -> ByteString -> IO HashDigest
+hashWithNameIO name bytes = do
+    ctx <- hashCtxInitNameIO name
+    hashWithHashCtxIO ctx bytes

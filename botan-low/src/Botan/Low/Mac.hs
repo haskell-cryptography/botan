@@ -74,7 +74,7 @@ macCtxSetKeyIO :: MACCtx -> ByteString -> IO ()
 macCtxSetKeyIO = mkSetBytesLen withMACPtr botan_mac_set_key
 
 -- NOTE: Not all MACs require a nonce
---  Eg, GMAC and Poly1305 require a nonce
+--  Eg, GMAC requires a nonce
 --  Other MACs do not require a nonce, and will cause a BadParameterException (-32)
 macCtxSetNonceIO :: MACCtx -> ByteString -> IO ()
 macCtxSetNonceIO = mkSetBytesLen withMACPtr botan_mac_set_nonce
