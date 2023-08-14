@@ -1,4 +1,29 @@
-module Botan.MAC where
+module Botan.MAC
+( MAC(..)
+, macName
+, MACKey(..)
+, MACNonce(..)
+, MACDigest(..)
+, macCtxInitIO
+, macCtxInit
+, macCtxOutputLength
+, macCtxSetKey
+, macCtxSetNonce
+, macCtxUpdate
+, macCtxUpdates
+, macCtxFinalize
+, macCtxClear
+, macCtxName
+, macCtxGetKeyspec
+, macCtxUpdateFinalizeIO
+, macCtxUpdateFinalizeClearIO
+, macWithMACCtxIO
+, macWithMACCtx
+, macWithNameIO
+, macWithName
+, macIO
+, mac
+) where
 
 import Data.Foldable
 
@@ -6,17 +31,20 @@ import Botan.Low.MAC
 
 import Botan.BlockCipher
 import Botan.Hash
+import Botan.RNG
 import Botan.Prelude
 
 -- NOTE: MAC has no state copy unlike Hash
 
+-- NOTE: Botan MAC FFI is missing query for nonce sizes.
+
 data MAC
-    = CMAC BlockCipher
-    | GMAC BlockCipher     
+    = CMAC BlockCipher  -- NOTE: This is actually OMAC a CMAC variant
+    | GMAC BlockCipher      -- Requires a nonce
     | CBC_MAC BlockCipher    
     | HMAC Hash    
-    | Poly1305    
-    | SipHash Int Int -- Number of input and finalization rounds
+    | Poly1305              -- Requires a unique key per message
+    | SipHash Int Int       -- Number of input and finalization rounds
     | X9_19_MAC
     deriving (Show, Eq)
 
@@ -28,6 +56,29 @@ macName (HMAC h)        = "HMAC(" <> hashName h <> ")"
 macName Poly1305        = "Poly1305"
 macName (SipHash ir fr) = "SipHash(" <> showBytes ir <> "," <> showBytes fr <> ")"
 macName X9_19_MAC       = "X9.19-MAC"
+
+-- NOTE: NOT CHECKED FOR CORRECTNESS YET
+macNonceLength :: MAC -> Int
+macNonceLength (CMAC _)      = 0
+macNonceLength (GMAC _)      = 12 -- Probably incorrect for some ciphers - TODO: use cipherCtxGetDefaultNonceLength
+macNonceLength (CBC_MAC _)   = 0
+macNonceLength (HMAC _)      = 0
+macNonceLength Poly1305      = 16   -- Is this Poly1305, or Poly1305-WC?
+macNonceLength (SipHash _ _) = 0
+macNonceLength X9_19_MAC     = 0
+-- NOTE: Poly1305 takes a 32-byte key? But its supposed to take a 16-byte key.
+--  Need to figure out specifics - what variant of Poly1305
+{-
+ghci> import Botan.MAC
+ghci> import Botan.Utility 
+ghci> import Botan.Low.RNG 
+ghci> k <- systemRNGGetIO 16
+ghci> mac Poly1305 k Nothing "Fee fi fo fum!"
+"*** Exception: InvalidKeyLengthException (-34) [("throwBotanIfNegative_",SrcLoc {srcLocPackage = "botan-low-0.0.1-inplace", srcLocModule = "Botan.Low.Make", srcLocFile = "src/Botan/Low/Make.hs", srcLocStartLine = 346, srcLocStartCol = 9, srcLocEndLine = 346, srcLocEndCol = 30})]
+ghci> k <- systemRNGGetIO 32
+ghci> mac Poly1305 k Nothing "Fee fi fo fum!"
+"\234\SO\211\187%\156\220o\134\&4\169\248\rr\134H"
+-}
 
 type MACKey = ByteString
 type MACNonce = ByteString
@@ -49,15 +100,15 @@ macCtxInit = unsafePerformIO1 macCtxInitIO
 macCtxOutputLength :: MACCtx -> Int
 macCtxOutputLength = unsafePerformIO1 macCtxOutputLengthIO
 
-macCtxSetKey :: MACCtx -> ByteString -> MACCtx
+macCtxSetKey :: MACCtx -> MACKey -> MACCtx
 macCtxSetKey ctx key = unsafePerformIO $ do
     macCtxSetKeyIO ctx key
     return ctx
 
 -- NOTE: Not all MACs require a nonce
---  Eg, GMAC and Poly1305 require a nonce
+--  Eg, GMAC requires a nonce
 --  Other MACs do not require a nonce, and will cause a BadParameterException (-32)
-macCtxSetNonce :: MACCtx -> ByteString -> MACCtx
+macCtxSetNonce :: MACCtx -> MACNonce -> MACCtx
 macCtxSetNonce ctx nonce = unsafePerformIO $ do
     macCtxSetNonceIO ctx nonce
     return ctx
@@ -91,66 +142,42 @@ macCtxGetKeyspec ctx = unsafePerformIO $ do
 
 -- Convenience
 
-macCtxUpdateFinalizeIO :: MACCtx -> ByteString -> IO MACDigest
+macCtxUpdateFinalizeIO :: MACCtx -> Message -> IO MACDigest
 macCtxUpdateFinalizeIO ctx bytes = do
     macCtxUpdateIO ctx bytes
     macCtxFinalIO ctx
 
-macCtxUpdateFinalizeClearIO :: MACCtx -> ByteString -> IO MACDigest
+macCtxUpdateFinalizeClearIO :: MACCtx -> Message -> IO MACDigest
 macCtxUpdateFinalizeClearIO ctx bytes = do
     dg <- macCtxUpdateFinalizeIO ctx bytes
     macCtxClearIO ctx
     return dg
 
--- Mac with
+--
 
-macWithMACCtxIO :: MACCtx -> MACKey -> ByteString -> IO MACDigest
-macWithMACCtxIO ctx key message = do
+macWithMACCtxIO :: MACCtx -> MACKey -> Maybe MACNonce -> Message -> IO MACDigest
+macWithMACCtxIO ctx key nonce message = do
     macCtxSetKeyIO ctx key
+    case nonce of
+        Nothing -> macCtxSetNonceIO ctx ""
+        Just n  -> macCtxSetNonceIO ctx n
     macCtxUpdateFinalizeClearIO ctx message
 
-macWithMACCtx :: MACCtx -> MACKey -> ByteString -> MACDigest
-macWithMACCtx = unsafePerformIO3 macWithMACCtxIO
+macWithMACCtx :: MACCtx -> MACKey -> Maybe MACNonce -> Message -> MACDigest
+macWithMACCtx = unsafePerformIO4 macWithMACCtxIO
 
-macWithNameIO :: MACName -> MACKey -> ByteString -> IO MACDigest
-macWithNameIO name key message = do
+macWithNameIO :: MACName -> MACKey -> Maybe MACNonce -> Message -> IO MACDigest
+macWithNameIO name key nonce message = do
     ctx <- macCtxInitNameIO name
-    macWithMACCtxIO ctx key message
+    macWithMACCtxIO ctx key nonce message
 
-macWithName :: MACName -> MACKey -> ByteString -> MACDigest
-macWithName = unsafePerformIO3 macWithNameIO
+macWithName :: MACName -> MACKey -> Maybe MACNonce -> Message -> MACDigest
+macWithName = unsafePerformIO4 macWithNameIO
 
-macIO :: MAC -> MACKey -> ByteString -> IO MACDigest
+macIO :: MAC -> MACKey -> Maybe MACNonce -> Message -> IO MACDigest
 macIO = macWithNameIO . macName
 
-mac :: MAC -> MACKey -> ByteString -> MACDigest
-mac = unsafePerformIO3 macIO
+mac :: MAC -> MACKey -> Maybe MACNonce -> Message -> MACDigest
+mac = unsafePerformIO4 macIO
 
--- Mac nonce with
-
-nonceMacWithMACCtxIO :: MACCtx -> MACKey -> MACNonce -> ByteString -> IO MACDigest
-nonceMacWithMACCtxIO ctx key nonce message = do
-    macCtxSetKeyIO ctx key
-    macCtxSetNonceIO ctx nonce
-    macCtxUpdateFinalizeClearIO ctx message
-
-nonceMacWithMACCtx :: MACCtx -> MACKey -> ByteString -> MACDigest
-nonceMacWithMACCtx = unsafePerformIO3 macWithMACCtxIO
-
-nonceMacWithNameIO :: MACName -> MACKey -> ByteString -> IO MACDigest
-nonceMacWithNameIO name key message = do
-    ctx <- macCtxInitNameIO name
-    macWithMACCtxIO ctx key message
-
-nonceMacWithName :: MACName -> MACKey -> ByteString -> MACDigest
-nonceMacWithName = unsafePerformIO3 macWithNameIO
-
-nonceMacIO :: MAC -> MACKey -> ByteString -> IO MACDigest
-nonceMacIO = macWithNameIO . macName
-
-nonceMac :: MAC -> MACKey -> ByteString -> MACDigest
-nonceMac = unsafePerformIO3 macIO
-
-
--- mac :h: (ByteArrayAccess key, ByteArrayAccess message, HashAlgorithm a) => key -> message -> HMAC a
-
+-- TODO: stuff like newMACKey newMACNonce

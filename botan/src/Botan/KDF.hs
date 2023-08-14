@@ -38,3 +38,14 @@ kdfName (SP800_108_Pipeline m)  = "SP800-108-Pipeline(" <> macName m <> ")"
 kdfName (SP800_56AHash h)       = "SP800-56A(" <> hashName h <> ")"
 kdfName (SP800_56AMAC m)        = "SP800-56A(" <> macName m <> ")"
 kdfName (SP800_56C m)           = "SP800-56C(" <> macName m <> ")"
+
+-- NOTE: This works:
+--  > kdf "KDF1(SHA-256)" 32 "Fee fi fo fum!" "English" "Bread"
+-- Some have constraints on key length, eg MD5:
+--  > kdf "KDF1(MD5)" 32 "Fee fi fo fum!" "English" "Bread"
+--  *** Exception: BadParameterException (-32) ...
+--  > kdf "KDF1(MD5)" 16 "Fee fi fo fum!" "English" "Bread"
+--  "\234\176\202\212A\162\154]\238J\131aKL\142\197"
+
+kdf :: KDF -> Int -> ByteString -> ByteString -> ByteString -> ByteString
+kdf algo outLen secret salt label = unsafePerformIO $ kdfIO (kdfName algo) outLen secret salt label

@@ -23,18 +23,19 @@ import Botan.Prelude
 
 -- TODO: Should we just re-export bcryptGenerateIO?
 --  Ditto question for any other function using RNGCtx
-{-
+
 -- |Create a password hash using Bcrypt
 --
 --  Output is formatted bcrypt $2a$...
-bcryptGenerate
+--
+--  This function is unsafe because it mutates the state of the RNGCtx
+unsafeBcryptGenerate
     :: ByteString   -- ^ The password
     -> RNGCtx       -- ^ A random number generator
     -> Int          -- ^ A work factor to slow down guessing attacks (a value of 12 to 16 is probably fine).
     -> ByteString
-bcryptGenerate = unsafePerformIO3 bcryptGenerateIO
-{-# NOINLINE bcryptGenerate #-}
--}
+unsafeBcryptGenerate = unsafePerformIO3 bcryptGenerateIO
+{-# NOINLINE unsafeBcryptGenerate #-}
 
 -- |Check a previously created password hash
 --

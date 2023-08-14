@@ -6,10 +6,12 @@ module Botan.Prelude
 , module Control.DeepSeq
 , module Data.ByteString
 , module Data.Text
+, module Data.Foldable
 , module Data.Word
 , module System.IO
 , module System.IO.Unsafe
 , module GHC.Stack
+, Message(..)
 , Ciphertext(..)
 , Plaintext(..)
 , unsafePerformIO1
@@ -27,6 +29,8 @@ module Botan.Prelude
 --
 , module Data.IORef
 , track
+--
+, splitBlocks
 ) where
 
 -- Re-exported modules
@@ -40,6 +44,8 @@ import Control.DeepSeq
 
 import Data.ByteString (ByteString)
 import Data.Text (Text)
+
+import Data.Foldable
 
 import Data.Word
 
@@ -58,9 +64,10 @@ import qualified Data.Text as Text
 
 --
 
-type Ciphertext = ByteString
+type Message = ByteString
 
 type Plaintext = ByteString
+type Ciphertext = ByteString
 
 --
 
@@ -169,3 +176,9 @@ nameBytes (NameFn name args) = name <> "(" <> inner <> ")" where
 --  Like: https://passlib.readthedocs.io/en/stable/modular_crypt_format.html#mcf-identifiers
 
 -- #mode$alg:content or something
+
+splitBlocks :: Int -> ByteString -> [ByteString]
+splitBlocks blockSize = go where
+    go bytes =  case ByteString.splitAt blockSize bytes of
+        (block,"")      -> [block]
+        (block,rest)    -> block : go rest

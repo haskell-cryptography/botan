@@ -125,6 +125,11 @@ See your appropriate package manager.
     - https://botan.randombit.net/doxygen/ffi_8h.html
     - Make a `Botan.Bindings.Macro/Constants` module for constants
     - Cover all functions
+- Make sure all `unsafeDupablePerformIO` is used properly
+    - "It may even happen that one of the duplicated IO actions is only run partially, and then interrupted in the middle without an exception being raised. Therefore, functions like bracket cannot be used safely within unsafeDupablePerformIO."
+- Rabin-Karp fingerprints, rolling hashes
+- Backwards-compatibility for older compilers 
+- Botan MAC FFI is missing query for nonce sizes.
 
 # Helpful References
 
@@ -155,4 +160,6 @@ type FinalizerPtr a = FunPtr (Ptr a -> IO ())
 ```
 
 It is therefore possible that we must use `ccall`. Further investigation is needed.
+
+
 

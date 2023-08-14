@@ -9,14 +9,21 @@ packages:
     -- High-level idiomatic interface                   
     botan
 
-    -- a command-line tool
-    -- botany
-
-    -- a cryptonite-compatible interface
-    -- botanite
+    --
+    -- NOTE: Packages below this line are experimental, and may have their content
+    --  moved or merged into another library
+    --
     
     -- High-level backend-agnostic abstract cryptography interface
     crypto-schemes
 
-    -- Botan backend 
+    -- Botan backend for crypto-schemes
     crypto-schemes-botan
+
+    -- a libsodium-like interface to botan
+    botanium
+
+    -- a crypton/ite-compatible interface to botan
+    -- This may end up using either `botan` or `crypto-schemes` and `crypto-schemes-botan`
+    -- and is a candidate for merging with `crypton` if sufficient compatibility is possible.
+    -- botanite

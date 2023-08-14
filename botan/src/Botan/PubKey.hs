@@ -7,7 +7,8 @@ import Botan.Hash
 import Botan.Prelude
 -- import Botan.RNG
 
--- TODO: Dig into Key agreement (KA) vs key exchange (KE) vs key encapsulation mechanism (KEM)
+-- TODO: Dig into Key agreement (KA) vs key exchange (KE / KX) vs key encapsulation mechanism (KEM)
+-- NOTE: libsodium uses kx for key exchange
 data PK                     -- NOTE: PQ = post-quantum, NS = national standard
     = RSA Word32            -- Encryption, signing, key encapsulation
     | SM2 ECGroup           -- NS, Encryption, signing
@@ -23,11 +24,13 @@ data PK                     -- NOTE: PQ = post-quantum, NS = national standard
     | ECDH ECGroup          -- Key exchange
     | Curve25519            -- Key exchange
     -- New in 3.x?
-    | X25519        -- Key encapsulation? Unknown parameters, throws NotImplementedException (-40) on privKeyCreate, likely missing something
-    | Dilithium     -- PQ, signing, unknown parameters
-    | Kyber         -- PQ, key encapsulation, unknown parameters
-    | SPHINCSPlus   -- PQ, signing, unknown parameters, throws NotImplementedException (-40) on privKeyCreate, likely missing something
-    | McEliece      -- PQ, key encapsulation, unknown parameters
+    | X25519            -- Key encapsulation? Unknown parameters, throws NotImplementedException (-40) on privKeyCreate, likely missing something
+    | Dilithium         -- PQ, signing, unknown parameters
+    | Kyber             -- PQ, key encapsulation, unknown parameters
+    -- | SPHINCSPlus    -- PQ, signing, unknown parameters, possibly unavailable because brew botan is 3.0
+    | McEliece          -- PQ, key encapsulation, unknown parameters
+
+-- TODO: SKey, KXKey, KAKey, KEMKey
 
 type PKName = ByteString
 type PKParams = ByteString
@@ -50,7 +53,7 @@ pkName Curve25519       = "Curve25519"
 pkName X25519           = "X25519"
 pkName Dilithium        = "Dilithium"   -- "Dilithium-6x5-r3"   -- TODO: Find full listing in doxygen 
 pkName Kyber            = "Kyber"       -- "Kyber-1024-r3"      -- TODO: Find full listing in doxygen 
-pkName SPHINCSPlus      = "SPHINCS+"    -- Doesn't work :/      -- TODO: Find full listing in doxygen 
+-- pkName SPHINCSPlus      = "SPHINCS+"  -- Doesn't work :/      -- TODO: Find full listing in doxygen 
 pkName McEliece         = "McEliece"
 
 pkParams :: PK -> PKParams
@@ -71,7 +74,7 @@ pkParams Curve25519       = ""
 pkParams X25519           = ""
 pkParams Dilithium        = ""
 pkParams Kyber            = ""
-pkParams SPHINCSPlus      = ""
+-- pkParams SPHINCSPlus      = ""
 pkParams McEliece         = ""
 
 data XMSS

@@ -7,6 +7,7 @@ import Botan.BlockCipher
 import Botan.Error
 import Botan.Prelude
 import qualified Data.ByteString as ByteString
+import Botan.Low.RNG (systemRNGGetIO)
 
 -- Cipher spec
 
@@ -14,6 +15,8 @@ import qualified Data.ByteString as ByteString
 --  Cipher / Encryption
 --  AE / Authenticated encryption
 --  AEAD / Authenticated encryption with associated data (not all AE has AD)
+
+-- TODO: type aliases for CipherModeCtx / AEADCtx for safety later 
 
 data CipherDirection
     = CipherEncrypt
@@ -30,37 +33,41 @@ data CipherKeySpec
     , cipherKeyModulo  :: Int
     }
 
-data CipherUpdate
-pattern BOTAN_CIPHER_UPDATE_FLAG_NONE = 0 :: CipherUpdateFlags -- NOTE: Not canonical flag
-pattern BOTAN_CIPHER_UPDATE_FLAG_FINAL = 1 :: CipherUpdateFlags
+-- data CipherUpdate
+-- pattern BOTAN_CIPHER_UPDATE_FLAG_NONE = 0 :: CipherUpdateFlags -- NOTE: Not canonical flag
+-- pattern BOTAN_CIPHER_UPDATE_FLAG_FINAL = 1 :: CipherUpdateFlags
 
-data CipherMode
-    = Cipher Cipher
+data Cipher
+    = CipherMode CipherMode
     -- Botan contains no AE without AD? Or just supply "" for AD.
     -- | AE AE
     | AEAD AEAD
 
-cipherModeName :: CipherMode -> CipherName
-cipherModeName (Cipher cipher) = cipherName cipher
-cipherModeName (AEAD aead) = aeadName aead
+cipherName :: Cipher -> CipherName
+cipherName (CipherMode mode) = cipherModeName mode
+cipherName (AEAD aead) = aeadName aead
 
-type CipherModeCtx = CipherCtx
+cipherCtxInit :: Cipher -> CipherDirection -> CipherCtx
+cipherCtxInit = unsafePerformIO2 cipherCtxInitIO
 
-cipherModeInitIO :: CipherMode -> CipherDirection -> IO CipherModeCtx
-cipherModeInitIO mode dir = cipherCtxInitNameIO (cipherModeName mode) (cipherDirectionFlags dir)
+cipherCtxInitIO :: Cipher -> CipherDirection -> IO CipherCtx
+cipherCtxInitIO mode dir = cipherCtxInitNameIO (cipherName mode) (cipherDirectionFlags dir)
 
-data Cipher
+data CipherMode
     = CBC BlockCipher CBCPadding
     | CFB BlockCipher Int -- Feedback bits size, default is 8 * block size
     | XTS BlockCipher
 
-cipherName :: Cipher -> CipherName
-cipherName (CBC bc padding)    = blockCipherName bc <> "/CBC/" <> cbcPaddingName padding
-cipherName (CFB bc fsz)        = blockCipherName bc <> "/CFB(" <> showBytes fsz <> ")"
-cipherName (XTS bc)            = blockCipherName bc <> "/XTS"
+cipherModeName :: CipherMode -> CipherName
+cipherModeName (CBC bc padding)    = blockCipherName bc <> "/CBC/" <> cbcPaddingName padding
+cipherModeName (CFB bc fsz)        = blockCipherName bc <> "/CFB(" <> showBytes fsz <> ")"
+cipherModeName (XTS bc)            = blockCipherName bc <> "/XTS"
 
-cipherInitIO :: Cipher -> CipherDirection -> IO CipherCtx
-cipherInitIO cipher = cipherModeInitIO (Cipher cipher)
+cipherCtxInitMode :: CipherMode -> CipherDirection -> CipherCtx
+cipherCtxInitMode = unsafePerformIO2 cipherCtxInitModeIO
+
+cipherCtxInitModeIO :: CipherMode -> CipherDirection -> IO CipherCtx
+cipherCtxInitModeIO mode = cipherCtxInitIO (CipherMode mode)
 
 -- CBC Padding - does this have use elsewhere?
 data CBCPadding
@@ -95,18 +102,19 @@ aeadName (EAX bc tsz)       = blockCipherName bc <> "/EAX(" <> showBytes tsz <> 
 aeadName (SIV bc)           = blockCipherName bc <> "/SIV"
 aeadName (CCM bc tsz l)     = blockCipherName bc <> "/CCM(" <> showBytes tsz <> "," <> showBytes l <> ")"
 
-type AEADDirection = CipherDirection
-type AEADCtx = CipherCtx
+cipherCtxInitAEAD :: AEAD -> CipherDirection -> CipherCtx
+cipherCtxInitAEAD = unsafePerformIO2 cipherCtxInitAEADIO
 
-aeadInitIO :: AEAD -> AEADDirection -> IO AEADCtx
-aeadInitIO aead = cipherModeInitIO (AEAD aead)
-
-aeadInit :: AEAD -> AEADDirection -> AEADCtx
-aeadInit = unsafePerformIO2 aeadInitIO
+cipherCtxInitAEADIO :: AEAD -> CipherDirection -> IO CipherCtx
+cipherCtxInitAEADIO aead = cipherCtxInitIO (AEAD aead)
 
 -- Stream ciphers
 
 -- NOTE: Need to patch botan stream cipher like Z-Botan
+-- Stream ciphers operate at the bit level by XORing the plaintext
+--  against a stream of pseudorandom bits, and as such do not exhibit
+--  the avalanche effect seen in hashing and block ciphers
+{-
 type StreamCipherName = ByteString
 
 data StreamCipher
@@ -130,18 +138,12 @@ streamCipherName s = case s of
     Salsa20     -> "Salsa20"
     SHAKE128XOF ->  "SHAKE-128"
     RC4         -> "RC4"
+-}
 
 --
 
--- TODO:
-
--- cipherEncrypt :: Cipher -> CipherKey -> CipherNonce -> Plaintext -> Ciphertext
--- cipherEncrypt = undefined
-
--- cipherDecrypt :: Cipher -> CipherKey -> CipherNonce -> Ciphertext -> Plaintext
--- cipherDecrypt = undefined
-
---
+cipherCtxInitName :: CipherName -> CipherDirection -> CipherCtx
+cipherCtxInitName name dir = unsafePerformIO $ cipherCtxInitNameIO name (cipherDirectionFlags dir)
 
 cipherCtxName :: CipherCtx -> CipherName
 cipherCtxName = unsafePerformIO1 cipherCtxNameIO
@@ -196,10 +198,152 @@ cipherCtxStart ctx nonce = unsafePerformIO $ do
     return ctx
 
 -- TODO: Consider flipping
+
+-- cipherCtxUpdateIO :: CipherCtx -> CipherUpdateFlags -> Int -> ByteString -> IO (Int,ByteString)
 -- cipherCtxUpdate :: CipherCtx -> Bool -> Int -> ByteString -> (Int,ByteString)
 -- cipherCtxUpdate ctx final = ...
 
+-- NOTE:
 cipherCtxClear :: CipherCtx -> CipherCtx
 cipherCtxClear ctx = unsafePerformIO $ do
     cipherCtxClearIO ctx
     return ctx
+
+--
+
+
+
+--
+
+type CipherAD = ByteString
+
+data CipherTag
+
+type CombinedCiphertext = ByteString
+
+-- NOTE: Picks min key size
+newCipherKey :: Cipher -> IO CipherKey
+newCipherKey ciph = do
+    -- NOTE: Throwaway context
+    ctx <- cipherCtxInitIO ciph CipherEncrypt
+    (mn,mx,md) <- cipherCtxGetKeyspecIO ctx
+    -- TODO: Better random source
+    systemRNGGetIO $ if md == 1
+        then min 32 mx
+        else mn
+
+newCipherNonce :: Cipher -> IO CipherNonce
+newCipherNonce ciph = do
+    -- NOTE: Throwaway context
+    ctx <- cipherCtxInitIO ciph CipherEncrypt
+    n <- cipherCtxGetDefaultNonceLengthIO ctx
+    -- TODO: Better random source
+    systemRNGGetIO n
+
+encipher :: Cipher -> CipherKey -> CipherNonce -> Message -> Ciphertext
+encipher ciph k n msg = unsafePerformIO $ do
+    ctx <- cipherCtxInitIO ciph CipherEncrypt
+    cipherCtxSetKeyIO ctx k
+    cipherCtxStartIO ctx n
+    cipherCtxUpdateFinalizeClearIO ctx msg
+
+-- TODO: Move to botan-low
+cipherCtxUpdateBlockIO :: CipherCtx -> ByteString -> IO ByteString
+cipherCtxUpdateBlockIO ctx block = do
+    let outSz = ByteString.length block
+    (_,block') <- cipherCtxUpdateIO ctx BOTAN_CIPHER_UPDATE_FLAG_NONE outSz block
+    return block'
+
+-- TODO: Move to botan-low
+cipherCtxFinalizeBlockIO :: CipherCtx -> ByteString -> IO ByteString
+cipherCtxFinalizeBlockIO ctx block = do
+    tagSz <- cipherCtxGetTagLengthIO ctx
+    let outSz = ByteString.length block + tagSz
+    (_,block'tag) <- cipherCtxUpdateIO ctx BOTAN_CIPHER_UPDATE_FLAG_FINAL tagSz block
+    return block'tag
+
+-- TODO: Move to botan-low
+cipherCtxFinalizeTagIO :: CipherCtx -> IO (Maybe ByteString)
+cipherCtxFinalizeTagIO ctx = do
+    tag <- cipherCtxFinalizeBlockIO ctx ""
+    if tag == ""
+        then return Nothing
+        else return (Just tag)
+
+-- TODO: Move to botan-low
+cipherCtxUpdateFinalizeBlocksIO :: CipherCtx -> [ByteString] -> IO [ByteString]
+cipherCtxUpdateFinalizeBlocksIO ctx [block]      = do
+    finalBlockTag <- cipherCtxFinalizeBlockIO ctx block
+    return [finalBlockTag]
+cipherCtxUpdateFinalizeBlocksIO ctx (block:rest) = do
+    block' <- cipherCtxUpdateBlockIO ctx block
+    (block:) <$> cipherCtxUpdateFinalizeBlocksIO ctx rest
+
+-- TODO: Move to botan-low
+cipherCtxUpdateFinalizeOneShotIO :: CipherCtx -> Message -> IO Ciphertext
+cipherCtxUpdateFinalizeOneShotIO ctx bytes = do
+    tagSz <- cipherCtxGetTagLengthIO ctx
+    (consumed,msg) <- cipherCtxUpdateIO ctx BOTAN_CIPHER_UPDATE_FLAG_FINAL (ByteString.length bytes + tagSz) bytes
+    return msg
+
+-- TODO: Move to botan-low
+cipherCtxUpdateFinalizeIO :: CipherCtx -> Message -> IO Ciphertext
+cipherCtxUpdateFinalizeIO ctx msg = do
+    g <- cipherCtxGetIdealUpdateGranularityIO ctx
+    if g == 1
+        then cipherCtxUpdateFinalizeOneShotIO ctx msg
+        else do
+            blocks <- cipherCtxUpdateFinalizeBlocksIO ctx (splitBlocks g msg)
+            return $! ByteString.concat blocks
+
+-- TODO: Move to botan-low
+cipherCtxUpdateFinalizeClearIO :: CipherCtx -> Message -> IO Ciphertext
+cipherCtxUpdateFinalizeClearIO ctx msg = do
+    dg <- cipherCtxUpdateFinalizeIO ctx msg
+    cipherCtxClearIO ctx
+    return dg
+
+-- TODO: Make Maybe instead of throwing
+-- decipher :: CipherKey -> CipherNonce -> Ciphertext -> Maybe Message
+decipher :: Cipher -> CipherKey -> CipherNonce -> Ciphertext -> Message
+decipher ciph k n msg = unsafePerformIO $ do
+    ctx <- cipherCtxInitIO ciph CipherDecrypt
+    cipherCtxSetKeyIO ctx k
+    cipherCtxStartIO ctx n
+    cipherCtxUpdateFinalizeClearIO ctx msg
+
+-- AE
+
+-- TODO: Summarize attributes of each:
+--  https://crypto.stackexchange.com/a/205
+-- data AEMode
+--     = EncryptThenMac -- Use this one
+--     | EncryptAndMac
+--     | MacThenEncrypt
+-- Or just assume EtM
+
+aeEncipher :: CipherKey -> CipherNonce -> Message -> CombinedCiphertext
+aeEncipher = undefined
+
+aeDecipher :: CipherKey -> CipherNonce -> CombinedCiphertext -> Maybe Message
+aeDecipher = undefined
+
+aeEncipherDetached :: CipherKey -> CipherNonce -> Message -> (CipherTag, Ciphertext)
+aeEncipherDetached = undefined
+
+aeDecipherDetached :: CipherKey -> CipherNonce -> Ciphertext -> Maybe Message
+aeDecipherDetached = undefined
+
+-- AEAD
+
+aeadEncipher :: CipherKey -> CipherNonce -> Message -> CipherAD -> CombinedCiphertext
+aeadEncipher = undefined
+
+aeadDecipher :: CipherKey -> CipherNonce -> CombinedCiphertext -> CipherAD -> Maybe Message
+aeadDecipher = undefined
+
+aeadEncipherDetached :: CipherKey -> CipherNonce -> Message -> CipherAD -> (CipherTag, Ciphertext)
+aeadEncipherDetached = undefined
+
+aeadDecipherDetached :: CipherKey -> CipherNonce -> CipherTag -> Ciphertext -> CipherAD -> Maybe Message
+aeadDecipherDetached = undefined
