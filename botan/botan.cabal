@@ -21,6 +21,7 @@ library
         OverloadedStrings
         PatternSynonyms
         ScopedTypeVariables
+        TupleSections
     exposed-modules:
         Botan.Bcrypt
         Botan.BlockCipher
@@ -30,6 +31,8 @@ library
         Botan.KDF
         Botan.KeyWrap
         Botan.MAC
+        -- NOTE: Botan does not directly expose padding
+        Botan.Padding
         Botan.PubKey
         Botan.PubKey.Sign
         Botan.PwdHash
