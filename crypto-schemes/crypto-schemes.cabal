@@ -35,6 +35,7 @@ library
     exposed-modules:
         Crypto.AEAD
         Crypto.Auth
+        Crypto.ByteVector
         Crypto.Cipher
         Crypto.ErrorCorrection
         Crypto.Hash
