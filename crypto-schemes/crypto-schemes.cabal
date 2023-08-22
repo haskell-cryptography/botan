@@ -42,6 +42,7 @@ library
         Crypto.Prelude
         Crypto.Public
         Crypto.Random
+        Crypto.Scheme
         Crypto.Scrubbed
     other-modules:
         Paths_crypto_schemes
