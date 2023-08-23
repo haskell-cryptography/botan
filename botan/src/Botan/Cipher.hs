@@ -86,6 +86,7 @@ cbcPaddingName ESP         = "ESP"
 cbcPaddingName CTS         = "CTS"
 cbcPaddingName NoPadding   = "NoPadding"
 
+-- NOTE: GCM is defined for the tag sizes 4, 8, 12 - 16 bytes
 data AEAD
     = ChaCha20Poly1305
     | GCM BlockCipher Int -- Tag size, default is 16

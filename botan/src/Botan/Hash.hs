@@ -190,8 +190,8 @@ hashName spec = case spec of
     MD4             -> "MD4"
     MD5             -> "MD5"
     RIPEMD160       -> "RIPEMD-160"
-    -- SHA160          -> "SHA-160"    -- SHA1
-    SHA1            -> "SHA-160"
+    -- SHA160          -> "SHA-1"      -- SHA1
+    SHA1            -> "SHA-1"
     -- SHA224          -> "SHA-224"    -- SHA2
     -- SHA256          -> "SHA-256"
     -- SHA512          -> "SHA-512"
