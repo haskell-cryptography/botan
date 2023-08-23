@@ -75,3 +75,58 @@ library
         text
     -- cc-options:     -Wall
     -- ghc-options:    -Wall -funbox-strict-fields     
+
+test-suite botan-low-tests
+    type:             exitcode-stdio-1.0
+    main-is:          Spec.hs
+    hs-source-dirs:   test/
+    build-depends:
+        base,
+        botan-bindings,
+        botan-low,
+        bytestring,
+        hspec,
+        QuickCheck,
+        text
+    other-modules:
+        Botan.Low.BcryptSpec
+        Botan.Low.BlockCipherSpec
+        Botan.Low.CipherSpec
+        Botan.Low.FPESpec
+        Botan.Low.HashSpec
+        Botan.Low.HOTPSpec
+        Botan.Low.KDFSpec
+        Botan.Low.KeyWrapSpec
+        Botan.Low.MACSpec
+        Botan.Low.MPISpec
+        -- Botan.Low.PBKDFSpec
+        Botan.Low.PubKeySpec
+        Botan.Low.PubKey.DecryptSpec
+        Botan.Low.PubKey.DHSpec
+        Botan.Low.PubKey.DSASpec
+        Botan.Low.PubKey.ECDHSpec
+        Botan.Low.PubKey.ECDSASpec
+        Botan.Low.PubKey.Ed25519Spec
+        Botan.Low.PubKey.ElGamalSpec
+        Botan.Low.PubKey.EncryptSpec
+        Botan.Low.PubKey.KeyAgreementSpec
+        Botan.Low.PubKey.KeyEncapsulationSpec
+        Botan.Low.PubKey.RSASpec
+        Botan.Low.PubKey.SignSpec
+        Botan.Low.PubKey.SM2Spec
+        Botan.Low.PubKey.VerifySpec
+        Botan.Low.PubKey.X25519Spec
+        Botan.Low.PwdHashSpec
+        Botan.Low.RNGSpec
+        -- Botan.Low.ScryptSpec
+        Botan.Low.SRP6Spec
+        Botan.Low.TOTPSpec
+        Botan.Low.UtilitySpec
+        Botan.Low.X509Spec
+        Botan.Low.ZFECSpec
+        Test.Prelude
+    --   ghc-options: 
+    default-language: Haskell2010
+    default-extensions:
+        NoImplicitPrelude
+        OverloadedStrings
