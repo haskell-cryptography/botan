@@ -21,6 +21,8 @@ packages:
     crypto-schemes-botan
 
     -- a libsodium-like interface to botan
+    -- This may end up using either `botan` or `crypto-schemes` and `crypto-schemes-botan`
+    -- and will be named `botanium` or renamed to `cryptonium` depending on which.
     botanium
 
     -- a crypton/ite-compatible interface to botan
