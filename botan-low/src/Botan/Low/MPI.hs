@@ -45,7 +45,7 @@ withMPPtr = withForeignPtr . getMPForeignPtr
 mpInitIO :: IO MP
 mpInitIO = mkInit MkMP botan_mp_init botan_mp_destroy
 
--- NOTE: The actual botan_mp_to_hex is ill-documented
+-- NOTE: The actual botan_mp_to_hex is misleading
 --  The actual buffer size is 2 + (num_bytes * 2) + 1 bytes in length
 --  The leading 2 is `0x` prefix, the trailing 1 is `\0` suffix
 mpToHexIO :: MP -> IO ByteString
@@ -57,12 +57,16 @@ mpToHexIO mp = withMPPtr mp $ \ mpPtr -> do
 
 mpToStrIO :: MP -> Int -> IO ByteString
 mpToStrIO mp base = withMPPtr mp $ \ mpPtr -> do
-    numBits <- mpNumBitsIO mp
-    let estimatedLength = baseLength numBits 2 base + 2 -- NOTE: +2 for possible prefix
-    allocaBytes estimatedLength $ \ bytesPtr -> do
-        alloca $ \ szPtr -> do
-            throwBotanIfNegative_ $ botan_mp_to_str mpPtr (fromIntegral base) bytesPtr szPtr
-            ByteString.packCString bytesPtr
+    -- NOTE: This was causing occasional InsufficientBufferSpaceException
+    -- numBits <- mpNumBitsIO mp
+    -- let estimatedLength = baseLength numBits 2 base + 2 -- NOTE: +2 for possible prefix
+    -- allocaBytes estimatedLength $ \ bytesPtr -> do
+    --     alloca $ \ szPtr -> do
+    --         throwBotanIfNegative_ $ botan_mp_to_str mpPtr (fromIntegral base) bytesPtr szPtr
+    --         ByteString.packCString bytesPtr
+    -- We'll see if this solves that:
+    allocBytesQuerying $ \ bytesPtr szPtr -> 
+        botan_mp_to_str mpPtr (fromIntegral base) bytesPtr szPtr
 
 mpClearIO :: MP -> IO ()
 mpClearIO = mkAction withMPPtr botan_mp_clear
@@ -146,8 +150,11 @@ mpDivIO = mkBinaryDuplexOp withMPPtr botan_mp_div
 mpModMulIO :: MP -> MP -> MP -> MP -> IO ()
 mpModMulIO = mkTrinaryOp withMPPtr botan_mp_mod_mul
 
-mpEqualIO :: MP -> IO Bool
-mpEqualIO = mkGetBoolCode withMPPtr botan_mp_equal
+-- NOTE: Cannot use mkGetBoolCode unless
+mpEqualIO :: MP -> MP -> IO Bool
+mpEqualIO a b = withMPPtr a $ \ aPtr -> do
+    withMPPtr b $ \ bPtr -> do
+        throwBotanCatchingBool $ botan_mp_equal aPtr bPtr
 
 -- TODO: Convert Int to Ordering in >1:1 low-level bindings
 mpCmpIO :: MP -> MP -> IO Int
@@ -179,6 +186,7 @@ mpRandBitsIO mp rng sz = withMPPtr mp $ \ mpPtr -> do
    withRNGPtr rng $ \ rngPtr -> do
         throwBotanIfNegative_ $ botan_mp_rand_bits mpPtr rngPtr (fromIntegral sz)
 
+-- NOTE: Never includes upper bound
 mpRandRangeIO :: MP -> RNGCtx -> MP -> MP -> IO ()
 mpRandRangeIO mp rng lower upper = withMPPtr mp $ \ mpPtr -> do
    withRNGPtr rng $ \ rngPtr -> do

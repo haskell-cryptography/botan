@@ -202,7 +202,7 @@ Returns negative number on error
 
 @BOTAN_PUBLIC_API(2,1) int botan_mp_equal(const botan_mp_t x, const botan_mp_t y);@
 -}
-foreign import ccall unsafe botan_mp_equal :: MPPtr -> IO BotanErrorCode
+foreign import ccall unsafe botan_mp_equal :: MPPtr -> MPPtr -> IO BotanErrorCode
 
 {-|
 Sets *result to comparison result:

@@ -130,6 +130,10 @@ See your appropriate package manager.
 - Rabin-Karp fingerprints, rolling hashes
 - Backwards-compatibility for older compilers 
 - Botan MAC FFI is missing query for nonce sizes.
+- Getting some occasional InsufficientBufferSpaceException in mpToStrIO
+- Testing is made difficult by the number of algorithms, and their particular quirks.
+    - Testing each function separately will result in tens of thousands of tests, generating
+      more noise than signal.
 
 # Helpful References
 
