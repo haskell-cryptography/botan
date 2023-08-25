@@ -51,6 +51,9 @@ import Botan.Low.Prelude
 -- because they do not take a mac algo parameter, and may be hardcoded to "HMAC(SHA-256)"
 --  SEE: https://botan.randombit.net/handbook/api_ref/fpe.html
 
+-- NOTE: Source indicates that the FPE1 mac_algo is using the default "HMAC(SHA-256)", and
+--  that the option is not exposed to FFI.
+
 -- /**
 -- * Format Preserving Encryption
 -- */
