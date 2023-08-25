@@ -2,13 +2,8 @@ module Botan.Low.HashSpec
 ( spec
 ) where
 
-import Prelude
+import Test.Prelude
 
-import Test.Hspec
-
-import Control.Monad
-
-import Data.ByteString (ByteString)
 import qualified Data.ByteString.Char8 as Char8
 import qualified Data.ByteString as ByteString
 
@@ -56,10 +51,17 @@ hashes =
     , "CRC32"
     ]
 
+message = "Fee fi fo fum! I smell the blood of an Englishman!"
+
 spec :: Spec
-spec = do
+spec = forM_ hashes $ \ h -> describe (Char8.unpack h) $ do
     describe "hashCtxInitNameIO" $ do
-        forM_ hashes $ \ h -> context (Char8.unpack h) $ do
-            it "initializes a hash context" $ do
-                ctx <- hashCtxInitNameIO h
-                pending
+        it "initializes a hash context" $ do
+            ctx <- hashCtxInitNameIO h
+            pass
+    it "can hash a message" $ do
+        ctx <- hashCtxInitNameIO h
+        digest <- hashCtxUpdateFinalizeClearIO ctx message
+        -- TODO: Have test data
+        -- digest `shouldBe` ""
+        pass
