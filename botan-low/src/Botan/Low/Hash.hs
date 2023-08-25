@@ -74,7 +74,7 @@ hashCtxDestroyIO :: HashCtx -> IO ()
 hashCtxDestroyIO hash = finalizeForeignPtr (getHashForeignPtr hash)
 
 hashCtxNameIO :: HashCtx -> IO HashDigest
-hashCtxNameIO = mkGetName withHashPtr botan_hash_name
+hashCtxNameIO = mkGetCString withHashPtr botan_hash_name
 
 -- NOTE: This does the correct thing - see C++ docs:
 --  Return a newly allocated HashFunction object of the same type as this one,

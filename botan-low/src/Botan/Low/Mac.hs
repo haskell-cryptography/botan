@@ -96,7 +96,7 @@ macCtxClearIO :: MACCtx -> IO ()
 macCtxClearIO = mkAction withMACPtr botan_mac_clear
 
 macCtxNameIO :: MACCtx -> IO ByteString
-macCtxNameIO = mkGetName withMACPtr botan_mac_name
+macCtxNameIO = mkGetCString withMACPtr botan_mac_name
 
 macCtxGetKeyspecIO :: MACCtx -> IO (Int,Int,Int)
 macCtxGetKeyspecIO = mkGetSizes3 withMACPtr botan_mac_get_keyspec

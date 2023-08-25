@@ -105,7 +105,7 @@ blockCipherCtxDecryptBlocksIO blockCipher bytes = withBlockCipherPtr blockCipher
 blockCipherCtxNameIO
     :: BlockCipherCtx  -- ^ The cipher object
     -> IO BlockCipherName
-blockCipherCtxNameIO = mkGetName withBlockCipherPtr botan_block_cipher_name
+blockCipherCtxNameIO = mkGetCString withBlockCipherPtr botan_block_cipher_name
 
 -- |Get the key length limits of this block cipher
 --

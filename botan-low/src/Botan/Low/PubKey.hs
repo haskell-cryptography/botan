@@ -90,7 +90,7 @@ privKeyExportIO sk flags = withPrivKeyPtr sk $ \ skPtr -> do
             throwBotanIfNegative_ $ botan_privkey_export skPtr bytesPtr szPtr flags
 
 privKeyAlgoNameIO :: PrivKey -> IO ByteString
-privKeyAlgoNameIO = mkGetName withPrivKeyPtr botan_privkey_algo_name
+privKeyAlgoNameIO = mkGetCString withPrivKeyPtr botan_privkey_algo_name
 
 -- TODO:
 -- privKeyExportEncryptedPBKDFMsec
@@ -153,7 +153,7 @@ pubKeyExportIO pk flags = withPubKeyPtr pk $ \ pkPtr -> do
             throwBotanIfNegative_ $ botan_pubkey_export pkPtr bytesPtr szPtr flags
 
 pubKeyAlgoNameIO :: PubKey -> IO ByteString
-pubKeyAlgoNameIO = mkGetName withPubKeyPtr botan_pubkey_algo_name
+pubKeyAlgoNameIO = mkGetCString withPubKeyPtr botan_pubkey_algo_name
 
 pattern CheckKeyNone :: PubKeyCheckKeyFlags
 pattern CheckKeyNone = BOTAN_PUBKEY_CHECK_KEY_FLAGS_NONE

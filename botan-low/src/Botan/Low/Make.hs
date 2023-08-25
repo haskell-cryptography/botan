@@ -136,40 +136,45 @@ mkInit_with constr init destroy withTypPtr typ = alloca $ \ outPtr -> do
 Non-effectful queries
 -}
 
-type GetName ptr = ptr -> Ptr CChar -> Ptr CSize -> IO BotanErrorCode
+-- type GetName ptr = ptr -> Ptr CChar -> Ptr CSize -> IO BotanErrorCode
 
--- TODO: Prefer mkGetBytes / mkGetCString to mkGetName
-mkGetName
-    :: WithPtr typ ptr
-    -> GetName ptr
-    -> typ -> IO ByteString
-mkGetName withPtr get typ = withPtr typ $ \ typPtr -> do
-    -- TODO: Take advantage of allocBytesQuerying
-    -- TODO: use ByteString.Internal.createAndTrim?
-    -- NOTE: This uses copy to mimic ByteArray.take (which copies!) so we can drop the rest of the bytestring
-    alloca $ \ szPtr -> do
-        bytes <- allocBytes 64 $ \ bytesPtr -> do
-            throwBotanIfNegative_ $ get typPtr bytesPtr szPtr
-        sz <- peek szPtr
-        return $! ByteString.copy $! ByteString.take (fromIntegral sz) bytes
+-- Replaced by the new mkGetCString
+-- -- TODO: Prefer mkGetBytes / mkGetCString to mkGetName
+-- mkGetName
+--     :: WithPtr typ ptr
+--     -> GetName ptr
+--     -> typ -> IO ByteString
+-- mkGetName withPtr get typ = withPtr typ $ \ typPtr -> do
+--     -- TODO: Take advantage of allocBytesQuerying
+--     -- TODO: use ByteString.Internal.createAndTrim?
+--     -- NOTE: This uses copy to mimic ByteArray.take (which copies!) so we can drop the rest of the bytestring
+--     -- alloca $ \ szPtr -> do
+--     --     bytes <- allocBytes 64 $ \ bytesPtr -> do
+--     --         throwBotanIfNegative_ $ get typPtr bytesPtr szPtr
+--     --     sz <- peek szPtr
+--     --     return $! ByteString.copy $! ByteString.take (fromIntegral sz) bytes
+--     allocBytesQueryingCString $ \ bytesPtr szPtr -> get typPtr bytesPtr szPtr
 
-type GetBytes ptr = ptr -> Ptr Word8 -> Ptr CSize -> IO BotanErrorCode
+-- NOTE: This now handles both Ptr Word8 and Ptr CChar
+--  This reads the entire byte buffer, including any \NUL bytes
+type GetBytes ptr byte = ptr -> Ptr byte -> Ptr CSize -> IO BotanErrorCode
 
 mkGetBytes
     :: WithPtr typ ptr
-    -> GetBytes ptr
+    -> GetBytes ptr byte
     -> typ -> IO ByteString
 mkGetBytes withPtr get typ = withPtr typ $ \ typPtr -> do
     allocBytesQuerying $ \ outPtr outLen -> get typPtr outPtr outLen
 
-type GetCString ptr = ptr -> Ptr CChar -> Ptr CSize -> IO BotanErrorCode
+-- NOTE This reads a CString, up to the first \NUL
+type GetCString ptr byte = ptr -> Ptr byte -> Ptr CSize -> IO BotanErrorCode
 
 mkGetCString
     :: WithPtr typ ptr
-    -> GetCString ptr
+    -> GetCString ptr byte
     -> typ -> IO ByteString
 mkGetCString withPtr get typ = withPtr typ $ \ typPtr -> do
-    allocBytesQuerying $ \ outPtr outLen -> get typPtr outPtr outLen
+    allocBytesQueryingCString $ \ outPtr outLen -> get typPtr outPtr outLen
 
 type GetInt ptr = ptr -> Ptr CInt -> IO BotanErrorCode
 
@@ -359,6 +364,11 @@ allocBytesQuerying fn = do
                 allocBytes sz $ \ outPtr -> throwBotanIfNegative_ $ fn outPtr szPtr
             _                       -> do
                 throwBotanError code
+
+allocBytesQueryingCString :: (Ptr byte -> Ptr CSize -> IO BotanErrorCode) -> IO ByteString
+allocBytesQueryingCString action = do
+    cstring <- allocBytesQuerying action
+    return $!! ByteString.takeWhile (/= 0) cstring
 
 -- ALSO EXPERIMENTAL
 

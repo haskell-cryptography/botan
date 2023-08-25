@@ -57,10 +57,10 @@ x509CertDupIO :: X509Cert -> IO X509Cert
 x509CertDupIO = mkInit_with MkX509Cert botan_x509_cert_dup botan_x509_cert_destroy withX509CertPtr
 
 x509CertGetTimeStartsIO :: X509Cert -> IO ByteString
-x509CertGetTimeStartsIO = mkGetCString withX509CertPtr botan_x509_cert_get_time_starts
+x509CertGetTimeStartsIO = mkGetBytes withX509CertPtr botan_x509_cert_get_time_starts
 
 x509CertGetTimeExpiresIO :: X509Cert -> IO ByteString
-x509CertGetTimeExpiresIO = mkGetCString withX509CertPtr botan_x509_cert_get_time_expires
+x509CertGetTimeExpiresIO = mkGetBytes withX509CertPtr botan_x509_cert_get_time_expires
 
 -- TODO: mkGetIntegral
 x509CertNotBeforeIO :: X509Cert -> IO Word64

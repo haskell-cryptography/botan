@@ -49,7 +49,7 @@ cipherCtxDestroyIO cipher = finalizeForeignPtr (getCipherForeignPtr cipher)
 
 -- |Return the name of the cipher object
 cipherCtxNameIO :: CipherCtx -> IO CipherName
-cipherCtxNameIO = mkGetName withCipherPtr botan_cipher_name
+cipherCtxNameIO = mkGetCString withCipherPtr botan_cipher_name
 
 -- |Return the output length of this cipher, for a particular input length.
 cipherCtxOutputLengthIO :: CipherCtx -> Int -> IO Int
