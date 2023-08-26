@@ -10,6 +10,10 @@ module Botan.Padding where
 
 -- NOTE: May move to crypto-schemes.
 
+-- TODO: Bring in,vmaybe combine + move to crypto-schemes?
+--  botanium.Utils.alignMod / floorMod / ceilMod
+--  Botan.Low.Prelude.paddingInfo
+
 import Botan.Hash
 import Botan.Prelude
 

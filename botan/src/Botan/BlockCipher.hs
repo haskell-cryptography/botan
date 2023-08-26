@@ -108,55 +108,54 @@ camelliaName Camellia128 = "Camellia-128"
 camelliaName Camellia192 = "Camellia-192"
 camelliaName Camellia256 = "Camellia-256"
 
-data CAST
-    = CAST128
-    | CAST256
-    deriving (Show, Eq)
-
-type CASTName = ByteString
-
-castName :: CAST -> CASTName
-castName CAST128 = "CAST-128"
-castName CAST256 = "CAST-256"
-
-data BlockCipher
+data BlockCipher128
     = AES AES
     | ARIA ARIA
-    | Blowfish
     | Camellia Camellia
+    | Noekeon
+    | SEED
+    | Serpent
+    | SM4
+    | Twofish
+    deriving (Show, Eq)
+
+type BlockCipher128Name = ByteString
+
+blockCipher128Name :: BlockCipher128 -> BlockCipher128Name
+blockCipher128Name spec = case spec of
+    AES aes         -> aesName aes
+    ARIA aria       -> ariaName aria
+    Camellia cam    -> camelliaName cam
+    Noekeon         -> "Noekeon"
+    SEED            -> "SEED"
+    Serpent         -> "Serpent"
+    SM4             -> "SM4"
+    Twofish         -> "Twofish"
+
+data BlockCipher
+    = BlockCipher128 BlockCipher128
+    | Blowfish
     -- | Cascade BlockCipher BlockCipher
-    | CAST CAST
+    | CAST128
     | DES
     | TripleDES
     | GOST_28147_89
     | IDEA
     -- | Lion HashSpec StreamCipher Int
-    | Noekeon
-    | SEED
-    | Serpent
     | SHACAL2
-    | SM4
-    | Twofish
     | Threefish512
     deriving (Show, Eq)
 
 blockCipherName :: BlockCipher -> BlockCipherName
 blockCipherName spec = case spec of
-    AES aes         -> aesName aes
-    ARIA aria       -> ariaName aria
-    Blowfish        -> "Blowfish"
-    Camellia cam    -> camelliaName cam
+    BlockCipher128 bc128    -> blockCipher128Name bc128
+    Blowfish                -> "Blowfish"
     -- Cascade bca bcb -> "Cascade(" <> blockCipherName bca <> "," <> blockCipherName bcb <> ")"
-    CAST cast       -> castName cast
-    DES             -> "DES"
-    TripleDES       -> "TripleDES"
-    GOST_28147_89   -> "GOST-28147-89"
+    CAST128                 -> "CAST-128"
+    DES                     -> "DES"
+    TripleDES               -> "TripleDES"
+    GOST_28147_89           -> "GOST-28147-89"
     -- Lion h sc sz    -> "Lion(" <> hashSpecName h <> "," <> streamCipherName sc <> "," <> showBytes sz <> ")"
-    Noekeon         -> "Noekeon"
-    IDEA            -> "IDEA"
-    SEED            -> "SEED"
-    SM4             -> "SM4"
-    Serpent         -> "Serpent"
-    SHACAL2         -> "SHACAL2"
-    Twofish         -> "Twofish"
-    Threefish512    -> "Threefish-512"
+    IDEA                    -> "IDEA"
+    SHACAL2                 -> "SHACAL2"
+    Threefish512            -> "Threefish-512"

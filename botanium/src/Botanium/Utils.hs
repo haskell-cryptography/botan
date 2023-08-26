@@ -63,8 +63,8 @@ floorMod a b = case quotRem a b of
     (_,0) -> a
     (q,_) -> b * q
 
-floorCeil :: Integral a => a -> a -> a
-floorCeil a 1 = a
-floorCeil a b = case quotRem a b of
+ceilMod :: Integral a => a -> a -> a
+ceilMod a 1 = a
+ceilMod a b = case quotRem a b of
     (_,0) -> a
     (q,_) -> b * (q + 1)

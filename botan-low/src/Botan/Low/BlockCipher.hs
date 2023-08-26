@@ -69,37 +69,33 @@ blockCipherCtxBlockSizeIO
     -> IO Int
 blockCipherCtxBlockSizeIO = mkGetIntCode withBlockCipherPtr botan_block_cipher_block_size
 
--- TODO: withPaddedBytes, withPaddedMultipleBytes in Botan.Prelude
--- NOTE: This function is questionable. Perhaps it is better to throw an error for non-block-size-multiple input.
---  Definitely because there is no way to recover proper length while decrypting.
--- NOTE: DONT LOP OFF END - RUINS DECRYPT - Need all encrypted bytes including encrypted padding.
--- NOTE: Too high-level - split into botan-low / botan
 -- |Encrypt one or more blocks with the cipher
 blockCipherCtxEncryptBlocksIO
     :: BlockCipherCtx  -- ^ The cipher object
     -> ByteString   -- ^ The plaintext
     -> IO ByteString
 blockCipherCtxEncryptBlocksIO blockCipher bytes = withBlockCipherPtr blockCipher $ \ blockCipherPtr -> do
-    blockSize <- blockCipherCtxBlockSizeIO blockCipher
-    let (_,paddedLength,blockCount) = paddingInfo (ByteString.length bytes) blockSize
-    asPaddedBytes bytes blockSize $ \ bytesPtr -> do
-        allocBytes paddedLength $ \ destPtr -> do
-            throwBotanIfNegative_ $ botan_block_cipher_encrypt_blocks blockCipherPtr bytesPtr destPtr (fromIntegral blockCount)
+    asBytesLen bytes $ \ bytesPtr bytesLen -> do
+        allocBytes (fromIntegral bytesLen) $ \ destPtr -> do
+            throwBotanIfNegative_ $ botan_block_cipher_encrypt_blocks
+                blockCipherPtr
+                bytesPtr
+                destPtr
+                bytesLen
 
--- NOTE: COPY OF ENCRYPT
--- TODO: Should definitely throw something if input bytes are non-block-size-multiple, instead of padding
--- NOTE: Too high-level - split into botan-low / botan
 -- |Decrypt one or more blocks with the cipher
 blockCipherCtxDecryptBlocksIO
     :: BlockCipherCtx  -- ^ The cipher object
     -> ByteString   -- ^ The ciphertext
     -> IO ByteString
 blockCipherCtxDecryptBlocksIO blockCipher bytes = withBlockCipherPtr blockCipher $ \ blockCipherPtr -> do
-    blockSize <- blockCipherCtxBlockSizeIO blockCipher
-    let (_,paddedLength,blockCount) = paddingInfo (ByteString.length bytes) blockSize
-    asPaddedBytes bytes blockSize $ \ bytesPtr -> do
-        allocBytes paddedLength $ \ destPtr -> do
-            throwBotanIfNegative_ $ botan_block_cipher_decrypt_blocks blockCipherPtr bytesPtr destPtr (fromIntegral blockCount)
+    asBytesLen bytes $ \ bytesPtr bytesLen -> do
+        allocBytes (fromIntegral bytesLen) $ \ destPtr -> do
+            throwBotanIfNegative_ $ botan_block_cipher_decrypt_blocks
+                blockCipherPtr
+                bytesPtr
+                destPtr
+                bytesLen
 
 -- |Get the name of this block cipher
 blockCipherCtxNameIO

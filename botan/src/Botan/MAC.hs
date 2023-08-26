@@ -47,6 +47,7 @@ data MAC
     | SipHash Int Int       -- Number of input and finalization rounds
     | X9_19_MAC
     deriving (Show, Eq)
+-- NOTE: Wiki: "Both GCM and GMAC can accept initialization vectors of arbitrary length." - untested
 
 macName :: MAC -> ByteString
 macName (CMAC bc)       = "CMAC(" <> blockCipherName bc <> ")"

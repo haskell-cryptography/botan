@@ -84,18 +84,33 @@ peekCStringText cs = do
 --  Instead of returning the thing, we always return a bytestring.
 --  Also, allocaBytes frees the memory after, but this is a malloc freed on garbage collect.
 -- I basically ripped the relevant bits from ByteArray for ease of continuity
-allocBytes :: Int -> (Ptr p -> IO ()) -> IO ByteString
-allocBytes sz f = snd <$> allocBytesWith sz f
+allocBytes :: Int -> (Ptr byte -> IO ()) -> IO ByteString
+-- allocBytes sz f = snd <$> allocBytesWith sz f
+-- NOTE: This is probably better than mallocByteString withForeignPtr
+--  Use of mallocByteString without mkDeferredByteString / deferForeignPtrAvailability
+--  is possibly a factor in our InsufficientBufferSpaceException issues
+allocBytes sz f = ByteString.create sz (f . castPtr)
 
-allocBytesWith :: Int -> (Ptr p -> IO a) -> IO (a, ByteString)
+allocBytesWith :: Int -> (Ptr byte -> IO a) -> IO (a, ByteString)
 allocBytesWith sz f
     | sz < 0    = allocBytesWith 0 f
     | otherwise = do
         fptr <- ByteString.mallocByteString sz
         a <- withForeignPtr fptr (f . castPtr)
         -- return (a, ByteString.PS fptr 0 sz)
+        -- NOTE: The safety of this function is suspect, may require deepseq
         let bs = ByteString.PS fptr 0 sz
-            in bs `seq` return (a,bs)
+            in bs `deepseq` return (a,bs)
+
+-- ByteString.create' doesn't exist
+-- TODO: Replace allocBytesWith with this
+createByteString' :: Int -> (Ptr byte -> IO a) -> IO (ByteString,a)
+createByteString' sz action = ByteString.createUptoN' sz $ \ ptr -> do
+    a <- action (castPtr ptr)
+    return (sz,a)
+{-# INLINE createByteString' #-}
+
+--
 
 
 asCString :: ByteString -> (Ptr CChar -> IO a) -> IO a
@@ -138,9 +153,11 @@ padBytes bytes blockSize = paddedBytes where
         then bytes
         else bytes <> ByteString.replicate paddingLength 0
 
+-- Kinda jank, don't use any more - its better to make padding explicit
 asPaddedBytes :: ByteString -> Int -> (Ptr byte -> IO a) -> IO a
 asPaddedBytes bytes blockSize = asBytes (padBytes bytes blockSize)
 
+-- Kinda jank, don't use any more - its better to make padding explicit
 asPaddedBytesLen :: ByteString -> Int -> (Ptr byte -> CSize -> IO a) -> IO a
 asPaddedBytesLen bytes blockSize = asBytesLen (padBytes bytes blockSize)
 

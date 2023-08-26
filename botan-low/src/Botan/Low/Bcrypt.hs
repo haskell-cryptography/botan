@@ -21,6 +21,8 @@ import Botan.Low.Make
 import Botan.Low.Prelude
 import Botan.Low.RNG
 
+import Data.ByteString.Internal as ByteString
+
 -- |Create a password hash using Bcrypt
 --
 --  Output is formatted bcrypt $2a$...
@@ -32,11 +34,12 @@ bcryptGenerateIO
 bcryptGenerateIO password rng factor = asCString password $ \ passwordPtr -> do
    withRNGPtr rng $ \ rngPtr -> do
         alloca $ \ szPtr -> do
+            {-
             -- NOTE: Despite the documentation stating:
             --  "@param out buffer holding the password hash, should be of length 64 bytes"
             --  It still throws an InsufficientBufferSpaceException, but we cannot use
             --  allocBytesQuerying to fix it. I have doubled the buffer size as a precaution.
-            out <- allocBytes 128 $ \ outPtr -> do
+            out <- allocBytes 256 $ \ outPtr -> do
                 throwBotanIfNegative_ $ botan_bcrypt_generate
                     outPtr
                     szPtr
@@ -47,8 +50,20 @@ bcryptGenerateIO password rng factor = asCString password $ \ passwordPtr -> do
             sz <- peek szPtr
             -- TODO: Enforce strictness similarly elsewhere as necessary
             -- return $! ByteString.copy $! ByteString.take (fromIntegral sz) out
-            let bcrypt = ByteString.copy $! ByteString.take (fromIntegral sz) out
-                in bcrypt `seq` return bcrypt
+                -- NOTE: The safety of this function is suspect - may require deepseq
+            -- let bcrypt = ByteString.copy $ ByteString.take (fromIntegral sz) out
+            --     in bcrypt `seq` return bcrypt
+            return $!! ByteString.copy $ ByteString.take (fromIntegral sz) out
+            -}
+            ByteString.createAndTrim 256 $ \ outPtr -> do
+                throwBotanIfNegative_ $ botan_bcrypt_generate
+                    outPtr
+                    szPtr
+                    passwordPtr
+                    rngPtr
+                    (fromIntegral factor)
+                    0   -- "@param flags should be 0 in current API revision, all other uses are reserved"
+                fromIntegral <$> peek szPtr
 
 -- |Check a previously created password hash
 --

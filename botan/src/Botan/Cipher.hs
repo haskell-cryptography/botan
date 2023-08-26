@@ -37,6 +37,7 @@ data CipherKeySpec
 -- pattern BOTAN_CIPHER_UPDATE_FLAG_NONE = 0 :: CipherUpdateFlags -- NOTE: Not canonical flag
 -- pattern BOTAN_CIPHER_UPDATE_FLAG_FINAL = 1 :: CipherUpdateFlags
 
+-- NOTE: For EAX and GCM, any length nonces are allowed. OCB allows any value between 8 and 15 bytes.
 data Cipher
     = CipherMode CipherMode
     -- Botan contains no AE without AD? Or just supply "" for AD.
@@ -86,7 +87,14 @@ cbcPaddingName ESP         = "ESP"
 cbcPaddingName CTS         = "CTS"
 cbcPaddingName NoPadding   = "NoPadding"
 
--- NOTE: GCM is defined for the tag sizes 4, 8, 12 - 16 bytes
+-- NOTE: "GCM is defined for the tag sizes 4, 8, 12 - 16 bytes" but may actually accept any 1-16
+-- NOTE: Wiki: "Both GCM and GMAC can accept initialization vectors of arbitrary length." - untested
+-- NOTE: Wiki: "GCM uses a block cipher with block size 128 bits" - not all block ciphers are supported
+-- NOTE: RFC 7253 - The OCB Authenticated-Encryption Algorithm
+--  "The blockcipher must have a 128-bit blocksize.""
+-- NOTE: Wiki, RFC 7253, Botan docs: GCM, OCB, SIV, CCM: "Requires a 128-bit block cipher."
+-- NOTE: Botan Docs: EAX: "Supports 128-bit, 256-bit and 512-bit block ciphers."
+--  Note that that is currently all block ciphers (at least, those with default values)
 data AEAD
     = ChaCha20Poly1305
     | GCM BlockCipher Int -- Tag size, default is 16

@@ -57,8 +57,9 @@ cipherCtxOutputLengthIO = mkGetSize_csize withCipherPtr botan_cipher_output_leng
 
 -- NOTE: Unique function form?
 -- |Return if the specified nonce length is valid for this cipher
+-- NOTE: This just always seems to return 'True', even for -1 and maxBound
 cipherCtxValidNonceLengthIO :: CipherCtx -> Int -> IO Bool
-cipherCtxValidNonceLengthIO = mkGetSuccessCode_csize withCipherPtr botan_cipher_valid_nonce_length
+cipherCtxValidNonceLengthIO = mkGetBoolCode_csize withCipherPtr botan_cipher_valid_nonce_length
 
 -- |Get the tag length of the cipher (0 for non-AEAD modes)
 cipherCtxGetTagLengthIO :: CipherCtx -> IO Int
@@ -132,6 +133,7 @@ cipherCtxUpdateIO cipher flags outputSz input = withCipherPtr cipher $ \ cipherP
                 consumed <- fromIntegral <$> peek consumedPtr
                 written <- fromIntegral <$> peek writtenPtr
                 -- NOTE: If written == outputSz we can just return output
+                -- NOTE: The safety of this function is suspect - may require deepseq
                 let chunk = ByteString.copy $! ByteString.take written output
                     in chunk `seq` return (consumed, chunk)
 

@@ -21,9 +21,6 @@ key = "0000DEADBEEF0000"
 rounds :: Int
 rounds = 3
 
-anyBotanException :: Selector SomeBotanException
-anyBotanException = const True
-
 newRng :: IO RNGCtx
 newRng = rngCtxInitNameIO "system"
 

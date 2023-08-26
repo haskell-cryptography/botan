@@ -7,6 +7,7 @@ import Test.Prelude
 import Botan.Low.RNG
 import Botan.Low.Bcrypt
 
+password :: ByteString
 password = "Fee fi fo fum!"
 
 factor = 12

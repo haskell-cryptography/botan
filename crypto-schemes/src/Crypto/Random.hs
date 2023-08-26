@@ -6,6 +6,9 @@ import Data.Functor.Identity
 
 import Crypto.Prelude
 
+-- TODO: Also examine QuickCheck generator combinators as a source of inspiration
+--  https://hackage.haskell.org/package/QuickCheck-2.14.3/docs/Test-QuickCheck.html#g:9
+
 class PseudoRandom gen where
     generatePseudoRandomBytes :: Int -> gen -> (ByteString,gen)
 
