@@ -57,19 +57,6 @@ hashes =
 
 message = "Fee fi fo fum! I smell the blood of an Englishman!"
 
--- spec :: Spec
--- spec = forM_ hashes $ \ h -> describe (Char8.unpack h) $ do
---     describe "hashCtxInitNameIO" $ do
---         it "initializes a hash context" $ do
---             ctx <- hashCtxInitNameIO h
---             pass
---     it "can hash a message" $ do
---         ctx <- hashCtxInitNameIO h
---         digest <- hashCtxUpdateFinalizeClearIO ctx message
---         -- TODO: Have test data
---         -- digest `shouldBe` ""
---         pass
-
 spec :: Spec
 spec = testSuite hashes chars $ \ h -> do
     it "can initialize a hash context" $ do

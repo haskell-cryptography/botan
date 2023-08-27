@@ -16,6 +16,12 @@ import Botan.Low.RNG (systemRNGGetIO)
 --  AE / Authenticated encryption
 --  AEAD / Authenticated encryption with associated data (not all AE has AD)
 
+-- NOTE: Botan does not directly support AE without AD, though we can just supply "" for AD.
+--  This botan documentation note makes reference to performing AE manually, ie Encrypt-then-MAC:
+--      Warning
+--      Using an unauthenticted cipher mode without combining it with a Message
+--      Authentication Codes (MAC) is insecure. Prefer using an AEAD Mode.
+
 -- TODO: type aliases for CipherModeCtx / AEADCtx for safety later 
 
 data CipherDirection
@@ -40,8 +46,7 @@ data CipherKeySpec
 -- NOTE: For EAX and GCM, any length nonces are allowed. OCB allows any value between 8 and 15 bytes.
 data Cipher
     = CipherMode CipherMode
-    -- Botan contains no AE without AD? Or just supply "" for AD.
-    -- | AE AE
+    -- | AE AE -- SEE: Note about botan's lack of AE
     | AEAD AEAD
 
 cipherName :: Cipher -> CipherName
