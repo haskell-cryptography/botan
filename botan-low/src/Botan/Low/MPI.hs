@@ -65,7 +65,7 @@ mpToStrIO mp base = withMPPtr mp $ \ mpPtr -> do
     --         throwBotanIfNegative_ $ botan_mp_to_str mpPtr (fromIntegral base) bytesPtr szPtr
     --         ByteString.packCString bytesPtr
     -- We'll see if this solves that:
-    allocBytesQuerying $ \ bytesPtr szPtr -> 
+    allocBytesQueryingCString $ \ bytesPtr szPtr -> 
         botan_mp_to_str mpPtr (fromIntegral base) bytesPtr szPtr
 
 mpClearIO :: MP -> IO ()
@@ -87,6 +87,7 @@ mpCopyIO mp = do
 mpSetFromStrIO :: MP -> ByteString -> IO ()
 mpSetFromStrIO = mkSetCString withMPPtr botan_mp_set_from_str
 
+-- NOTE: According to unit tests, this function *does not* prepend "0x" to the value
 mpSetFromRadixStrIO :: MP -> ByteString -> Int -> IO ()
 mpSetFromRadixStrIO = mkSetCString_csize withMPPtr botan_mp_set_from_radix_str
 
@@ -198,10 +199,10 @@ mpGCDIO :: MP -> MP -> MP -> IO ()
 mpGCDIO = mkBinaryOp withMPPtr botan_mp_gcd
 
 -- NOTE: Miller–Rabin primality test
-mpIsPrimeIO :: MP -> RNGCtx -> Int -> IO ()
+mpIsPrimeIO :: MP -> RNGCtx -> Int -> IO Bool
 mpIsPrimeIO mp rng probability = withMPPtr mp $ \ mpPtr -> do
     withRNGPtr rng $ \ rngPtr -> do
-        throwBotanIfNegative_ $ botan_mp_is_prime mpPtr rngPtr (fromIntegral probability)
+        throwBotanCatchingBool $ botan_mp_is_prime mpPtr rngPtr (fromIntegral probability)
 
 mpGetBitIO :: MP -> Int -> IO Bool
 mpGetBitIO = mkGetBoolCode_csize withMPPtr botan_mp_get_bit
@@ -210,7 +211,7 @@ mpSetBitIO :: MP -> Int -> IO ()
 mpSetBitIO = mkSetCSize withMPPtr botan_mp_set_bit
 
 mpClearBitIO :: MP -> Int -> IO ()
-mpClearBitIO = mkSetCSize withMPPtr botan_mp_set_bit
+mpClearBitIO = mkSetCSize withMPPtr botan_mp_clear_bit
 
 --
 -- Helpers
