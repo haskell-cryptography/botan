@@ -1,3 +1,190 @@
+# Cryptography Community Project: Leg 1 Proposal
+
+<!-- _This template is for Haskell Foundation Technical Proposals that are community projects asking for support.
+Community project proposals are requests that the Haskell Foundation allocate funding to a particular project or goal to be executed by community members._
+
+_Please delete the italic text before submitting._ -->
+
+# Abstract
+
+<!-- _This section should provide a summary of the proposal that identifies the key problems to be solved and summarizes the solution._ -->
+
+<!-- Overall proposal -->
+This community project proposal is for full-time funding for the development of a suite of Haskell cryptography libraries and tooling suitable a wide range of uses including data integrity, privacy, security, and networking. <!-- Necessity of relieving burden --> This is necessary to relieve the burden [of correctly implementing cryptography] from Haskell developers seeking to provide privacy and security to their users. <!-- Long term goals --> We propose the development of a community-owned set of cryptography libraries of increasing capability, starting with bindings to a compatible open-source cryptography library. <!-- Timeline and Legs -->
+This is expected to require a considerable effort over time, and if accepted will be broken up into several legs, each of which will be accompanied by its own specific proposal and set of goals.
+
+<!-- First leg proposal -->
+The first leg of this proposal is for the development of production-ready bindings to the Botan C++ cryptography library, and from acceptance to release on Hackage is estimated to take 3 months of full-time development. <!-- Risk --> We see several challenges but no significant technical risk to this proposal; known challenges involve strictness and developing additional bindings to C++; these items are of high-value and may take significant effort to resolve, but are known to be solvable.
+
+
+
+# Background
+
+<!-- _This section should explain any background (targeting a casual audience) needed to understand the proposal’s motivation (e.g. a high level overview of the technical details and some history)._ -->
+
+Cryptography is an important part of modern computing and information security, but it is a hard problem requiring care, nuance, and knowledge to properly implement. How hard is information security? See *APPENDIX A, Timeline of notable hacks and vulnerabilities*.
+
+Failure to properly implement cryptography carries the risk of severely compromising the security of any system in which it is used. This places a significant burden on developers to properly implement various security techniques, and exposes end users to significant risk in the event of a lapse in security.
+
+
+ Some companies have built their own solution, but there is no community-driven, community-owned solution. <!-- Mention churn in Prior Art --> As a result, cryptography in Haskell is limited, difficult, and fragile, and there is considerable flux / churn as various libraries are deprecated or abandoned.
+
+# Problem Statement
+
+<!-- _This section should describe the problem that the proposal intends to solve and how solving the problem will benefit the Haskell community.
+It should also enumerate the requirements against which a solution should be evaluated._ -->
+
+Cryptography in Haskell lacks significant capability beyond basic primitives.
+
+Haskell is well-suited to providing many aspects of information security through use of monadic interfaces and the type system, if the lower-level challenges of strictness and performant primitives can be solved.
+
+Bindings to an open-source cryptography library is a good starting point. Bindings to Botan would solve the significant problem of dealing with common cryptography by providing much of the necessary 'cryptographic kitchen sink' via bindings to a suitably performant open-source library. The Haskell community would not be required to maintain the Botan cryptography library, only bindings to it, and this can be accomplished readily with some effort, which has already begun.
+
+# Prior Art and Related Efforts
+
+<!-- _This section should describe prior attempts to solve the problem, other relevant prior work, and what others in the community are doing to address the problem.
+It should describe the relationship between the proposed work and the existing efforts.
+If past attempts did not succeed, this section should provide a theory of why not._ -->
+
+We can group Haskell cryptography efforts into several categories, which are not necessarily distinct:
+
+- Libraries for specific algorithms
+- Cryptographic "kitchen sinks"
+- Bindings to foreign libraries
+- Efforts by [Thomas DuBuisson](https://hackage.haskell.org/user/ThomasDuBuisson)
+- Efforts by [Vincent Hanquez](https://hackage.haskell.org/user/VincentHanquez)
+
+The wiki lists [several libraries](https://wiki.haskell.org/Applications_and_libraries/Cryptography) and Hackage lists [many more](https://hackage.haskell.org/packages/#cat:Cryptography) according to the category.
+
+> NOTE: Cryptocurrency libraries and libraries not on Hackage are excluded from consideration.
+
+Specific libraries worth noting are:
+
+- Predecessors to `cryptonite` - all deprecated
+    - [cryptohash](https://hackage.haskell.org/package/cryptohash)
+    - [cryptocipher](https://hackage.haskell.org/package/cryptocipher)
+    - [crypto-pubkey](https://hackage.haskell.org/package/crypto-pubkey)
+    - [crypto-random](https://hackage.haskell.org/package/crypto-random)
+- Cryptographic "kitchen sinks"
+    - [cryptonite](https://hackage.haskell.org/package/cryptonite)
+    - [crypton](https://hackage.haskell.org/package/cryptonite) - a fork of cryptonite
+- Bindings to libsodium
+    - [NaCl](https://github.com/serokell/haskell-crypto)
+    - [saltine](https://hackage.haskell.org/package/saltine)
+    - [sel](https://hackage.haskell.org/package/sel-0.0.1.0/candidate)
+- Bindings to botan
+    - [Z-Botan](https://hackage.haskell.org/package/Z-Botan) - part of Z-Haskell, GHC8
+- Honorable mentions
+    - [Crypto](https://hackage.haskell.org/package/Crypto)
+    - [crypto-api](https://hackage.haskell.org/package/crypto-api)
+
+Of these libraries, a considerable amount are deprecated or have been dead for many years, with `cryptonite`, `crypton`, and `saltine` being clear front-runners in terms of current usage and transitive dependencies (and `sel` being under active development). Of these four, one is a fork of the another, and the other two are bindings to `libsodium` which does not sufficiently capture our need for low-level c
+
+None of these sufficiently express cryptography through the type-system and with type-classes. 
+
+
+
+## Technical Content
+
+<!-- _This section should describe the work that is being proposed to the community for comment, including both technical aspects (choices of system architecture, integration with existing tools and workflows) and community governance (how the developed project will be administered, maintained, and otherwise cared for in the future). 
+It should also describe the benefits, drawbacks, and risks that are associated with these decisions.
+It can be a good idea to describe alternative approaches here as well, and why the proposer prefers the current approach._ -->
+
+### botan-bindings
+
+### botan-low
+
+### botan
+
+### botanium
+
+### botanite
+
+### crypto-schemes
+
+### crypto-schemes-botan
+
+## Timeline
+
+<!-- _When will the project be completed?
+What are the intermediate steps and intermediate concrete deliverables for the community?_ -->
+
+### Expected project duration
+
+### Intermediate deliverables
+
+### Deliverables
+
+## Budget
+
+<!-- _How much money is needed to accomplish the goal?
+How will it be used?_ -->
+
+This is an estimated minimum budget based on cost-of-living, and based on direct industry experience is below-average
+
+ and direct industry experience, and constitutes a discussions with people familiar with such roles (either through direct experience or as managers) internationally. Given the current job market and the HF’s current funding, a hire around this price point should bring a reasonable amount of capacity to the table.
+## Stakeholders
+
+<!-- _Who stands to gain or lose from the implementation of this proposal?
+Proposals should identify stakeholders so that they can be contacted for input, and a final decision should not occur without having made a good-faith effort to solicit representative feedback from important stakeholder groups._ -->
+
+## Goals and Non-goals
+
+<!-- _What are the particular goals of this leg of the project?
+What are the intermediate steps and intermediate concrete deliverables for the community?_ -->
+
+## Success
+
+<!-- _Under what conditions will the project be considered a success?_ -->
+
+
+# Appendix
+
+## A - Timeline of notable hacks and vulnerabilities
+
+This list is neither exhaustive nor up-to-date.
+
+- [Stuxnet, 2010 - Targeted malware worm causes destruction of Iran's nuclear program.](https://www.nytimes.com/2011/01/16/world/middleeast/16stuxnet.html)
+- [Sony, April 2011 - 77 million Playstation accounts hacked, sensitive data stolen.](https://www.nytimes.com/2011/04/27/technology/27playstation.html)
+- [LinkedIn, June 2012 - 165 million user passwords stolen.](https://blog.linkedin.com/2016/05/18/protecting-our-members)
+- [Myspace, June 2013 - 360 million user account logins stolen.](https://www.wired.com/story/myspace-security-account-takeover/)
+- [Yahoo, August 2013 - 3 billion accounts compromised.](https://www.nytimes.com/2017/10/03/technology/yahoo-hack-3-billion-users.html)
+- [Adobe, October 2013 - 153 million usernames and hashed passwords stolen.](https://krebsonsecurity.com/2013/10/adobe-breach-impacted-at-least-38-million-users/)
+- [Heartbleed, 2014 - Huge swaths of the Internet vulnerable to Heartbleed](https://arstechnica.com/information-technology/2014/04/critical-crypto-bug-in-openssl-opens-two-thirds-of-the-web-to-eavesdropping/)
+- [Shellshock, 2014 - env x='() { :;}; echo vulnerable' bash -c "echo this is a test"](https://arstechnica.com/information-technology/2014/09/bug-in-bash-shell-creates-big-security-hole-on-anything-with-nix-in-it/)
+- [eBay, May 2014 - 145 million user records accessed.](https://www.cnbc.com/2014/05/22/hackers-raid-ebay-in-historic-breach-access-145-mln-records.html)
+- [Ashley Madison, July 2015 - 37 million user records stolen.](https://www.nytimes.com/2015/07/21/technology/hacker-attack-reported-on-ashley-madison-a-dating-service.html)
+- [Panama Papers, April 2016 - Panama law firm hacked, 2.6TB of documents stolen](https://www.itpro.com/hacking/26331/panama-papers-why-a-nation-state-super-hacker-isnt-responsible)
+- [EternalBlue / WannaCry, 2017 - NSA hacking tools stolen by hackers.](https://arstechnica.com/information-technology/2017/05/fearing-shadow-brokers-leak-nsa-reported-critical-flaw-to-microsoft/)
+- [Deep Root Analytics, June 2017 - 198 million voters' personal information exposed.](https://fortune.com/2017/06/19/deep-root-analytics-voter-data-exposed/)
+- [Equifax, July 2017 - 145.5 million user SSN / birthdates / sensitive data compromised.](https://www.nytimes.com/2020/01/22/business/equifax-breach-settlement.html)
+- [Spectre and Meltdown, 2018 - "Every modern processor has unfixable security flaws"](https://arstechnica.com/gadgets/2018/01/meltdown-and-spectre-every-modern-processor-has-unfixable-security-flaws/)
+- [UnderArmour / My Fitness Pal, February 2018 - 150 million user accounts accessed and passwords stolen.](https://content.myfitnesspal.com/security-information/FAQ.html)
+- [Starwood / Marriott International, November 2018 - 500 million user records stolen.](https://www.reuters.com/article/legal-us-marriott-intnl-cyber/marriotts-starwood-database-hacked-500-million-may-be-affected-idUSKCN1O02VH)
+- [Facebook / Meta, April 2019 - 533 million user's data exposed.](https://www.bbc.com/news/technology-56815478)
+- [Baltimore, May 2019 - City servers compromised by ransomware.](https://arstechnica.com/information-technology/2019/05/baltimore-city-government-hit-by-robbinhood-ransomware/)
+- [Capital One, July 2019 - 100 million users affected in breach.](https://www.washingtonpost.com/national-security/capital-one-fined-2019-hack/2020/08/06/90c2c836-d7f3-11ea-aff6-220dd3a14741_story.html)
+- [Zynga, September 2019 - 170 million IDs and passwords stolen.](https://us.norton.com/internetsecurity-emerging-threats-new-report-says-zynga-breach-in-september-affected-172-million-a.html)
+- [Alibaba, November 2019 - 1.1 billion pieces of user data leaked.](https://www.bloomberg.com/news/articles/2021-06-16/alibaba-victim-of-huge-data-leak-as-china-tightens-security)
+- [Log4j / Log4shell, 2021 - "arguably the most severe vulnerability ever"](https://arstechnica.com/information-technology/2021/12/as-log4shell-wreaks-havoc-payroll-service-reports-ransomware-attack/)
+- [LinkedIn, June 2021 - 700 million users impacted.](https://www.forbes.com/sites/leemathews/2021/06/29/details-on-700-million-linkedin-users-for-sale-on-notorious-hacking-forum/)
+- [FBI, November 2021 - FBI email server compromised.](https://www.washingtonpost.com/nation/2021/11/14/fbi-hack-email-cyberattack/)
+- [Retbleed, 2022 - "speculative execution attack sends Intel and AMD scrambling"](https://arstechnica.com/information-technology/2022/07/intel-and-amd-cpus-vulnerable-to-a-new-speculative-execution-attack/)
+
+Security is something we cannot afford to do wrong.
+
+
+
+
+
+# SCRATCH LINE - ROUGH DRAFT ENDS, SCRATCH BEGINS
+# SCRATCH LINE - ROUGH DRAFT ENDS, SCRATCH BEGINS
+# SCRATCH LINE - ROUGH DRAFT ENDS, SCRATCH BEGINS
+# SCRATCH LINE - ROUGH DRAFT ENDS, SCRATCH BEGINS
+
+
+
+
 # Cryptography Community Project Proposal
 
 <!-- _This template is for Haskell Foundation Technical Proposals that are community projects asking for support.
