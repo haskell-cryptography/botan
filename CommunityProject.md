@@ -14,191 +14,42 @@ This community project proposal is for full-time funding for the development of 
 This is expected to require a considerable effort over time, and if accepted will be broken up into several legs, each of which will be accompanied by its own specific proposal and set of goals.
 
 <!-- First leg proposal -->
-The first leg of this proposal is for the development of production-ready bindings to the Botan C++ cryptography library, and from acceptance to release on Hackage is estimated to take 3 months of full-time development. <!-- Risk --> We see several challenges but no significant technical risk to this proposal; known challenges involve strictness and developing additional bindings to C++; these items are of high-value and may take significant effort to resolve, but are known to be solvable.
-
-
+The first leg of this proposal is for the development of high-quality, production-ready bindings to the Botan C++ cryptography library, and from acceptance to release on Hackage is estimated to take 3 months of full-time development. <!-- Risk --> We see several challenges but no significant technical risk to this proposal; known challenges involve strictness and developing additional bindings to C++; these items are of high-value and may take significant effort to resolve, but are known to be solvable. <!-- Effort is already underway --> Considerable progress has already been made, and the proposed funding will help ensure its completion.
 
 # Background
 
 <!-- _This section should explain any background (targeting a casual audience) needed to understand the proposal’s motivation (e.g. a high level overview of the technical details and some history)._ -->
 
-Cryptography is an important part of modern computing and information security, but it is a hard problem requiring care, nuance, and knowledge to properly implement. How hard is information security? See *APPENDIX A, Timeline of notable hacks and vulnerabilities*.
+<!-- Cryptography is hard -->
+Cryptography is an essential part of modern computing and information security, but it requires care, nuance, and knowledge to properly implement, and is extremely easy to mess up. <!-- Cryptography is diverse --> It covers a diverse range of functions, with individual algorithms often having their own particular quirks that must be acknowledged to properly and safely use. <!-- Failure has a high cost --> Failure to properly implement cryptography carries the risk of severely compromising the security of any system in which it is used. <!-- Dissuade hand-written crypto --> Manually implementing common cryptographic primitives such as hashes, ciphers, digital signatures, big-integer arithmetic is thus considered extremely unwise, both in terms of security and performance.
 
-Failure to properly implement cryptography carries the risk of severely compromising the security of any system in which it is used. This places a significant burden on developers to properly implement various security techniques, and exposes end users to significant risk in the event of a lapse in security.
+<!-- Functional cryptography is harder -->
+Cryptography is even harder for functional programming languages. Properly implementing techniques such as sanitizing memory, performing operations in constant time, are already difficult enough in languages such as C, and in a lazy functional language it is made even more difficult by such things as the potential for references to be kept alive within thunks. <!-- Fun crypt is under-developed --> As a result, the space of functional cryptography is relatively under-explored and under-developed, having favored other languages where such things are easier to manage.
 
-
- Some companies have built their own solution, but there is no community-driven, community-owned solution. <!-- Mention churn in Prior Art --> As a result, cryptography in Haskell is limited, difficult, and fragile, and there is considerable flux / churn as various libraries are deprecated or abandoned.
+<!-- There is a tradeoff -->
+However, if we accept this downside as a part of a trade-off, and explore the ways that functional programming is beneficial to cryptography (monads, type systems, referential transparency), there is then also the potential for functional cryptography to be made *easier*. The functional machinery of Haskell is well-suited for adding important contextual control to cryptography, and can help prevent or eliminate many issues and errors in ways that languages such as C cannot. <!-- Explore to improve --> I believe that there is room for significant improvement, given a directed effort to develop the space.
 
 # Problem Statement
 
 <!-- _This section should describe the problem that the proposal intends to solve and how solving the problem will benefit the Haskell community.
 It should also enumerate the requirements against which a solution should be evaluated._ -->
 
-Cryptography in Haskell lacks significant capability beyond basic primitives.
+<!-- Haskell cryptography is weak / has churn -->
+Cryptography in Haskell lacks significant capability beyond basic primitives. This places a significant burden on developers to properly implement various security techniques, and exposes end users to significant risk in the event of a lapse in security. Some companies have built their own solution to this, but there is no community-driven, community-owned solution.
 
-Haskell is well-suited to providing many aspects of information security through use of monadic interfaces and the type system, if the lower-level challenges of strictness and performant primitives can be solved.
-
-Bindings to an open-source cryptography library is a good starting point. Bindings to Botan would solve the significant problem of dealing with common cryptography by providing much of the necessary 'cryptographic kitchen sink' via bindings to a suitably performant open-source library. The Haskell community would not be required to maintain the Botan cryptography library, only bindings to it, and this can be accomplished readily with some effort, which has already begun.
-
-# Prior Art and Related Efforts
-
-<!-- _This section should describe prior attempts to solve the problem, other relevant prior work, and what others in the community are doing to address the problem.
-It should describe the relationship between the proposed work and the existing efforts.
-If past attempts did not succeed, this section should provide a theory of why not._ -->
-
-We can group Haskell cryptography efforts into several categories, which are not necessarily distinct:
-
-- Libraries for specific algorithms
-- Cryptographic "kitchen sinks"
-- Bindings to foreign libraries
-- Efforts by [Thomas DuBuisson](https://hackage.haskell.org/user/ThomasDuBuisson)
-- Efforts by [Vincent Hanquez](https://hackage.haskell.org/user/VincentHanquez)
-
-The wiki lists [several libraries](https://wiki.haskell.org/Applications_and_libraries/Cryptography) and Hackage lists [many more](https://hackage.haskell.org/packages/#cat:Cryptography) according to the category.
-
-> NOTE: Cryptocurrency libraries and libraries not on Hackage are excluded from consideration.
-
-Specific libraries worth noting are:
-
-- Predecessors to `cryptonite` - all deprecated
-    - [cryptohash](https://hackage.haskell.org/package/cryptohash)
-    - [cryptocipher](https://hackage.haskell.org/package/cryptocipher)
-    - [crypto-pubkey](https://hackage.haskell.org/package/crypto-pubkey)
-    - [crypto-random](https://hackage.haskell.org/package/crypto-random)
-- Cryptographic "kitchen sinks"
-    - [cryptonite](https://hackage.haskell.org/package/cryptonite)
-    - [crypton](https://hackage.haskell.org/package/cryptonite) - a fork of cryptonite
-- Bindings to libsodium
-    - [NaCl](https://github.com/serokell/haskell-crypto)
-    - [saltine](https://hackage.haskell.org/package/saltine)
-    - [sel](https://hackage.haskell.org/package/sel-0.0.1.0/candidate)
-- Bindings to botan
-    - [Z-Botan](https://hackage.haskell.org/package/Z-Botan) - part of Z-Haskell, GHC8
-- Honorable mentions
-    - [Crypto](https://hackage.haskell.org/package/Crypto)
-    - [crypto-api](https://hackage.haskell.org/package/crypto-api)
-
-Of these libraries, a considerable amount are deprecated or have been dead for many years, with `cryptonite`, `crypton`, and `saltine` being clear front-runners in terms of current usage and transitive dependencies (and `sel` being under active development). Of these four, one is a fork of the another, and the other two are bindings to `libsodium` which does not sufficiently capture our need for low-level c
-
-None of these sufficiently express cryptography through the type-system and with type-classes. 
+<!-- Mention churn in Prior Art --> As a result, cryptography in Haskell is fragile, having seen considerable flux / churn over the years as various libraries have been developed and then deprecated or abandoned in favor of newer ones. This has placed the long-term stability of important libraries such as `tls` and `x509` is at risk.
 
 
-
-## Technical Content
-
-<!-- _This section should describe the work that is being proposed to the community for comment, including both technical aspects (choices of system architecture, integration with existing tools and workflows) and community governance (how the developed project will be administered, maintained, and otherwise cared for in the future). 
-It should also describe the benefits, drawbacks, and risks that are associated with these decisions.
-It can be a good idea to describe alternative approaches here as well, and why the proposer prefers the current approach._ -->
-
-### botan-bindings
-
-### botan-low
-
-### botan
-
-### botanium
-
-### botanite
-
-### crypto-schemes
-
-### crypto-schemes-botan
-
-## Timeline
-
-<!-- _When will the project be completed?
-What are the intermediate steps and intermediate concrete deliverables for the community?_ -->
-
-### Expected project duration
-
-### Intermediate deliverables
-
-### Deliverables
-
-## Budget
-
-<!-- _How much money is needed to accomplish the goal?
-How will it be used?_ -->
-
-This is an estimated minimum budget based on cost-of-living, and based on direct industry experience is below-average
-
- and direct industry experience, and constitutes a discussions with people familiar with such roles (either through direct experience or as managers) internationally. Given the current job market and the HF’s current funding, a hire around this price point should bring a reasonable amount of capacity to the table.
-## Stakeholders
-
-<!-- _Who stands to gain or lose from the implementation of this proposal?
-Proposals should identify stakeholders so that they can be contacted for input, and a final decision should not occur without having made a good-faith effort to solicit representative feedback from important stakeholder groups._ -->
-
-## Goals and Non-goals
-
-<!-- _What are the particular goals of this leg of the project?
-What are the intermediate steps and intermediate concrete deliverables for the community?_ -->
-
-## Success
-
-<!-- _Under what conditions will the project be considered a success?_ -->
+Furthermore, picking a cryptography library can be confusing, and developing a consistent suite will alleviate the difficulty of navigating hackage to figure out what is the most up-to-date library.
 
 
-# Appendix
+<!-- Cryptography is more than hashing and encryption -->
 
-## A - Timeline of notable hacks and vulnerabilities
-
-This list is neither exhaustive nor up-to-date.
-
-- [Stuxnet, 2010 - Targeted malware worm causes destruction of Iran's nuclear program.](https://www.nytimes.com/2011/01/16/world/middleeast/16stuxnet.html)
-- [Sony, April 2011 - 77 million Playstation accounts hacked, sensitive data stolen.](https://www.nytimes.com/2011/04/27/technology/27playstation.html)
-- [LinkedIn, June 2012 - 165 million user passwords stolen.](https://blog.linkedin.com/2016/05/18/protecting-our-members)
-- [Myspace, June 2013 - 360 million user account logins stolen.](https://www.wired.com/story/myspace-security-account-takeover/)
-- [Yahoo, August 2013 - 3 billion accounts compromised.](https://www.nytimes.com/2017/10/03/technology/yahoo-hack-3-billion-users.html)
-- [Adobe, October 2013 - 153 million usernames and hashed passwords stolen.](https://krebsonsecurity.com/2013/10/adobe-breach-impacted-at-least-38-million-users/)
-- [Heartbleed, 2014 - Huge swaths of the Internet vulnerable to Heartbleed](https://arstechnica.com/information-technology/2014/04/critical-crypto-bug-in-openssl-opens-two-thirds-of-the-web-to-eavesdropping/)
-- [Shellshock, 2014 - env x='() { :;}; echo vulnerable' bash -c "echo this is a test"](https://arstechnica.com/information-technology/2014/09/bug-in-bash-shell-creates-big-security-hole-on-anything-with-nix-in-it/)
-- [eBay, May 2014 - 145 million user records accessed.](https://www.cnbc.com/2014/05/22/hackers-raid-ebay-in-historic-breach-access-145-mln-records.html)
-- [Ashley Madison, July 2015 - 37 million user records stolen.](https://www.nytimes.com/2015/07/21/technology/hacker-attack-reported-on-ashley-madison-a-dating-service.html)
-- [Panama Papers, April 2016 - Panama law firm hacked, 2.6TB of documents stolen](https://www.itpro.com/hacking/26331/panama-papers-why-a-nation-state-super-hacker-isnt-responsible)
-- [EternalBlue / WannaCry, 2017 - NSA hacking tools stolen by hackers.](https://arstechnica.com/information-technology/2017/05/fearing-shadow-brokers-leak-nsa-reported-critical-flaw-to-microsoft/)
-- [Deep Root Analytics, June 2017 - 198 million voters' personal information exposed.](https://fortune.com/2017/06/19/deep-root-analytics-voter-data-exposed/)
-- [Equifax, July 2017 - 145.5 million user SSN / birthdates / sensitive data compromised.](https://www.nytimes.com/2020/01/22/business/equifax-breach-settlement.html)
-- [Spectre and Meltdown, 2018 - "Every modern processor has unfixable security flaws"](https://arstechnica.com/gadgets/2018/01/meltdown-and-spectre-every-modern-processor-has-unfixable-security-flaws/)
-- [UnderArmour / My Fitness Pal, February 2018 - 150 million user accounts accessed and passwords stolen.](https://content.myfitnesspal.com/security-information/FAQ.html)
-- [Starwood / Marriott International, November 2018 - 500 million user records stolen.](https://www.reuters.com/article/legal-us-marriott-intnl-cyber/marriotts-starwood-database-hacked-500-million-may-be-affected-idUSKCN1O02VH)
-- [Facebook / Meta, April 2019 - 533 million user's data exposed.](https://www.bbc.com/news/technology-56815478)
-- [Baltimore, May 2019 - City servers compromised by ransomware.](https://arstechnica.com/information-technology/2019/05/baltimore-city-government-hit-by-robbinhood-ransomware/)
-- [Capital One, July 2019 - 100 million users affected in breach.](https://www.washingtonpost.com/national-security/capital-one-fined-2019-hack/2020/08/06/90c2c836-d7f3-11ea-aff6-220dd3a14741_story.html)
-- [Zynga, September 2019 - 170 million IDs and passwords stolen.](https://us.norton.com/internetsecurity-emerging-threats-new-report-says-zynga-breach-in-september-affected-172-million-a.html)
-- [Alibaba, November 2019 - 1.1 billion pieces of user data leaked.](https://www.bloomberg.com/news/articles/2021-06-16/alibaba-victim-of-huge-data-leak-as-china-tightens-security)
-- [Log4j / Log4shell, 2021 - "arguably the most severe vulnerability ever"](https://arstechnica.com/information-technology/2021/12/as-log4shell-wreaks-havoc-payroll-service-reports-ransomware-attack/)
-- [LinkedIn, June 2021 - 700 million users impacted.](https://www.forbes.com/sites/leemathews/2021/06/29/details-on-700-million-linkedin-users-for-sale-on-notorious-hacking-forum/)
-- [FBI, November 2021 - FBI email server compromised.](https://www.washingtonpost.com/nation/2021/11/14/fbi-hack-email-cyberattack/)
-- [Retbleed, 2022 - "speculative execution attack sends Intel and AMD scrambling"](https://arstechnica.com/information-technology/2022/07/intel-and-amd-cpus-vulnerable-to-a-new-speculative-execution-attack/)
-
-Security is something we cannot afford to do wrong.
+Implementations are often highly concrete,
 
 
 
 
-
-# SCRATCH LINE - ROUGH DRAFT ENDS, SCRATCH BEGINS
-# SCRATCH LINE - ROUGH DRAFT ENDS, SCRATCH BEGINS
-# SCRATCH LINE - ROUGH DRAFT ENDS, SCRATCH BEGINS
-# SCRATCH LINE - ROUGH DRAFT ENDS, SCRATCH BEGINS
-
-
-
-
-# Cryptography Community Project Proposal
-
-<!-- _This template is for Haskell Foundation Technical Proposals that are community projects asking for support.
-Community project proposals are requests that the Haskell Foundation allocate funding to a particular project or goal to be executed by community members._
-
-_Please delete the italic text before submitting._ -->
-
-This is a community project proposal for the construction of a set of cryptographic Haskell libraries suitable a wide range of uses including data integrity, privacy, security, and networking.
-
-## Abstract
-
-<!-- _This section should provide a summary of the proposal that identifies the key problems to be solved and summarizes the solution._ -->
-
-Cryptography in Haskell lacks significant capability beyond the basic primitives. Some companies have built their own solution to this, but there is no community-driven, community-owned solution.
 
 - Implementations are very concrete
 - We don't even have a working set of abstract cryptographic primitives, let alone higher algorithms like merkle structures
@@ -214,18 +65,15 @@ Cryptography is more than just the usual primitives of ciphers, public and priva
 
 - Cryptography and and cryptography-related utilities includes codecs, random generators
 
-## Background
+Cryptography in Haskell lacks significant capability beyond basic primitives.
 
-<!-- _This section should explain any background (targeting a casual audience) needed to understand the proposal’s motivation (e.g. a high level overview of the technical details and some history)._ -->
+Haskell is well-suited to providing many aspects of information security through use of monadic interfaces and the type system, if the lower-level challenges of strictness and performant primitives can be solved.
 
-Cryptography has strict requirements for proper use, and is extremely easy to mess up. Providing a safe and easy-to-use interface is of critical importance, and Haskell is highly suited to it in many ways (type systems) although Haskell presents its own challenges (laziness, delay of cleanup)
+Bindings to an open-source cryptography library is a good starting point. Bindings to Botan would solve the significant problem of dealing with common cryptography by providing much of the necessary 'cryptographic kitchen sink' via bindings to a suitably performant, suitably licensed, open-source library. The Haskell community would not be required to maintain the Botan cryptography library, only bindings to it, and this can be accomplished readily with some effort, which has already begun.
 
-## Problem Statement
 
-<!-- _This section should describe the problem that the proposal intends to solve and how solving the problem will benefit the Haskell community.
-It should also enumerate the requirements against which a solution should be evaluated._ -->
-    
-- Cryptography support is critical (eg, in `tls` and `x509`)
+
+<!-- - Cryptography support is critical (eg, in `tls` and `x509`)
 - Crypton / cryptonite is good for specific algorithms, but its classes don't necessarily fully encapsulate the desired concepts well (eg, the classes generalize the implementation in the crypton/ite library, instead of abstracting them completely - botan's non-copyable types don't fit) - the cipher classes are especially tight and inflexible.
 
 - `crypton` ecosystem was forked from `cryptonite` ecosystem, but remains related
@@ -279,39 +127,87 @@ It should also enumerate the requirements against which a solution should be eva
 
 - Cryptography - orthogonal goals of: 1) promoting proper use and avoiding old algorithms 2) providing compatibility with existing libraries
 
-## Prior Art and Related Efforts
+- Cryptographic versions of containers of `Map` (eg `HashMap hash k v`)
+- A cryptographic version of `hashable`
+
+
+> "It is near impossible to zero memory [...] and timing isn't guarantee-able achievable even in C, but is even harder in higher level languages." -  https://www.reddit.com/r/haskell/comments/hp5qvn/comment/fxp4w34/?utm_source=share&utm_medium=web2x&context=3
+    - So this is not a blocker, nor a sufficient reason to strike Haskell from consideration
+    - Development of a Strict-IO / Crypto monad to help enforce this
+Providing a safe and easy-to-use interface is of critical importance, and Haskell is highly suited to it in many ways (type systems) although Haskell presents its own challenges (laziness, delay of cleanup)
+ -->
+
+It is important that the Haskell community has a strong cryptography library / presence that is not bent towards a particular agenda. It must be **free as in speech (licensing)** and **free as in beer (no mining)**, in order to allow the growth of advanced cryptographic techniques the way that Haskell has furthered the growth of functional programming techniques. Cryptocurrency and blockchain cryptography efforts are almost innately tainted or unsuitable, in that they often focus on and require elements that are unnecessary (eg, mining). One suitable / acceptable goal is for generalized distributed computation, which, in some sense, is the one of only reasons that cryptography even exists - it would not be necessary to perform multi-party cryptography if there was only a single ideal computer with only one party using it.
+
+
+# Prior Art and Related Efforts
 
 <!-- _This section should describe prior attempts to solve the problem, other relevant prior work, and what others in the community are doing to address the problem.
 It should describe the relationship between the proposed work and the existing efforts.
 If past attempts did not succeed, this section should provide a theory of why not._ -->
 
-- `cryptonite`, `memory`, and a lot of haskell crypto has been maintained by Vincent Hanquez
-    - We appreciate his past efforts and thank him deeply for them
-    - We still need to keep things up to date, `crypton` ecosystem was forked from `cryptonite` because of this?
-        - some (like `memory`) remains unforked
-    
-- `libsodium` fulfills a lot of the functional need in haskell, but it is very limited.
-    - `sel` is Hécate / Kleidukos's take on libsodium
-        - https://hackage.haskell.org/package/sel-0.0.1.0/candidate
-- blockchain / for-profit companies fill the rest of the haskell crypto niche, and they make you use their system / environment.
+We can group Haskell cryptography efforts into several categories, which are not necessarily distinct:
 
-- It would be ideal to have stronger safety regarding confidentiality, authenticity, non-repudiability, and standards of strength (eg whether broken and kept for backwards compat, or up-to-date modern choice), universal hashing, etc
-    - We cannot always prove cryptographic strength (so its not quite like mathematical law)
-    - Standards change over time
-    - Can use the same methods as `algebraic-constraints` to manually annotate cryptographic properties
+- Libraries for specific algorithms
+- Cryptographic "kitchen sinks"
+- Bindings to foreign libraries
+- Efforts by [Thomas DuBuisson](https://hackage.haskell.org/user/ThomasDuBuisson)
+- Efforts by [Vincent Hanquez](https://hackage.haskell.org/user/VincentHanquez)
 
-## Goals and Non-goals
+The wiki lists [several libraries](https://wiki.haskell.org/Applications_and_libraries/Cryptography) and Hackage lists [many more](https://hackage.haskell.org/packages/#cat:Cryptography) according to the category.
 
-The following are goals:
+> NOTE: Cryptocurrency libraries and libraries not on Hackage are excluded from consideration.
 
-- To finish the directly `botan` -related libraries.
-- To provide a suitable interface / backend (as an option) for `crypton`, `tls`, `x509`
-- To consolidate Haskell cryptography into a unified, consistent, user-friendly system
-- To enable the safe use and implementation of advanced cryptographic data structures
+Specific libraries worth noting are:
 
-The following are not goals:
+- Predecessors to `cryptonite` - all deprecated
+    - [cryptohash](https://hackage.haskell.org/package/cryptohash)
+    - [cryptocipher](https://hackage.haskell.org/package/cryptocipher)
+    - [crypto-pubkey](https://hackage.haskell.org/package/crypto-pubkey)
+    - [crypto-random](https://hackage.haskell.org/package/crypto-random)
+- Cryptographic "kitchen sinks"
+    - [cryptonite](https://hackage.haskell.org/package/cryptonite)
+    - [crypton](https://hackage.haskell.org/package/cryptonite) - a fork of cryptonite
+- Bindings to libsodium
+    - [NaCl](https://github.com/serokell/haskell-crypto)
+    - [saltine](https://hackage.haskell.org/package/saltine)
+    - [sel](https://hackage.haskell.org/package/sel-0.0.1.0/candidate)
+- Bindings to botan
+    - [Z-Botan](https://hackage.haskell.org/package/Z-Botan) - part of Z-Haskell, GHC8
+- Honorable mentions
+    - [Crypto](https://hackage.haskell.org/package/Crypto) - a very old sink
+    - [crypto-api](https://hackage.haskell.org/package/crypto-api) - cryptographic classes
+    - [cryptol](https://hackage.haskell.org/package/cryptol) - a DSL for developing new cryptographic primitives
 
-- Finishing every goal by the first leg of the project
+These prior efforts can be considered to be somewhat partially successful in presenting Haskell developers with access to cryptographic primitives, but present a significant development challenge and a high refactoring cost if dependences become deprecated, which happens often. Of these libraries, a considerable amount are deprecated or have been dead for many years, with . `cryptonite`, `crypton`, and `saltine` are clear front-runners in terms of current usage and transitive dependencies (and `sel` being under active development). Of these four, one is a fork of another (`crypton` and `cryptonite`), and the other two are bindings to `libsodium` which does not sufficiently capture our need for low-level cryptographic primitives in general.
+
+None of these sufficiently express cryptography through the type-system and with type-classes. `crypton/ite` exposes a few highly- opinionated / specific classes for hashing, block and stream ciphers, but otherwise is focused on concrete implementations and functions. Both `crypton` and `cryptonite` rely on bindings to C implementations of unknown veracity; though the code is itself not suspect, the lack of provenance makes it ill-suited for recommendation in trusted environments, and maintenance of the C implementation poses burden of high technical skill. Libsodium bindings are more trustworthy, but the limited options severely hamper interop with other systems unless they too are using libsodium, making them ill-suited for recommendation for some use cases. `Z-Botan` has been apparently dead for several years, and even if revived has a has a sizeable dependency in the form of the `Z-Haskell` ecosystem.
+
+Furthermore, none of these libraries contain implementations of post-quantum cryptography schemes; although existing quantum computers are of insufficient capability to break commonly used algorithms such as Ed25519, this will not remain true forever, and it would be best to have quantum-resistant implementations ready for adoption long before such attacked become practical.
+
+Each of these efforts has one or more of these issues that preclude them from being considered a complete success:
+
+- Insufficient abstraction
+- Maintenance of handwritten C
+- Bindings to an insufficiently general library
+- Burdensome dependencies
+- Dead project
+- Lack of post-quantum algorithms
+
+However, there is also a lot to be learned from the ways these prior efforts *were* successful. This proposal will assess these existing efforts in an attempt to consolidate their learnings and functionality.
+
+## An example of a successful ecosystem
+
+The health of the Haskell server ecosystem may be used as an example of a successful community-driven niche, and we can aspire to bring that same quality and health to the Haskell cryptography ecosystem. There are many pertinent parallels in terms of managing performance, complexity, and safety that we can learn from:
+
+- Low-level packages like `wai` supporting multiple backends
+- Backends range from simple like `scotty` to complex like `servant`
+- Frontends like `blaze-html` and `lucid`
+- Libraries can take advantage of type system to provide good abstractions
+- Flexible enough abstractions to explore the problem space with multiple solutions
+- Appropriate licensing
+
+`servant` (and the `wai` ecosystem in general) is a success story and an example of higher-order programming making something safer and easier, something that we can aspire to do with cryptography.
 
 ## Technical Content
 
@@ -319,7 +215,108 @@ The following are not goals:
 It should also describe the benefits, drawbacks, and risks that are associated with these decisions.
 It can be a good idea to describe alternative approaches here as well, and why the proposer prefers the current approach._ -->
 
-Bindings to Botan would solve the significant problem of dealing with common cryptography by providing much of the necessary 'cryptographic kitchen sink' via an open-source community. The Haskell community would not be required to maintain the cryptography library, only bindings to it, and this can be accomplished readily with some effort, which has already begun.
+### botan-bindings
+
+### botan-low
+
+### botan
+
+### botanium
+
+### botanite
+
+### crypto-schemes
+
+### crypto-schemes-botan
+
+## Goals and Non-goals
+
+<!-- _What are the particular goals of this leg of the project?
+What are the intermediate steps and intermediate concrete deliverables for the community?_ -->
+
+The following are the immediate goals of this leg:
+
+- To publish the `botan`, `botan-low`, and `botan-bindings` libraries.
+- To build proper documentation and tutorials covering the subject material
+- To establish a community project presence focused on Haskell and cryptography
+
+The following are overarching goals:
+
+- To provide a suitable interface / backend (as an option) for `crypton`, `tls`, `x509`
+- To consolidate Haskell cryptography into a unified, consistent, user-friendly system
+- To enable the safe use and implementation of advanced cryptographic data structures
+- To provide cryptographic typeclasses for safe and consistent use
+
+The following are not goals:
+
+- Finishing every goal by the first leg of the project
+- Matching interfaces 1:1 with existing libraries / interfaces
+- Implementing every algorithm permutation
+
+## Timeline
+
+<!-- _When will the project be completed?
+What are the intermediate steps and intermediate concrete deliverables for the community?_ -->
+
+- Full project has too large of a scope
+- Could easily spend several years building this out
+- Small bites first
+- Prefer to focus on the immediate problem of binding `botan` sufficiently first
+- Cryptographic classes will take some time
+- Once the base bindings are done we can focus on generalizing
+- There's a difference between getting it working functionally, and the same safely
+    - Properly seeding inlined RNGs (eg the systemRNGGetIO calls...)
+    - Scrubbing memory after use
+    - Inline / no-inline pragmas
+    - Lots of small stuff, like ensuring seeding of RNGs, optimizing
+- We're getting a lot of the happy path done fairly quickly, but that will slow down as we get into the fine tuning and safety
+
+- First 3 months: botan
+- Second 3 months: crypto classes
+- Third 3 months: advanced crypto structures
+
+### Expected project duration
+
+- 1 month to get `botan` finished
+    - Includes more advanced ergonomics
+- 1 month for safety improvements
+- 1 month for documentation and tutorials
+    - Tutorials includes in-package tutorials as well as reader-friendly blogs
+- Not necessarily in that order, probably more mixed about
+- It is unknown exactly how much effort is required
+
+### Intermediate deliverables
+
+- Frequent (2-3x weekly) activity update on devlog
+- Weekly major update that includes github push
+- Monthly report that summarizes what specific items have been worked on, what items will be worked on, and what challenges have arisen, if any.
+- Questions / polls will be posed to the community for input on ergonomics
+
+### Deliverables
+
+- Libraries
+- Project site
+- Project repo
+    - Will fork my github repo and make the project repo the official repo owned by the community
+        - Will keep my own repo as my own personal fork, push from there to official
+    - Other project members get access to the official repo.
+    - No worries about ownership or maintenance
+    - Official repo probably will be under the Haskell Cryptography Group github
+
+- `botan-bindings`, `botan-low`, `botan`, (and maybe `botanium`) should be beta- or / production-ready
+    - Unit tests
+    - Ticket system
+    - Repo README
+    - Style / Nomenclature GUIDE
+    - Package documentation
+    - Tutorials
+
+- Revisit future funding in 3 months for extended / future work
+    - Choose direction again
+    - Optimizing (strictly extinguishing memory leaks, handling lazy byte streams,)
+    - Higher-order cryptography
+
+<!-- Bindings to Botan would solve the significant problem of dealing with common cryptography by providing much of the necessary 'cryptographic kitchen sink' via an open-source community. The Haskell community would not be required to maintain the cryptography library, only bindings to it, and this can be accomplished readily with some effort, which has already begun.
 
 - Can either make `crypton/ite` compatible `botanite`, or we make a classy `crypto-schemes` and replace `crypton/ite`
     - We could make some attempt to blend `crypton` into this new hierarchy, eg use `botan` to back `crypton` 
@@ -368,113 +365,76 @@ From SDL2 docs - retrofit this to describe `botan-bindings`, `botan-low`, and `b
 
     The SDL.Raw namespace contains an almost 1-1 translation of the C API into Haskell FFI calls. As such, this does not contain sum types nor error checking. Thus this namespace is suitable for building your own abstraction over SDL, but is not recommended for day-to-day programming.
 
-## Timeline
 
-<!-- _When will the project be completed?
-What are the intermediate steps and intermediate concrete deliverables for the community?_ -->
+> "It is near impossible to zero memory (just look at the SecureMem type and the convoluted efforts there) and timing isn't guarantee-able achievable [even in C](https://infoscience.epfl.ch/record/223794/files/32_1.pdf) but is even harder in higher level languages." -  https://www.reddit.com/r/haskell/comments/hp5qvn/comment/fxp4w34/?utm_source=share&utm_medium=web2x&context=3
+    - So this is not a blocker, nor a sufficient reason to strike Haskell from consideration
+    - Development of a Strict-IO / Crypto monad to help enforce this -->
 
-- Full project has too large of a scope
-- Could easily spend several years building this out
-- Small bites first
-- Prefer to focus on the immediate problem of binding `botan` sufficiently first
-- Cryptographic classes will take some time
-- Once the base bindings are done we can focus on generalizing
-- There's a difference between getting it working functionally, and the same safely
-    - Properly seeding inlined RNGs (eg the systemRNGGetIO calls...)
-    - Scrubbing memory after use
-    - Inline / no-inline pragmas
-    - Lots of small stuff, like ensuring seeding of RNGs, optimizing
-- We're getting a lot of the happy path done fairly quickly, but that will slow down as we get into the fine tuning and safety
-
-- First 3 months: botan
-- Second 3 months: crypto classes
-- Third 3 months: advanced crypto structures
-
-### Expected project duration
-
-- 1 month to get `botan` finished
-    - Includes more advanced ergonomics
-- 1 month for safety improvements
-- 1 month for documentation and tutorials
-    - Tutorials includes in-package tutorials as well as reader-friendly blogs
-- Not necessarily in that order, probably more mixed about
-- It is unknown exactly how much effort is required
-
-### Intermediate deliverables
-
-- Frequent (2-3x weekly) activity update on devlog
-- Weekly major update that includes github push
-- Questions / polls will be posed to the community for input on ergonomics
-
-### Deliverables
-
-- Libraries
-- Project site
-- Project repo
-    - Will fork my github repo and make the project repo the official repo owned by the community
-        - Will keep my own repo as my own personal fork, push from there to official
-    - Other project members get access to the official repo.
-    - No worries about ownership or maintenance
-
-- `botan-bindings`, `botan-low`, `botan`, (and maybe `botanium`) should be beta- or / production-ready
-    - Unit tests
-    - Ticket system
-    - Repo README
-    - Style / Nomenclature GUIDE
-    - Package documentation
-    - Tutorials
 
 ## Budget
 
 <!-- _How much money is needed to accomplish the goal?
 How will it be used?_ -->
 
-- 3 months of work, [6000/7000] per month, to get something stable and friendly enough for deployment
+The first leg of this proposal presents a (minimum) budget of $7000 USD per month, for one full-time engineer, for a duration of 3 months, for a total of $21,000 USD. This budget is based on cost-of-living and industry experience, and will cover housing, food, bills, taxes, and other life necessities for one engineer, as well as any project necessities such website and server hosting. This budget is roughly equivalent to $40 / hr or $84k / yr at full-time of 40 hrs / wk. Industry rates for an engineer of the necessary skill are on average considerably higher, and so we consider this budget to be reasonable. The exact legal contract / arrangement is left to the Haskell Foundation.
 
-- Will be enough for full time development on
-    - `botan-bindings`
-    - `botan-low`
-    - `botan`
-    - `botanium`
-    - `crypto-schemes`
-    - `crypto-schemes-botan`
-
-- Will not finish all within the timeline, so choosing to focus on `botan-bindings`, `botan-low`, `botan` though work on the others will continue
-
-- Is roughly equivalent to $[35/40] / hr or $[72/84]k / yr at full-time of 40 hrs / wk
-
-- Project site hosting, mortgage, student loans, food, and the relevant income tax
-
-- Revisit future funding in 3 months for extended / future work
-    - Choose direction again
-    - Optimizing (strictly extinguishing memory leaks, handling lazy byte streams,)
-    - Higher-order cryptography
+The question of funding will be revisited for each future leg of this proposal, wherein the budget and direction of future work will be decided again for each leg.
 
 ## Stakeholders
 
 <!-- _Who stands to gain or lose from the implementation of this proposal?
 Proposals should identify stakeholders so that they can be contacted for input, and a final decision should not occur without having made a good-faith effort to solicit representative feedback from important stakeholder groups._ -->
 
-- Me (personally)
+Several parties stand to gain from the implementation of this proposal.
+
+- Leo Dillinger (Myself)
+
+As the intended engineer carrying out the work, I have already invested significant effort in this project in order to establish its viability, and will benefit from this proposal in the form of being the recipient of the funding.
+
 - Haskell Foundation
-- Anyone using `crypton`, `cryptonite`, `libsodium / saltine`.
-- Crypto / blockchain companies stand to lose, as we can obviate what makes them 'special'.
 
-It is important that the Haskell community has a strong cryptography presence / library that is not bent towards a financial agenda. Cryptocurrency (& blockchains) is almost innately tainted, because it requires an element that is ultimately unnecessary (currency as in mining, instead of currency as in resource)
+As the intended source of funding, the Haskell Foundation would be invested in this proposal financially, and its effective success or failure would reflect respectively upon the Haskell Foundation.
 
-The only suitable / acceptable goal is for generalized distributed computation. It must be free as in speech (licensing) and free as in beer (no mining), in order to allow the growth of advanced cryptographic techniques the way that Haskell has furthered the growth of functional programming techniques.
+- [Haskell Cryptography Group ](https://github.com/haskell-cryptography)
+
+As the intended owner of the project, this project will be new maintenance burden on the Haskell Cryptography Group.
+
+- Developers of networked and distributed systems
+- Users of existing cryptography libraries such as `crypton`, `cryptonite`, `libsodium / saltine`.
+
+As the intended target audience of this project, this proposal aims to directly benefit developers by providing high-quality cryptography libraries at several appropriate levels of abstraction, but will also place the burden of migration to these new libraries on developers.
+
+- Downstream users of Haskell software, developers with 
+
+As the eventual user of the developed software, their safety and security will rest on the proper execution of this proposal. 
+
+## Risks
+
+There are a number of risks.
+
+- Cryptography is hard and each algorithm may have individual nuances or uncommon requirements. 
+- Botan FFI is incompletely documented and has gaps (stream ciphers, X509 stores, a few broken functions) which need to be fixed with C++ shims
+- Strictness, memory safety & scrubbing, C++ shims will take an unknown amount of time
+- A thorough / safe implementation will require consulting the C++ source of the FFI
+- Polynomial combinations of algorithms makes exhaustive testing complicated.
+
+These risks are amortized in that while they are tedious and potentially time-consuming, they may be considered extended goals of high value, and there is still substantial value that can be delivered without them, and the completion of risk items may continue in a future proposal leg.
+
+- Single point of failure
+
+This is a proposal for one full-time engineer; this constitutes a single point of failure. To combat this, the official github repo will be owned by the Haskell Cryptography, and another member of the Haskell Cryptography Groupp will be selected to hold backup keys and permissions to the website, server, and official repositories as needed, in the event that I am hit by a bus or some other freak occurrence. In the case of an emergency for which I am unreachable, this will allow for others to take over as necessary to fix things.
 
 ## Success
 
 <!-- _Under what conditions will the project be considered a success?_ -->
 
-This leg of the project will be considered a success if it results a production-ready bindings to the botan libraries.
+This leg of the project will be considered a success if it results in the submission of a candidate or accepted package to hackage, with production-ready bindings to the following botan-related libraries:
 
     - botan-bindings
     - botan-low
     - botan
 
-The following libraries are considered optional to the success of this leg, due to the requirement of C++ / FFI shims which will take an unknown amount of effort, but effort will be made to include them if possible. 
+The following Botan library features are considered optional to the success of this leg, due to the requirement of C++ / FFI shims which will take an unknown amount of effort, but effort will be made to include them if possible within the timeframe. 
 
 - Extended X509 support
 - Stream ciphers
@@ -490,18 +450,20 @@ The next leg of this project's success measure is still undetermined, but tentat
 - crypto-schemes
 - crypto-schemes-botan
 
+# Appendix
 
-# Matrix
+## A - Feature Matrix
 
-## X
+### X
 
-- Strong types
+- Data types
 - Unit tests
-- Strictness
 - Documentation
 - Tutorials
+- Strictness
+- Memory safety
 
-## Y
+### Y
 
 - Hashing
     - Integrity
@@ -535,8 +497,10 @@ The next leg of this project's success measure is still undetermined, but tentat
 - OTP
 - X509 Certificates
 
-# Z
+### Z
 
 - `botan-bindings`
 - `botan-low`
 - `botan`
+
+# END DOCUMENT
