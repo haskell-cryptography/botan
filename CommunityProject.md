@@ -339,13 +339,13 @@ These risks are amortized in that while they are tedious and potentially time-co
 
 - Single point of failure
 
-This is a proposal for one full-time engineer; this constitutes a single point of failure. To combat this, the official github repo will be owned by the Haskell Cryptography Group, and another member of the Haskell Cryptography Group will be selected to hold backup keys and permissions to the website, server, and official repositories as needed, in the event that I am hit by a bus or some other freak occurrence. In the case of an emergency for which I am unreachable, this will allow for others to take over as necessary to fix things.
+This is a proposal for one full-time engineer; this constitutes a single point of failure. To combat this, the official github repo will be owned by the Haskell Cryptography Group, and another member of the Haskell Cryptography Group will be selected to hold backup keys and permissions to the website, server, and official repositories as needed. In the case of an emergency for which I am unreachable, this will allow for others to take over as necessary.
 
 ## Success
 
 <!-- _Under what conditions will the project be considered a success?_ -->
 
-This leg of the project will be considered a success if it results in the submission of a candidate or accepted package to hackage, with production-ready bindings to the following botan-related libraries:
+This leg of the project will be considered a success if it results in the submission of a candidate or accepted package to hackage, with production-ready bindings, documentation, and tutorials for the following botan-related libraries:
 
 - botan-bindings
 - botan-low
@@ -363,4 +363,4 @@ The following libraries are considered non-essential to the success of this leg,
 - crypto-schemes
 - crypto-schemes-botan
 
-The next leg of this project's success measure is still undetermined, but tentatively it will be focused on compatibility with crypton, and on the development of abstract cryptography classes.
+The next leg of this proposal is still undetermined, but tentatively will be focused on compatibility with `crypton`, and on the development of abstract cryptography classes.
