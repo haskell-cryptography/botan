@@ -196,23 +196,25 @@ The `botan-low` library will contain low-level bindings which wrap the FFI calls
 
 The `botan` library will contain high-level bindings which hides the stateful IO and exposes appropriately idiomatic and pure interfaces. It will provide data types for algorithms, enumerations for constants, convenience methods for key and nonce generation, incremental processing of lazy bytestrings, and otherwise bring significant safety and ergonomics over `botan-low` and `botan-bindings`.
 
-<!--
+## Optional / Future Technical Content
 
-## Optional / Future content
-
-The full project has a large scope, and will require significant time to complete. More advanced concepts such as typeclasses may be delivered in a future leg focused on generalizing, but some development occur in order to provide a testable 'use case' for 
-
-### botanium
-
-### botanite
+More advanced concepts such as typeclasses may be delivered in a future leg focused on generalization, but some development occur earlier in order to provide a testable 'use case' for the stack of libraries. If the first leg is completed ahead of schedule, the remaining effort will go towards these libraries.
 
 ### crypto-schemes
 
+The `crypto-schemes` library will contain a hierarchy of abstract type classes and data families for cryptography and scheme identifiers, allowing for a unified interface to multiple back-ends. It will also provide various utility functions including sized bit and byte vectors, block and padding functions.
+
 ### crypto-schemes-botan
 
-### crypto-utility
+The `crypto-schemes-botan` library will be an implementation of `crypto-schemes` using `botan`, implementing class instances for the specific algorithms that `botan` provides.
 
--->
+### botanium
+
+The `botanium` library will contain user-friendly bindings to specific algorithms, designed for ease of use much like `libsodium`, but using `botan` or `crypto-schemes-botan` as a backend.
+
+### botanite
+
+The `botanite` library will contain an as-close-as-possible reimplementation of `crypton/ite` using `botan` or `crypto-schemes-botan` as a back-end, and may be kept as a separate library or merged into `crypton` at a future time.
 
 ## Goals and Non-goals
 
