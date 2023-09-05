@@ -284,7 +284,16 @@ The following are the intended deliverables of this leg of the proposal:
 - `botan-low`
 - `botan`
 
-Each library should be beta- or / production-ready, and submitted to hackage as a candidate or accepted package. Each library should have documentation, tutorials and examples, tracked issues, and unit tests. A project website will also be created.
+Each library should be beta- or / production-ready, and submitted to hackage as a candidate or accepted package. 
+
+Each library should have:
+
+- Documentation
+- Tutorials and examples
+- Tracked issues
+- Unit tests
+
+A project website will also be created.
 
 The official repo will be owned by the Haskell Cryptography Group, and another member of the Haskell Cryptography Group will be selected to hold backup keys and permissions to the website, server, and official repositories as needed, in order to give project members access and to reduce any conflicts about ownership or maintenance.
 
