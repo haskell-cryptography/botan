@@ -12,7 +12,7 @@ import Botan.Low.RNG
 --  in the higher libraries to make things ergonomic.
 
 spec :: Spec
-spec = focus $ do
+spec = do
     it "can initialize a mutable MPI reference" $ do
         mp <- mpInitIO
         pass

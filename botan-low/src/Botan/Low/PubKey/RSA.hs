@@ -31,5 +31,5 @@ privKeyLoadRSAIO = mkPrivKeyLoad3 botan_privkey_load_rsa
 
 -- TODO: botan_privkey_rsa_get_privkey
 
-pubKeyLoadDSAIO :: MP -> MP -> IO PubKey
-pubKeyLoadDSAIO = mkPubKeyLoad2 botan_pubkey_load_rsa
+pubKeyLoadRSAIO :: MP -> MP -> IO PubKey
+pubKeyLoadRSAIO = mkPubKeyLoad2 botan_pubkey_load_rsa
