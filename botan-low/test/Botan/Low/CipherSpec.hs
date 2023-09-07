@@ -39,27 +39,6 @@ aeads =  concat
 showBytes :: (Show a) => a -> ByteString
 showBytes = Char8.pack . show
 
-newEncipher cipher = cipherCtxInitNameIO cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
-
-newKey ctx = do
-    (_,mx,_) <- cipherCtxGetKeyspecIO ctx
-    systemRNGGetIO mx
-
-autoKey ctx = newKey ctx >>= cipherCtxSetKeyIO ctx
-
-newAD ctx = systemRNGGetIO 64
-
-autoAD ctx = newAD ctx >>= cipherCtxSetAssociatedDataIO ctx
-
-newNonce ctx = do
-    n <- cipherCtxGetDefaultNonceLengthIO ctx
-    systemRNGGetIO n
-
-autoNonceStart ctx = do
-    n <- newNonce ctx
-    cipherCtxStartIO ctx n
-    return n
-
 spec :: Spec
 spec = testSuite (blockCipherModes ++ aeads) chars $ \ cipher -> do
     it "can initialize a cipher encryption context" $ do
@@ -152,7 +131,8 @@ spec = testSuite (blockCipherModes ++ aeads) chars $ \ cipher -> do
         n <- systemRNGGetIO =<< cipherCtxGetDefaultNonceLengthIO ctx
         cipherCtxStartIO ctx n
         pass
-    it "can update the process with a message block" $ do
+    -- TODO: More extensive testing in Botan; these are just binding sanity checks
+    it "can one-shot encipher a message" $ do
         ctx <- cipherCtxInitNameIO cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
         (_,mx,_) <- cipherCtxGetKeyspecIO ctx
         k <- systemRNGGetIO mx
@@ -163,84 +143,41 @@ spec = testSuite (blockCipherModes ++ aeads) chars $ \ cipher -> do
                 cipherCtxSetAssociatedDataIO ctx ad
             else pass
         n <- systemRNGGetIO =<< cipherCtxGetDefaultNonceLengthIO ctx
+        cipherCtxStartIO ctx n
+        uSz <- cipherCtxGetUpdateGranularityIO ctx
         g <- cipherCtxGetIdealUpdateGranularityIO ctx
         msg <- systemRNGGetIO g
+        outSz <- cipherCtxOutputLengthIO ctx g  -- NOTE: Flawed but usable
+        tagSz <- cipherCtxGetTagLengthIO ctx    -- out + u + tag is safe overestimate
+        (x,encmsg) <- cipherCtxUpdateIO ctx BOTAN_CIPHER_UPDATE_FLAG_FINAL (outSz + uSz + tagSz) msg
+        pass
+    it "can one-shot decipher a message" $ do
+        -- Same as prior test
+        ctx <- cipherCtxInitNameIO cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
+        (_,mx,_) <- cipherCtxGetKeyspecIO ctx
+        k <- systemRNGGetIO mx
+        cipherCtxSetKeyIO ctx k
+        ad <- systemRNGGetIO 64
+        if cipher `elem` aeads
+            then do
+                cipherCtxSetAssociatedDataIO ctx ad
+            else pass
+        n <- systemRNGGetIO =<< cipherCtxGetDefaultNonceLengthIO ctx
         cipherCtxStartIO ctx n
-        cipherCtxUpdateIO ctx BOTAN_CIPHER_UPDATE_FLAG_NONE g msg
-        pass
-    it "can finalize the process with a message block" $ do
-        -- NOTE: This is equivalent to the above test case
-        ctx <- newEncipher cipher
-        autoKey ctx
-        if cipher `elem` aeads then autoAD ctx else pass
-        n <- autoNonceStart ctx
-        -- NOTE: Both of these fail for:
-        --  every Padding except NoPadding
-        --  XTS CipherMode
-        -- Probably
-        -- g <- cipherCtxGetIdealUpdateGranularityIO ctx    
-        -- let g = 0
-        let g = 0
+        uSz <- cipherCtxGetUpdateGranularityIO ctx
+        g <- cipherCtxGetIdealUpdateGranularityIO ctx
         msg <- systemRNGGetIO g
-        -- END NOTE: This is equivalent to the above test case
-        t <- cipherCtxGetTagLengthIO ctx
-        cipherCtxUpdateIO ctx BOTAN_CIPHER_UPDATE_FLAG_FINAL (g + t) msg
+        outSz <- cipherCtxOutputLengthIO ctx g  -- NOTE: Flawed but usable
+        tagSz <- cipherCtxGetTagLengthIO ctx    -- out + u + tag is safe overestimate
+        (x,encmsg) <- cipherCtxUpdateIO ctx BOTAN_CIPHER_UPDATE_FLAG_FINAL (outSz + uSz + tagSz) msg
+        -- Start actual test
+        dctx <- cipherCtxInitNameIO cipher BOTAN_CIPHER_INIT_FLAG_DECRYPT
+        cipherCtxSetKeyIO dctx k
+        if cipher `elem` aeads
+            then do
+                cipherCtxSetAssociatedDataIO dctx ad
+            else pass
+        cipherCtxStartIO dctx n
+        (y,decmsg) <- cipherCtxUpdateIO dctx BOTAN_CIPHER_UPDATE_FLAG_FINAL (outSz + uSz + tagSz) encmsg
+        msg `shouldBe` decmsg
         pass
-    
-
-
--- NOTE: YOINKED
--- TODO: Move to botan-low as suggested
-
-type Message = ByteString
-type Ciphertext = ByteString
-
--- TODO: Move to botan-low
-cipherCtxUpdateBlockIO :: CipherCtx -> ByteString -> IO ByteString
-cipherCtxUpdateBlockIO ctx block = do
-    let outSz = ByteString.length block
-    (_,block') <- cipherCtxUpdateIO ctx BOTAN_CIPHER_UPDATE_FLAG_NONE outSz block
-    return block'
-
--- TODO: Move to botan-low
-cipherCtxFinalizeBlockIO :: CipherCtx -> ByteString -> IO ByteString
-cipherCtxFinalizeBlockIO ctx block = do
-    tagSz <- cipherCtxGetTagLengthIO ctx
-    let outSz = ByteString.length block + tagSz
-    (_,block'tag) <- cipherCtxUpdateIO ctx BOTAN_CIPHER_UPDATE_FLAG_FINAL tagSz block
-    return block'tag
-
--- TODO: Move to botan-low
-cipherCtxFinalizeTagIO :: CipherCtx -> IO (Maybe ByteString)
-cipherCtxFinalizeTagIO ctx = do
-    tag <- cipherCtxFinalizeBlockIO ctx ""
-    if tag == ""
-        then return Nothing
-        else return (Just tag)
-
-cipherCtxUpdateFinalizeBlocksIO :: CipherCtx -> [ByteString] -> IO [ByteString]
-cipherCtxUpdateFinalizeBlocksIO ctx [block]      = do
-    finalBlockTag <- cipherCtxFinalizeBlockIO ctx block
-    return [finalBlockTag]
-cipherCtxUpdateFinalizeBlocksIO ctx (block:rest) = do
-    block' <- cipherCtxUpdateBlockIO ctx block
-    (block:) <$> cipherCtxUpdateFinalizeBlocksIO ctx rest
-
--- TODO: Move to botan-low
-cipherCtxUpdateFinalizeOneShotIO :: CipherCtx -> Message -> IO Ciphertext
-cipherCtxUpdateFinalizeOneShotIO ctx bytes = do
-    tagSz <- cipherCtxGetTagLengthIO ctx
-    (consumed,msg) <- cipherCtxUpdateIO ctx BOTAN_CIPHER_UPDATE_FLAG_FINAL (ByteString.length bytes + tagSz) bytes
-    return msg
-
--- TODO: Move to botan-low
-cipherCtxUpdateFinalizeIO :: CipherCtx -> Message -> IO Ciphertext
-cipherCtxUpdateFinalizeIO ctx msg = do
-    g <- cipherCtxGetIdealUpdateGranularityIO ctx
-    if g == 1
-        then cipherCtxUpdateFinalizeOneShotIO ctx msg
-        else do
-            blocks <- cipherCtxUpdateFinalizeBlocksIO ctx (splitBlocks g msg)
-            return $! ByteString.concat blocks
-
--- END YOINKED

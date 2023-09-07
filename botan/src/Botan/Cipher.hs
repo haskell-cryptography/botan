@@ -80,8 +80,8 @@ data CBCPadding
     = PKCS7
     | OneAndZeros
     | X9_23
-    | ESP
-    | CTS
+    | ESP   -- NOTE: RFC 4304
+    | CTS   -- NOTE: Ciphertext stealing
     | NoPadding
 
 cbcPaddingName :: CBCPadding -> ByteString

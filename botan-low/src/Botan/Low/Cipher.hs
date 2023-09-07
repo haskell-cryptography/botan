@@ -52,6 +52,15 @@ cipherCtxNameIO :: CipherCtx -> IO CipherName
 cipherCtxNameIO = mkGetCString withCipherPtr botan_cipher_name
 
 -- |Return the output length of this cipher, for a particular input length.
+--
+--  WARNING: This function is of limited use. From the C++ docs:
+--   /**
+--   * Returns the size of the output if this transform is used to process a
+--   * message with input_length bytes. In most cases the answer is precise.
+--   * If it is not possible to precise (namely for CBC decryption) instead an
+--   * upper bound is returned.
+--   */
+--  We need to explicitly calculate padding + tag length
 cipherCtxOutputLengthIO :: CipherCtx -> Int -> IO Int
 cipherCtxOutputLengthIO = mkGetSize_csize withCipherPtr botan_cipher_output_length
 
@@ -140,3 +149,11 @@ cipherCtxUpdateIO cipher flags outputSz input = withCipherPtr cipher $ \ cipherP
 -- |Reset the key, nonce, AD and all other state on this cipher object
 cipherCtxClearIO :: CipherCtx -> IO ()
 cipherCtxClearIO = mkAction withCipherPtr botan_cipher_clear
+
+{-
+Non-standard functions
+-}
+
+-- cipherCtxMinimumPlaintextLength :: CipherCtx -> IO Int
+
+-- cipherCtxProcessIO :: CipherCtx -> CipherUpdateFlags -> Int -> ByteString -> IO (Int,ByteString)
