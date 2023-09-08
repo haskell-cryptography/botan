@@ -14,61 +14,74 @@ source-repository head
 
 library
     hs-source-dirs:   src
+
     default-language: Haskell2010
-    default-extensions:
-        NoImplicitPrelude
-        OverloadedStrings
-        PatternSynonyms
-        ScopedTypeVariables
-    exposed-modules:
-        Botan.Bindings.Bcrypt
-        Botan.Bindings.BlockCipher
-        Botan.Bindings.Cipher
-        Botan.Bindings.Error
-        Botan.Bindings.FPE
-        Botan.Bindings.Hash
-        Botan.Bindings.HOTP
-        Botan.Bindings.KDF
-        Botan.Bindings.KeyWrap
-        Botan.Bindings.MAC
-        Botan.Bindings.MPI
-        -- Botan.Bindings.PBKDF
-        Botan.Bindings.PubKey
-        Botan.Bindings.PubKey.Decrypt
-        Botan.Bindings.PubKey.DH
-        Botan.Bindings.PubKey.DSA
-        Botan.Bindings.PubKey.ECDH
-        Botan.Bindings.PubKey.ECDSA
-        Botan.Bindings.PubKey.Ed25519
-        Botan.Bindings.PubKey.ElGamal
-        Botan.Bindings.PubKey.Encrypt
-        Botan.Bindings.PubKey.KeyAgreement
-        Botan.Bindings.PubKey.KeyEncapsulation
-        -- TODO: Botan.Bindings.PubKey.Kyber
-        Botan.Bindings.PubKey.RSA
-        Botan.Bindings.PubKey.Sign
-        Botan.Bindings.PubKey.SM2
-        Botan.Bindings.PubKey.Verify
-        Botan.Bindings.PubKey.X25519
-        Botan.Bindings.PwdHash
-        Botan.Bindings.RNG
-        -- Botan.Bindings.Scrypt
-        Botan.Bindings.SRP6
-        Botan.Bindings.TOTP
-        Botan.Bindings.Utility
-        Botan.Bindings.Version
-        Botan.Bindings.View
-        Botan.Bindings.X509
-        Botan.Bindings.ZFEC
-    other-modules:
-        Botan.Bindings.Prelude
-        Paths_botan_bindings
-    build-depends:
-        base >= 4 && < 5,
-        bytestring,
-        text
-    includes:
-        botan/ffi.h
+
+    exposed-modules:  Botan.Bindings.Bcrypt
+                      Botan.Bindings.BlockCipher
+                      Botan.Bindings.Cipher
+                      Botan.Bindings.DH
+                      Botan.Bindings.DSA
+                      Botan.Bindings.ECDH
+                      Botan.Bindings.ECDSA
+                      Botan.Bindings.Ed25519
+                      Botan.Bindings.ElGamal
+                      Botan.Bindings.Error
+                      Botan.Bindings.FPE
+                      Botan.Bindings.Hash
+                      Botan.Bindings.HOTP
+                      Botan.Bindings.KDF
+                      Botan.Bindings.KeyWrap
+                      Botan.Bindings.MAC
+                      Botan.Bindings.MPI
+                      Botan.Bindings.PKCS
+                      Botan.Bindings.PrivKey
+                      Botan.Bindings.PubKey
+                      Botan.Bindings.PubKey.Decrypt
+                      Botan.Bindings.PubKey.Encrypt
+                      Botan.Bindings.PubKey.KEM
+                      Botan.Bindings.PubKey.KeyAgreement
+                      Botan.Bindings.PubKey.Sign
+                      Botan.Bindings.PubKey.Verify
+                      Botan.Bindings.PwdHash
+                      Botan.Bindings.RNG
+                      Botan.Bindings.RSA
+                      Botan.Bindings.SM2
+                      Botan.Bindings.SRP6
+                      Botan.Bindings.TOTP
+                      Botan.Bindings.Utility
+                      Botan.Bindings.Version
+                      Botan.Bindings.View
+                      Botan.Bindings.X25519
+                      Botan.Bindings.X509
+                      Botan.Bindings.X509.CRL
+                      Botan.Bindings.ZFEC
+
+    other-modules:    Botan.Bindings.BlockCipher.Types
+                      Botan.Bindings.Cipher.Types
+                      Botan.Bindings.FPE.Types
+                      Botan.Bindings.Hash.Types
+                      Botan.Bindings.HOTP.Types
+                      Botan.Bindings.MAC.Types
+                      Botan.Bindings.MPI.Types
+                      Botan.Bindings.PrivKey.Types
+                      Botan.Bindings.PubKey.Types
+                      Botan.Bindings.PubKey.Decrypt.Types
+                      Botan.Bindings.PubKey.Encrypt.Types
+                      Botan.Bindings.PubKey.KEM.Types
+                      Botan.Bindings.PubKey.KeyAgreement.Types
+                      Botan.Bindings.PubKey.Sign.Types
+                      Botan.Bindings.PubKey.Verify.Types
+                      Botan.Bindings.RNG.Types
+                      Botan.Bindings.SRP6.Types
+                      Botan.Bindings.TOTP.Types
+                      Botan.Bindings.X509.Types
+                      Botan.Bindings.X509.CRL.Types
+
+    build-depends:    base >= 4.12 && < 5
+
+    ghc-options:      -Wall
+
     if os(windows)
         -- UNTESTED, PROBABLY WRONG
         extra-libraries: botan-3
