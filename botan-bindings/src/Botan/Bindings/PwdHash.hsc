@@ -1,6 +1,6 @@
 {-|
 Module      : Botan.Bindings.Version
-Description : Botan version info
+Description : PBKDF specific functions
 Copyright   : (c) Leo D, 2023
 License     : BSD-3-Clause
 Maintainer  : leo@apotheca.io
@@ -28,7 +28,7 @@ import           Foreign.Ptr
 
 foreign import capi "botan-3/botan/ffi.h botan_pwdhash"
   botan_pwdhash
-    :: ConstPtr CChar  -- ^ algo,
+    :: ConstPtr CChar  -- ^ algo
     -> CSize           -- ^ param1
     -> CSize           -- ^ param2
     -> CSize           -- ^ param3

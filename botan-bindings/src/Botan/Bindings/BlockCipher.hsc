@@ -1,6 +1,6 @@
 {-|
 Module      : Botan.Bindings.Version
-Description : Botan version info
+Description : Block Ciphers
 Copyright   : (c) Leo D, 2023
 License     : BSD-3-Clause
 Maintainer  : leo@apotheca.io
@@ -33,7 +33,7 @@ import           Foreign.Ptr
 
 foreign import capi "botan-3/botan/ffi.h botan_block_cipher_init"
   botan_block_cipher_init
-    :: Ptr Botan_block_cipher_t -- ^ bc,
+    :: Ptr Botan_block_cipher_t -- ^ bc
     -> ConstPtr CChar           -- ^ cipher_name
     -> IO CInt
 

@@ -1,6 +1,6 @@
 {-|
 Module      : Botan.Bindings.Version
-Description : Botan version info
+Description : Key Agreement
 Copyright   : (c) Leo D, 2023
 License     : BSD-3-Clause
 Maintainer  : leo@apotheca.io
@@ -70,9 +70,9 @@ foreign import capi "botan-3/botan/ffi.h botan_pk_op_key_agreement"
   botan_pk_op_key_agreement
     :: Botan_pk_op_ka_t -- ^ op
     -> Ptr Word8        -- ^ out[]
-    -> Ptr CSize        -- ^ out_len,
+    -> Ptr CSize        -- ^ out_len
     -> ConstPtr Word8   -- ^ other_key[]
-    -> CSize            -- ^ other_key_len,
+    -> CSize            -- ^ other_key_len
     -> ConstPtr Word8   -- ^ salt[]
     -> CSize            -- ^ salt_len
     -> IO CInt

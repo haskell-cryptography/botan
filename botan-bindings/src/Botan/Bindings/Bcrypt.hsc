@@ -1,6 +1,6 @@
 {-|
 Module      : Botan.Bindings.Version
-Description : Botan version info
+Description : Password Hashing
 Copyright   : (c) Leo D, 2023
 License     : BSD-3-Clause
 Maintainer  : leo@apotheca.io

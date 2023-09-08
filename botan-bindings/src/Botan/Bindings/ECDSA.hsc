@@ -1,6 +1,6 @@
 {-|
 Module      : Botan.Bindings.Version
-Description : Botan version info
+Description : ECDSA specific functions
 Copyright   : (c) Leo D, 2023
 License     : BSD-3-Clause
 Maintainer  : leo@apotheca.io

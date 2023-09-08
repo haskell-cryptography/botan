@@ -1,6 +1,6 @@
 {-|
 Module      : Botan.Bindings.Version
-Description : Botan version info
+Description : Symmetric Ciphers
 Copyright   : (c) Leo D, 2023
 License     : BSD-3-Clause
 Maintainer  : leo@apotheca.io
@@ -94,7 +94,7 @@ foreign import capi "botan-3/botan/ffi.h botan_cipher_get_ideal_update_granulari
 foreign import capi "botan-3/botan/ffi.h botan_cipher_query_keylen"
   botan_cipher_query_keylen
     :: Botan_cipher_t -- ^ cipher
-    -> Ptr CSize      -- ^ out_minimum_keylength,
+    -> Ptr CSize      -- ^ out_minimum_keylength
     -> Ptr CSize      -- ^ out_maximum_keylength
     -> IO CInt
 
@@ -120,7 +120,7 @@ foreign import capi "botan-3/botan/ffi.h botan_cipher_reset"
 
 foreign import capi "botan-3/botan/ffi.h botan_cipher_set_associated_data"
   botan_cipher_set_associated_data
-    :: Botan_cipher_t  -- ^ cipher,
+    :: Botan_cipher_t  -- ^ cipher
     -> ConstPtr Word8  -- ^ ad
     -> CSize           -- ^ ad_len
     -> IO CInt

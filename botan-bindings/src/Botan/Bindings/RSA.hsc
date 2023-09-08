@@ -1,6 +1,6 @@
 {-|
 Module      : Botan.Bindings.Version
-Description : Botan version info
+Description : RSA specific functions
 Copyright   : (c) Leo D, 2023
 License     : BSD-3-Clause
 Maintainer  : leo@apotheca.io
@@ -40,7 +40,7 @@ foreign import capi "botan-3/botan/ffi.h botan_privkey_load_rsa"
 
 foreign import capi "botan-3/botan/ffi.h botan_privkey_load_rsa_pkcs1"
   botan_privkey_load_rsa_pkcs1
-    :: Ptr Botan_privkey_t -- ^ key,
+    :: Ptr Botan_privkey_t -- ^ key
     -> ConstPtr Word8      -- ^ bits[]
     -> CSize               -- ^ len
     -> IO CInt

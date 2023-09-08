@@ -1,6 +1,6 @@
 {-|
 Module      : Botan.Bindings.Version
-Description : Botan version info
+Description : Random Number Generators
 Copyright   : (c) Leo D, 2023
 License     : BSD-3-Clause
 Maintainer  : leo@apotheca.io
@@ -11,7 +11,10 @@ Portability : POSIX
 {-# LANGUAGE CApiFFI
            , CPP #-}
 
-module Botan.Bindings.RNG where
+module Botan.Bindings.RNG
+  ( module Botan.Bindings.RNG.Types
+  , module Botan.Bindings.RNG
+  ) where
 
 import           Botan.Bindings.RNG.Types
 

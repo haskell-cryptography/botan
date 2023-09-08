@@ -1,6 +1,6 @@
 {-|
 Module      : Botan.Bindings.Version
-Description : Botan version info
+Description : KDF specific functions
 Copyright   : (c) Leo D, 2023
 License     : BSD-3-Clause
 Maintainer  : leo@apotheca.io
@@ -28,7 +28,7 @@ import           Foreign.Ptr
 
 foreign import capi "botan-3/botan/ffi.h botan_kdf"
   botan_kdf
-    :: ConstPtr CChar  -- ^ kdf_algo,
+    :: ConstPtr CChar  -- ^ kdf_algo
     -> Ptr Word8       -- ^ out[]
     -> CSize           -- ^ out_len
     -> ConstPtr Word8  -- ^ secret[]

@@ -1,6 +1,6 @@
 {-|
 Module      : Botan.Bindings.Version
-Description : Botan version info
+Description : HOTP specific functions
 Copyright   : (c) Leo D, 2023
 License     : BSD-3-Clause
 Maintainer  : leo@apotheca.io
@@ -48,15 +48,15 @@ foreign import capi "botan-3/botan/ffi.h botan_hotp_destroy"
 foreign import capi "botan-3/botan/ffi.h botan_hotp_generate"
   botan_hotp_generate
     :: Botan_hotp_t -- ^ hotp
-    -> Ptr Word32   -- ^ hotp_code,
+    -> Ptr Word32   -- ^ hotp_code
     -> Word64       -- ^ hotp_counter
     -> IO CInt
 
 foreign import capi "botan-3/botan/ffi.h botan_hotp_check"
   botan_hotp_check
     :: Botan_hotp_t -- ^ hotp
-    -> Ptr Word64   -- ^ next_hotp_counter,
-    -> Word32       -- ^ hotp_code,
-    -> Word64       -- ^ hotp_counter,
+    -> Ptr Word64   -- ^ next_hotp_counter
+    -> Word32       -- ^ hotp_code
+    -> Word64       -- ^ hotp_counter
     -> CSize        -- ^ resync_range);
     -> IO CInt

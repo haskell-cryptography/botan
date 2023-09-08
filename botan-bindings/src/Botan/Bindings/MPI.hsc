@@ -1,6 +1,6 @@
 {-|
 Module      : Botan.Bindings.Version
-Description : Botan version info
+Description : Multiple Precision Integers
 Copyright   : (c) Leo D, 2023
 License     : BSD-3-Clause
 Maintainer  : leo@apotheca.io
@@ -11,7 +11,10 @@ Portability : POSIX
 {-# LANGUAGE CApiFFI
            , CPP #-}
 
-module Botan.Bindings.MPI where
+module Botan.Bindings.MPI
+  ( module Botan.Bindings.MPI.Types
+  , module Botan.Bindings.MPI
+  ) where
 
 import           Botan.Bindings.MPI.Types
 import           Botan.Bindings.RNG.Types
