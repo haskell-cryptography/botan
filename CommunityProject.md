@@ -102,6 +102,21 @@ It is important that the Haskell community has a strong cryptography library / p
 
 <!-- Cryptocurrency and blockchain cryptography efforts are almost innately tainted or unsuitable, in that they often focus on and require elements that are unnecessary (eg, mining). One suitable / acceptable goal is for generalized distributed computation, which, in some sense, is the one of only reasons that cryptography even exists - it would not be necessary to perform multi-party cryptography if there was only a single ideal computer with only one party using it. -->
 
+Furthermore, bindings to a dedicated cryptography library may yield a performance benefit, as one would expect a popular C++ crypto library such as Botan to be highly performant. Testing in GHCi with `:set +s` yielded the following results:
+
+```
+-- Botan
+ghci> bcryptGenerateIO "Fee fi fo fum!" r 16
+"$2a$16$j3Obv.HNT8zQ9OXFXEJeQeq3nT5WmUecPYDF0tc3grNsX9N0uDSCm\NUL"
+(3.73 secs, 996,152 bytes)
+
+-- cryptonite
+ghci> hashPassword 16 ("Fee fi fo fum!" :: ByteString) :: IO ByteString
+"$2b$16$nmHHDe/wnfSl85dIFtqjMuAHxqAmL.JQ6knp8e6kf.X1V9/LCZxUy"
+(8.84 secs, 2,138,266,840 bytes)
+```
+
+It was quick and dirty testing in GHCi so your mileage may vary, but the results indicate that bindings to Botan may be significantly faster and consumes less memory than `crypton/ite`. Further implentation, testing, and benchmarking will be necessary to confirm this.
 
 # Prior Art and Related Efforts
 
@@ -354,16 +369,17 @@ This is a proposal for one full-time engineer; this constitutes a single point o
 
 <!-- _Under what conditions will the project be considered a success?_ -->
 
-This leg of the project will be considered a success if it results in the submission of a candidate or accepted package to hackage, with production-ready bindings, documentation, and tutorials for the following botan-related libraries:
+This leg of the project will be considered a success if it results in the submission of a candidate or accepted package to hackage, with production-ready bindings, documentation, tutorials, and unit tests as appropriate for the following botan-related libraries:
 
 - botan-bindings
 - botan-low
 - botan
 
-The following Botan library features are considered optional to the success of this leg, due to the requirement of C++ / FFI shims which will take an unknown amount of effort, but effort will be made to include them if possible within the timeframe. 
+The following Botan library features are considered optional to the success of this leg, due to requirement of C++ / FFI shims or additional research which will take an unknown amount of work, but effort will be made to include them if possible within the timeframe. 
 
 - Extended X509 support
 - Stream ciphers
+- Test vectors for algorithms, especially [CAVP / FIPS / NIST-approved](https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program)
 
 The following libraries are considered non-essential to the success of this leg, but may be worked on as they provide a valuable use case with which to test the lower libraries against, and may be subsumed into another at any time (eg, botanite could be merged into crypton).
 
