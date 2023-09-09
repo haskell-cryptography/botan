@@ -102,7 +102,7 @@ It is important that the Haskell community has a strong cryptography library / p
 
 <!-- Cryptocurrency and blockchain cryptography efforts are almost innately tainted or unsuitable, in that they often focus on and require elements that are unnecessary (eg, mining). One suitable / acceptable goal is for generalized distributed computation, which, in some sense, is the one of only reasons that cryptography even exists - it would not be necessary to perform multi-party cryptography if there was only a single ideal computer with only one party using it. -->
 
-Furthermore, bindings to a dedicated cryptography library may yield a performance benefit, as one would expect a popular C++ crypto library such as Botan to be highly performant. Testing in GHCi with `:set +s` yielded the following results:
+Furthermore, bindings to a dedicated cryptography library may yield a performance benefit, as one would expect a popular C++ crypto library such as Botan to be highly performant. Testing in GHCi with `:set +s` for a requested example of `bcrypt` yielded the following results:
 
 ```
 -- Botan
@@ -116,7 +116,7 @@ ghci> hashPassword 16 ("Fee fi fo fum!" :: ByteString) :: IO ByteString
 (8.84 secs, 2,138,266,840 bytes)
 ```
 
-It was quick and dirty testing in GHCi so your mileage may vary, but the results indicate that bindings to Botan may be significantly faster and consumes less memory than `crypton/ite`. Further implentation, testing, and benchmarking will be necessary to confirm this.
+It was quick and dirty testing in GHCi so your mileage may vary, but the results indicate that bindings to Botan may be significantly faster and consumes less memory than `crypton/ite`, if other modules / functions are similarly performant. Further implentation, testing, and benchmarking will be necessary to confirm this.
 
 # Prior Art and Related Efforts
 
