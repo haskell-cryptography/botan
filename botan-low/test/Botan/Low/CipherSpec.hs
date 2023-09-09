@@ -132,7 +132,7 @@ spec = testSuite (blockCipherModes ++ aeads) chars $ \ cipher -> do
         cipherCtxStartIO ctx n
         pass
     -- TODO: More extensive testing in Botan; these are just binding sanity checks
-    it "can one-shot encipher a message" $ do
+    it "can one-shot / offline encipher a message" $ do
         ctx <- cipherCtxInitNameIO cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
         (_,mx,_) <- cipherCtxGetKeyspecIO ctx
         k <- systemRNGGetIO mx
@@ -151,7 +151,7 @@ spec = testSuite (blockCipherModes ++ aeads) chars $ \ cipher -> do
         tagSz <- cipherCtxGetTagLengthIO ctx    -- out + u + tag is safe overestimate
         (x,encmsg) <- cipherCtxUpdateIO ctx BOTAN_CIPHER_UPDATE_FLAG_FINAL (outSz + uSz + tagSz) msg
         pass
-    it "can one-shot decipher a message" $ do
+    it "can one-shot / offline decipher a message" $ do
         -- Same as prior test
         ctx <- cipherCtxInitNameIO cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
         (_,mx,_) <- cipherCtxGetKeyspecIO ctx
@@ -180,4 +180,21 @@ spec = testSuite (blockCipherModes ++ aeads) chars $ \ cipher -> do
         cipherCtxStartIO dctx n
         (y,decmsg) <- cipherCtxUpdateIO dctx BOTAN_CIPHER_UPDATE_FLAG_FINAL (outSz + uSz + tagSz) encmsg
         msg `shouldBe` decmsg
+        pass
+    it "can incrementally / online encipher a message" $ do
+        -- Same as prior test
+        ctx <- cipherCtxInitNameIO cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
+        (_,mx,_) <- cipherCtxGetKeyspecIO ctx
+        k <- systemRNGGetIO mx
+        cipherCtxSetKeyIO ctx k
+        ad <- systemRNGGetIO 64
+        if cipher `elem` aeads
+            then do
+                cipherCtxSetAssociatedDataIO ctx ad
+            else pass
+        n <- systemRNGGetIO =<< cipherCtxGetDefaultNonceLengthIO ctx
+        cipherCtxStartIO ctx n
+        g <- cipherCtxGetIdealUpdateGranularityIO ctx
+        msg <- systemRNGGetIO (8 * g)
+        encmsg <- cipherCtxEncryptOnline ctx msg
         pass

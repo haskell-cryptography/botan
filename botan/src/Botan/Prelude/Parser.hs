@@ -12,7 +12,7 @@ import Data.String (IsString(..))
 import Botan.Prelude
 
 
--- TODO: Name parser - small oneshot whole-input parser that just moves an index around
+-- TODO: Name parser - small one-shot / offline parser that just moves an index around
 -- NOTE: Assumes ASCII
 -- NOTE: Didn't want to pull in a heavy parser
 

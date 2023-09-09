@@ -24,6 +24,8 @@ import Botan.Low.Error
 import Botan.Low.Make
 import Botan.Low.Prelude
 
+import Botan.Low.RNG
+
 -- NOTE: This is *symmetric* ciphers
 --  For the 'raw' interface to ECB mode block ciphers, see BlockCipher.hs
 
@@ -154,6 +156,48 @@ cipherCtxClearIO = mkAction withCipherPtr botan_cipher_clear
 Non-standard functions
 -}
 
--- cipherCtxMinimumPlaintextLength :: CipherCtx -> IO Int
+cipherCtxEncryptOffline :: CipherCtx -> ByteString -> IO ByteString
+cipherCtxEncryptOffline ctx msg = do
+    o <- cipherCtxOutputLengthIO ctx (ByteString.length msg)  -- NOTE: Flawed but usable
+    u <- cipherCtxGetUpdateGranularityIO ctx
+    t <- cipherCtxGetTagLengthIO ctx
+    -- NOTE: out + u + tag is safe overestimate
+    (_,encmsg) <- cipherCtxUpdateIO ctx BOTAN_CIPHER_UPDATE_FLAG_FINAL (o + u + t) msg
+    return encmsg
 
--- cipherCtxProcessIO :: CipherCtx -> CipherUpdateFlags -> Int -> ByteString -> IO (Int,ByteString)
+cipherCtxEncryptOnline :: CipherCtx -> ByteString -> IO ByteString
+cipherCtxEncryptOnline ctx msg = do
+    u <- cipherCtxGetUpdateGranularityIO ctx
+    t <- cipherCtxGetTagLengthIO ctx
+    g <- cipherCtxGetIdealUpdateGranularityIO ctx
+    ByteString.concat <$> go 0 u t g msg
+    where
+        go i u t g bs = case ByteString.splitAt g bs of
+            (block,"")      -> do
+                o <- cipherCtxOutputLengthIO ctx (i + ByteString.length block)  -- NOTE: Flawed but usable
+                (_,encblock) <- cipherCtxUpdateIO ctx BOTAN_CIPHER_UPDATE_FLAG_FINAL (o + u + t - i) block
+                return [encblock]
+            (block,rest)    -> do
+                (_,encblock) <- cipherCtxUpdateIO ctx BOTAN_CIPHER_UPDATE_FLAG_NONE g block
+                encrest <- go (i + g) u t g rest
+                return $! encblock : encrest
+
+testCipherCtx :: CipherName -> Bool -> IO (CipherCtx,ByteString,ByteString,ByteString,ByteString)
+testCipherCtx cipher isAEAD = do
+        ctx <- cipherCtxInitNameIO cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
+        (_,mx,_) <- cipherCtxGetKeyspecIO ctx
+        k <- systemRNGGetIO mx
+        cipherCtxSetKeyIO ctx k
+        ad <- systemRNGGetIO 64
+        when isAEAD $ cipherCtxSetAssociatedDataIO ctx ad
+        n <- systemRNGGetIO =<< cipherCtxGetDefaultNonceLengthIO ctx
+        cipherCtxStartIO ctx n
+        g <- cipherCtxGetIdealUpdateGranularityIO ctx
+        msg <- systemRNGGetIO (8 * g)
+        return (ctx,k,ad,n,msg)
+
+testOnline :: CipherName -> Bool -> IO ()
+testOnline cipher isAEAD = do
+    (ctx,k,ad,n,msg) <- testCipherCtx cipher isAEAD
+    encmsg <- cipherCtxEncryptOnline ctx msg
+    return ()
