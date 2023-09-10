@@ -144,14 +144,15 @@ spec = testSuite (blockCipherModes ++ aeads) chars $ \ cipher -> do
             else pass
         n <- systemRNGGetIO =<< cipherCtxGetDefaultNonceLengthIO ctx
         cipherCtxStartIO ctx n
-        uSz <- cipherCtxGetUpdateGranularityIO ctx
+        -- uSz <- cipherCtxGetUpdateGranularityIO ctx
         g <- cipherCtxGetIdealUpdateGranularityIO ctx
         msg <- systemRNGGetIO g
-        outSz <- cipherCtxOutputLengthIO ctx g  -- NOTE: Flawed but usable
-        tagSz <- cipherCtxGetTagLengthIO ctx    -- out + u + tag is safe overestimate
-        (x,encmsg) <- cipherCtxUpdateIO ctx BOTAN_CIPHER_UPDATE_FLAG_FINAL (outSz + uSz + tagSz) msg
+        -- outSz <- cipherCtxOutputLengthIO ctx g  -- NOTE: Flawed but usable
+        -- tagSz <- cipherCtxGetTagLengthIO ctx    -- out + u + tag is safe overestimate
+        -- (x,encmsg) <- cipherCtxUpdateIO ctx BOTAN_CIPHER_UPDATE_FLAG_FINAL (outSz + uSz + tagSz) msg
+        encmsg <- cipherCtxEncryptOffline ctx msg
         pass
-    it "can one-shot / offline decipher a message" $ do
+    focus $ it "can one-shot / offline decipher a message" $ do
         -- Same as prior test
         ctx <- cipherCtxInitNameIO cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
         (_,mx,_) <- cipherCtxGetKeyspecIO ctx
@@ -164,12 +165,13 @@ spec = testSuite (blockCipherModes ++ aeads) chars $ \ cipher -> do
             else pass
         n <- systemRNGGetIO =<< cipherCtxGetDefaultNonceLengthIO ctx
         cipherCtxStartIO ctx n
-        uSz <- cipherCtxGetUpdateGranularityIO ctx
+        -- uSz <- cipherCtxGetUpdateGranularityIO ctx
         g <- cipherCtxGetIdealUpdateGranularityIO ctx
         msg <- systemRNGGetIO g
-        outSz <- cipherCtxOutputLengthIO ctx g  -- NOTE: Flawed but usable
-        tagSz <- cipherCtxGetTagLengthIO ctx    -- out + u + tag is safe overestimate
-        (x,encmsg) <- cipherCtxUpdateIO ctx BOTAN_CIPHER_UPDATE_FLAG_FINAL (outSz + uSz + tagSz) msg
+        -- outSz <- cipherCtxOutputLengthIO ctx g  -- NOTE: Flawed but usable
+        -- tagSz <- cipherCtxGetTagLengthIO ctx    -- out + u + tag is safe overestimate
+        -- (x,encmsg) <- cipherCtxUpdateIO ctx BOTAN_CIPHER_UPDATE_FLAG_FINAL (outSz + uSz + tagSz) msg
+        encmsg <- cipherCtxEncryptOffline ctx msg
         -- Start actual test
         dctx <- cipherCtxInitNameIO cipher BOTAN_CIPHER_INIT_FLAG_DECRYPT
         cipherCtxSetKeyIO dctx k
@@ -178,7 +180,8 @@ spec = testSuite (blockCipherModes ++ aeads) chars $ \ cipher -> do
                 cipherCtxSetAssociatedDataIO dctx ad
             else pass
         cipherCtxStartIO dctx n
-        (y,decmsg) <- cipherCtxUpdateIO dctx BOTAN_CIPHER_UPDATE_FLAG_FINAL (outSz + uSz + tagSz) encmsg
+        -- (y,decmsg) <- cipherCtxUpdateIO dctx BOTAN_CIPHER_UPDATE_FLAG_FINAL (outSz + uSz + tagSz) encmsg
+        decmsg <- cipherCtxDecryptOffline dctx encmsg
         msg `shouldBe` decmsg
         pass
     it "can incrementally / online encipher a message" $ do

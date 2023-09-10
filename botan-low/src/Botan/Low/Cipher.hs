@@ -130,6 +130,9 @@ cipherCtxUpdateIO cipher flags outputSz input = withCipherPtr cipher $ \ cipherP
     asBytesLen input $ \ inputPtr inputSz -> do
         alloca $ \ consumedPtr -> do
             alloca $ \ writtenPtr -> do
+                print $ "Update: " <> show (flags == BOTAN_CIPHER_UPDATE_FLAG_FINAL)
+                print $ "Update input length: " <> show inputSz
+                print $ "Update estimated output length: " <> show outputSz
                 -- Or just allocBytes outputSz $ \ _ -> return (); unsafeAsBytes ...
                 output <- allocBytes outputSz $ \ outputPtr -> do
                     throwBotanIfNegative_ $ botan_cipher_update
@@ -142,7 +145,9 @@ cipherCtxUpdateIO cipher flags outputSz input = withCipherPtr cipher $ \ cipherP
                         inputSz
                         consumedPtr
                 consumed <- fromIntegral <$> peek consumedPtr
+                print $ "Update consumed input length: " <> show consumed
                 written <- fromIntegral <$> peek writtenPtr
+                print $ "Update written output length: " <> show written
                 -- NOTE: If written == outputSz we can just return output
                 -- NOTE: The safety of this function is suspect - may require deepseq
                 let chunk = ByteString.copy $! ByteString.take written output
@@ -162,8 +167,15 @@ cipherCtxEncryptOffline ctx msg = do
     u <- cipherCtxGetUpdateGranularityIO ctx
     t <- cipherCtxGetTagLengthIO ctx
     -- NOTE: out + u + tag is safe overestimate
-    (_,encmsg) <- cipherCtxUpdateIO ctx BOTAN_CIPHER_UPDATE_FLAG_FINAL (o + u + t) msg
-    return encmsg
+    (_,ct) <- cipherCtxUpdateIO ctx BOTAN_CIPHER_UPDATE_FLAG_FINAL (o + u + t) msg
+    return ct
+
+cipherCtxDecryptOffline :: CipherCtx -> ByteString -> IO ByteString
+cipherCtxDecryptOffline ctx msg = do
+    o <- cipherCtxOutputLengthIO ctx (ByteString.length msg)  -- NOTE: Flawed but usable
+    u <- cipherCtxGetUpdateGranularityIO ctx -- TODO: Try just 'o' since ptlen should be <= ctlen
+    (_,pt) <- cipherCtxUpdateIO ctx BOTAN_CIPHER_UPDATE_FLAG_FINAL (o + u) msg
+    return pt
 
 cipherCtxEncryptOnline :: CipherCtx -> ByteString -> IO ByteString
 cipherCtxEncryptOnline ctx msg = do
