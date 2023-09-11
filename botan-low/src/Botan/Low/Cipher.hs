@@ -188,22 +188,15 @@ cipherCtxProcessOffline ctx decrypt msg = do
 
 cipherCtxEncryptOffline :: CipherCtx -> ByteString -> IO ByteString
 cipherCtxEncryptOffline ctx = cipherCtxProcessOffline ctx False
--- cipherCtxEncryptOffline ctx msg = do
---     o <- cipherCtxOutputLengthIO ctx (ByteString.length msg)  -- NOTE: Flawed but usable
---     u <- cipherCtxGetUpdateGranularityIO ctx
---     t <- cipherCtxGetTagLengthIO ctx
---     -- NOTE: out + u + tag is safe overestimate
---     (_,ct) <- cipherCtxUpdateIO ctx BOTAN_CIPHER_UPDATE_FLAG_FINAL (o + u + t) msg
---     return ct
 
 cipherCtxDecryptOffline :: CipherCtx -> ByteString -> IO ByteString
 cipherCtxDecryptOffline ctx = cipherCtxProcessOffline ctx True
--- cipherCtxDecryptOffline ctx msg = do
---     o <- cipherCtxOutputLengthIO ctx (ByteString.length msg)  -- NOTE: Flawed but usable
---     u <- cipherCtxGetUpdateGranularityIO ctx -- TODO: Try just 'o' since ptlen should be <= ctlen
---     (_,pt) <- cipherCtxUpdateIO ctx BOTAN_CIPHER_UPDATE_FLAG_FINAL (o + u) msg
---     return pt
 
+{-
+Experiments with online processing
+-}
+
+-- NOTE: Can't use exact same estimates as online, need to account for chunks
 cipherCtxEncryptOnline :: CipherCtx -> ByteString -> IO ByteString
 cipherCtxEncryptOnline ctx msg = do
     u <- cipherCtxGetUpdateGranularityIO ctx
