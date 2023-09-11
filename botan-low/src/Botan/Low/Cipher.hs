@@ -196,7 +196,6 @@ cipherCtxDecryptOffline ctx = cipherCtxProcessOffline ctx True
 Experiments with online processing
 -}
 
--- NOTE: Can't use exact same estimates as online, need to account for chunks
 cipherCtxEncryptOnline :: CipherCtx -> ByteString -> IO ByteString
 cipherCtxEncryptOnline ctx msg = do
     u <- cipherCtxGetUpdateGranularityIO ctx
@@ -233,3 +232,69 @@ testOnline cipher isAEAD = do
     (ctx,k,ad,n,msg) <- testCipherCtx cipher isAEAD
     encmsg <- cipherCtxEncryptOnline ctx msg
     return ()
+
+-- NOTE: Online processing is writing more bytes than offline? Note that:
+--  - the input length is the same (8 * 128 (ideal granularity), 1024)
+--  - the estimated total output length is the same (7 * 128 = 896, 896 + 161 = 1057)
+--  - the consumed input length is the same (1024)
+--  - the written output length is different (1040 vs 896 + 151 = 1047)
+-- Something is wrong.Base
+-- This does occur for SIV, CCM (tested AES-256, Camellia-256)
+--  but this does not occur for other AEAD modes (tested ChaCha20Poly1305, GCM, OCB, EAX)
+-- On the other hand, we need the tag to validate the AEAD which means finishing processing\*.
+--  According to good practice, we should not use any of the plaintext if the tag is invalid
+--  which can only happen at the end of processing. Therefore online cipher processing may be
+--  of lesser value than initially thought. See usage note for Cipher.finish https://botan.randombit.net/handbook/api_ref/cipher_modes.html
+-- \* This is due to botan's obscuration which attaches the tag. A datum could be pre-verified,
+--  and thus not need the tag any more, *if* the schema is Encrypt-then-MAC
+{-
+ghci> (ctx,k,ad,n,msg) <- testCipherCtx "AES-256/SIV" True
+ghci> e1 <- cipherCtxEncryptOffline ctx msg
+"Update: True"
+"Update input length: 1024"
+"Update estimated output length: 1057"
+"Update consumed input length: 1024"
+"Update written output length: 1040"
+ghci> (ctx,k,ad,n,msg) <- testCipherCtx "AES-256/SIV" True
+ghci> e2 <- cipherCtxEncryptOnline ctx msg
+"Update: False"
+"Update input length: 128"
+"Update estimated output length: 128"
+"Update consumed input length: 128"
+"Update written output length: 128"
+"Update: False"
+"Update input length: 128"
+"Update estimated output length: 128"
+"Update consumed input length: 128"
+"Update written output length: 128"
+"Update: False"
+"Update input length: 128"
+"Update estimated output length: 128"
+"Update consumed input length: 128"
+"Update written output length: 128"
+"Update: False"
+"Update input length: 128"
+"Update estimated output length: 128"
+"Update consumed input length: 128"
+"Update written output length: 128"
+"Update: False"
+"Update input length: 128"
+"Update estimated output length: 128"
+"Update consumed input length: 128"
+"Update written output length: 128"
+"Update: False"
+"Update input length: 128"
+"Update estimated output length: 128"
+"Update consumed input length: 128"
+"Update written output length: 128"
+"Update: False"
+"Update input length: 128"
+"Update estimated output length: 128"
+"Update consumed input length: 128"
+"Update written output length: 128"
+"Update: True"
+"Update input length: 128"
+"Update estimated output length: 161"
+"Update consumed input length: 128"
+"Update written output length: 151"
+-}
