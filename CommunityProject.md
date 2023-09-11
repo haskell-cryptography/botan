@@ -321,6 +321,8 @@ The first leg of this proposal presents a minimum budget of $7000 USD per month,
 
 The question of continued funding will be revisited for each future leg of this proposal, wherein the budget and direction of future work will be decided again for each leg.
 
+<!-- NOTE: A full-time developer for this is almost necessary, because the complexity of the issues are such that maintaining the mental model cannot be done intermittently. It needs a dedicated developer, with dedicated focus. -->
+
 ## Stakeholders
 
 <!-- _Who stands to gain or lose from the implementation of this proposal?
@@ -389,3 +391,17 @@ The following libraries are considered non-essential to the success of this leg,
 - crypto-schemes-botan
 
 The next leg of this proposal is still undetermined, but tentatively will be focused on compatibility with `crypton`, and on the development of abstract cryptography classes.
+
+<!--
+
+# Future 
+
+The problems that cryptographic primitives face can be seen to be akin to that of the coherency issues which `Data.Map` faces.
+
+With Map, there needs to be a single consistent implementation, because different implementations of `Map` might yield tangible behavioral differences because of differing structure, even though they may perform the `Map`-like duties consistently. The coherence of the `Ord` typeclass is also at play.
+
+Cryptographic algorithms need to solve the same challenge, to bring them consistently up to a certain level of abstraction, in order to enable higher-level cryptography abstractions built upon them. If the cryptoprimitive implementations are scattered to the wind without unity, the higher-level abstractions become increasingly and escapingly difficult, if they are reduced to dealing with specific concrete implementations.
+
+tl;dr its [this problem](https://www.reddit.com/r/haskell/comments/2foggq/why_does_david_turner_say_type_classes_were_a_bad/), but now with cryptography.
+
+-->
