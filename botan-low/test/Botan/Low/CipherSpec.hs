@@ -148,7 +148,7 @@ spec = testSuite (blockCipherModes ++ aeads) chars $ \ cipher -> do
         msg <- systemRNGGetIO g
         encmsg <- cipherCtxEncryptOffline ctx msg
         pass
-    focus $ it "can one-shot / offline decipher a message" $ do
+    it "can one-shot / offline decipher a message" $ do
         -- Same as prior test
         ctx <- cipherCtxInitNameIO cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
         (_,mx,_) <- cipherCtxGetKeyspecIO ctx

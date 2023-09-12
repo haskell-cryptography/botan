@@ -130,9 +130,10 @@ cipherCtxUpdateIO cipher flags outputSz input = withCipherPtr cipher $ \ cipherP
     asBytesLen input $ \ inputPtr inputSz -> do
         alloca $ \ consumedPtr -> do
             alloca $ \ writtenPtr -> do
-                print $ "Update: " <> show (flags == BOTAN_CIPHER_UPDATE_FLAG_FINAL)
-                print $ "Update input length: " <> show inputSz
-                print $ "Update estimated output length: " <> show outputSz
+                prn $ "Update:"
+                prn $ "   Is final:                " <> show (flags == BOTAN_CIPHER_UPDATE_FLAG_FINAL)
+                prn $ "   Input length:            " <> show inputSz
+                prn $ "   Estimated output length: " <> show outputSz
                 -- Or just allocBytes outputSz $ \ _ -> return (); unsafeAsBytes ...
                 output <- allocBytes outputSz $ \ outputPtr -> do
                     throwBotanIfNegative_ $ botan_cipher_update
@@ -145,13 +146,17 @@ cipherCtxUpdateIO cipher flags outputSz input = withCipherPtr cipher $ \ cipherP
                         inputSz
                         consumedPtr
                 consumed <- fromIntegral <$> peek consumedPtr
-                print $ "Update consumed input length: " <> show consumed
+                prn $ "   Consumed input length:   " <> show consumed
+                when (consumed /= fromIntegral inputSz) $ do
+                    prn $ "       [Warning] Not equal to input length!"
                 written <- fromIntegral <$> peek writtenPtr
-                print $ "Update written output length: " <> show written
+                prn $ "   Written output length:   " <> show written
                 -- NOTE: If written == outputSz we can just return output
                 -- NOTE: The safety of this function is suspect - may require deepseq
                 let chunk = ByteString.copy $! ByteString.take written output
                     in chunk `seq` return (consumed, chunk)
+
+prn = putStrLn . ("    " ++)
 
 -- |Reset the key, nonce, AD and all other state on this cipher object
 cipherCtxClearIO :: CipherCtx -> IO ()
@@ -162,56 +167,100 @@ Non-standard functions
 -}
 
 -- NOTE: out + ug + tag is safe overestimate for encryption
-cipherCtxEstimateOutputLength :: CipherCtx -> Bool -> Int -> IO Int
-cipherCtxEstimateOutputLength ctx decrypt input = do
+-- NOTE: out + ug + tag is safe overestimate for encryption
+cipherCtxEstimateOutputLength :: CipherCtx -> CipherInitFlags -> Int -> IO Int
+cipherCtxEstimateOutputLength ctx flags input = do
     o <- cipherCtxOutputLengthIO ctx input  -- NOTE: Flawed but usable
     u <- cipherCtxGetUpdateGranularityIO ctx -- TODO: When u == 1, it should be just input + t, right?
     t <- cipherCtxGetTagLengthIO ctx
-    if decrypt
-        then return (o + u)
-        else return (o + u + t)     
+    if flags == BOTAN_CIPHER_INIT_FLAG_ENCRYPT
+        then return (o + u + t)
+        else return (o + u - t)     
 
 -- NOTE: Offset must be a valid length of the input so far processed
 -- NOTE: If (estimated) outputLength input + offset == outputLength (input + offset) then
 --  we can just use cipherCtxEstimateOutputLength instead of this
 --  However, this may not be completely true due to block alignment requirements
 --  For the moment this function exists for clarity.
-cipherCtxEstimateFinalOutputLength :: CipherCtx -> Bool -> Int -> Int -> IO Int
-cipherCtxEstimateFinalOutputLength ctx decrypt offset input = do
-    len <- cipherCtxEstimateOutputLength ctx decrypt (offset + input)
+cipherCtxEstimateFinalOutputLength :: CipherCtx -> CipherInitFlags -> Int -> Int -> IO Int
+cipherCtxEstimateFinalOutputLength ctx flags offset input = do
+    len <- cipherCtxEstimateOutputLength ctx flags (offset + input)
     return $ len - offset
 
-cipherCtxProcessOffline :: CipherCtx -> Bool -> ByteString -> IO ByteString
-cipherCtxProcessOffline ctx decrypt msg = do
-    o <- cipherCtxEstimateOutputLength ctx decrypt (ByteString.length msg)
+cipherCtxProcessOffline :: CipherCtx -> CipherInitFlags -> ByteString -> IO ByteString
+cipherCtxProcessOffline ctx flags msg = do
+    o <- cipherCtxEstimateOutputLength ctx flags (ByteString.length msg)
     snd <$> cipherCtxUpdateIO ctx BOTAN_CIPHER_UPDATE_FLAG_FINAL o msg
 
 cipherCtxEncryptOffline :: CipherCtx -> ByteString -> IO ByteString
-cipherCtxEncryptOffline ctx = cipherCtxProcessOffline ctx False
+cipherCtxEncryptOffline ctx = cipherCtxProcessOffline ctx BOTAN_CIPHER_INIT_FLAG_ENCRYPT
 
 cipherCtxDecryptOffline :: CipherCtx -> ByteString -> IO ByteString
-cipherCtxDecryptOffline ctx = cipherCtxProcessOffline ctx True
+cipherCtxDecryptOffline ctx = cipherCtxProcessOffline ctx BOTAN_CIPHER_INIT_FLAG_DECRYPT
 
 {-
 Experiments with online processing
 -}
 
+-- cipherCtxEncryptOnline :: CipherCtx -> ByteString -> IO ByteString
+-- cipherCtxEncryptOnline ctx msg = do
+--     u <- cipherCtxGetUpdateGranularityIO ctx
+--     t <- cipherCtxGetTagLengthIO ctx
+--     g <- cipherCtxGetIdealUpdateGranularityIO ctx
+--     ByteString.concat <$> go 0 u t g msg
+--     where
+--         go i u t g bs = case ByteString.splitAt g bs of
+--             (block,"")      -> do
+--                 o <- cipherCtxOutputLengthIO ctx (i + ByteString.length block)  -- NOTE: Flawed but usable
+--                 (_,encblock) <- cipherCtxUpdateIO ctx BOTAN_CIPHER_UPDATE_FLAG_FINAL (o + u + t - i) block
+--                 return [encblock]
+--             (block,rest)    -> do
+--                 (_,encblock) <- cipherCtxUpdateIO ctx BOTAN_CIPHER_UPDATE_FLAG_NONE g block
+--                 encrest <- go (i + g) u t g rest
+--                 return $! encblock : encrest
+
+cipherCtxProcessOnline :: CipherCtx -> CipherInitFlags -> ByteString -> IO ByteString
+cipherCtxProcessOnline ctx flags = if flags == BOTAN_CIPHER_INIT_FLAG_ENCRYPT
+    then cipherCtxEncryptOnline ctx
+    else cipherCtxDecryptOnline ctx
+
+-- TODO: Consolidate online encipher / decipher
 cipherCtxEncryptOnline :: CipherCtx -> ByteString -> IO ByteString
 cipherCtxEncryptOnline ctx msg = do
-    u <- cipherCtxGetUpdateGranularityIO ctx
-    t <- cipherCtxGetTagLengthIO ctx
     g <- cipherCtxGetIdealUpdateGranularityIO ctx
-    ByteString.concat <$> go 0 u t g msg
+    ByteString.concat <$> go 0 g msg
     where
-        go i u t g bs = case ByteString.splitAt g bs of
+        go i g bs = case ByteString.splitAt g bs of
             (block,"")      -> do
-                o <- cipherCtxOutputLengthIO ctx (i + ByteString.length block)  -- NOTE: Flawed but usable
-                (_,encblock) <- cipherCtxUpdateIO ctx BOTAN_CIPHER_UPDATE_FLAG_FINAL (o + u + t - i) block
-                return [encblock]
+                o <- cipherCtxEstimateFinalOutputLength ctx BOTAN_CIPHER_INIT_FLAG_ENCRYPT i (ByteString.length block)
+                (_,ctblock) <- cipherCtxUpdateIO ctx BOTAN_CIPHER_UPDATE_FLAG_FINAL o block
+                return [ctblock]
             (block,rest)    -> do
-                (_,encblock) <- cipherCtxUpdateIO ctx BOTAN_CIPHER_UPDATE_FLAG_NONE g block
-                encrest <- go (i + g) u t g rest
-                return $! encblock : encrest
+                (_,ctblock) <- cipherCtxUpdateIO ctx BOTAN_CIPHER_UPDATE_FLAG_NONE g block
+                (ctblock :) <$> go (i + g) g rest
+
+-- TODO: Consolidate online encipher / decipher
+cipherCtxDecryptOnline :: CipherCtx -> ByteString -> IO ByteString
+cipherCtxDecryptOnline ctx msg = do
+    g <- cipherCtxGetIdealUpdateGranularityIO ctx
+    t <- cipherCtxGetTagLengthIO ctx
+    ByteString.concat <$> go 0 g t msg
+    where
+        -- lengthLTE n bs = ByteString.length (ByteString.take n bs) <= n
+        go i g t bs = case ByteString.splitAt g bs of
+            --  This fails with BadMACException for ChaChaPoly1305, EAX, SIV, and CCM
+            -- (_,rest) | ByteString.length rest <= t -> do
+            --     o <- cipherCtxEstimateFinalOutputLength ctx BOTAN_CIPHER_INIT_FLAG_DECRYPT i (ByteString.length bs)
+            --     (_,ctblock) <- cipherCtxUpdateIO ctx BOTAN_CIPHER_UPDATE_FLAG_FINAL o bs
+            --     return [ctblock]
+            -- This is just the same as encrypt
+            (block,"")      -> do
+                o <- cipherCtxEstimateFinalOutputLength ctx BOTAN_CIPHER_INIT_FLAG_DECRYPT i (ByteString.length block)
+                (_,ctblock) <- cipherCtxUpdateIO ctx BOTAN_CIPHER_UPDATE_FLAG_FINAL o block
+                return [ctblock]
+            (block,rest)    -> do
+                (_,ctblock) <- cipherCtxUpdateIO ctx BOTAN_CIPHER_UPDATE_FLAG_NONE g block
+                (ctblock :) <$> go (i + g) g t rest
 
 testCipherCtx :: CipherName -> Bool -> IO (CipherCtx,ByteString,ByteString,ByteString,ByteString)
 testCipherCtx cipher isAEAD = do
