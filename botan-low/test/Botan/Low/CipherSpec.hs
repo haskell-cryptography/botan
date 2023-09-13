@@ -192,3 +192,30 @@ spec = testSuite (blockCipherModes ++ aeads) chars $ \ cipher -> do
         msg <- systemRNGGetIO (8 * g)
         encmsg <- cipherCtxEncryptOnline ctx msg
         pass
+    -- NOTE: Failing for ChaChaPoly1305, EAX, SIV, CCM
+    fit "can incrementally / online decipher a message" $ do
+        ctx <- cipherCtxInitNameIO cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
+        (_,mx,_) <- cipherCtxGetKeyspecIO ctx
+        k <- systemRNGGetIO mx
+        cipherCtxSetKeyIO ctx k
+        ad <- systemRNGGetIO 64
+        if cipher `elem` aeads
+            then do
+                cipherCtxSetAssociatedDataIO ctx ad
+            else pass
+        n <- systemRNGGetIO =<< cipherCtxGetDefaultNonceLengthIO ctx
+        cipherCtxStartIO ctx n
+        g <- cipherCtxGetIdealUpdateGranularityIO ctx
+        msg <- systemRNGGetIO (8 * g)
+        encmsg <- cipherCtxEncryptOnline ctx msg
+        -- Start actual test
+        dctx <- cipherCtxInitNameIO cipher BOTAN_CIPHER_INIT_FLAG_DECRYPT
+        cipherCtxSetKeyIO dctx k
+        if cipher `elem` aeads
+            then do
+                cipherCtxSetAssociatedDataIO dctx ad
+            else pass
+        cipherCtxStartIO dctx n
+        decmsg <- cipherCtxDecryptOnline dctx encmsg
+        msg `shouldBe` decmsg
+        pass
