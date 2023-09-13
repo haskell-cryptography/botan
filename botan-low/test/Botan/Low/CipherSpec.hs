@@ -219,3 +219,23 @@ spec = testSuite (blockCipherModes ++ aeads) chars $ \ cipher -> do
         decmsg <- cipherCtxDecryptOnline dctx encmsg
         msg `shouldBe` decmsg
         pass
+    it "has parity between online and offline" $ do
+        onlinectx <- cipherCtxInitNameIO cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
+        offlinectx <- cipherCtxInitNameIO cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
+        (_,mx,_) <- cipherCtxGetKeyspecIO onlinectx
+        k <- systemRNGGetIO mx
+        cipherCtxSetKeyIO onlinectx k
+        cipherCtxSetKeyIO offlinectx k
+        ad <- systemRNGGetIO 64
+        when (cipher `elem` aeads) $ do
+                cipherCtxSetAssociatedDataIO onlinectx ad
+                cipherCtxSetAssociatedDataIO offlinectx ad
+        n <- systemRNGGetIO =<< cipherCtxGetDefaultNonceLengthIO onlinectx
+        cipherCtxStartIO onlinectx n
+        cipherCtxStartIO offlinectx n
+        g <- cipherCtxGetIdealUpdateGranularityIO onlinectx
+        msg <- systemRNGGetIO (8 * g)
+        onlinemsg <- cipherCtxEncryptOnline onlinectx msg
+        offlinemsg <- cipherCtxEncryptOffline offlinectx msg
+        onlinemsg `shouldBe` offlinemsg
+        pass
