@@ -192,8 +192,9 @@ spec = testSuite (blockCipherModes ++ aeads) chars $ \ cipher -> do
         msg <- systemRNGGetIO (8 * g)
         encmsg <- cipherCtxEncryptOnline ctx msg
         pass
-    -- NOTE: Failing for ChaChaPoly1305, EAX, SIV, CCM
-    fit "can incrementally / online decipher a message" $ do
+    -- NOTE: Fails for SIV, CCM because they are offline-only algorithms
+    --  This is expected, but not reflected in the tests yet
+    it "can incrementally / online decipher a message" $ do
         ctx <- cipherCtxInitNameIO cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
         (_,mx,_) <- cipherCtxGetKeyspecIO ctx
         k <- systemRNGGetIO mx
@@ -219,6 +220,8 @@ spec = testSuite (blockCipherModes ++ aeads) chars $ \ cipher -> do
         decmsg <- cipherCtxDecryptOnline dctx encmsg
         msg `shouldBe` decmsg
         pass
+    -- NOTE: Fails for SIV, CCM because they are offline-only algorithms
+    --  This is expected, but not reflected in the tests yet
     it "has parity between online and offline" $ do
         onlinectx <- cipherCtxInitNameIO cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
         offlinectx <- cipherCtxInitNameIO cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
@@ -235,7 +238,10 @@ spec = testSuite (blockCipherModes ++ aeads) chars $ \ cipher -> do
         cipherCtxStartIO offlinectx n
         g <- cipherCtxGetIdealUpdateGranularityIO onlinectx
         msg <- systemRNGGetIO (8 * g)
+        putStrLn "    Testing online encryption:"
         onlinemsg <- cipherCtxEncryptOnline onlinectx msg
+        putStrLn "    Testing offline encryption:"
         offlinemsg <- cipherCtxEncryptOffline offlinectx msg
+        putStrLn "    Result:"
         onlinemsg `shouldBe` offlinemsg
         pass

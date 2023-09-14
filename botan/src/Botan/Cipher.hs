@@ -100,6 +100,12 @@ cbcPaddingName NoPadding   = "NoPadding"
 -- NOTE: Wiki, RFC 7253, Botan docs: GCM, OCB, SIV, CCM: "Requires a 128-bit block cipher."
 -- NOTE: Botan Docs: EAX: "Supports 128-bit, 256-bit and 512-bit block ciphers."
 --  Note that that is currently all block ciphers (at least, those with default values)
+-- NOTE: CCM is not an online algorithm:
+--  > CCM is not an "on-line" authenticated encryption with associated data (AEAD), in that the length of the message (and associated data) must be known in advance.
+-- NOTE: SIV is not an online algorithm:
+--  > [SIV] modes process the plaintext blocks twice (once for authentication, then for encryption), and hence they are two-pass
+--  https://csrc.nist.gov/CSRC/media/Events/lightweight-cryptography-workshop-2020/documents/papers/structural-classification-lwc2020.pdf
+--  
 data AEAD
     = ChaCha20Poly1305
     | GCM BlockCipher Int -- Tag size, default is 16
