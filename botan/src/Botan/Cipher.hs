@@ -22,6 +22,12 @@ import Botan.Low.RNG (systemRNGGetIO)
 --      Using an unauthenticted cipher mode without combining it with a Message
 --      Authentication Codes (MAC) is insecure. Prefer using an AEAD Mode.
 
+-- NOTE: According to good practice, we should not use any of the plaintext if the tag is invalid
+--  which can only happen at the end of processing. Therefore online cipher processing may be
+--  of lesser value than initially thought. See usage note for Cipher.finish https://botan.randombit.net/handbook/api_ref/cipher_modes.html
+-- \* This is due to botan's obscuration which attaches the tag. A datum could be pre-verified,
+--  and thus not need the tag any more, *if* the schema is Encrypt-then-MAC
+
 -- TODO: type aliases for CipherModeCtx / AEADCtx for safety later 
 
 data CipherDirection

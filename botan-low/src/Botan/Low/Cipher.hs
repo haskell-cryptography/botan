@@ -87,6 +87,8 @@ cipherCtxGetUpdateGranularityIO = mkGetSize withCipherPtr botan_cipher_get_updat
 
 -- |Return the ideal update granularity of the cipher. This is some multiple of the
 --  update granularity, reflecting possibilities for optimization.
+--
+-- Some ciphers (ChaChaPoly, EAX) may consume less input than the reported ideal granularity
 cipherCtxGetIdealUpdateGranularityIO :: CipherCtx -> IO Int
 cipherCtxGetIdealUpdateGranularityIO = mkGetSize withCipherPtr botan_cipher_get_ideal_update_granularity
 
@@ -125,56 +127,13 @@ cipherCtxStartIO = mkSetBytesLen withCipherPtr botan_cipher_start
 --
 --  See the source for authoritative details:
 --  https://github.com/randombit/botan/blob/72dc18bbf598f2c3bef81a4fb2915e9c3c524ac4/src/lib/ffi/ffi_cipher.cpp#L133
+--
+-- Some ciphers (ChaChaPoly, EAX) may consume less input than the reported ideal granularity
 cipherCtxUpdateIO :: CipherCtx -> CipherUpdateFlags -> Int -> ByteString -> IO (Int,ByteString)
-cipherCtxUpdateIO cipher flags outputSz input = withCipherPtr cipher $ \ cipherPtr -> do
+cipherCtxUpdateIO ctx flags outputSz input = withCipherPtr ctx $ \ ctxPtr -> do
     asBytesLen input $ \ inputPtr inputSz -> do
         alloca $ \ consumedPtr -> do
             alloca $ \ writtenPtr -> do
-                prn $ "Update:"
-                prn $ "   Is final:                " <> show (flags == BOTAN_CIPHER_UPDATE_FLAG_FINAL)
-                prn $ "   Input length:            " <> show inputSz
-                prn $ "   Estimated output length: " <> show outputSz
-                -- Or just allocBytes outputSz $ \ _ -> return (); unsafeAsBytes ...
-                output <- allocBytes outputSz $ \ outputPtr -> do
-                    throwBotanIfNegative_ $ botan_cipher_update
-                        cipherPtr
-                        flags
-                        outputPtr
-                        (fromIntegral outputSz)
-                        writtenPtr
-                        inputPtr
-                        inputSz
-                        consumedPtr
-                consumed <- fromIntegral <$> peek consumedPtr
-                prn $ "   Consumed input length:   " <> show consumed
-                when (consumed /= fromIntegral inputSz) $ do
-                    prn $ "       [Warning] Not equal to input length!"
-                written <- fromIntegral <$> peek writtenPtr
-                prn $ "   Written output length:   " <> show written
-                -- NOTE: If written == outputSz we can just return output
-                -- NOTE: The safety of this function is suspect - may require deepseq
-                let chunk = ByteString.copy $! ByteString.take written output
-                    in chunk `seq` return (consumed, chunk)
-
-prn = putStrLn . ("    " ++)
-
--- A better version
--- NOTE: It returns (processed,remaining) compared to (consumed,processed)
---  so the processed ciphertext has moved from snd to fst
--- TODO: Use Builder to do this
---  https://hackage.haskell.org/package/bytestring-0.12.0.2/docs/Data-ByteString-Builder.html
--- NOTE: There still is (an efficiency) use for a version that reports only consumed length
---  and defers the computation of the 'remaining' bytestring
--- TODO: Re-work this so that this calls the original and performs the assembly of 'remaining' 
-cipherCtxUpdateIO' :: CipherCtx -> CipherUpdateFlags -> Int -> ByteString -> IO (ByteString,ByteString)
-cipherCtxUpdateIO' ctx flags outputSz input = withCipherPtr ctx $ \ ctxPtr -> do
-    asBytesLen input $ \ inputPtr inputSz -> do
-        alloca $ \ consumedPtr -> do
-            alloca $ \ writtenPtr -> do
-                prn $ "Update':"
-                prn $ "   Is final:                " <> show (flags == BOTAN_CIPHER_UPDATE_FLAG_FINAL)
-                prn $ "   Input length:            " <> show inputSz
-                prn $ "   Estimated output length: " <> show outputSz
                 output <- allocBytes outputSz $ \ outputPtr -> do
                     throwBotanIfNegative_ $ botan_cipher_update
                         ctxPtr
@@ -186,16 +145,10 @@ cipherCtxUpdateIO' ctx flags outputSz input = withCipherPtr ctx $ \ ctxPtr -> do
                         inputSz
                         consumedPtr
                 consumed <- fromIntegral <$> peek consumedPtr
-                prn $ "   Consumed input length:   " <> show consumed
-                when (fromIntegral consumed /= inputSz) $ do
-                    prn $ "       [Warning] Not equal to input length!"
                 written <- fromIntegral <$> peek writtenPtr
-                prn $ "   Written output length:   " <> show written
-                -- NOTE: If written == outputSz we can just return output
                 -- NOTE: The safety of this function is suspect - may require deepseq
                 let processed = ByteString.take written output
-                    remaining = ByteString.drop consumed input
-                    in processed `seq` remaining `seq` return (processed,remaining)
+                    in processed `seq` return (consumed,processed)
 
 -- |Reset the key, nonce, AD and all other state on this cipher object
 cipherCtxClearIO :: CipherCtx -> IO ()
@@ -226,11 +179,25 @@ cipherCtxEstimateFinalOutputLength ctx flags offset input = do
     len <- cipherCtxEstimateOutputLength ctx flags (offset + input)
     return $ len - offset
 
+-- A better version of cipherCtxUpdateIO
+-- NOTE: It returns (processed,remaining) compared to (consumed,processed)
+--  so the processed ciphertext has moved from snd to fst
+-- TODO: Use Builder to do this
+--  https://hackage.haskell.org/package/bytestring-0.12.0.2/docs/Data-ByteString-Builder.html
+-- NOTE: There still is (an efficiency) use for a version that reports only consumed length
+--  and defers the computation of the 'remaining' bytestring
+cipherCtxProcessIO :: CipherCtx -> CipherUpdateFlags -> Int -> ByteString -> IO (ByteString,ByteString)
+cipherCtxProcessIO ctx flags outputSz input = do
+    (consumed,processed) <- cipherCtxUpdateIO ctx flags outputSz input
+    -- NOTE: The safety of this function is suspect - may require deepseq
+    let remaining = ByteString.drop consumed input
+        in processed `seq` remaining `seq` return (processed,remaining)
+
 cipherCtxProcessOffline :: CipherCtx -> CipherInitFlags -> ByteString -> IO ByteString
 cipherCtxProcessOffline ctx flags msg = do
     o <- cipherCtxEstimateOutputLength ctx flags (ByteString.length msg)
     -- snd <$> cipherCtxUpdateIO ctx BOTAN_CIPHER_UPDATE_FLAG_FINAL o msg
-    fst <$> cipherCtxUpdateIO' ctx BOTAN_CIPHER_UPDATE_FLAG_FINAL o msg
+    fst <$> cipherCtxProcessIO ctx BOTAN_CIPHER_UPDATE_FLAG_FINAL o msg
 
 cipherCtxEncryptOffline :: CipherCtx -> ByteString -> IO ByteString
 cipherCtxEncryptOffline ctx = cipherCtxProcessOffline ctx BOTAN_CIPHER_INIT_FLAG_ENCRYPT
@@ -259,6 +226,8 @@ Experiments with online processing
 --                 encrest <- go (i + g) u t g rest
 --                 return $! encblock : encrest
 
+--  NOTE: Some ciphers (SIV, CCM) are not online-capable algorithms, but Botan does not throw
+--  an error even though it should.
 cipherCtxProcessOnline :: CipherCtx -> CipherInitFlags -> ByteString -> IO ByteString
 cipherCtxProcessOnline ctx flags = if flags == BOTAN_CIPHER_INIT_FLAG_ENCRYPT
     then cipherCtxEncryptOnline ctx
@@ -275,16 +244,10 @@ cipherCtxEncryptOnline ctx msg = do
         go i g bs = case ByteString.splitAt g bs of
             (block,"")      -> do
                 o <- cipherCtxEstimateFinalOutputLength ctx BOTAN_CIPHER_INIT_FLAG_ENCRYPT i (ByteString.length block)
-                -- (_,ctblock) <- cipherCtxUpdateIO ctx BOTAN_CIPHER_UPDATE_FLAG_FINAL o block
-                -- return [ctblock]
-                -- The new ~~(still doesn't work for SIV / CCM)~~ (SIV and CCM are offline-only):
-                (processed,_) <- cipherCtxUpdateIO' ctx BOTAN_CIPHER_UPDATE_FLAG_FINAL o block
+                (processed,_) <- cipherCtxProcessIO ctx BOTAN_CIPHER_UPDATE_FLAG_FINAL o block
                 return [processed]
             (block,rest)    -> do
-                -- (_,ctblock) <- cipherCtxUpdateIO ctx BOTAN_CIPHER_UPDATE_FLAG_NONE g block
-                -- (ctblock :) <$> go (i + g) g rest
-                -- The new:
-                (processed,remaining) <- cipherCtxUpdateIO' ctx BOTAN_CIPHER_UPDATE_FLAG_NONE g block
+                (processed,remaining) <- cipherCtxProcessIO ctx BOTAN_CIPHER_UPDATE_FLAG_NONE g block
                 (processed :) <$> go (i + g) g (remaining <> rest)
                 -- Though this following version may be more efficient especially with lazy bytestrings
                 --  or builder, though note *which* update function it uses - the original
@@ -298,114 +261,11 @@ cipherCtxDecryptOnline ctx msg = do
     t <- cipherCtxGetTagLengthIO ctx
     ByteString.concat <$> go 0 g t msg
     where
-        -- lengthLTE n bs = ByteString.length (ByteString.take n bs) <= n
         go i g t bs = case ByteString.splitAt g bs of
-            --  This fails with BadMACException for ChaChaPoly1305, EAX, SIV, and CCM
-            -- (_,rest) | ByteString.length rest <= t -> do
-            --     o <- cipherCtxEstimateFinalOutputLength ctx BOTAN_CIPHER_INIT_FLAG_DECRYPT i (ByteString.length bs)
-            --     (_,ctblock) <- cipherCtxUpdateIO ctx BOTAN_CIPHER_UPDATE_FLAG_FINAL o bs
-            --     return [ctblock]
-            -- This is just the same as encrypt
             (block,"")      -> do
                 o <- cipherCtxEstimateFinalOutputLength ctx BOTAN_CIPHER_INIT_FLAG_DECRYPT i (ByteString.length block)
-                -- (_,ctblock) <- cipherCtxUpdateIO ctx BOTAN_CIPHER_UPDATE_FLAG_FINAL o block
-                -- return [ctblock]
-                -- The new ~~(still doesn't work for SIV / CCM)~~ (SIV and CCM are offline-only):
-                (processed,_) <- cipherCtxUpdateIO' ctx BOTAN_CIPHER_UPDATE_FLAG_FINAL o block
+                (processed,_) <- cipherCtxProcessIO ctx BOTAN_CIPHER_UPDATE_FLAG_FINAL o block
                 return [processed]
             (block,rest)    -> do
-                -- (_,ctblock) <- cipherCtxUpdateIO ctx BOTAN_CIPHER_UPDATE_FLAG_NONE g block
-                -- (ctblock :) <$> go (i + g) g t rest
-                -- The new:
-                (processed,remaining) <- cipherCtxUpdateIO' ctx BOTAN_CIPHER_UPDATE_FLAG_NONE g block
+                (processed,remaining) <- cipherCtxProcessIO ctx BOTAN_CIPHER_UPDATE_FLAG_NONE g block
                 (processed :) <$> go (i + g) g t (remaining <> rest)
-
-testCipherCtx :: CipherName -> Bool -> IO (CipherCtx,ByteString,ByteString,ByteString,ByteString)
-testCipherCtx cipher isAEAD = do
-        ctx <- cipherCtxInitNameIO cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
-        (_,mx,_) <- cipherCtxGetKeyspecIO ctx
-        k <- systemRNGGetIO mx
-        cipherCtxSetKeyIO ctx k
-        ad <- systemRNGGetIO 64
-        when isAEAD $ cipherCtxSetAssociatedDataIO ctx ad
-        n <- systemRNGGetIO =<< cipherCtxGetDefaultNonceLengthIO ctx
-        cipherCtxStartIO ctx n
-        g <- cipherCtxGetIdealUpdateGranularityIO ctx
-        msg <- systemRNGGetIO (8 * g)
-        return (ctx,k,ad,n,msg)
-
-testOnline :: CipherName -> Bool -> IO ()
-testOnline cipher isAEAD = do
-    (ctx,k,ad,n,msg) <- testCipherCtx cipher isAEAD
-    encmsg <- cipherCtxEncryptOnline ctx msg
-    return ()
-
--- NOTE: Online processing is writing more bytes than offline? Note that:
---  - the input length is the same (8 * 128 (ideal granularity), 1024)
---  - the estimated total output length is the same (7 * 128 = 896, 896 + 161 = 1057)
---  - the consumed input length is the same (1024)
---  - the written output length is different (1040 vs 896 + 151 = 1047)
--- Something is wrong.Base
--- This does occur for SIV, CCM (tested AES-256, Camellia-256)
---  but this does not occur for other AEAD modes (tested ChaCha20Poly1305, GCM, OCB, EAX)
--- On the other hand, we need the tag to validate the AEAD which means finishing processing\*.
---  According to good practice, we should not use any of the plaintext if the tag is invalid
---  which can only happen at the end of processing. Therefore online cipher processing may be
---  of lesser value than initially thought. See usage note for Cipher.finish https://botan.randombit.net/handbook/api_ref/cipher_modes.html
--- \* This is due to botan's obscuration which attaches the tag. A datum could be pre-verified,
---  and thus not need the tag any more, *if* the schema is Encrypt-then-MAC
-{-
-ghci> (ctx,k,ad,n,msg) <- testCipherCtx "AES-256/SIV" True
-ghci> e1 <- cipherCtxEncryptOffline ctx msg
-"Update: True"
-"Update input length: 1024"
-"Update estimated output length: 1057"
-"Update consumed input length: 1024"
-"Update written output length: 1040"
-ghci> (ctx,k,ad,n,msg) <- testCipherCtx "AES-256/SIV" True
-ghci> e2 <- cipherCtxEncryptOnline ctx msg
-"Update: False"
-"Update input length: 128"
-"Update estimated output length: 128"
-"Update consumed input length: 128"
-"Update written output length: 128"
-"Update: False"
-"Update input length: 128"
-"Update estimated output length: 128"
-"Update consumed input length: 128"
-"Update written output length: 128"
-"Update: False"
-"Update input length: 128"
-"Update estimated output length: 128"
-"Update consumed input length: 128"
-"Update written output length: 128"
-"Update: False"
-"Update input length: 128"
-"Update estimated output length: 128"
-"Update consumed input length: 128"
-"Update written output length: 128"
-"Update: False"
-"Update input length: 128"
-"Update estimated output length: 128"
-"Update consumed input length: 128"
-"Update written output length: 128"
-"Update: False"
-"Update input length: 128"
-"Update estimated output length: 128"
-"Update consumed input length: 128"
-"Update written output length: 128"
-"Update: False"
-"Update input length: 128"
-"Update estimated output length: 128"
-"Update consumed input length: 128"
-"Update written output length: 128"
-"Update: True"
-"Update input length: 128"
-"Update estimated output length: 161"
-"Update consumed input length: 128"
-"Update written output length: 151"
--}
--- STRIKE: Fixed processing issues
---  - Some ciphers (ChaChaPoly, EAX), were consuming less input than the reported ideal granularity
---  - Some ciphers (SIV, CCM) are not online-capable algorithms
---  - Caught by unit tests / tdd :) each algo has its 'unique' qualities and we will document them all
