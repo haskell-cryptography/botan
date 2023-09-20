@@ -5,7 +5,6 @@ import Botan.Low.RNG -- TEMP
 
 import Botan.Hash
 import Botan.Prelude
--- import Botan.RNG
 
 -- TODO: Dig into Key agreement (KA) vs key exchange (KE / KX) vs key encapsulation mechanism (KEM)
 -- NOTE: libsodium uses kx for key exchange

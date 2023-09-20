@@ -29,6 +29,7 @@ newtype KeyAgreementCtx = MkKeyAgreementCtx { getKeyAgreementForeignPtr :: Forei
 withKeyAgreementPtr :: KeyAgreementCtx -> (KeyAgreementPtr -> IO a) -> IO a
 withKeyAgreementPtr = withForeignPtr . getKeyAgreementForeignPtr
 
+-- NOTE: Silently uses the system RNG
 keyAgreementCtxCreateIO :: PrivKey -> KDFName -> IO KeyAgreementCtx
 keyAgreementCtxCreateIO sk algo = alloca $ \ outPtr -> do
     withPrivKeyPtr sk $ \ skPtr -> do
@@ -77,14 +78,45 @@ keyAgreementCtxSizeIO :: KeyAgreementCtx -> IO Int
 keyAgreementCtxSizeIO = mkGetSize withKeyAgreementPtr botan_pk_op_key_agreement_size
 
 keyAgreementIO :: KeyAgreementCtx -> ByteString -> ByteString -> IO ByteString
+-- NOTE: This is not just causing a lock, its not interruptable.
+-- keyAgreementIO ka key salt = withKeyAgreementPtr ka $ \ kaPtr -> do
+--     asBytesLen key $ \ keyPtr keyLen -> do
+--         asBytesLen salt $ \ saltPtr saltLen -> do
+--             allocBytesQuerying $ \ outPtr outLen -> botan_pk_op_key_agreement
+--                 kaPtr
+--                 outPtr
+--                 outLen
+--                 keyPtr
+--                 keyLen
+--                 saltPtr
+--                 saltLen
+-- This also hangs :|
 keyAgreementIO ka key salt = withKeyAgreementPtr ka $ \ kaPtr -> do
     asBytesLen key $ \ keyPtr keyLen -> do
         asBytesLen salt $ \ saltPtr saltLen -> do
-            allocBytesQuerying $ \ outPtr outLen -> botan_pk_op_key_agreement
-                kaPtr
-                outPtr
-                outLen
-                keyPtr
-                keyLen
-                saltPtr
-                saltLen
+            outSz <- keyAgreementCtxSizeIO ka
+            alloca $ \ szPtr -> do
+                print "about to call FFI"
+                out <- allocBytes outSz $ \ outPtr -> do
+                    throwBotanIfNegative_ $ botan_pk_op_key_agreement
+                        kaPtr
+                        outPtr
+                        szPtr
+                        keyPtr
+                        keyLen
+                        saltPtr
+                        saltLen
+                print "Finished FFI"
+                sz <- fromIntegral <$> peek szPtr
+                return $! ByteString.take sz out
+
+{-
+import Botan.PubKey.KeyAgreement
+import Botan.KDF
+import Botan.Hash
+(ska,pka) <- newKeyAgreementKeyPair Curve25519KA
+(skb,pkb) <- newKeyAgreementKeyPair Curve25519KA
+-- This hangs and runs out of memory, doesn't seem to matter which curve?
+keyAgreement ska pkb (KDF2 (SHA3 SHA3_512)) "foo"
+-}
+-- Should make the jump off of 9.4 to 9.6, might fix some of these strange FFI issues
