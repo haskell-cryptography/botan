@@ -23,6 +23,9 @@ import Botan.Low.RNG
 
 import Data.ByteString.Internal as ByteString
 
+-- NOTE: botan bcrypt does not take the salt as an input
+--  Instead it uses a random generator to choose a random salt every time
+
 -- |Create a password hash using Bcrypt
 --
 --  Output is formatted bcrypt $2a$...
@@ -55,6 +58,10 @@ bcryptGenerateIO password rng factor = asCString password $ \ passwordPtr -> do
             --     in bcrypt `seq` return bcrypt
             return $!! ByteString.copy $ ByteString.take (fromIntegral sz) out
             -}
+            -- NOTE: We need to poke the length into the sz ptr to avoid
+            -- the insufficient buffer space exception from a check that
+            -- was sometimes being optimized out, causing our problems
+            poke szPtr 256
             ByteString.createAndTrim 256 $ \ outPtr -> do
                 throwBotanIfNegative_ $ botan_bcrypt_generate
                     outPtr
