@@ -19,11 +19,14 @@ import Botan.Low.RNG
 
 import Botan.Error
 import Botan.Prelude
--- import Botan.RNG
+import Botan.RNG
 
 -- TODO: Should we just re-export bcryptGenerateIO?
 --  Ditto question for any other function using RNGCtx
+-- ANSWER: No. We want to make this user friendly,
+--  this means changes for the better
 
+-- TODO: Keep / rename?
 -- |Create a password hash using Bcrypt
 --
 --  Output is formatted bcrypt $2a$...
@@ -37,6 +40,7 @@ unsafeBcryptGenerate
 unsafeBcryptGenerate = unsafePerformIO3 bcryptGenerateIO
 {-# NOINLINE unsafeBcryptGenerate #-}
 
+-- TODO: Keep / rename?
 -- |Check a previously created password hash
 --
 --  Returns True iff this password/hash combination is valid,
@@ -48,3 +52,44 @@ bcryptIsValid
     -> Bool
 bcryptIsValid = unsafePerformIO2 bcryptIsValidIO
 {-# NOINLINE bcryptIsValid #-}
+
+--
+-- A better implementation
+--
+
+-- TODO: Get rid of underscores after solidifying
+
+data Security
+    = Fast
+    | Good
+    | Strong
+
+_bcryptFactor :: Security -> Int
+_bcryptFactor Fast   = 12
+_bcryptFactor Good   = 14
+_bcryptFactor Strong = 16
+
+type Password = ByteString -- NOTE: Should actualy be Text
+type BcryptDigest = ByteString
+
+-- NOTE: Probably get rid of the original unsafeBcryptGenerate, in favor of this new one
+_unsafeBcryptGenerate :: Password -> Security -> BcryptDigest
+_unsafeBcryptGenerate = unsafePerformIO2 _bcryptGenerate
+{-# NOINLINE _unsafeBcryptGenerate #-}
+
+-- NOTE: Uses system RNG
+_bcryptGenerate :: Password -> Security -> IO BcryptDigest
+_bcryptGenerate pass = _bcryptGenerateWith pass System
+
+-- WARNING: Does not seed RNG
+_bcryptGenerateWith :: Password -> RNG -> Security -> IO BcryptDigest
+_bcryptGenerateWith pass rng security = do
+    r <- rngCtxInitIO rng
+    bcryptGenerateIO pass r (_bcryptFactor security)
+
+_bcryptValidate
+    :: Password     -- ^ The password to check against
+    -> BcryptDigest -- ^ The stored hash to check against
+    -> Bool
+_bcryptValidate = unsafePerformIO2 bcryptIsValidIO
+{-# NOINLINE _bcryptValidate #-}
