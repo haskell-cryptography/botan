@@ -21,75 +21,57 @@ import Botan.Error
 import Botan.Prelude
 import Botan.RNG
 
--- TODO: Should we just re-export bcryptGenerateIO?
---  Ditto question for any other function using RNGCtx
--- ANSWER: No. We want to make this user friendly,
---  this means changes for the better
-
--- TODO: Keep / rename?
--- |Create a password hash using Bcrypt
---
---  Output is formatted bcrypt $2a$...
---
---  This function is unsafe because it mutates the state of the RNGCtx
-unsafeBcryptGenerate
-    :: ByteString   -- ^ The password
-    -> RNGCtx       -- ^ A random number generator
-    -> Int          -- ^ A work factor to slow down guessing attacks (a value of 12 to 16 is probably fine).
-    -> ByteString
-unsafeBcryptGenerate = unsafePerformIO3 bcryptGenerateIO
-{-# NOINLINE unsafeBcryptGenerate #-}
-
--- TODO: Keep / rename?
--- |Check a previously created password hash
---
---  Returns True iff this password/hash combination is valid,
---  False if the combination is not valid (but otherwise well formed),
---  and otherwise throws an exception on error
-bcryptIsValid
-    :: ByteString   -- ^ The password to check against
-    -> ByteString   -- ^ The stored hash to check against
-    -> Bool
-bcryptIsValid = unsafePerformIO2 bcryptIsValidIO
-{-# NOINLINE bcryptIsValid #-}
-
---
--- A better implementation
---
-
--- TODO: Get rid of underscores after solidifying
-
+-- |A bcrypt security level
 data Security
     = Fast
     | Good
     | Strong
 
-_bcryptFactor :: Security -> Int
-_bcryptFactor Fast   = 12
-_bcryptFactor Good   = 14
-_bcryptFactor Strong = 16
+-- |Convert a bcrypt security level to an integer factor
+bcryptFactor :: Security -> Int
+bcryptFactor Fast   = 12
+bcryptFactor Good   = 14
+bcryptFactor Strong = 16
 
 type Password = ByteString -- NOTE: Should actualy be Text
 type BcryptDigest = ByteString
 
--- NOTE: Probably get rid of the original unsafeBcryptGenerate, in favor of this new one
-_unsafeBcryptGenerate :: Password -> Security -> BcryptDigest
-_unsafeBcryptGenerate = unsafePerformIO2 _bcryptGenerate
-{-# NOINLINE _unsafeBcryptGenerate #-}
+-- |This function is unsafe as it may block for an indeterminate
+--  amount of time
+unsafeBcryptGenerate
+    :: Password     -- ^ The password to check against
+    -> Security     -- ^ A work factor to slow down guessing attack
+    -> BcryptDigest
+unsafeBcryptGenerate = unsafePerformIO2 bcryptGenerate
+{-# NOINLINE unsafeBcryptGenerate #-}
 
--- NOTE: Uses system RNG
-_bcryptGenerate :: Password -> Security -> IO BcryptDigest
-_bcryptGenerate pass = _bcryptGenerateWith pass System
+-- |Create a password hash using Bcrypt
+--
+--  Output is formatted bcrypt $2a$...
+bcryptGenerate
+    :: Password         -- ^ The password to check against
+    -> Security         -- ^ A work factor to slow down guessing attack
+    -> IO BcryptDigest
+bcryptGenerate = bcryptGenerateWith System
 
--- WARNING: Does not seed RNG
-_bcryptGenerateWith :: Password -> RNG -> Security -> IO BcryptDigest
-_bcryptGenerateWith pass rng security = do
+bcryptGenerateWith
+    :: RNG              -- ^ A random number generator
+    -> Password         -- ^ The password to check against
+    -> Security         -- ^ A work factor to slow down guessing attack
+    -> IO BcryptDigest
+bcryptGenerateWith rng pass security = do
     r <- rngCtxInitIO rng
-    bcryptGenerateIO pass r (_bcryptFactor security)
+    rngCtxReseedIO r 32
+    bcryptGenerateIO pass r (bcryptFactor security)
 
-_bcryptValidate
+-- |Check a previously created digest
+--
+--  Returns True iff this password / digest combination is valid,
+--  False if the combination is not valid (but otherwise well formed),
+--  and otherwise throws an exception on error
+bcryptValidate
     :: Password     -- ^ The password to check against
     -> BcryptDigest -- ^ The stored hash to check against
     -> Bool
-_bcryptValidate = unsafePerformIO2 bcryptIsValidIO
-{-# NOINLINE _bcryptValidate #-}
+bcryptValidate = unsafePerformIO2 bcryptIsValidIO
+{-# NOINLINE bcryptValidate #-}
