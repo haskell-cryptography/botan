@@ -35,6 +35,7 @@ library
         Botan.Padding
         Botan.PubKey
         Botan.PubKey.Sign
+        Botan.PubKey.KeyAgreement
         Botan.PwdHash
         Botan.RNG
         Botan.Utility

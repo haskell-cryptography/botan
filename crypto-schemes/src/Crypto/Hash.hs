@@ -20,17 +20,19 @@ data family Ctx a
 data family Digest a
 
 -- Temporary nomenclature to avoid clashing until moved
+-- NOTE: This is not the proper abstraction. See the better version
+--  in Crypto.Merkle
 class Hash a where
     hashWithCtx :: Ctx a -> ByteString -> Digest a
 
 -- Temporary nomenclature to avoid clashing until moved
-class (Hash a) => IsIncrementalHash a where
+class (Hash a) => IncrementalHash a where
     hashInit :: Ctx a
     hashUpdate :: Ctx a -> ByteString -> Ctx a
     hashUpdates :: Ctx a -> [ByteString] -> Ctx a
     hashFinalize :: Ctx a -> Digest a
 
-hash :: (IsIncrementalHash a) => ByteString -> Digest a
+hash :: (IncrementalHash a) => ByteString -> Digest a
 hash = hashFinalize . hashUpdate hashInit
 
 

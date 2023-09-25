@@ -89,6 +89,7 @@ allocBytes :: Int -> (Ptr byte -> IO ()) -> IO ByteString
 -- NOTE: This is probably better than mallocByteString withForeignPtr
 --  Use of mallocByteString without mkDeferredByteString / deferForeignPtrAvailability
 --  is possibly a factor in our InsufficientBufferSpaceException issues
+-- NOTE: Most of the comments are rendered moot now :) this needs cleanup
 allocBytes sz f = ByteString.create sz (f . castPtr)
 
 allocBytesWith :: Int -> (Ptr byte -> IO a) -> IO (a, ByteString)

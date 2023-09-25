@@ -37,7 +37,7 @@ instance Hash MD5 where
     hashWithCtx :: Ctx MD5 -> ByteString -> Digest MD5
     hashWithCtx (MD5Ctx ctx) bytes = MD5Digest $ Botan.hashWithHashCtx ctx bytes
 
-instance IsIncrementalHash MD5 where
+instance IncrementalHash MD5 where
 
     hashInit :: MD5Ctx
     hashInit = MD5Ctx $ Botan.hashCtxInit Botan.MD5

@@ -19,6 +19,7 @@ This module has not been tested for compilation, and is not included in the caba
 
 data Plaintext
 data family Ciphertext alg
+data AdditionalData
 
 data family Alg alg
 data family Ctx alg
@@ -87,16 +88,33 @@ class (BlockCipher bc) => BlockCipherN n bc where
 type BlockCipher128 bc = BlockCipherN 128 bc
 
 {-
-TODO: Stream cipher, cipher mode, block cipher mode, AE, AEAD
+TODO: Stream cipher, cipher mode, block cipher mode
 -}
+
+class (SecretKeyGen c, NonceGen c) => Cipher c where
+    encipher :: SecretKey c -> Nonce c -> Plaintext -> Ciphertext c
+    decipher :: SecretKey c -> Nonce c -> Ciphertext c -> Maybe Plaintext
+
+class AE ae where
+    authEncrypt :: SecretKey ae -> Nonce ae -> Plaintext -> (Ciphertext ae, Tag ae)
+    authDecrypt :: SecretKey ae -> Nonce ae -> Ciphertext ae -> Tag ae -> Maybe Plaintext
+
+class (AE ae) => AEAD ae where
+    aeadEncrypt :: SecretKey ae -> Nonce ae -> Plaintext -> AdditionalData -> (Ciphertext ae, Tag ae)
+    aeadDecrypt :: SecretKey ae -> Nonce ae -> Ciphertext ae -> AdditionalData -> Tag ae -> Maybe Plaintext
+
+encryptThenMAC :: (Cipher c, MAC a) => SecretKey c -> Nonce c -> SecretKey a -> Plaintext -> (Ciphertext c, Tag a)
+encryptThenMAC kc n ka pt = (ct, t) where
+    ct = encipher kc n pt
+    t  = auth ka ct
 
 {-
 Public key encryption
 -}
 
 class (PublicKeyGen pk, NonceGen pk) => Encrypt pk where
-    encrypt :: PrivateKey pk -> PublicKey pk -> Nonce pk -> Plaintext -> Ciphertext pk
-    decrypt :: PublicKey pk -> PrivateKey pk -> Nonce pk -> Ciphertext pk -> Maybe Plaintext
+    pkEncrypt :: PrivateKey pk -> PublicKey pk -> Nonce pk -> Plaintext -> Ciphertext pk
+    pkDecrypt :: PublicKey pk -> PrivateKey pk -> Nonce pk -> Ciphertext pk -> Maybe Plaintext
 
 {-
 Public key signatures

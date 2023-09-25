@@ -144,7 +144,7 @@ class Cipher c where
 class StreamCipher sc where
 
 -}
-
+-- data family Ctx ciph
 data family Key ciph
 data family Nonce ciph
 data family Ciphertext ciph
@@ -161,3 +161,11 @@ class Cipher ciph where
 
     encipherCombined :: Key ciph -> Nonce ciph -> Message -> CombinedCiphertext ciph
     decipherCombined :: Key ciph -> CombinedCiphertext ciph -> Maybe Message
+
+
+-- class (Cipher ciph) => IncrementalCipher ciph where
+--     cipherUpdate :: Ctx ciph -> ByteString -> (ByteString, Ctx ciph)
+--     cipherUpdates :: Ctx ciph -> [ByteString] -> (ByteString, Ctx ciph)
+
+-- class IncrementalAE ae where
+--     aeFinalize :: Ctx ae -> Tag ae
