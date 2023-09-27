@@ -70,3 +70,23 @@ safeMerkleAppend a b = hashChunks
     , digest b
     , ";"
     ]
+
+{-
+Operators
+-}
+
+-- NOTE: Left-associative to match function application
+infixl 5 <#>
+
+(<#>) :: (Merkle a) => Digest a -> Digest a -> Digest a
+(<#>) = merkleAppend
+
+{-
+Folds - hash lists
+-}
+    
+merkleFoldl :: (Merkle a, Foldable f) => f (Digest a) -> Digest a
+merkleFoldl = foldl merkleAppend merkleEmpty
+
+merkleFoldr :: (Merkle a, Foldable f) => f (Digest a) -> Digest a
+merkleFoldr = foldr merkleAppend merkleEmpty
