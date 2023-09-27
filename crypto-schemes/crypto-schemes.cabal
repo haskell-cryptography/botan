@@ -39,6 +39,7 @@ library
         Crypto.Cipher
         Crypto.ErrorCorrection
         Crypto.Hash
+        Crypto.Merkle
         Crypto.Prelude
         Crypto.Public
         Crypto.Random
