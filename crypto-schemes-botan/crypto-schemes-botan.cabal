@@ -26,6 +26,7 @@ library
         TypeFamilies
     exposed-modules:
         Crypto.Hash.MD5
+        Crypto.Hash.SHA3
     other-modules:
         Paths_crypto_schemes_botan
     build-depends:
