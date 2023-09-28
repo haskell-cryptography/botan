@@ -3,6 +3,10 @@ module Crypto.Hash.SHA3
 ( SHA3(..)
 , SHA3Digest(..)
 , sha3
+, sha3MerkleSetDigest
+, sha3MerkleSetTree
+, sha3MerkleMapDigest
+, sha3MerkleMapTree
 ) where
 
 import qualified Data.ByteString as ByteString
@@ -56,3 +60,15 @@ instance Merkle SHA3 where
 
 sha3 :: ByteString -> SHA3Digest
 sha3 = hash
+
+sha3MerkleSetDigest :: [Digest SHA3] -> Digest SHA3
+sha3MerkleSetDigest = merkleSetDigest @SHA3
+
+sha3MerkleSetTree :: [Digest SHA3] -> (Digest SHA3, [(Digest SHA3, (Digest SHA3, Digest SHA3))])
+sha3MerkleSetTree = merkleSetTree @SHA3
+
+sha3MerkleMapDigest :: [(Digest SHA3, Digest SHA3)] -> Digest SHA3
+sha3MerkleMapDigest = merkleMapDigest @SHA3
+
+sha3MerkleMapTree :: [(Digest SHA3, Digest SHA3)] -> (Digest SHA3, [(Digest SHA3, (Digest SHA3, Digest SHA3))])
+sha3MerkleMapTree = merkleMapTree @SHA3
