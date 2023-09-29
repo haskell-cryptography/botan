@@ -170,13 +170,62 @@ t2
 t3
 -}
 
+-- Obviously we want to turn the returned fragments as an actual tree
+
+-- We could define the standard recursive way
+
+{-
+data MerkleTree a
+    = MerkleEmpty
+    | MerkleLeaf a
+    | MerkleNode (MerkleTree a) (MerkleTree a)
+-}
+
+-- We keep the leaf type parametric because it is (Digest a) for Set and (Digest a, Digest a) for Map
+
+-- This preserves the structure of the merkle tree but throws away the intermediate digests
+-- Fixing this begins to involve recursion schemes and cofree and all sorts of fun stuff
+-- but the scope is larger
+
+-- data MerkleTree a r
+--     = MerkleEmpty
+--     | MerkleLeaf a
+--     | MerkleNode r r
+
+-- data Fix f = Fix (f (Fix f))
+
+-- type MerkleSet a = Fix (MerkleTree (Digest a))
+-- type MerkleMap a = Fix (MerkleTree (Digest a, Digest a))
+
+-- data Cofree f a r = Cofree a (f r)
+
+-- type MerkleSet a = Fix (Cofree (MerkleTree (Digest a)) (Digest a))
+-- type MerkleMap a = Fix (Cofree (MerkleTree (Digest a, Digest a)) (Digest a))
+
+-- the cofree bits are redundant when the data is viewed as a total / whole instance,
+-- but attaching the intermediate hashes becomes necessary when dealing with
+-- fragmented data:
+-- Note that
+--      Cofree merkleEmpty MerkleEmpty
+-- and
+--      Cofree (merkleAppend a b) (MerkleNode (Cofree a ...) (Cofree b ...))
+-- and for sets
+--      Cofree a (MerkleLeaf a)
+-- and for maps
+--      Cofree (merkleAppend k v) (MerkleLeaf (k,v))
+
 -- Helpers
 
 partitionBit :: (Bits (Digest a)) => Int -> [Digest a] -> ([Digest a],[Digest a])
 partitionBit n = List.partition (not . (`testBit` n))
+-- partitionBit = partitionBitOn id
 
 partitionBitMap :: (Bits (Digest a)) => Int -> [(Digest a,b)] -> ([(Digest a,b)],[(Digest a,b)])
 partitionBitMap n = List.partition (\ (k,_) -> not (testBit k n))
+-- partitionBitMap = partitionBitOn fst
+
+partitionBitOn :: (Bits b) => (a -> b) -> Int -> [a] -> ([a],[a])
+partitionBitOn f n = List.partition (not . (`testBit` n) . f)
 
 both :: (Bifunctor f) => (a -> b) -> f a a -> f b b
 both f = bimap f f
