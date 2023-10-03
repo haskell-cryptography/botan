@@ -60,9 +60,13 @@ bcryptGenerateIO password rng factor = asCString password $ \ passwordPtr -> do
             -}
             -- NOTE: We need to poke the length into the sz ptr to avoid
             -- the insufficient buffer space exception from a check that
-            -- was sometimes being optimized out, causing our problems
-            poke szPtr 256
-            ByteString.createAndTrim 256 $ \ outPtr -> do
+            -- was sometimes being optimized out, causing our problems and
+            -- we don't need to peek it because bcrypt is a null-terminated
+            -- cstring
+            -- NOTE: bcrypt max pass size should be < 72 in general, we'll
+            -- do 80 for safety
+            poke szPtr 80
+            allocaBytes 80 $ \ outPtr -> do
                 throwBotanIfNegative_ $ botan_bcrypt_generate
                     outPtr
                     szPtr
@@ -70,7 +74,7 @@ bcryptGenerateIO password rng factor = asCString password $ \ passwordPtr -> do
                     rngPtr
                     (fromIntegral factor)
                     0   -- "@param flags should be 0 in current API revision, all other uses are reserved"
-                fromIntegral <$> peek szPtr
+                ByteString.packCString (castPtr outPtr)
 
 -- |Check a previously created password hash
 --
