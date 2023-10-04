@@ -30,8 +30,8 @@ withKeyAgreementPtr :: KeyAgreementCtx -> (KeyAgreementPtr -> IO a) -> IO a
 withKeyAgreementPtr = withForeignPtr . getKeyAgreementForeignPtr
 
 -- NOTE: Silently uses the system RNG
-keyAgreementCtxCreateIO :: PrivKey -> KDFName -> IO KeyAgreementCtx
-keyAgreementCtxCreateIO sk algo = alloca $ \ outPtr -> do
+keyAgreementCreate :: PrivKey -> KDFName -> IO KeyAgreementCtx
+keyAgreementCreate sk algo = alloca $ \ outPtr -> do
     withPrivKeyPtr sk $ \ skPtr -> do
         asCString algo $ \ algoPtr -> do
             throwBotanIfNegative_ $ botan_pk_op_key_agreement_create
@@ -43,14 +43,14 @@ keyAgreementCtxCreateIO sk algo = alloca $ \ outPtr -> do
             foreignPtr <- newForeignPtr botan_pk_op_key_agreement_destroy out
             return $ MkKeyAgreementCtx foreignPtr
 
-keyAgreementCtxDestroyIO :: KeyAgreementCtx -> IO ()
-keyAgreementCtxDestroyIO ka = finalizeForeignPtr (getKeyAgreementForeignPtr ka)
+keyAgreementDestroy :: KeyAgreementCtx -> IO ()
+keyAgreementDestroy ka = finalizeForeignPtr (getKeyAgreementForeignPtr ka)
 
-withKeyAgreementCtxCreateIO :: PrivKey -> KDFName -> (KeyAgreementCtx -> IO a) -> IO a
-withKeyAgreementCtxCreateIO = mkWithTemp2 keyAgreementCtxCreateIO keyAgreementCtxDestroyIO
+withKeyAgreementCreate :: PrivKey -> KDFName -> (KeyAgreementCtx -> IO a) -> IO a
+withKeyAgreementCreate = mkWithTemp2 keyAgreementCreate keyAgreementDestroy
 
 -- NOTE: I do not know if this provides a different functionality than just being
---  an alias for botan_privkey_export_pubkey / privKeyExportPubKeyIO
+--  an alias for botan_privkey_export_pubkey / privKeyExportPubKey
 --  Observe that it *does* just take a privkey, instead of a keyagreement
 --  It may simply be here for convenience.
 {-
@@ -67,19 +67,19 @@ int botan_pk_op_key_agreement_view_public(botan_privkey_t key, botan_view_ctx ct
    });
 }
 -}
-keyAgreementExportPublicIO :: PrivKey -> IO ByteString
-keyAgreementExportPublicIO sk = withPrivKeyPtr sk $ \ skPtr -> do
+keyAgreementExportPublic :: PrivKey -> IO ByteString
+keyAgreementExportPublic sk = withPrivKeyPtr sk $ \ skPtr -> do
     allocBytesQuerying $ \ outPtr outLen -> botan_pk_op_key_agreement_export_public
         skPtr
         outPtr
         outLen
 
-keyAgreementCtxSizeIO :: KeyAgreementCtx -> IO Int
-keyAgreementCtxSizeIO = mkGetSize withKeyAgreementPtr botan_pk_op_key_agreement_size
+keyAgreementSize :: KeyAgreementCtx -> IO Int
+keyAgreementSize = mkGetSize withKeyAgreementPtr botan_pk_op_key_agreement_size
 
-keyAgreementIO :: KeyAgreementCtx -> ByteString -> ByteString -> IO ByteString
+keyAgreement :: KeyAgreementCtx -> ByteString -> ByteString -> IO ByteString
 -- NOTE: This is not just causing a lock, its not interruptable.
--- keyAgreementIO ka key salt = withKeyAgreementPtr ka $ \ kaPtr -> do
+-- keyAgreement ka key salt = withKeyAgreementPtr ka $ \ kaPtr -> do
 --     asBytesLen key $ \ keyPtr keyLen -> do
 --         asBytesLen salt $ \ saltPtr saltLen -> do
 --             allocBytesQuerying $ \ outPtr outLen -> botan_pk_op_key_agreement
@@ -91,10 +91,10 @@ keyAgreementIO :: KeyAgreementCtx -> ByteString -> ByteString -> IO ByteString
 --                 saltPtr
 --                 saltLen
 -- This also hangs :|
-keyAgreementIO ka key salt = withKeyAgreementPtr ka $ \ kaPtr -> do
+keyAgreement ka key salt = withKeyAgreementPtr ka $ \ kaPtr -> do
     asBytesLen key $ \ keyPtr keyLen -> do
         asBytesLen salt $ \ saltPtr saltLen -> do
-            outSz <- keyAgreementCtxSizeIO ka
+            outSz <- keyAgreementSize ka
             alloca $ \ szPtr -> do
                 print "about to call FFI"
                 out <- allocBytes outSz $ \ outPtr -> do

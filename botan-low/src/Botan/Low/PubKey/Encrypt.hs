@@ -29,8 +29,8 @@ newtype EncryptCtx = MkEncryptCtx { getEncryptForeignPtr :: ForeignPtr EncryptSt
 withEncryptPtr :: EncryptCtx -> (EncryptPtr -> IO a) -> IO a
 withEncryptPtr = withForeignPtr . getEncryptForeignPtr
 
-encryptCtxCreateIO :: PubKey -> PKPaddingName -> IO EncryptCtx
-encryptCtxCreateIO pk padding = alloca $ \ outPtr -> do
+encryptCreate :: PubKey -> PKPaddingName -> IO EncryptCtx
+encryptCreate pk padding = alloca $ \ outPtr -> do
     withPubKeyPtr pk $ \ pkPtr -> do
         asCString padding $ \ paddingPtr -> do
             throwBotanIfNegative_ $ botan_pk_op_encrypt_create
@@ -42,18 +42,18 @@ encryptCtxCreateIO pk padding = alloca $ \ outPtr -> do
             foreignPtr <- newForeignPtr botan_pk_op_encrypt_destroy out
             return $ MkEncryptCtx foreignPtr
 
-withEncryptCtxIO :: PubKey -> PKPaddingName -> (EncryptCtx -> IO a) -> IO a
-withEncryptCtxIO = mkWithTemp2 encryptCtxCreateIO encryptCtxDestroyIO
+withEncryptCtx :: PubKey -> PKPaddingName -> (EncryptCtx -> IO a) -> IO a
+withEncryptCtx = mkWithTemp2 encryptCreate encryptDestroy
 
-encryptCtxDestroyIO :: EncryptCtx -> IO ()
-encryptCtxDestroyIO encrypt = finalizeForeignPtr (getEncryptForeignPtr encrypt)
+encryptDestroy :: EncryptCtx -> IO ()
+encryptDestroy encrypt = finalizeForeignPtr (getEncryptForeignPtr encrypt)
 
-encryptCtxOutputLengthIO :: EncryptCtx -> Int -> IO Int
-encryptCtxOutputLengthIO = mkGetSize_csize withEncryptPtr botan_pk_op_encrypt_output_length
+encryptOutputLength :: EncryptCtx -> Int -> IO Int
+encryptOutputLength = mkGetSize_csize withEncryptPtr botan_pk_op_encrypt_output_length
 
 -- NOTE: This properly takes advantage of szPtr, queries the buffer size - do this elsewhere
-encryptIO :: EncryptCtx -> RNGCtx -> ByteString -> IO ByteString
-encryptIO enc rng ptext = withEncryptPtr enc $ \ encPtr -> do
+encrypt :: EncryptCtx -> RNGCtx -> ByteString -> IO ByteString
+encrypt enc rng ptext = withEncryptPtr enc $ \ encPtr -> do
     withRNGPtr rng $ \ rngPtr -> do
         asBytesLen ptext $ \ ptextPtr ptextLen -> do
             allocBytesQuerying $ \ outPtr szPtr -> botan_pk_op_encrypt

@@ -25,8 +25,8 @@ newtype RNGCtx = MkRandomCtx { getRNGForeignPtr :: ForeignPtr RNGStruct }
 withRNGPtr :: RNGCtx -> (RNGPtr -> IO a) -> IO a
 withRNGPtr = withForeignPtr . getRNGForeignPtr
 
-rngCtxInitNameIO :: RNGName -> IO RNGCtx
-rngCtxInitNameIO name = do
+rngInit :: RNGName -> IO RNGCtx
+rngInit name = do
     alloca $ \ outPtr -> do
         asCString name $ \ namePtr -> do 
             throwBotanIfNegative_ $ botan_rng_init outPtr namePtr
@@ -34,35 +34,35 @@ rngCtxInitNameIO name = do
         macForeignPtr <- newForeignPtr botan_rng_destroy out
         return $ MkRandomCtx macForeignPtr
 
-withRNGCtxInitNameIO :: RNGName -> (RNGCtx -> IO a) -> IO a
-withRNGCtxInitNameIO = mkWithTemp1 rngCtxInitNameIO rngCtxDestroyIO
+withRNGInit :: RNGName -> (RNGCtx -> IO a) -> IO a
+withRNGInit = mkWithTemp1 rngInit rngDestroy
 
-rngCtxDestroyIO :: RNGCtx -> IO ()
-rngCtxDestroyIO rng = finalizeForeignPtr (getRNGForeignPtr rng)
+rngDestroy :: RNGCtx -> IO ()
+rngDestroy rng = finalizeForeignPtr (getRNGForeignPtr rng)
 
-rngCtxGetIO :: Int -> RNGCtx -> IO ByteString
-rngCtxGetIO len rng = do
+rngGet :: Int -> RNGCtx -> IO ByteString
+rngGet len rng = do
     withRNGPtr rng $ \ rngPtr -> do
         allocBytes len $ \ bytesPtr -> do
             throwBotanIfNegative_ $ botan_rng_get rngPtr bytesPtr (fromIntegral len)
 
-systemRNGGetIO :: Int -> IO ByteString
-systemRNGGetIO len = allocBytes len $ \ bytesPtr -> do
+systemRNGGet :: Int -> IO ByteString
+systemRNGGet len = allocBytes len $ \ bytesPtr -> do
     throwBotanIfNegative_ $ botan_system_rng_get bytesPtr (fromIntegral len)
 
-rngCtxReseedIO :: RNGCtx -> Int -> IO ()
-rngCtxReseedIO rng bits = do
+rngReseed :: RNGCtx -> Int -> IO ()
+rngReseed rng bits = do
     withRNGPtr rng $ \ rngPtr -> do
         throwBotanIfNegative_ $ botan_rng_reseed rngPtr (fromIntegral bits)
 
-rngCtxReseedFromRNGCtxIO :: RNGCtx -> RNGCtx -> Int -> IO ()
-rngCtxReseedFromRNGCtxIO rng source bits = do
+rngReseedFromRNGCtx :: RNGCtx -> RNGCtx -> Int -> IO ()
+rngReseedFromRNGCtx rng source bits = do
     withRNGPtr rng $ \ rngPtr -> do
         withRNGPtr source $ \ sourcePtr -> do
             throwBotanIfNegative_ $ botan_rng_reseed_from_rng rngPtr sourcePtr (fromIntegral bits)
 
-rngCtxAddEntropyIO :: RNGCtx -> ByteString -> IO ()
-rngCtxAddEntropyIO rng bytes = do
+rngAddEntropy :: RNGCtx -> ByteString -> IO ()
+rngAddEntropy rng bytes = do
     withRNGPtr rng $ \ rngPtr -> do
         asBytesLen bytes $ \ bytesPtr bytesLen -> do
             throwBotanIfNegative_ $ botan_rng_add_entropy rngPtr bytesPtr bytesLen

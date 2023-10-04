@@ -30,8 +30,8 @@ newtype DecryptCtx = MkDecryptCtx { getDecryptForeignPtr :: ForeignPtr DecryptSt
 withDecryptPtr :: DecryptCtx -> (DecryptPtr -> IO a) -> IO a
 withDecryptPtr = withForeignPtr . getDecryptForeignPtr
 
-decryptCtxCreateIO :: PrivKey -> PKPaddingName -> IO DecryptCtx
-decryptCtxCreateIO sk padding = alloca $ \ outPtr -> do
+decryptCreate :: PrivKey -> PKPaddingName -> IO DecryptCtx
+decryptCreate sk padding = alloca $ \ outPtr -> do
     withPrivKeyPtr sk $ \ skPtr -> do
         asCString padding $ \ paddingPtr -> do
             throwBotanIfNegative_ $ botan_pk_op_decrypt_create
@@ -43,17 +43,17 @@ decryptCtxCreateIO sk padding = alloca $ \ outPtr -> do
             foreignPtr <- newForeignPtr botan_pk_op_decrypt_destroy out
             return $ MkDecryptCtx foreignPtr
 
-withDecryptCtxCreateIO :: PrivKey -> PKPaddingName -> (DecryptCtx -> IO a) -> IO a
-withDecryptCtxCreateIO = mkWithTemp2 decryptCtxCreateIO decryptCtxDestroyIO
+withDecryptCreate :: PrivKey -> PKPaddingName -> (DecryptCtx -> IO a) -> IO a
+withDecryptCreate = mkWithTemp2 decryptCreate decryptDestroy
 
-decryptCtxDestroyIO :: DecryptCtx -> IO ()
-decryptCtxDestroyIO decrypt = finalizeForeignPtr (getDecryptForeignPtr decrypt)
+decryptDestroy :: DecryptCtx -> IO ()
+decryptDestroy decrypt = finalizeForeignPtr (getDecryptForeignPtr decrypt)
 
-decryptCtxOutputLengthIO :: DecryptCtx -> Int -> IO Int
-decryptCtxOutputLengthIO = mkGetSize_csize withDecryptPtr botan_pk_op_decrypt_output_length
+decryptOutputLength :: DecryptCtx -> Int -> IO Int
+decryptOutputLength = mkGetSize_csize withDecryptPtr botan_pk_op_decrypt_output_length
 
-decryptIO :: DecryptCtx -> ByteString -> IO ByteString
-decryptIO dec ctext = withDecryptPtr dec $ \ decPtr -> do
+decrypt :: DecryptCtx -> ByteString -> IO ByteString
+decrypt dec ctext = withDecryptPtr dec $ \ decPtr -> do
     asBytesLen ctext $ \ ctextPtr ctextLen -> do
         allocBytesQuerying $ \ outPtr szPtr -> botan_pk_op_decrypt
             decPtr

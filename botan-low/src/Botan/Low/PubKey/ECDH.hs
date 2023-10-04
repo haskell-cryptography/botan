@@ -7,8 +7,8 @@ import Botan.Low.MPI
 import Botan.Low.Prelude
 import Botan.Low.PubKey
 
-privKeyLoadECDHIO :: MP -> ByteString -> IO PrivKey
-privKeyLoadECDHIO = mkPrivKeyLoad1_name botan_privkey_load_ecdh
+privKeyLoadECDH :: MP -> ByteString -> IO PrivKey
+privKeyLoadECDH = mkPrivKeyLoad1_name botan_privkey_load_ecdh
 
-pubKeyLoadECDHIO :: MP -> MP -> ByteString -> IO PubKey
-pubKeyLoadECDHIO = mkPubKeyLoad2_name botan_pubkey_load_ecdh
+pubKeyLoadECDH :: MP -> MP -> ByteString -> IO PubKey
+pubKeyLoadECDH = mkPubKeyLoad2_name botan_pubkey_load_ecdh

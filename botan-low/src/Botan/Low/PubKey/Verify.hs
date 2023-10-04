@@ -33,8 +33,8 @@ withVerifyPtr = withForeignPtr . getVerifyForeignPtr
 
 type VerifyAlgo = ByteString
 
-verifyCtxCreateIO :: PubKey -> SignAlgoName -> SigningFlags -> IO VerifyCtx
-verifyCtxCreateIO pk algo flags = alloca $ \ outPtr -> do
+verifyCreate :: PubKey -> SignAlgoName -> SigningFlags -> IO VerifyCtx
+verifyCreate pk algo flags = alloca $ \ outPtr -> do
     withPubKeyPtr pk $ \ pkPtr -> do
         asCString algo $ \ algoPtr -> do
             throwBotanIfNegative_ $ botan_pk_op_verify_create outPtr pkPtr algoPtr flags
@@ -42,18 +42,18 @@ verifyCtxCreateIO pk algo flags = alloca $ \ outPtr -> do
             foreignPtr <- newForeignPtr botan_pk_op_verify_destroy out
             return $ MkVerifyCtx foreignPtr
 
-withVerifyCtxCreateIO :: PubKey -> SignAlgoName -> SigningFlags -> (VerifyCtx -> IO a) -> IO a
-withVerifyCtxCreateIO = mkWithTemp3 verifyCtxCreateIO verifyCtxDestroyIO
+withVerifyCreate :: PubKey -> SignAlgoName -> SigningFlags -> (VerifyCtx -> IO a) -> IO a
+withVerifyCreate = mkWithTemp3 verifyCreate verifyDestroy
 
-verifyCtxDestroyIO :: VerifyCtx -> IO ()
-verifyCtxDestroyIO verify = finalizeForeignPtr (getVerifyForeignPtr verify)
+verifyDestroy :: VerifyCtx -> IO ()
+verifyDestroy verify = finalizeForeignPtr (getVerifyForeignPtr verify)
 
-verifyCtxUpdateIO :: VerifyCtx -> ByteString -> IO ()
-verifyCtxUpdateIO = mkSetBytesLen withVerifyPtr botan_pk_op_verify_update
+verifyUpdate :: VerifyCtx -> ByteString -> IO ()
+verifyUpdate = mkSetBytesLen withVerifyPtr botan_pk_op_verify_update
 
 -- TODO: Signature type
 -- NOTE: Ignores szPtr result
-verifyCtxFinishIO :: VerifyCtx -> ByteString -> IO Bool
-verifyCtxFinishIO verify sig = withVerifyPtr verify $ \ verifyPtr -> do
+verifyFinish :: VerifyCtx -> ByteString -> IO Bool
+verifyFinish verify sig = withVerifyPtr verify $ \ verifyPtr -> do
     asBytesLen sig $ \ sigPtr sigLen -> do
         throwBotanCatchingSuccess $ botan_pk_op_verify_finish verifyPtr sigPtr sigLen

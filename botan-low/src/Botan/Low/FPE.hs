@@ -71,8 +71,8 @@ withFPEPtr = withForeignPtr . getFPEForeignPtr
 -- pattern FPEFE1CompatMode :: FPEFlags
 -- pattern FPEFE1CompatMode = BOTAN_FPE_FLAG_FE1_COMPAT_MODE
 
-fpeCtxInitFE1IO :: MP -> ByteString -> Int -> FPEFlags -> IO FPECtx
-fpeCtxInitFE1IO n key rounds flags = withMPPtr n $ \ nPtr -> do
+fpeInitFE1 :: MP -> ByteString -> Int -> FPEFlags -> IO FPECtx
+fpeInitFE1 n key rounds flags = withMPPtr n $ \ nPtr -> do
     asBytesLen key $ \ keyPtr keyLen -> do
         alloca $ \ outPtr -> do
             throwBotanIfNegative_ $ botan_fpe_fe1_init outPtr nPtr keyPtr keyLen (fromIntegral rounds) flags
@@ -80,22 +80,22 @@ fpeCtxInitFE1IO n key rounds flags = withMPPtr n $ \ nPtr -> do
             foreignPtr <- newForeignPtr botan_fpe_destroy out
             return $ MkFPECtx foreignPtr
 
-withFPECtxInitFE1IO :: MP -> ByteString -> Int -> FPEFlags -> (FPECtx -> IO a) -> IO a
-withFPECtxInitFE1IO = mkWithTemp4 fpeCtxInitFE1IO fpeCtxDestroyIO
+withFPEInitFE1 :: MP -> ByteString -> Int -> FPEFlags -> (FPECtx -> IO a) -> IO a
+withFPEInitFE1 = mkWithTemp4 fpeInitFE1 fpeDestroy
 
-fpeCtxDestroyIO :: FPECtx -> IO ()
-fpeCtxDestroyIO fpe = finalizeForeignPtr (getFPEForeignPtr fpe)
+fpeDestroy :: FPECtx -> IO ()
+fpeDestroy fpe = finalizeForeignPtr (getFPEForeignPtr fpe)
 
 -- -- NOTE: Referentially transparent, move to botan
 -- fpeEncrypt :: FPECtx -> MP -> ByteString -> IO MP
 -- fpeEncrypt fpe mp tweak = do
 --     mp' <- mpCopy mp
---     fpeEncryptIO fpe mp' tweak
+--     fpeEncrypt fpe mp' tweak
 --     return mp 
 
 -- NOTE: Mutates the MP
-fpeCtxEncryptIO :: FPECtx -> MP -> ByteString -> IO ()
-fpeCtxEncryptIO fpe mp tweak = do
+fpeEncrypt :: FPECtx -> MP -> ByteString -> IO ()
+fpeEncrypt fpe mp tweak = do
     withFPEPtr fpe $ \ fpePtr -> do
         withMPPtr mp $ \ mpPtr -> do
             asBytesLen tweak $ \ tweakPtr tweakLen -> do
@@ -105,12 +105,12 @@ fpeCtxEncryptIO fpe mp tweak = do
 -- fpeDecrypt :: FPECtx -> MP -> ByteString -> IO MP
 -- fpeDecrypt fpe mp tweak = do
 --     mp' <- mpCopy mp
---     fpeDecryptIO fpe mp' tweak
+--     fpeDecrypt fpe mp' tweak
 --     return mp 
 
 -- NOTE: Mutates the MP
-fpeCtxDecryptIO :: FPECtx -> MP -> ByteString -> IO ()
-fpeCtxDecryptIO fpe mp tweak = do
+fpeDecrypt :: FPECtx -> MP -> ByteString -> IO ()
+fpeDecrypt fpe mp tweak = do
     withFPEPtr fpe $ \ fpePtr -> do
         withMPPtr mp $ \ mpPtr -> do
             asBytesLen tweak $ \ tweakPtr tweakLen -> do

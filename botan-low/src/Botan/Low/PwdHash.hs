@@ -26,8 +26,8 @@ type PBKDFName = ByteString
 
 -- NOTE: Should passphrase be Text or ByteString? Text is implied by use of const char*
 --  as well as the non-null context implied by passphrase_len == 0. ByteString for now.
-pwdhashIO :: PBKDFName -> Int -> Int -> Int -> Int -> ByteString -> ByteString -> IO ByteString
-pwdhashIO algo p1 p2 p3 outLen passphrase salt = allocBytes outLen $ \ outPtr -> do
+pwdhash :: PBKDFName -> Int -> Int -> Int -> Int -> ByteString -> ByteString -> IO ByteString
+pwdhash algo p1 p2 p3 outLen passphrase salt = allocBytes outLen $ \ outPtr -> do
     asCString algo $ \ algoPtr -> do
         asCStringLen passphrase $ \ passphrasePtr passphraseLen -> do
             asBytesLen salt $ \ saltPtr saltLen -> do
@@ -43,8 +43,8 @@ pwdhashIO algo p1 p2 p3 outLen passphrase salt = allocBytes outLen $ \ outPtr ->
                     saltPtr
                     saltLen
 
-pwdhashTimedIO :: PBKDFName -> Int -> Int -> ByteString -> ByteString -> IO (Int,Int,Int,ByteString)
-pwdhashTimedIO algo msec outLen passphrase salt = alloca $ \ p1Ptr -> alloca $ \ p2Ptr -> alloca $ \ p3Ptr -> do
+pwdhashTimed :: PBKDFName -> Int -> Int -> ByteString -> ByteString -> IO (Int,Int,Int,ByteString)
+pwdhashTimed algo msec outLen passphrase salt = alloca $ \ p1Ptr -> alloca $ \ p2Ptr -> alloca $ \ p3Ptr -> do
     out <- allocBytes outLen $ \ outPtr -> do
         asCString algo $ \ algoPtr -> do
             asCStringLen passphrase $ \ passphrasePtr passphraseLen -> do

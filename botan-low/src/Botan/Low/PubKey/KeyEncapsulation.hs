@@ -38,8 +38,8 @@ newtype KEMEncryptCtx = MkKEMEncryptCtx { getKEMEncryptForeignPtr :: ForeignPtr 
 withKEMEncryptPtr :: KEMEncryptCtx -> (KEMEncryptPtr -> IO a) -> IO a
 withKEMEncryptPtr = withForeignPtr . getKEMEncryptForeignPtr
 
-kemEncryptCtxCreateIO :: PubKey -> KDFName -> IO KEMEncryptCtx
-kemEncryptCtxCreateIO pk algo = alloca $ \ outPtr -> do
+kemEncryptCreate :: PubKey -> KDFName -> IO KEMEncryptCtx
+kemEncryptCreate pk algo = alloca $ \ outPtr -> do
     withPubKeyPtr pk $ \ pkPtr -> do
         asCString algo $ \ algoPtr -> do
             throwBotanIfNegative $ botan_pk_op_kem_encrypt_create outPtr pkPtr algoPtr
@@ -47,23 +47,23 @@ kemEncryptCtxCreateIO pk algo = alloca $ \ outPtr -> do
             foreignPtr <- newForeignPtr botan_pk_op_kem_encrypt_destroy out
             return $ MkKEMEncryptCtx foreignPtr
 
-withKEMEncryptCtxCreateIO :: PubKey -> KDFName -> (KEMEncryptCtx -> IO a) -> IO a
-withKEMEncryptCtxCreateIO = mkWithTemp2 kemEncryptCtxCreateIO kemEncryptCtxDestroyIO
+withKEMEncryptCreate :: PubKey -> KDFName -> (KEMEncryptCtx -> IO a) -> IO a
+withKEMEncryptCreate = mkWithTemp2 kemEncryptCreate kemEncryptDestroy
 
-kemEncryptCtxDestroyIO :: KEMEncryptCtx -> IO ()
-kemEncryptCtxDestroyIO keEncrypt = finalizeForeignPtr (getKEMEncryptForeignPtr keEncrypt)
+kemEncryptDestroy :: KEMEncryptCtx -> IO ()
+kemEncryptDestroy keEncrypt = finalizeForeignPtr (getKEMEncryptForeignPtr keEncrypt)
 
-kemEncryptCtxSharedKeyLengthIO :: KEMEncryptCtx -> Int -> IO Int
-kemEncryptCtxSharedKeyLengthIO = mkGetSize_csize withKEMEncryptPtr botan_pk_op_kem_encrypt_shared_key_length
+kemEncryptSharedKeyLength :: KEMEncryptCtx -> Int -> IO Int
+kemEncryptSharedKeyLength = mkGetSize_csize withKEMEncryptPtr botan_pk_op_kem_encrypt_shared_key_length
 
-kemEncryptCtxEncapsulatedKeyLengthIO :: KEMEncryptCtx -> IO Int
-kemEncryptCtxEncapsulatedKeyLengthIO = mkGetSize withKEMEncryptPtr botan_pk_op_kem_encrypt_encapsulated_key_length
+kemEncryptEncapsulatedKeyLength :: KEMEncryptCtx -> IO Int
+kemEncryptEncapsulatedKeyLength = mkGetSize withKEMEncryptPtr botan_pk_op_kem_encrypt_encapsulated_key_length
 
 -- NOTE: Awkward because of double-query and returning double bytestrings
 --  Cannot use allocBytesQuerying because of double-return
 -- NOTE: Returns (SharedKey, EncapsulatedKey)
-kemEncryptCtxCreateSharedKeyIO :: KEMEncryptCtx -> RNGCtx -> ByteString -> Int -> IO (ByteString,ByteString)
-kemEncryptCtxCreateSharedKeyIO ke rng salt desiredLen = withKEMEncryptPtr ke $ \ kePtr -> do
+kemEncryptCreateSharedKey :: KEMEncryptCtx -> RNGCtx -> ByteString -> Int -> IO (ByteString,ByteString)
+kemEncryptCreateSharedKey ke rng salt desiredLen = withKEMEncryptPtr ke $ \ kePtr -> do
     withRNGPtr rng $ \ rngPtr -> do
         asBytesLen salt $ \ saltPtr saltLen -> do
             alloca $ \ sharedSzPtr -> do 
@@ -101,8 +101,8 @@ newtype KEMDecryptCtx = MkKEMDecryptCtx { getKEMDecryptForeignPtr :: ForeignPtr 
 withKEMDecryptPtr :: KEMDecryptCtx -> (KEMDecryptPtr -> IO a) -> IO a
 withKEMDecryptPtr = withForeignPtr . getKEMDecryptForeignPtr
 
-kemDecryptCtxCreateIO :: PrivKey -> KDFName -> IO KEMDecryptCtx
-kemDecryptCtxCreateIO sk algo = alloca $ \ outPtr -> do
+kemDecryptCreate :: PrivKey -> KDFName -> IO KEMDecryptCtx
+kemDecryptCreate sk algo = alloca $ \ outPtr -> do
     withPrivKeyPtr sk $ \ skPtr -> do
         asCString algo $ \ algoPtr -> do
             throwBotanIfNegative $ botan_pk_op_kem_decrypt_create outPtr skPtr algoPtr
@@ -110,17 +110,17 @@ kemDecryptCtxCreateIO sk algo = alloca $ \ outPtr -> do
             foreignPtr <- newForeignPtr botan_pk_op_kem_decrypt_destroy out
             return $ MkKEMDecryptCtx foreignPtr
 
-withKEMDecryptCtxCreateIO :: PrivKey -> KDFName -> (KEMDecryptCtx -> IO a) -> IO a
-withKEMDecryptCtxCreateIO = mkWithTemp2 kemDecryptCtxCreateIO kemDecryptCtxDestroyIO
+withKEMDecryptCreate :: PrivKey -> KDFName -> (KEMDecryptCtx -> IO a) -> IO a
+withKEMDecryptCreate = mkWithTemp2 kemDecryptCreate kemDecryptDestroy
 
-kemDecryptCtxDestroyIO :: KEMDecryptCtx -> IO ()
-kemDecryptCtxDestroyIO keDecrypt = finalizeForeignPtr (getKEMDecryptForeignPtr keDecrypt)
+kemDecryptDestroy :: KEMDecryptCtx -> IO ()
+kemDecryptDestroy keDecrypt = finalizeForeignPtr (getKEMDecryptForeignPtr keDecrypt)
 
-kemDecryptCtxSharedKeyLengthIO :: KEMDecryptCtx -> Int -> IO Int
-kemDecryptCtxSharedKeyLengthIO = mkGetSize_csize withKEMDecryptPtr botan_pk_op_kem_decrypt_shared_key_length
+kemDecryptSharedKeyLength :: KEMDecryptCtx -> Int -> IO Int
+kemDecryptSharedKeyLength = mkGetSize_csize withKEMDecryptPtr botan_pk_op_kem_decrypt_shared_key_length
 
-kemDecryptCtxSharedKeyIO :: KEMDecryptCtx -> ByteString -> ByteString -> Int -> IO ByteString
-kemDecryptCtxSharedKeyIO kd salt encap desiredLen = withKEMDecryptPtr kd $ \ kdPtr -> do
+kemDecryptSharedKey :: KEMDecryptCtx -> ByteString -> ByteString -> Int -> IO ByteString
+kemDecryptSharedKey kd salt encap desiredLen = withKEMDecryptPtr kd $ \ kdPtr -> do
     asBytesLen salt $ \ saltPtr saltLen -> do
         asBytesLen encap $ \ encapPtr encapLen -> do
             allocBytesQuerying $ \ outPtr outLen -> botan_pk_op_kem_decrypt_shared_key

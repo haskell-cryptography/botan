@@ -36,8 +36,8 @@ pattern SigningNoFlags :: SigningFlags
 pattern SigningNoFlags = BOTAN_PUBKEY_SIGNING_FLAGS_NONE
 pattern SigningDERFormatSignature = BOTAN_PUBKEY_DER_FORMAT_SIGNATURE
 
-signCtxCreateIO :: PrivKey -> SignAlgoName -> SigningFlags -> IO SignCtx
-signCtxCreateIO sk algo flags = alloca $ \ outPtr -> do
+signCreate :: PrivKey -> SignAlgoName -> SigningFlags -> IO SignCtx
+signCreate sk algo flags = alloca $ \ outPtr -> do
     withPrivKeyPtr sk $ \ skPtr -> do
         asCString algo $ \ algoPtr -> do
             throwBotanIfNegative_ $ botan_pk_op_sign_create outPtr skPtr algoPtr flags
@@ -45,24 +45,24 @@ signCtxCreateIO sk algo flags = alloca $ \ outPtr -> do
             foreignPtr <- newForeignPtr botan_pk_op_sign_destroy out
             return $ MkSignCtx foreignPtr
 
-withSignCtxCreateIO :: PrivKey -> SignAlgoName -> SigningFlags -> (SignCtx -> IO a) -> IO a
-withSignCtxCreateIO = mkWithTemp3 signCtxCreateIO signCtxDestroyIO
+withSignCreate :: PrivKey -> SignAlgoName -> SigningFlags -> (SignCtx -> IO a) -> IO a
+withSignCreate = mkWithTemp3 signCreate signDestroy
 
-signCtxDestroyIO :: SignCtx -> IO ()
-signCtxDestroyIO sign = finalizeForeignPtr (getSignForeignPtr sign)
+signDestroy :: SignCtx -> IO ()
+signDestroy sign = finalizeForeignPtr (getSignForeignPtr sign)
 
-signCtxOutputLengthIO :: SignCtx -> IO Int
-signCtxOutputLengthIO = mkGetSize withSignPtr botan_pk_op_sign_output_length
+signOutputLength :: SignCtx -> IO Int
+signOutputLength = mkGetSize withSignPtr botan_pk_op_sign_output_length
 
-signCtxUpdateIO :: SignCtx -> ByteString -> IO ()
-signCtxUpdateIO = mkSetBytesLen withSignPtr botan_pk_op_sign_update
+signUpdate :: SignCtx -> ByteString -> IO ()
+signUpdate = mkSetBytesLen withSignPtr botan_pk_op_sign_update
 
 -- TODO: Signature type
 -- NOTE: Ignores szPtr result
-signCtxFinishIO :: SignCtx -> RNGCtx -> IO ByteString
-signCtxFinishIO sign rng = withSignPtr sign $ \ signPtr -> do
+signFinish :: SignCtx -> RNGCtx -> IO ByteString
+signFinish sign rng = withSignPtr sign $ \ signPtr -> do
     withRNGPtr rng $ \ rngPtr -> do
-        sz <- signCtxOutputLengthIO sign
+        sz <- signOutputLength sign
         allocBytes sz $ \ sigPtr -> do
             alloca $ \ szPtr -> do
                 throwBotanIfNegative_ $ botan_pk_op_sign_finish signPtr rngPtr sigPtr szPtr

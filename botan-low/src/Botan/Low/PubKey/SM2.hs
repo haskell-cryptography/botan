@@ -7,12 +7,12 @@ import Botan.Low.MPI
 import Botan.Low.Prelude
 import Botan.Low.PubKey
 
-privKeyLoadSM2IO :: MP -> ByteString -> IO PrivKey
-privKeyLoadSM2IO = mkPrivKeyLoad1_name botan_privkey_load_sm2
+privKeyLoadSM2 :: MP -> ByteString -> IO PrivKey
+privKeyLoadSM2 = mkPrivKeyLoad1_name botan_privkey_load_sm2
 
-pubKeyLoadSM2IO :: MP -> MP -> ByteString -> IO PubKey
-pubKeyLoadSM2IO = mkPubKeyLoad2_name botan_pubkey_load_sm2
+pubKeyLoadSM2 :: MP -> MP -> ByteString -> IO PubKey
+pubKeyLoadSM2 = mkPubKeyLoad2_name botan_pubkey_load_sm2
 
 -- TODO:
--- pubKeySM2ComputeZAIO :: ByteString -> ByteString -> PubKey -> IO ByteString
--- pubKeySM2omputeZAIO = undefined
+-- pubKeySM2ComputeZA :: ByteString -> ByteString -> PubKey -> IO ByteString
+-- pubKeySM2omputeZA = undefined

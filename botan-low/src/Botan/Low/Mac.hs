@@ -56,47 +56,48 @@ withMACPtr :: MACCtx -> (MACPtr -> IO a) -> IO a
 withMACPtr = withForeignPtr . getMACForeignPtr
 
 type MACName = ByteString
+-- TODO: Rename MACTag?
 type MACDigest = ByteString
 
-macCtxInitNameIO :: MACName -> IO MACCtx
-macCtxInitNameIO name = mkInit_name_flags MkMACCtx botan_mac_init botan_mac_destroy name 0
+macInit :: MACName -> IO MACCtx
+macInit name = mkInit_name_flags MkMACCtx botan_mac_init botan_mac_destroy name 0
 
-macCtxDestroyIO :: MACCtx -> IO ()
-macCtxDestroyIO mac = finalizeForeignPtr (getMACForeignPtr mac)
+macDestroy :: MACCtx -> IO ()
+macDestroy mac = finalizeForeignPtr (getMACForeignPtr mac)
 
-withMACCtxInitNameIO :: MACName -> (MACCtx -> IO a) -> IO a
-withMACCtxInitNameIO = mkWithTemp1 macCtxInitNameIO macCtxDestroyIO
+withMACInit :: MACName -> (MACCtx -> IO a) -> IO a
+withMACInit = mkWithTemp1 macInit macDestroy
 
-macCtxOutputLengthIO :: MACCtx -> IO Int
-macCtxOutputLengthIO = mkGetSize withMACPtr botan_mac_output_length
+macOutputLength :: MACCtx -> IO Int
+macOutputLength = mkGetSize withMACPtr botan_mac_output_length
 
-macCtxSetKeyIO :: MACCtx -> ByteString -> IO ()
-macCtxSetKeyIO = mkSetBytesLen withMACPtr botan_mac_set_key
+macSetKey :: MACCtx -> ByteString -> IO ()
+macSetKey = mkSetBytesLen withMACPtr botan_mac_set_key
 
 -- NOTE: Not all MACs require a nonce
 --  Eg, GMAC requires a nonce
 --  Other MACs do not require a nonce, and will cause a BadParameterException (-32)
-macCtxSetNonceIO :: MACCtx -> ByteString -> IO ()
-macCtxSetNonceIO = mkSetBytesLen withMACPtr botan_mac_set_nonce
+macSetNonce :: MACCtx -> ByteString -> IO ()
+macSetNonce = mkSetBytesLen withMACPtr botan_mac_set_nonce
 
-macCtxUpdateIO :: MACCtx -> ByteString -> IO ()
-macCtxUpdateIO = mkSetBytesLen withMACPtr botan_mac_update
+macUpdate :: MACCtx -> ByteString -> IO ()
+macUpdate = mkSetBytesLen withMACPtr botan_mac_update
 
 -- TODO: Digest type
-macCtxFinalIO :: MACCtx -> IO MACDigest
-macCtxFinalIO mac = withMACPtr mac $ \ macPtr -> do
+macFinal :: MACCtx -> IO MACDigest
+macFinal mac = withMACPtr mac $ \ macPtr -> do
     -- sz <- alloca $ \ szPtr -> do
     --     throwBotanIfNegative_ $ botan_mac_output_length macPtr szPtr
     --     fromIntegral <$> peek szPtr
-    sz <- macCtxOutputLengthIO mac
+    sz <- macOutputLength mac
     allocBytes sz $ \ bytesPtr -> do
         throwBotanIfNegative_ $ botan_mac_final macPtr bytesPtr
 
-macCtxClearIO :: MACCtx -> IO ()
-macCtxClearIO = mkAction withMACPtr botan_mac_clear
+macClear :: MACCtx -> IO ()
+macClear = mkAction withMACPtr botan_mac_clear
 
-macCtxNameIO :: MACCtx -> IO ByteString
-macCtxNameIO = mkGetCString withMACPtr botan_mac_name
+macName :: MACCtx -> IO ByteString
+macName = mkGetCString withMACPtr botan_mac_name
 
-macCtxGetKeyspecIO :: MACCtx -> IO (Int,Int,Int)
-macCtxGetKeyspecIO = mkGetSizes3 withMACPtr botan_mac_get_keyspec
+macGetKeyspec :: MACCtx -> IO (Int,Int,Int)
+macGetKeyspec = mkGetSizes3 withMACPtr botan_mac_get_keyspec

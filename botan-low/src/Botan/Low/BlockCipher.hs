@@ -32,49 +32,49 @@ withBlockCipherPtr = withForeignPtr . getBlockCipherForeignPtr
 type BlockCipherName = ByteString
 
 -- |Initialize a block cipher object
-blockCipherCtxInitNameIO
+blockCipherInit
     :: BlockCipherName -- ^ Cipher name
     -> IO BlockCipherCtx
-blockCipherCtxInitNameIO = mkInit_name MkBlockCipherCtx botan_block_cipher_init botan_block_cipher_destroy
+blockCipherInit = mkInit_name MkBlockCipherCtx botan_block_cipher_init botan_block_cipher_destroy
 
 
 -- |Destroy a block cipher object immediately
-blockCipherCtxDestroyIO
+blockCipherDestroy
     :: BlockCipherCtx  -- ^ The cipher object
     -> IO ()
-blockCipherCtxDestroyIO blockCipher = finalizeForeignPtr (getBlockCipherForeignPtr blockCipher)
+blockCipherDestroy blockCipher = finalizeForeignPtr (getBlockCipherForeignPtr blockCipher)
 
-withBlockCipherCtxInitNameIO :: BlockCipherName -> (BlockCipherCtx -> IO a) -> IO a
-withBlockCipherCtxInitNameIO = mkWithTemp1 blockCipherCtxInitNameIO blockCipherCtxDestroyIO
+withBlockCipherInit :: BlockCipherName -> (BlockCipherCtx -> IO a) -> IO a
+withBlockCipherInit = mkWithTemp1 blockCipherInit blockCipherDestroy
 
 -- |Reinitializes the block cipher
-blockCipherCtxClearIO
+blockCipherClear
     :: BlockCipherCtx  -- ^ The cipher object
     -> IO ()
-blockCipherCtxClearIO = mkAction withBlockCipherPtr botan_block_cipher_clear
+blockCipherClear = mkAction withBlockCipherPtr botan_block_cipher_clear
 
 -- | Set the key for a block cipher instance
 --
 -- Error if the key is not valid.
-blockCipherCtxSetKeyIO
+blockCipherSetKey
     :: BlockCipherCtx  -- ^ The cipher object
     -> ByteString   -- ^ A cipher key
     -> IO ()
-blockCipherCtxSetKeyIO = mkSetBytesLen withBlockCipherPtr botan_block_cipher_set_key
+blockCipherSetKey = mkSetBytesLen withBlockCipherPtr botan_block_cipher_set_key
 
 -- |Return the positive block size of this block cipher, or negative to
 --  indicate an error
-blockCipherCtxBlockSizeIO
+blockCipherBlockSize
     :: BlockCipherCtx  -- ^ The cipher object
     -> IO Int
-blockCipherCtxBlockSizeIO = mkGetIntCode withBlockCipherPtr botan_block_cipher_block_size
+blockCipherBlockSize = mkGetIntCode withBlockCipherPtr botan_block_cipher_block_size
 
 -- |Encrypt one or more blocks with the cipher
-blockCipherCtxEncryptBlocksIO
+blockCipherEncryptBlocks
     :: BlockCipherCtx  -- ^ The cipher object
     -> ByteString   -- ^ The plaintext
     -> IO ByteString
-blockCipherCtxEncryptBlocksIO blockCipher bytes = withBlockCipherPtr blockCipher $ \ blockCipherPtr -> do
+blockCipherEncryptBlocks blockCipher bytes = withBlockCipherPtr blockCipher $ \ blockCipherPtr -> do
     asBytesLen bytes $ \ bytesPtr bytesLen -> do
         allocBytes (fromIntegral bytesLen) $ \ destPtr -> do
             throwBotanIfNegative_ $ botan_block_cipher_encrypt_blocks
@@ -84,11 +84,11 @@ blockCipherCtxEncryptBlocksIO blockCipher bytes = withBlockCipherPtr blockCipher
                 bytesLen
 
 -- |Decrypt one or more blocks with the cipher
-blockCipherCtxDecryptBlocksIO
+blockCipherDecryptBlocks
     :: BlockCipherCtx  -- ^ The cipher object
     -> ByteString   -- ^ The ciphertext
     -> IO ByteString
-blockCipherCtxDecryptBlocksIO blockCipher bytes = withBlockCipherPtr blockCipher $ \ blockCipherPtr -> do
+blockCipherDecryptBlocks blockCipher bytes = withBlockCipherPtr blockCipher $ \ blockCipherPtr -> do
     asBytesLen bytes $ \ bytesPtr bytesLen -> do
         allocBytes (fromIntegral bytesLen) $ \ destPtr -> do
             throwBotanIfNegative_ $ botan_block_cipher_decrypt_blocks
@@ -98,15 +98,15 @@ blockCipherCtxDecryptBlocksIO blockCipher bytes = withBlockCipherPtr blockCipher
                 bytesLen
 
 -- |Get the name of this block cipher
-blockCipherCtxNameIO
+blockCipherName
     :: BlockCipherCtx  -- ^ The cipher object
     -> IO BlockCipherName
-blockCipherCtxNameIO = mkGetCString withBlockCipherPtr botan_block_cipher_name
+blockCipherName = mkGetCString withBlockCipherPtr botan_block_cipher_name
 
 -- |Get the key length limits of this block cipher
 --
 --  Returns the minimum, maximum, and modulo of valid keys.
-blockCipherCtxGetKeyspecIO
+blockCipherGetKeyspec
     :: BlockCipherCtx  -- ^ The cipher object
     -> IO (Int,Int,Int)
-blockCipherCtxGetKeyspecIO = mkGetSizes3 withBlockCipherPtr botan_block_cipher_get_keyspec
+blockCipherGetKeyspec = mkGetSizes3 withBlockCipherPtr botan_block_cipher_get_keyspec

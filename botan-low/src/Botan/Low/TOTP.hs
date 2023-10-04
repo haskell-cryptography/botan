@@ -60,8 +60,8 @@ withTOTPPtr :: TOTPCtx -> (TOTPPtr -> IO a) -> IO a
 withTOTPPtr = withForeignPtr . getTOTPForeignPtr
 
 -- NOTE: Digits should be 6-8
-totpCtxInitIO :: ByteString -> ByteString -> Int -> TOTPTimestep -> IO TOTPCtx
-totpCtxInitIO key algo digits timestep = alloca $ \ outPtr -> do
+totpInit :: ByteString -> ByteString -> Int -> TOTPTimestep -> IO TOTPCtx
+totpInit key algo digits timestep = alloca $ \ outPtr -> do
     asBytesLen key $ \ keyPtr keyLen -> do
         asCString algo $ \ algoPtr -> do
             throwBotanIfNegative $ botan_totp_init outPtr keyPtr keyLen algoPtr (fromIntegral digits) (fromIntegral timestep)
@@ -69,18 +69,18 @@ totpCtxInitIO key algo digits timestep = alloca $ \ outPtr -> do
             foreignPtr <- newForeignPtr botan_totp_destroy out
             return $ MkTOTPCtx foreignPtr
 
-totpCtxDestroyIO :: TOTPCtx -> IO ()
-totpCtxDestroyIO totp = finalizeForeignPtr (getTOTPForeignPtr totp)
+totpDestroy :: TOTPCtx -> IO ()
+totpDestroy totp = finalizeForeignPtr (getTOTPForeignPtr totp)
 
-withTOTPCtxInitIO :: ByteString -> ByteString -> Int -> TOTPTimestep -> (TOTPCtx -> IO a) -> IO a
-withTOTPCtxInitIO = mkWithTemp4 totpCtxInitIO totpCtxDestroyIO
+withTOTPInit :: ByteString -> ByteString -> Int -> TOTPTimestep -> (TOTPCtx -> IO a) -> IO a
+withTOTPInit = mkWithTemp4 totpInit totpDestroy
 
-totpCtxGenerateIO :: TOTPCtx -> TOTPTimestamp -> IO TOTPCode
-totpCtxGenerateIO totp timestamp = withTOTPPtr totp $ \ totpPtr -> do
+totpGenerate :: TOTPCtx -> TOTPTimestamp -> IO TOTPCode
+totpGenerate totp timestamp = withTOTPPtr totp $ \ totpPtr -> do
     alloca $ \ outPtr -> do
         throwBotanIfNegative $ botan_totp_generate totpPtr outPtr timestamp
         peek outPtr
 
-totpCtxCheckIO :: TOTPCtx -> TOTPCode -> TOTPTimestamp -> Int -> IO Bool
-totpCtxCheckIO totp code timestamp drift = withTOTPPtr totp $ \ totpPtr -> do
+totpCheck :: TOTPCtx -> TOTPCode -> TOTPTimestamp -> Int -> IO Bool
+totpCheck totp code timestamp drift = withTOTPPtr totp $ \ totpPtr -> do
     throwBotanCatchingSuccess $ botan_totp_check totpPtr code timestamp (fromIntegral drift)

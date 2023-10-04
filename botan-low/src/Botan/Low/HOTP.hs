@@ -59,8 +59,8 @@ withHOTPPtr :: HOTPCtx -> (HOTPPtr -> IO a) -> IO a
 withHOTPPtr = withForeignPtr . getHOTPForeignPtr
 
 -- NOTE: Digits should be 6-8
-hotpCtxInitIO :: ByteString -> ByteString -> Int -> IO HOTPCtx
-hotpCtxInitIO key algo digits = alloca $ \ outPtr -> do
+hotpInit :: ByteString -> ByteString -> Int -> IO HOTPCtx
+hotpInit key algo digits = alloca $ \ outPtr -> do
     asBytesLen key $ \ keyPtr keyLen -> do
         asCString algo $ \ algoPtr -> do
             throwBotanIfNegative $ botan_hotp_init outPtr keyPtr keyLen algoPtr (fromIntegral digits)
@@ -68,15 +68,15 @@ hotpCtxInitIO key algo digits = alloca $ \ outPtr -> do
             foreignPtr <- newForeignPtr botan_hotp_destroy out
             return $ MkHOTPCtx foreignPtr
 
-hotpCtxDestroyIO :: HOTPCtx -> IO ()
-hotpCtxDestroyIO hotp = finalizeForeignPtr (getHOTPForeignPtr hotp)
+hotpDestroy :: HOTPCtx -> IO ()
+hotpDestroy hotp = finalizeForeignPtr (getHOTPForeignPtr hotp)
 
-withHOTPCtxInitIO :: ByteString -> ByteString -> Int -> (HOTPCtx -> IO a) -> IO a
-withHOTPCtxInitIO = mkWithTemp3 hotpCtxInitIO hotpCtxDestroyIO
+withHOTPInit :: ByteString -> ByteString -> Int -> (HOTPCtx -> IO a) -> IO a
+withHOTPInit = mkWithTemp3 hotpInit hotpDestroy
 
 -- NOTE: User is responsible for incrementing counter at this level
-hotpCtxGenerateIO :: HOTPCtx -> HOTPCounter -> IO HOTPCode
-hotpCtxGenerateIO hotp counter = withHOTPPtr hotp $ \ hotpPtr -> do
+hotpGenerate :: HOTPCtx -> HOTPCounter -> IO HOTPCode
+hotpGenerate hotp counter = withHOTPPtr hotp $ \ hotpPtr -> do
     alloca $ \ outPtr -> do
         throwBotanIfNegative $ botan_hotp_generate hotpPtr outPtr counter
         peek outPtr
@@ -86,8 +86,8 @@ hotpCtxGenerateIO hotp counter = withHOTPPtr hotp $ \ hotpPtr -> do
 --      invalid then always returns (false,starting_counter), since the
 --      last successful authentication counter has not changed. ""
 -- NOTE: "Depending on the environment a resync_range of 3 to 10 might be appropriate."
-hotpCtxCheckIO :: HOTPCtx -> HOTPCode -> HOTPCounter -> Int -> IO (Bool, HOTPCounter)
-hotpCtxCheckIO hotp code counter resync = withHOTPPtr hotp $ \ hotpPtr -> do
+hotpCheck :: HOTPCtx -> HOTPCode -> HOTPCounter -> Int -> IO (Bool, HOTPCounter)
+hotpCheck hotp code counter resync = withHOTPPtr hotp $ \ hotpPtr -> do
     alloca $ \ outPtr -> do
         valid <- throwBotanCatchingSuccess $ botan_hotp_check hotpPtr outPtr code counter (fromIntegral resync)
         nextCounter <- peek outPtr

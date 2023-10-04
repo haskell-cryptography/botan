@@ -41,8 +41,8 @@ import Botan.Low.Prelude
 type KDFName = ByteString
 
 -- SEE: Algos here: https://botan.randombit.net/doxygen/classBotan_1_1KDF.html
-kdfIO :: KDFName -> Int -> ByteString -> ByteString -> ByteString -> IO ByteString
-kdfIO algo outLen secret salt label = allocBytes outLen $ \ outPtr -> do
+kdf :: KDFName -> Int -> ByteString -> ByteString -> ByteString -> IO ByteString
+kdf algo outLen secret salt label = allocBytes outLen $ \ outPtr -> do
     asCString algo $ \ algoPtr -> do
         asBytesLen secret $ \ secretPtr secretLen -> do
             asBytesLen salt $ \ saltPtr saltLen -> do

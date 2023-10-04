@@ -9,13 +9,13 @@ Portability : POSIX
 -}
 
 module Botan.Low.Version
-( botanFFIAPIVersionIO
-, botanFFISupportsAPIIO
-, botanVersionTextIO
-, botanVersionMajorIO
-, botanVersionMinorIO
-, botanVersionPatchIO
-, botanVersionDatestampIO
+( botanFFIAPIVersion
+, botanFFISupportsAPI
+, botanVersionText
+, botanVersionMajor
+, botanVersionMinor
+, botanVersionPatch
+, botanVersionDatestamp
 ) where
 
 import Data.Bool
@@ -36,12 +36,12 @@ import Botan.Low.Error (throwBotanCatchingSuccess)
 -- https://botan.randombit.net/handbook/api_ref/ffi.html#versioning
 
 -- | Returns the version of the currently supported FFI API. This is expressed in the form YYYYMMDD of the release date of this version of the API.
-botanFFIAPIVersionIO :: IO Int
-botanFFIAPIVersionIO = fromIntegral <$> botan_ffi_api_version
+botanFFIAPIVersion :: IO Int
+botanFFIAPIVersion = fromIntegral <$> botan_ffi_api_version
 
 -- | Returns 0 iff the FFI version specified is supported by this library. Otherwise returns -1. The expression botan_ffi_supports_api(botan_ffi_api_version()) will always evaluate to 0. A particular version of the library may also support other (older) versions of the FFI API.
-botanFFISupportsAPIIO :: Int -> IO Bool
-botanFFISupportsAPIIO version = do
+botanFFISupportsAPI :: Int -> IO Bool
+botanFFISupportsAPI version = do
     supports <- botan_ffi_supports_api $ fromIntegral version
     case supports of
         0 -> return True
@@ -50,21 +50,21 @@ botanFFISupportsAPIIO version = do
 --      AFTER renaming current throwBotanCatchingSuccess to throwBotanCatchingInvalidIdentifier
 
 -- | Returns a free-form string describing the version. The return value is a statically allocated string.
-botanVersionTextIO :: IO Text
-botanVersionTextIO = botan_version_string >>= peekCStringText
+botanVersionText :: IO Text
+botanVersionText = botan_version_string >>= peekCStringText
 
 -- | Returns the major version of the library
-botanVersionMajorIO :: IO Int
-botanVersionMajorIO = fromIntegral <$> botan_version_major
+botanVersionMajor :: IO Int
+botanVersionMajor = fromIntegral <$> botan_version_major
 
 -- | Returns the minor version of the library
-botanVersionMinorIO :: IO Int
-botanVersionMinorIO = fromIntegral <$> botan_version_minor
+botanVersionMinor :: IO Int
+botanVersionMinor = fromIntegral <$> botan_version_minor
 
 -- | Returns the patch version of the library
-botanVersionPatchIO :: IO Int
-botanVersionPatchIO = fromIntegral <$> botan_version_patch
+botanVersionPatch :: IO Int
+botanVersionPatch = fromIntegral <$> botan_version_patch
 
 -- | Returns the date this version was released as an integer YYYYMMDD, or 0 if an unreleased version
-botanVersionDatestampIO :: IO Int
-botanVersionDatestampIO = fromIntegral <$> botan_version_datestamp
+botanVersionDatestamp :: IO Int
+botanVersionDatestamp = fromIntegral <$> botan_version_datestamp

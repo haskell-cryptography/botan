@@ -29,12 +29,12 @@ import Data.ByteString.Internal as ByteString
 -- |Create a password hash using Bcrypt
 --
 --  Output is formatted bcrypt $2a$...
-bcryptGenerateIO
+bcryptGenerate
     :: ByteString   -- ^ The password
     -> RNGCtx       -- ^ A random number generator
     -> Int          -- ^ A work factor to slow down guessing attacks (a value of 12 to 16 is probably fine).
     -> IO ByteString
-bcryptGenerateIO password rng factor = asCString password $ \ passwordPtr -> do
+bcryptGenerate password rng factor = asCString password $ \ passwordPtr -> do
    withRNGPtr rng $ \ rngPtr -> do
         alloca $ \ szPtr -> do
             {-
@@ -81,10 +81,10 @@ bcryptGenerateIO password rng factor = asCString password $ \ passwordPtr -> do
 --  Returns True iff this password/hash combination is valid,
 --  False if the combination is not valid (but otherwise well formed),
 --  and otherwise throws an exception on error
-bcryptIsValidIO
+bcryptIsValid
     :: ByteString   -- ^ The password to check against
     -> ByteString   -- ^ The stored hash to check against
     -> IO Bool
-bcryptIsValidIO password hash = asCString password $ \ passwordPtr -> do
+bcryptIsValid password hash = asCString password $ \ passwordPtr -> do
     asCString hash $ \ hashPtr -> do
         throwBotanCatchingSuccess $ botan_bcrypt_is_valid passwordPtr hashPtr

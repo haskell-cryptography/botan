@@ -59,8 +59,8 @@ type ZFECShare = (Int, ByteString)
 -- zfecEncode :: Int -> Int -> Int -> Input -> IO [ZFECShare]
 -- zfecEncode k n shareSz input = ...
 -- ^ is more 'raw'.
-zfecEncodeIO :: Int -> Int -> ByteString -> IO [ZFECShare]
-zfecEncodeIO k n input = asBytesLen input $ \ inputPtr inputLen -> do
+zfecEncode :: Int -> Int -> ByteString -> IO [ZFECShare]
+zfecEncode k n input = asBytesLen input $ \ inputPtr inputLen -> do
     let shareSize = div (fromIntegral inputLen) k
     allocaBytes (n * shareSize) $ \ outPtr -> do
         allocaArray n $ \ (sharePtrArrayPtr :: Ptr (Ptr Word8)) -> do
@@ -76,9 +76,9 @@ zfecEncodeIO k n input = asBytesLen input $ \ inputPtr inputLen -> do
             return $!! zip [0..(n-1)] shares
 
 -- TODO: Throw a fit if shares are not equal length, not k shares
-zfecDecodeIO :: Int -> Int -> [ZFECShare] -> IO ByteString
-zfecDecodeIO _ _ [] = return ""
-zfecDecodeIO k n shares@((_,share0):_) = do
+zfecDecode :: Int -> Int -> [ZFECShare] -> IO ByteString
+zfecDecode _ _ [] = return ""
+zfecDecode k n shares@((_,share0):_) = do
     allocaArray k $ \ (indexesPtr :: Ptr CSize) -> do
         pokeArray indexesPtr shareIndexes
         withPtrs unsafeAsBytes shareBytes $ \ (sharePtrs :: [Ptr Word8]) -> do
@@ -120,8 +120,8 @@ zfecDecodeIO k n shares@((_,share0):_) = do
 k = 5
 n = 7
 testData = "0123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0123456789"
-shares@[a,b,c,d,e,f,g] <- zfecEncodeIO k n testData
+shares@[a,b,c,d,e,f,g] <- zfecEncode k n testData
 shares
-recoveredData <- zfecDecodeIO k n [a,c,e,f,g]
+recoveredData <- zfecDecode k n [a,c,e,f,g]
 recoveredData
 -}
