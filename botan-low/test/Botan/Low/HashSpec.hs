@@ -60,36 +60,36 @@ message = "Fee fi fo fum! I smell the blood of an Englishman!"
 spec :: Spec
 spec = testSuite hashes chars $ \ h -> do
     it "can initialize a hash context" $ do
-        ctx <- hashCtxInitNameIO h
+        ctx <- hashInit h
         pass
     it "has a name" $ do
-        ctx <- hashCtxInitNameIO h
-        name <- hashCtxNameIO ctx
+        ctx <- hashInit h
+        name <- hashName ctx
         pass
     it "has an output length" $ do
-        ctx <- hashCtxInitNameIO h
-        olen <- hashCtxOutputLengthIO ctx
+        ctx <- hashInit h
+        olen <- hashOutputLength ctx
         pass
     it "can copy the internal state" $ do
-        ctx <- hashCtxInitNameIO h
+        ctx <- hashInit h
         -- TODO: Populate with state and actually prove
-        ctx' <- hashCtxCopyStateIO ctx
+        ctx' <- hashCopyState ctx
         pass
     it "can clear all internal state" $ do
-        ctx <- hashCtxInitNameIO h
+        ctx <- hashInit h
         -- TODO: Populate with state and actually prove
-        hashCtxClearIO ctx
+        hashClear ctx
         pass
     it "can update the internal state with a single message block" $ do
-        ctx <- hashCtxInitNameIO h
-        hashCtxUpdateIO ctx message
+        ctx <- hashInit h
+        hashUpdate ctx message
         pass
     it "can update the internal state with multiple message blocks" $ do
-        ctx <- hashCtxInitNameIO h
-        forM_ (splitBlocks 4 message) $ hashCtxUpdateIO ctx
+        ctx <- hashInit h
+        forM_ (splitBlocks 4 message) $ hashUpdate ctx
         pass
     it "can finalize a digest" $ do
-        ctx <- hashCtxInitNameIO h
-        hashCtxUpdateIO ctx message
-        d <- hashCtxFinalIO ctx
+        ctx <- hashInit h
+        hashUpdate ctx message
+        d <- hashFinal ctx
         pass

@@ -14,14 +14,14 @@ factor = 12
 
 spec :: Spec
 spec = do
-    describe "bcryptGenerateIO" $ do
+    describe "bcryptGenerate" $ do
         it "generates a bcrypt hash" $ do
-            rng <- rngCtxInitNameIO "user-threadsafe"
-            _ <- bcryptGenerateIO password rng factor
+            rng <- rngInit "user-threadsafe"
+            _ <- bcryptGenerate password rng factor
             pass
-    describe "bcryptIsValidIO" $ do
+    describe "bcryptIsValid" $ do
         it "validates a bcrypt hash" $ do
-            rng <- rngCtxInitNameIO "user-threadsafe"
-            h <- bcryptGenerateIO password rng factor
-            valid <- bcryptIsValidIO password h
+            rng <- rngInit "user-threadsafe"
+            h <- bcryptGenerate password rng factor
+            valid <- bcryptIsValid password h
             valid `shouldBe` True

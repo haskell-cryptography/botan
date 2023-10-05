@@ -42,206 +42,206 @@ showBytes = Char8.pack . show
 spec :: Spec
 spec = testSuite (blockCipherModes ++ aeads) chars $ \ cipher -> do
     it "can initialize a cipher encryption context" $ do
-        ctx <- cipherCtxInitNameIO cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
+        ctx <- cipherInit cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
         pass
     it "can initialize a cipher decryption context" $ do
-        ctx <- cipherCtxInitNameIO cipher BOTAN_CIPHER_INIT_FLAG_DECRYPT
+        ctx <- cipherInit cipher BOTAN_CIPHER_INIT_FLAG_DECRYPT
         pass
     it "has a name" $ do
-        ctx <- cipherCtxInitNameIO cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
-        name <- cipherCtxNameIO ctx
+        ctx <- cipherInit cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
+        name <- cipherName ctx
         -- name `shouldBe` bc -- Name expands to include default parameters - need to record
         pass
     it "has a key spec" $ do
-        ctx <- cipherCtxInitNameIO cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
-        (_,_,_) <- cipherCtxGetKeyspecIO ctx
+        ctx <- cipherInit cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
+        (_,_,_) <- cipherGetKeyspec ctx
         pass
     it "can set the key" $ do
-        ctx <- cipherCtxInitNameIO cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
-        (_,mx,_) <- cipherCtxGetKeyspecIO ctx
-        k <- systemRNGGetIO mx
-        cipherCtxSetKeyIO ctx k
+        ctx <- cipherInit cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
+        (_,mx,_) <- cipherGetKeyspec ctx
+        k <- systemRNGGet mx
+        cipherSetKey ctx k
         pass
     it "has a valid default nonce length" $ do
-        ctx <- cipherCtxInitNameIO cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
-        nlen <- cipherCtxGetDefaultNonceLengthIO ctx
+        ctx <- cipherInit cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
+        nlen <- cipherGetDefaultNonceLength ctx
         pass
     it "can validate nonce length" $ do
-        ctx <- cipherCtxInitNameIO cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
-        nlen <- cipherCtxGetDefaultNonceLengthIO ctx
-        defaultIsValid <- cipherCtxValidNonceLengthIO ctx nlen
+        ctx <- cipherInit cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
+        nlen <- cipherGetDefaultNonceLength ctx
+        defaultIsValid <- cipherValidNonceLength ctx nlen
         defaultIsValid `shouldBe` True
         -- NOTE: Some ciphers accept nonces of any length, eg SIV
         --  Others allow any length > 0, eg GCM
         --  Some have ranges
         --  Some have just 'if (length == 0) return false;' eg OCB
         --  Search C++ source for 'valid_nonce_length' to find them all
-        -- zeroIsValid <- cipherCtxValidNonceLengthIO ctx 0
+        -- zeroIsValid <- cipherValidNonceLength ctx 0
         -- zeroIsValid `shouldBe` False
-        -- absurdlyLargeIsValid <- cipherCtxValidNonceLengthIO ctx maxBound
+        -- absurdlyLargeIsValid <- cipherValidNonceLength ctx maxBound
         -- absurdlyLargeIsValid `shouldBe` False
         pass
     it "can calculate output length" $ do
-        ctx <- cipherCtxInitNameIO cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
-        olen <- cipherCtxOutputLengthIO ctx 1024
+        ctx <- cipherInit cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
+        olen <- cipherOutputLength ctx 1024
         pass
     -- NOTE: This check should be ae / aead only
     it "has a tag length" $ do
-        ctx <- cipherCtxInitNameIO cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
-        _ <- cipherCtxGetTagLengthIO ctx
+        ctx <- cipherInit cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
+        _ <- cipherGetTagLength ctx
         pass
     it "has an update graularity" $ do
-        ctx <- cipherCtxInitNameIO cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
-        _ <- cipherCtxGetUpdateGranularityIO ctx
+        ctx <- cipherInit cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
+        _ <- cipherGetUpdateGranularity ctx
         pass
     it "has an ideal update granularity" $ do
-        ctx <- cipherCtxInitNameIO cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
-        _ <- cipherCtxGetIdealUpdateGranularityIO ctx
+        ctx <- cipherInit cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
+        _ <- cipherGetIdealUpdateGranularity ctx
         pass
     if cipher `elem` aeads
         then it "can set the associated data" $ do
-            ctx <- cipherCtxInitNameIO cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
+            ctx <- cipherInit cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
             -- NOTE: Undocumented: A cipher must set the key before setting AD
-            (_,mx,_) <- cipherCtxGetKeyspecIO ctx
-            k <- systemRNGGetIO mx
-            cipherCtxSetKeyIO ctx k
+            (_,mx,_) <- cipherGetKeyspec ctx
+            k <- systemRNGGet mx
+            cipherSetKey ctx k
             -- END NOTE
-            ad <- systemRNGGetIO 64
-            cipherCtxSetAssociatedDataIO ctx ad
+            ad <- systemRNGGet 64
+            cipherSetAssociatedData ctx ad
             pass
         else pass
     it "can reset all message state" $ do
-        ctx <- cipherCtxInitNameIO cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
-        cipherCtxResetIO ctx
+        ctx <- cipherInit cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
+        cipherReset ctx
         pass
     it "can clear all internal state" $ do
-        ctx <- cipherCtxInitNameIO cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
-        cipherCtxClearIO ctx
+        ctx <- cipherInit cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
+        cipherClear ctx
         pass
     it "can start processing a message" $ do
-        ctx <- cipherCtxInitNameIO cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
-        (_,mx,_) <- cipherCtxGetKeyspecIO ctx
-        k <- systemRNGGetIO mx
-        cipherCtxSetKeyIO ctx k
+        ctx <- cipherInit cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
+        (_,mx,_) <- cipherGetKeyspec ctx
+        k <- systemRNGGet mx
+        cipherSetKey ctx k
         if cipher `elem` aeads
             then do
-                ad <- systemRNGGetIO 64
-                cipherCtxSetAssociatedDataIO ctx ad
+                ad <- systemRNGGet 64
+                cipherSetAssociatedData ctx ad
             else pass
-        n <- systemRNGGetIO =<< cipherCtxGetDefaultNonceLengthIO ctx
-        cipherCtxStartIO ctx n
+        n <- systemRNGGet =<< cipherGetDefaultNonceLength ctx
+        cipherStart ctx n
         pass
     -- TODO: More extensive testing in Botan; these are just binding sanity checks
     it "can one-shot / offline encipher a message" $ do
-        ctx <- cipherCtxInitNameIO cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
-        (_,mx,_) <- cipherCtxGetKeyspecIO ctx
-        k <- systemRNGGetIO mx
-        cipherCtxSetKeyIO ctx k
+        ctx <- cipherInit cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
+        (_,mx,_) <- cipherGetKeyspec ctx
+        k <- systemRNGGet mx
+        cipherSetKey ctx k
         if cipher `elem` aeads
             then do
-                ad <- systemRNGGetIO 64
-                cipherCtxSetAssociatedDataIO ctx ad
+                ad <- systemRNGGet 64
+                cipherSetAssociatedData ctx ad
             else pass
-        n <- systemRNGGetIO =<< cipherCtxGetDefaultNonceLengthIO ctx
-        cipherCtxStartIO ctx n
-        g <- cipherCtxGetIdealUpdateGranularityIO ctx
-        msg <- systemRNGGetIO g
-        encmsg <- cipherCtxEncryptOffline ctx msg
+        n <- systemRNGGet =<< cipherGetDefaultNonceLength ctx
+        cipherStart ctx n
+        g <- cipherGetIdealUpdateGranularity ctx
+        msg <- systemRNGGet g
+        encmsg <- cipherEncryptOffline ctx msg
         pass
     it "can one-shot / offline decipher a message" $ do
         -- Same as prior test
-        ctx <- cipherCtxInitNameIO cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
-        (_,mx,_) <- cipherCtxGetKeyspecIO ctx
-        k <- systemRNGGetIO mx
-        cipherCtxSetKeyIO ctx k
-        ad <- systemRNGGetIO 64
+        ctx <- cipherInit cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
+        (_,mx,_) <- cipherGetKeyspec ctx
+        k <- systemRNGGet mx
+        cipherSetKey ctx k
+        ad <- systemRNGGet 64
         if cipher `elem` aeads
             then do
-                cipherCtxSetAssociatedDataIO ctx ad
+                cipherSetAssociatedData ctx ad
             else pass
-        n <- systemRNGGetIO =<< cipherCtxGetDefaultNonceLengthIO ctx
-        cipherCtxStartIO ctx n
-        g <- cipherCtxGetIdealUpdateGranularityIO ctx
-        msg <- systemRNGGetIO g
-        encmsg <- cipherCtxEncryptOffline ctx msg
+        n <- systemRNGGet =<< cipherGetDefaultNonceLength ctx
+        cipherStart ctx n
+        g <- cipherGetIdealUpdateGranularity ctx
+        msg <- systemRNGGet g
+        encmsg <- cipherEncryptOffline ctx msg
         -- Start actual test
-        dctx <- cipherCtxInitNameIO cipher BOTAN_CIPHER_INIT_FLAG_DECRYPT
-        cipherCtxSetKeyIO dctx k
+        dctx <- cipherInit cipher BOTAN_CIPHER_INIT_FLAG_DECRYPT
+        cipherSetKey dctx k
         if cipher `elem` aeads
             then do
-                cipherCtxSetAssociatedDataIO dctx ad
+                cipherSetAssociatedData dctx ad
             else pass
-        cipherCtxStartIO dctx n
-        decmsg <- cipherCtxDecryptOffline dctx encmsg
+        cipherStart dctx n
+        decmsg <- cipherDecryptOffline dctx encmsg
         msg `shouldBe` decmsg
         pass
     it "can incrementally / online encipher a message" $ do
         -- Same as prior test
-        ctx <- cipherCtxInitNameIO cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
-        (_,mx,_) <- cipherCtxGetKeyspecIO ctx
-        k <- systemRNGGetIO mx
-        cipherCtxSetKeyIO ctx k
-        ad <- systemRNGGetIO 64
+        ctx <- cipherInit cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
+        (_,mx,_) <- cipherGetKeyspec ctx
+        k <- systemRNGGet mx
+        cipherSetKey ctx k
+        ad <- systemRNGGet 64
         if cipher `elem` aeads
             then do
-                cipherCtxSetAssociatedDataIO ctx ad
+                cipherSetAssociatedData ctx ad
             else pass
-        n <- systemRNGGetIO =<< cipherCtxGetDefaultNonceLengthIO ctx
-        cipherCtxStartIO ctx n
-        g <- cipherCtxGetIdealUpdateGranularityIO ctx
-        msg <- systemRNGGetIO (8 * g)
-        encmsg <- cipherCtxEncryptOnline ctx msg
+        n <- systemRNGGet =<< cipherGetDefaultNonceLength ctx
+        cipherStart ctx n
+        g <- cipherGetIdealUpdateGranularity ctx
+        msg <- systemRNGGet (8 * g)
+        encmsg <- cipherEncryptOnline ctx msg
         pass
     -- NOTE: Fails for SIV, CCM because they are offline-only algorithms
     --  This is expected, but not reflected in the tests yet
     it "can incrementally / online decipher a message" $ do
-        ctx <- cipherCtxInitNameIO cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
-        (_,mx,_) <- cipherCtxGetKeyspecIO ctx
-        k <- systemRNGGetIO mx
-        cipherCtxSetKeyIO ctx k
-        ad <- systemRNGGetIO 64
+        ctx <- cipherInit cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
+        (_,mx,_) <- cipherGetKeyspec ctx
+        k <- systemRNGGet mx
+        cipherSetKey ctx k
+        ad <- systemRNGGet 64
         if cipher `elem` aeads
             then do
-                cipherCtxSetAssociatedDataIO ctx ad
+                cipherSetAssociatedData ctx ad
             else pass
-        n <- systemRNGGetIO =<< cipherCtxGetDefaultNonceLengthIO ctx
-        cipherCtxStartIO ctx n
-        g <- cipherCtxGetIdealUpdateGranularityIO ctx
-        msg <- systemRNGGetIO (8 * g)
-        encmsg <- cipherCtxEncryptOnline ctx msg
+        n <- systemRNGGet =<< cipherGetDefaultNonceLength ctx
+        cipherStart ctx n
+        g <- cipherGetIdealUpdateGranularity ctx
+        msg <- systemRNGGet (8 * g)
+        encmsg <- cipherEncryptOnline ctx msg
         -- Start actual test
-        dctx <- cipherCtxInitNameIO cipher BOTAN_CIPHER_INIT_FLAG_DECRYPT
-        cipherCtxSetKeyIO dctx k
+        dctx <- cipherInit cipher BOTAN_CIPHER_INIT_FLAG_DECRYPT
+        cipherSetKey dctx k
         if cipher `elem` aeads
             then do
-                cipherCtxSetAssociatedDataIO dctx ad
+                cipherSetAssociatedData dctx ad
             else pass
-        cipherCtxStartIO dctx n
-        decmsg <- cipherCtxDecryptOnline dctx encmsg
+        cipherStart dctx n
+        decmsg <- cipherDecryptOnline dctx encmsg
         msg `shouldBe` decmsg
         pass
     -- NOTE: Fails for SIV, CCM because they are offline-only algorithms
     --  This is expected, but not reflected in the tests yet
     it "has parity between online and offline" $ do
-        onlinectx <- cipherCtxInitNameIO cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
-        offlinectx <- cipherCtxInitNameIO cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
-        (_,mx,_) <- cipherCtxGetKeyspecIO onlinectx
-        k <- systemRNGGetIO mx
-        cipherCtxSetKeyIO onlinectx k
-        cipherCtxSetKeyIO offlinectx k
-        ad <- systemRNGGetIO 64
+        onlinectx <- cipherInit cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
+        offlinectx <- cipherInit cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
+        (_,mx,_) <- cipherGetKeyspec onlinectx
+        k <- systemRNGGet mx
+        cipherSetKey onlinectx k
+        cipherSetKey offlinectx k
+        ad <- systemRNGGet 64
         when (cipher `elem` aeads) $ do
-                cipherCtxSetAssociatedDataIO onlinectx ad
-                cipherCtxSetAssociatedDataIO offlinectx ad
-        n <- systemRNGGetIO =<< cipherCtxGetDefaultNonceLengthIO onlinectx
-        cipherCtxStartIO onlinectx n
-        cipherCtxStartIO offlinectx n
-        g <- cipherCtxGetIdealUpdateGranularityIO onlinectx
-        msg <- systemRNGGetIO (8 * g)
+                cipherSetAssociatedData onlinectx ad
+                cipherSetAssociatedData offlinectx ad
+        n <- systemRNGGet =<< cipherGetDefaultNonceLength onlinectx
+        cipherStart onlinectx n
+        cipherStart offlinectx n
+        g <- cipherGetIdealUpdateGranularity onlinectx
+        msg <- systemRNGGet (8 * g)
         putStrLn "    Testing online encryption:"
-        onlinemsg <- cipherCtxEncryptOnline onlinectx msg
+        onlinemsg <- cipherEncryptOnline onlinectx msg
         putStrLn "    Testing offline encryption:"
-        offlinemsg <- cipherCtxEncryptOffline offlinectx msg
+        offlinemsg <- cipherEncryptOffline offlinectx msg
         putStrLn "    Result:"
         onlinemsg `shouldBe` offlinemsg
         pass

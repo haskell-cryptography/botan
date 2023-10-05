@@ -22,36 +22,36 @@ rounds :: Int
 rounds = 3
 
 newRng :: IO RNGCtx
-newRng = rngCtxInitNameIO "system"
+newRng = rngInit "system"
 
 newX :: MP -> IO MP
 newX n = do
-    x <- mpInitIO
-    z <- mpInitIO
-    mpSetFromIntIO z 0
-    -- n <- mpInitIO
-    -- mpSetFromStrIO n nStr
+    x <- mpInit
+    z <- mpInit
+    mpSetFromInt z 0
+    -- n <- mpInit
+    -- mpSetFromStr n nStr
     rng <- newRng
-    mpRandRangeIO x rng z n
+    mpRandRange x rng z n
     return x
 
 newFE1Ctx :: IO (MP, FPECtx)
 newFE1Ctx = do
-    n <- mpInitIO
-    mpSetFromStrIO n nStr
-    ctx <- fpeCtxInitFE1IO n key rounds BOTAN_FPE_FLAG_NONE
+    n <- mpInit
+    mpSetFromStr n nStr
+    ctx <- fpeInitFE1 n key rounds BOTAN_FPE_FLAG_NONE
     return (n,ctx)
 
 newFE1CtxCompatMode :: IO (MP, FPECtx)
 newFE1CtxCompatMode = do
-    n <- mpInitIO
-    mpSetFromStrIO n nStr
-    ctx <- fpeCtxInitFE1IO n key rounds BOTAN_FPE_FLAG_FE1_COMPAT_MODE
+    n <- mpInit
+    mpSetFromStr n nStr
+    ctx <- fpeInitFE1 n key rounds BOTAN_FPE_FLAG_FE1_COMPAT_MODE
     return (n,ctx)
 
 spec :: Spec
 spec = do
-    describe "fpeCtxInitFE1IO" $ do
+    describe "fpeInitFE1" $ do
         it "initializes an FE1 FPE context" $ do
             newFE1Ctx
             pass
@@ -59,41 +59,41 @@ spec = do
             newFE1CtxCompatMode
             pass
             ) -- `shouldThrow` anyBotanException
-    describe "fpeCtxEncryptIO" $ do
+    describe "fpeEncrypt" $ do
         it "performs format-preserving encryption" $ do
             (n,ctx) <- newFE1Ctx
             x <- newX n
-            y <- mpCopyIO x
-            fpeCtxEncryptIO ctx y ""
-            isSame <- mpEqualIO x y
+            y <- mpCopy x
+            fpeEncrypt ctx y ""
+            isSame <- mpEqual x y
             isSame `shouldBe` False
             pass
         it "performs format-preserving encryption in compat mode" $ do
             (n,ctx) <- newFE1CtxCompatMode
             x <- newX n
-            y <- mpCopyIO x
-            fpeCtxEncryptIO ctx y ""
-            isSame <- mpEqualIO x y
+            y <- mpCopy x
+            fpeEncrypt ctx y ""
+            isSame <- mpEqual x y
             isSame `shouldBe` False
             pass
-    describe "fpeCtxDecryptIO" $ do
+    describe "fpeDecrypt" $ do
         it "performs format-preserving decryption" $ do
             (n,ctx) <- newFE1Ctx
             x <- newX n
-            y <- mpCopyIO x
-            fpeCtxEncryptIO ctx y ""
-            z <- mpCopyIO y
-            fpeCtxDecryptIO ctx z ""
-            isSame <- mpEqualIO x z
+            y <- mpCopy x
+            fpeEncrypt ctx y ""
+            z <- mpCopy y
+            fpeDecrypt ctx z ""
+            isSame <- mpEqual x z
             isSame `shouldBe` True
             pass
         it "performs format-preserving decryption in compat mode" $ do
             (n,ctx) <- newFE1CtxCompatMode
             x <- newX n
-            y <- mpCopyIO x
-            fpeCtxEncryptIO ctx y ""
-            z <- mpCopyIO y
-            fpeCtxDecryptIO ctx z ""
-            isSame <- mpEqualIO x z
+            y <- mpCopy x
+            fpeEncrypt ctx y ""
+            z <- mpCopy y
+            fpeDecrypt ctx z ""
+            isSame <- mpEqual x z
             isSame `shouldBe` True
             pass

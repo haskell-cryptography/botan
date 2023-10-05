@@ -48,56 +48,56 @@ message = "Fee fi fo fum! I smell the blood of an Englishman!"
 spec :: Spec
 spec = testSuite allBlockCiphers chars $ \ bc -> do
     it "can initialize a block cipher context" $ do
-        ctx <- blockCipherCtxInitNameIO bc
+        ctx <- blockCipherInit bc
         pass
     it "has a name" $ do
-        ctx <- blockCipherCtxInitNameIO bc
-        name <- blockCipherCtxNameIO ctx
+        ctx <- blockCipherInit bc
+        name <- blockCipherName ctx
         -- name `shouldBe` bc -- Name expands to include default parameters - need to record
         pass
     it "has a key spec" $ do
-        ctx <- blockCipherCtxInitNameIO bc
-        (_,_,_) <- blockCipherCtxGetKeyspecIO ctx
+        ctx <- blockCipherInit bc
+        (_,_,_) <- blockCipherGetKeyspec ctx
         pass
     it "has a block size" $ do
-        ctx <- blockCipherCtxInitNameIO bc
-        _ <- blockCipherCtxBlockSizeIO ctx
+        ctx <- blockCipherInit bc
+        _ <- blockCipherBlockSize ctx
         pass
     it "can set the key" $ do
-        ctx <- blockCipherCtxInitNameIO bc
-        (_,mx,_) <- blockCipherCtxGetKeyspecIO ctx
-        k <- systemRNGGetIO mx
-        blockCipherCtxSetKeyIO ctx k
+        ctx <- blockCipherInit bc
+        (_,mx,_) <- blockCipherGetKeyspec ctx
+        k <- systemRNGGet mx
+        blockCipherSetKey ctx k
         pass
     it "can encipher a message" $ do
-        ctx <- blockCipherCtxInitNameIO bc
-        (_,mx,_) <- blockCipherCtxGetKeyspecIO ctx
-        k <- systemRNGGetIO mx
-        blockCipherCtxSetKeyIO ctx k
-        bsz <- blockCipherCtxBlockSizeIO ctx
-        msg <- systemRNGGetIO $ bsz * 10
-        encmsg <- blockCipherCtxEncryptBlocksIO ctx msg
+        ctx <- blockCipherInit bc
+        (_,mx,_) <- blockCipherGetKeyspec ctx
+        k <- systemRNGGet mx
+        blockCipherSetKey ctx k
+        bsz <- blockCipherBlockSize ctx
+        msg <- systemRNGGet $ bsz * 10
+        encmsg <- blockCipherEncryptBlocks ctx msg
         pass
     -- NOTE: It does not actually throw an error - this is slightly concerning.
     -- it "can only encipher messages that are a multiple of the block size" $ do
-    --     ctx <- blockCipherCtxInitNameIO bc
-    --     bsz <- blockCipherCtxBlockSizeIO ctx
+    --     ctx <- blockCipherInitName bc
+    --     bsz <- blockCipherBlockSize ctx
     --     if bsz == 1
     --         then pass
     --         else do
-    --             (_,mx,_) <- blockCipherCtxGetKeyspecIO ctx
+    --             (_,mx,_) <- blockCipherGetKeyspec ctx
     --             k <- systemRNGGetIO mx
-    --             blockCipherCtxSetKeyIO ctx k
+    --             blockCipherSetKey ctx k
     --             msg <- systemRNGGetIO $ bsz + 1
-    --             blockCipherCtxEncryptBlocksIO ctx msg `shouldThrow` anyBotanException
+    --             blockCipherEncryptBlocks ctx msg `shouldThrow` anyBotanException
     it "can decipher an enciphered message" $ do
-        ctx <- blockCipherCtxInitNameIO bc
-        (_,mx,_) <- blockCipherCtxGetKeyspecIO ctx
-        k <- systemRNGGetIO mx
-        blockCipherCtxSetKeyIO ctx k
-        bsz <- blockCipherCtxBlockSizeIO ctx
-        msg <- systemRNGGetIO $ bsz * 10
-        encmsg <- blockCipherCtxEncryptBlocksIO ctx msg
-        decmsg <- blockCipherCtxDecryptBlocksIO ctx encmsg
+        ctx <- blockCipherInit bc
+        (_,mx,_) <- blockCipherGetKeyspec ctx
+        k <- systemRNGGet mx
+        blockCipherSetKey ctx k
+        bsz <- blockCipherBlockSize ctx
+        msg <- systemRNGGet $ bsz * 10
+        encmsg <- blockCipherEncryptBlocks ctx msg
+        decmsg <- blockCipherDecryptBlocks ctx encmsg
         decmsg `shouldBe` msg 
         pass

@@ -17,13 +17,13 @@ message = "Fee fi fo fum! I smell the blood of an Englishman!"
 
 spec :: Spec
 spec = do
-    describe "zfecEncodeIO" $ do
+    describe "zfecEncode" $ do
         it "encodes a message into shares" $ do
-            shares <- zfecEncodeIO k n message
+            shares <- zfecEncode k n message
             length shares `shouldBe` n
-    describe "zfecDecodeIO" $ do
+    describe "zfecDecodO" $ do
         it "recovers a message from enough shares" $ do
-            shares <- zfecEncodeIO k n message
+            shares <- zfecEncode k n message
             someShares <- take k <$> generate (shuffle shares)
-            recoveredMessage <- zfecDecodeIO k n someShares
+            recoveredMessage <- zfecDecode k n someShares
             recoveredMessage `shouldBe` message
