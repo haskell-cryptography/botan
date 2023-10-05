@@ -14,8 +14,8 @@ module Botan.Bcrypt where
 
 import qualified Data.ByteString as ByteString
 
-import Botan.Low.Bcrypt
-import Botan.Low.RNG
+import qualified Botan.Low.Bcrypt as Low
+import qualified Botan.Low.RNG as Low
 
 import Botan.Error
 import Botan.Prelude
@@ -60,9 +60,9 @@ bcryptGenerateWith
     -> Security         -- ^ A work factor to slow down guessing attack
     -> IO BcryptDigest
 bcryptGenerateWith rng pass security = do
-    r <- rngCtxInitIO rng
-    rngCtxReseedIO r 32
-    bcryptGenerateIO pass r (bcryptFactor security)
+    r <- Low.rngInit (rngName rng)
+    Low.rngReseed r 32
+    Low.bcryptGenerate pass r (bcryptFactor security)
 
 -- |Check a previously created digest
 --
@@ -73,5 +73,5 @@ bcryptValidate
     :: Password     -- ^ The password to check against
     -> BcryptDigest -- ^ The stored hash to check against
     -> Bool
-bcryptValidate = unsafePerformIO2 bcryptIsValidIO
+bcryptValidate = unsafePerformIO2 Low.bcryptIsValid
 {-# NOINLINE bcryptValidate #-}

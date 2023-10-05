@@ -1,6 +1,7 @@
 module Botan.KDF where
 
-import Botan.Low.KDF
+import Botan.Low.KDF (KDFName(..))
+import qualified Botan.Low.KDF as Low
 
 import Botan.Hash
 import Botan.MAC
@@ -48,4 +49,4 @@ kdfName (SP800_56C m)           = "SP800-56C(" <> macName m <> ")"
 --  "\234\176\202\212A\162\154]\238J\131aKL\142\197"
 
 kdf :: KDF -> Int -> ByteString -> ByteString -> ByteString -> ByteString
-kdf algo outLen secret salt label = unsafePerformIO $ kdfIO (kdfName algo) outLen secret salt label
+kdf algo outLen secret salt label = unsafePerformIO $ Low.kdf (kdfName algo) outLen secret salt label

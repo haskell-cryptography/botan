@@ -1,13 +1,14 @@
 module Botan.PwdHash where
 
-import Botan.Low.PwdHash
+import Botan.Low.PwdHash (PBKDFName(..))
+import qualified Botan.Low.PwdHash as Low
 
 import Botan.Hash
 import Botan.MAC
 import Botan.Prelude
 
 pwdhash :: PBKDF -> Int -> ByteString -> ByteString -> ByteString
-pwdhash algo outLen passphrase salt = unsafePerformIO $ pwdhashIO
+pwdhash algo outLen passphrase salt = unsafePerformIO $ Low.pwdhash
     name
     p1
     p2
@@ -22,7 +23,7 @@ pwdhash algo outLen passphrase salt = unsafePerformIO $ pwdhashIO
 -- TODO: ... -> (PBKDF, ByteString) once we have parsers for PBKDFName -> PBKDF (with default values)
 pwdhashTimed :: PBKDFName -> Int -> Int -> ByteString -> ByteString -> (PBKDFParams,ByteString)
 pwdhashTimed algo msec outLen passphrase salt = unsafePerformIO $ do
-    (p1,p2,p3,out) <- pwdhashTimedIO
+    (p1,p2,p3,out) <- Low.pwdhashTimed
         algo
         msec
         outLen

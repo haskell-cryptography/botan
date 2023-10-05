@@ -1,6 +1,7 @@
 module Botan.PubKey where
 
-import Botan.Low.PubKey
+import Botan.Low.PubKey (PubKey(..), PubKeyName(..), PrivKey(..), PrivKeyName(..), PKPaddingName(..))
+import qualified Botan.Low.PubKey as Low
 import Botan.Low.RNG -- TEMP
 
 import Botan.Hash
@@ -220,7 +221,7 @@ dlGroupName DSA_BOTAN_2048 = "dsa/botan/2048"
 dlGroupName DSA_BOTAN_3072 = "dsa/botan/3072"
 
 privKeyCreatePKIO :: PK -> RNGCtx -> IO PrivKey
-privKeyCreatePKIO pk = privKeyCreateIO (pkName pk) (pkParams pk)
+privKeyCreatePKIO pk = Low.privKeyCreate (pkName pk) (pkParams pk)
 
 data PKExportFlags
     = PKExportDER   -- BOTAN_PRIVKEY_EXPORT_FLAG_DER

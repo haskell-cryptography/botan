@@ -5,8 +5,9 @@ import Data.Bifunctor
 
 import qualified Data.ByteString as ByteString
 
-import Botan.Bindings.RNG
-import Botan.Low.RNG
+import Botan.Bindings.RNG (RNGName(..))
+import Botan.Low.RNG (RNGCtx(..))
+import qualified Botan.Low.RNG as Low
 
 import Botan.Prelude
 
@@ -25,7 +26,7 @@ rngName UserThreadsafe  = "user-threadsafe" -- BOTAN_RANDOM_TYPE_USER_THREADSAFE
 rngName RDRand          = "rdrand"          -- BOTAN_RANDOM_TYPE_RDRAND
 
 rngCtxInitIO :: RNG -> IO RNGCtx
-rngCtxInitIO rng = rngCtxInitNameIO (rngName rng)
+rngCtxInitIO rng = Low.rngInit (rngName rng)
 
 
 -- Crypton-like interface, todo: move to crypto-schemes?
@@ -52,7 +53,7 @@ class Monad m => MonadRNG m where
 
 instance MonadRNG IO where
 
-    generateRandomBytes = systemRNGGetIO
+    generateRandomBytes = Low.systemRNGGet
 
 newtype MonadPRNG prng a = MkMonadPRNG (prng -> (a, prng))
 

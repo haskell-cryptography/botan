@@ -38,7 +38,8 @@ import qualified Data.ByteString as ByteString
 
 import Data.Foldable
 
-import Botan.Low.Hash
+import Botan.Low.Hash (HashCtx(..), HashName(..), HashDigest(..))
+import qualified Botan.Low.Hash as Low
 
 import Botan.Error ()
 import Botan.Prelude
@@ -50,40 +51,40 @@ import Botan.Utility
 -- cryptonite-like interface
 
 hashCtxInitName :: HashName -> HashCtx
-hashCtxInitName = unsafePerformIO1 hashCtxInitNameIO
+hashCtxInitName = unsafePerformIO1 Low.hashInit
 
 hashCtxUpdate :: HashCtx -> ByteString -> HashCtx
 hashCtxUpdate ctx bytes = hashCtxUpdates ctx [bytes]
 
 hashCtxUpdates :: HashCtx -> [ByteString] -> HashCtx
 hashCtxUpdates ctx chunks = unsafePerformIO $ do
-    ctx' <- hashCtxCopyStateIO ctx
-    traverse_ (hashCtxUpdateIO ctx') chunks
+    ctx' <- Low.hashCopyState ctx
+    traverse_ (Low.hashUpdate ctx') chunks
     return ctx'
 
 -- NOTE hashFinalize vs hashFinal
 hashCtxFinalize :: HashCtx -> HashDigest
 hashCtxFinalize ctx = unsafePerformIO $ do
-    ctx' <- hashCtxCopyStateIO ctx -- Determine whether this is necessary. Does finalize ever mutate the context?
-    hashCtxFinalIO ctx'
+    ctx' <- Low.hashCopyState ctx -- Determine whether this is necessary. Does finalize ever mutate the context?
+    Low.hashFinal ctx'
 
 hashCtxName :: HashCtx -> ByteString
-hashCtxName = unsafePerformIO1 hashCtxNameIO
+hashCtxName = unsafePerformIO1 Low.hashName
 
 hashCtxBlockSize :: HashCtx -> Int
-hashCtxBlockSize = unsafePerformIO1 hashCtxBlockSizeIO
+hashCtxBlockSize = unsafePerformIO1 Low.hashBlockSize
 
 -- NOTE: hashDigestSize vs hashOutputLength
 hashCtxDigestSize :: HashCtx -> Int
-hashCtxDigestSize = unsafePerformIO1 hashCtxOutputLengthIO
+hashCtxDigestSize = unsafePerformIO1 Low.hashOutputLength
 
 -- Convenience
 
 hashWithHashCtx :: HashCtx -> ByteString -> HashDigest
-hashWithHashCtx = unsafePerformIO2 hashWithHashCtxIO
+hashWithHashCtx = unsafePerformIO2 Low.hashWithHashCtx
 
 hashWithName :: HashName -> ByteString -> HashDigest
-hashWithName = unsafePerformIO2 hashWithNameIO
+hashWithName = unsafePerformIO2 Low.hashWithName
 
 -- Hash spec
 
@@ -216,12 +217,12 @@ hashName spec = case spec of
     CRC32           -> "CRC32"
 
 hashCtxInitIO :: Hash -> IO HashCtx
-hashCtxInitIO = hashCtxInitNameIO . hashName
+hashCtxInitIO = Low.hashInit . hashName
 
 hashWithHashIO :: Hash -> ByteString -> IO HashDigest
 hashWithHashIO spec bytes = do
     ctx <- hashCtxInitIO spec
-    hashWithHashCtxIO ctx bytes
+    Low.hashWithHashCtx ctx bytes
 
 hashCtxInit :: Hash -> HashCtx
 hashCtxInit = unsafePerformIO1 hashCtxInitIO

@@ -4,10 +4,10 @@ import qualified Data.ByteString as ByteString
 
 import Data.Bool
 
-import Botan.Bindings.PubKey.KeyAgreement
-import Botan.Low.PubKey.KeyAgreement
+import Botan.Low.PubKey.KeyAgreement (KeyAgreementCtx(..))
+import qualified Botan.Low.PubKey.KeyAgreement as Low
 
-import Botan.Low.PubKey
+import Botan.Low.PubKey (PubKey(..), PrivKey(..))
 import Botan.Low.RNG
 
 import Botan.Error
@@ -36,7 +36,7 @@ newKeyAgreementKey ka = do
     privKeyCreatePKIO (keyAgreementToPK ka) rng
 
 exportKeyAgreementPublicKey :: PrivKey -> IO KAPublicKey
-exportKeyAgreementPublicKey = keyAgreementExportPublicIO
+exportKeyAgreementPublicKey = Low.keyAgreementExportPublic
 
 newKeyAgreementKeyPair :: KeyAgreement -> IO (PrivKey, KAPublicKey)
 newKeyAgreementKeyPair ka = do
@@ -45,10 +45,10 @@ newKeyAgreementKeyPair ka = do
     return (sk,pk)
 
 newKeyAgreement :: PrivKey -> KDF -> IO KeyAgreementCtx
-newKeyAgreement sk kdf = keyAgreementCtxCreateIO sk (kdfName kdf)
+newKeyAgreement sk kdf = Low.keyAgreementCreate sk (kdfName kdf)
 
 deriveKeyAgreementSharedSecret :: KeyAgreementCtx -> KAPublicKey -> ByteString -> IO KASharedSecret
-deriveKeyAgreementSharedSecret = keyAgreementIO
+deriveKeyAgreementSharedSecret = Low.keyAgreement
 
 keyAgreement :: PrivKey -> KAPublicKey -> KDF -> ByteString -> IO KASharedSecret
 keyAgreement sk pk kdf salt = do
@@ -73,7 +73,7 @@ type ECDHPub = ByteString
 newKeyPair :: PK -> RNGCtx -> IO (ECDHPub, PrivKey)
 newKeyPair pk rng = do
     sk <- privKeyCreatePKIO pk rng
-    pk <- keyAgreementExportPublicIO sk
+    pk <- Low.keyAgreementExportPublic sk
     return (pk,sk)
 
 newECDHKeyPair :: RNGCtx -> IO (ECDHPub, PrivKey)
@@ -86,13 +86,13 @@ testECDH = do
     (pkb, skb) <- newECDHKeyPair rng
     -- ecdh k1 p2 == ecdh k2 p1 
     print "making a"
-    ctxa <- keyAgreementCtxCreateIO ska "KDF2(SHA-256)"
+    ctxa <- Low.keyAgreementCreate ska "KDF2(SHA-256)"
     print "making b"
-    ctxb <- keyAgreementCtxCreateIO skb "KDF2(SHA-256)"
+    ctxb <- Low.keyAgreementCreate skb "KDF2(SHA-256)"
     print "agreeing a"
-    a <- keyAgreementIO ctxa pkb ""
+    a <- Low.keyAgreement ctxa pkb ""
     print "agreeing b"
-    b <- keyAgreementIO ctxb pka ""
+    b <- Low.keyAgreement ctxb pka ""
     print "comparing"
     return $ a == b
 {-

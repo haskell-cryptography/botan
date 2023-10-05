@@ -1,15 +1,15 @@
 module Botan.KeyWrap where
 
-import Botan.Low.KeyWrap
+import qualified Botan.Low.KeyWrap as Low
 
 import Botan.BlockCipher
 import Botan.Prelude
 
-nistKeyWrapEncodeBlockCipherIO :: BlockCipher -> Int -> ByteString -> ByteString -> IO ByteString
-nistKeyWrapEncodeBlockCipherIO = nistKeyWrapEncodeIO . blockCipherName
+nistKeyWrapEncode :: BlockCipher -> Int -> ByteString -> ByteString -> IO ByteString
+nistKeyWrapEncode = Low.nistKeyWrapEncode . blockCipherName
 
-nistKeyWrapDecodeBlockCipherIO :: BlockCipher -> Int -> ByteString -> ByteString -> IO ByteString
-nistKeyWrapDecodeBlockCipherIO = nistKeyWrapDecodeIO . blockCipherName
+nistKeyWrapDecode :: BlockCipher -> Int -> ByteString -> ByteString -> IO ByteString
+nistKeyWrapDecode = Low.nistKeyWrapDecode . blockCipherName
 
 -- NOTE: Functions are not well documented, but do work.
 -- What documentation that exists says it takes 128-bit ciphers

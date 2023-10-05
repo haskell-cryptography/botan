@@ -12,14 +12,15 @@ module Botan.Utility
 
 import System.IO.Unsafe
 
-import Botan.Low.Utility
+import Botan.Low.Utility (HexEncodingFlags(..), pattern Upper, pattern Lower)
+import qualified Botan.Low.Utility as Low
 
 import Botan.Error
 import Botan.Prelude
 
 -- | Returns 0 if x[0..len] == y[0..len], -1 otherwise.
 constantTimeCompare :: ByteString -> ByteString -> Int -> Bool
-constantTimeCompare = unsafePerformIO3 constantTimeCompareIO
+constantTimeCompare = unsafePerformIO3 Low.constantTimeCompare
 
 -- I'm not entirely sure what this should be
 -- Rather, this should be used in a `ScrubbedBytes` implementation
@@ -35,14 +36,14 @@ constantTimeCompare = unsafePerformIO3 constantTimeCompareIO
 
 -- TODO: Discuss ergonomics of flipping argument order
 hexEncode :: ByteString -> HexEncodingFlags -> Text
-hexEncode = unsafePerformIO2 hexEncodeIO
+hexEncode = unsafePerformIO2 Low.hexEncode
 
 -- | "Hex decode some data"
 hexDecode :: Text -> ByteString
-hexDecode = unsafePerformIO1 hexDecodeIO
+hexDecode = unsafePerformIO1 Low.hexDecode
 
 base64Encode :: ByteString -> Text
-base64Encode = unsafePerformIO1 base64EncodeIO
+base64Encode = unsafePerformIO1 Low.base64Encode
 
 base64Decode :: Text -> ByteString
-base64Decode = unsafePerformIO1 base64DecodeIO
+base64Decode = unsafePerformIO1 Low.base64Decode

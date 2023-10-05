@@ -1,6 +1,7 @@
 module Botan.ZFEC where
 
-import Botan.Low.ZFEC
+import Botan.Low.ZFEC (ZFECShare(..))
+import qualified Botan.Low.ZFEC as Low
 
 import Botan.Prelude
 
@@ -12,7 +13,7 @@ import Botan.Prelude
 --     }
 
 zfecEncode :: Int -> Int -> ByteString -> [ZFECShare]
-zfecEncode = unsafePerformIO3 zfecEncodeIO
+zfecEncode = unsafePerformIO3 Low.zfecEncode
 
 zfecDecode :: Int -> Int -> [ZFECShare] -> ByteString
-zfecDecode = unsafePerformIO3 zfecDecodeIO
+zfecDecode = unsafePerformIO3 Low.zfecDecode

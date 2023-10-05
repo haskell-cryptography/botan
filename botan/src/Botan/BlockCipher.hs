@@ -1,8 +1,20 @@
 module Botan.BlockCipher where
 
-import Botan.Low.BlockCipher
+import Botan.Low.BlockCipher (BlockCipherCtx(..), BlockCipherName(..))
+import qualified Botan.Low.BlockCipher as Low
 
 import Botan.Prelude
+    -- ( ($),
+    --   Eq,
+    --   Monad(return),
+    --   Show,
+    --   Int,
+    --   (.),
+    --   ByteString,
+    --   unsafePerformIO,
+    --   Ciphertext,
+    --   Plaintext,
+    --   unsafePerformIO1 )
 
 -- NOTE: No nonces at this level - these are raw block ciphers.
 --  For block ciphers with nonces, see Cipher
@@ -22,7 +34,7 @@ blockCipherCtxInit :: BlockCipher -> BlockCipherCtx
 blockCipherCtxInit = blockCipherCtxInitName . blockCipherName
 
 blockCipherCtxInitName :: BlockCipherName -> BlockCipherCtx
-blockCipherCtxInitName = unsafePerformIO1 blockCipherCtxInitNameIO
+blockCipherCtxInitName = unsafePerformIO1 Low.blockCipherInit
 
 -- TODO:
 -- blockCipherCtxBlockCipher
@@ -33,32 +45,32 @@ blockCipherCtxInitName = unsafePerformIO1 blockCipherCtxInitNameIO
 blockCipherCtxName
     :: BlockCipherCtx  -- ^ The cipher object
     -> BlockCipherName
-blockCipherCtxName = unsafePerformIO1 blockCipherCtxNameIO
+blockCipherCtxName = unsafePerformIO1 Low.blockCipherName
 
 blockCipherCtxBlockSize
     :: BlockCipherCtx  -- ^ The cipher object
     -> Int
-blockCipherCtxBlockSize = unsafePerformIO1 blockCipherCtxBlockSizeIO
+blockCipherCtxBlockSize = unsafePerformIO1 Low.blockCipherBlockSize
 
 blockCipherCtxGetKeyspec
     :: BlockCipherCtx  -- ^ The cipher object
     -> BlockCipherKeySpec
 blockCipherCtxGetKeyspec ctx = unsafePerformIO $ do
-    (mn,mx,md) <- blockCipherCtxGetKeyspecIO ctx
+    (mn,mx,md) <- Low.blockCipherGetKeyspec ctx
     return $ BlockCipherKeySpec mn mx md
 
 blockCipherCtxEncrypt :: BlockCipherCtx -> BlockCipherKey -> Plaintext -> Ciphertext
 blockCipherCtxEncrypt ctx key pt = unsafePerformIO $ do
-    blockCipherCtxSetKeyIO ctx key
-    ct <- blockCipherCtxEncryptBlocksIO ctx pt
-    blockCipherCtxClearIO ctx
+    Low.blockCipherSetKey ctx key
+    ct <- Low.blockCipherEncryptBlocks ctx pt
+    Low.blockCipherClear ctx
     return ct
 
 blockCipherCtxDecrypt :: BlockCipherCtx -> BlockCipherKey -> Ciphertext -> Plaintext
 blockCipherCtxDecrypt ctx key ct = unsafePerformIO $ do
-    blockCipherCtxSetKeyIO ctx key
-    pt <- blockCipherCtxDecryptBlocksIO ctx ct
-    blockCipherCtxClearIO ctx
+    Low.blockCipherSetKey ctx key
+    pt <- Low.blockCipherDecryptBlocks ctx ct
+    Low.blockCipherClear ctx
     return pt
 
 blockCipherEncrypt :: BlockCipher -> BlockCipherKey -> Plaintext -> Ciphertext
