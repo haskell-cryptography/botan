@@ -50,7 +50,7 @@ newSignKeyPair = do
     -- TODO: Better choice of RNG
     rng <- rngCtxInitIO System
     sk <- privKeyCreatePKIO signingAlgo rng
-    pk <- privKeyExportPubKeyIO sk
+    pk <- privKeyExportPubKey sk
     return (sk,pk)
 
 sign :: SignSecretKey -> Message -> SignedMessage
@@ -65,13 +65,12 @@ signDetached :: SignSecretKey -> Message -> Signature
 signDetached sk msg = unsafePerformIO $ do
     -- TODO: Better choice of RNG
     rng <- rngCtxInitIO System
-    ctx <- signCtxCreateIO sk signingAlgoParams SigningNoFlags
-    signCtxUpdateIO ctx msg
-    signCtxFinishIO ctx rng
+    ctx <- signCreate sk signingAlgoParams SigningNoFlags
+    signUpdate ctx msg
+    signFinish ctx rng
 
 signVerifyDetached :: SignPublicKey -> Signature -> Message -> Bool
 signVerifyDetached pk sig msg = unsafePerformIO $ do
-    ctx <- verifyCtxCreateIO pk signingAlgoParams SigningNoFlags
-    verifyCtxUpdateIO ctx msg
-    verifyCtxFinishIO ctx sig
-
+    ctx <- verifyCreate pk signingAlgoParams SigningNoFlags
+    verifyUpdate ctx msg
+    verifyFinish ctx sig

@@ -8,7 +8,7 @@ import Botan.Utility
 import Botan.Low.RNG
 
 randomByteString :: Int -> IO ByteString
-randomByteString = systemRNGGetIO
+randomByteString = systemRNGGet
 
 bin2hex :: ByteString -> Text
 bin2hex = flip hexEncode Lower

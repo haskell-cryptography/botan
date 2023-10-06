@@ -26,7 +26,7 @@ type AuthKey = ByteString
 type AuthMessage = (Message, AuthTag)
 
 newAuthKey :: IO AuthKey
-newAuthKey = systemRNGGetIO 64
+newAuthKey = systemRNGGet 64
 
 auth :: AuthKey -> Message -> AuthMessage
 auth k msg = (msg, authDetached k msg)
