@@ -1,5 +1,6 @@
 module Botan.Low.HashSpec
 ( spec
+, hashes
 ) where
 
 import Test.Prelude

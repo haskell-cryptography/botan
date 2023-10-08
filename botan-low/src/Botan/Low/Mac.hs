@@ -101,3 +101,9 @@ macName = mkGetCString withMACPtr botan_mac_name
 
 macGetKeyspec :: MACCtx -> IO (Int,Int,Int)
 macGetKeyspec = mkGetSizes3 withMACPtr botan_mac_get_keyspec
+
+-- TODO: MAC does not have a nonce size query, and it relies on per-algorithm knowledgre
+-- Luckily only 1 MAC actually requires a nonce (GMAC), so this isn't really an issue
+--  macGetNoncespec :: MACCtx -> IO (Int,Int,Int)
+-- Or
+-- macGetDefaultNonceLength :: MACCtx -> IO Int

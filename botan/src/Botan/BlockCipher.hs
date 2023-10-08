@@ -4,17 +4,6 @@ import Botan.Low.BlockCipher (BlockCipherCtx(..), BlockCipherName(..))
 import qualified Botan.Low.BlockCipher as Low
 
 import Botan.Prelude
-    -- ( ($),
-    --   Eq,
-    --   Monad(return),
-    --   Show,
-    --   Int,
-    --   (.),
-    --   ByteString,
-    --   unsafePerformIO,
-    --   Ciphertext,
-    --   Plaintext,
-    --   unsafePerformIO1 )
 
 -- NOTE: No nonces at this level - these are raw block ciphers.
 --  For block ciphers with nonces, see Cipher

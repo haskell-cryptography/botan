@@ -39,11 +39,20 @@ import Botan.Prelude
 
 -- NOTE: Botan MAC FFI is missing query for nonce sizes.
 
+-- NOTE: Poly1305 does not appear to require a nonce, despite documentation:
+--  > Due to the nonce requirement, Poly1305 is exceptionally fragile. Avoid it unless absolutely required.
+-- I believe this is a nomenclature mixup, as there are MACs that require both key and nonce
+-- However, this is Poly1305-Wegman-Carter which should only require a key - but the
+-- key must not be reused, like a nonce.
+
 data MAC
     = CMAC BlockCipher  -- NOTE: This is actually OMAC a CMAC variant
     | GMAC BlockCipher      -- Requires a nonce
-    | CBC_MAC BlockCipher    
+    -- | CBC_MAC BlockCipher  -- No longer supported (possibly due to security issues) 
     | HMAC Hash    
+    -- New in 3.2
+    -- | KMAC_128 Int -- Output length
+    -- | KMAC_256 Int -- Output length
     | Poly1305              -- Requires a unique key per message
     | SipHash Int Int       -- Number of input and finalization rounds
     | X9_19_MAC
@@ -53,7 +62,7 @@ data MAC
 macName :: MAC -> ByteString
 macName (CMAC bc)       = "CMAC(" <> blockCipherName bc <> ")"
 macName (GMAC bc)       = "GMAC(" <> blockCipherName bc <> ")"
-macName (CBC_MAC bc)    = "CBC-MAC(" <> blockCipherName bc <> ")"
+-- macName (CBC_MAC bc)    = "CBC-MAC(" <> blockCipherName bc <> ")"
 macName (HMAC h)        = "HMAC(" <> hashName h <> ")"
 macName Poly1305        = "Poly1305"
 macName (SipHash ir fr) = "SipHash(" <> showBytes ir <> "," <> showBytes fr <> ")"
@@ -63,7 +72,7 @@ macName X9_19_MAC       = "X9.19-MAC"
 macNonceLength :: MAC -> Int
 macNonceLength (CMAC _)      = 0
 macNonceLength (GMAC _)      = 12 -- Probably incorrect for some ciphers - TODO: use cipherCtxGetDefaultNonceLength
-macNonceLength (CBC_MAC _)   = 0
+-- macNonceLength (CBC_MAC _)   = 0
 macNonceLength (HMAC _)      = 0
 macNonceLength Poly1305      = 16   -- Is this Poly1305, or Poly1305-WC?
 macNonceLength (SipHash _ _) = 0

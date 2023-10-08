@@ -1,5 +1,8 @@
 module Botan.Low.CipherSpec
 ( spec
+, paddings
+, blockCipherModes
+, aeads
 ) where
 
 import Test.Prelude
