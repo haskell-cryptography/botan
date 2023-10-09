@@ -40,6 +40,7 @@ module Botan.Low.HOTP where
 import qualified Data.ByteString as ByteString
 
 import Botan.Bindings.HOTP
+import Botan.Low.Hash (HashName(..))
 
 import Botan.Low.Error
 import Botan.Low.Make
@@ -59,7 +60,7 @@ withHOTPPtr :: HOTPCtx -> (HOTPPtr -> IO a) -> IO a
 withHOTPPtr = withForeignPtr . getHOTPForeignPtr
 
 -- NOTE: Digits should be 6-8
-hotpInit :: ByteString -> ByteString -> Int -> IO HOTPCtx
+hotpInit :: ByteString -> HashName -> Int -> IO HOTPCtx
 hotpInit key algo digits = alloca $ \ outPtr -> do
     asBytesLen key $ \ keyPtr keyLen -> do
         asCString algo $ \ algoPtr -> do

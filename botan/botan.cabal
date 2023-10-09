@@ -28,6 +28,7 @@ library
         Botan.Cipher
         Botan.Error
         Botan.Hash
+        Botan.HOTP
         Botan.KDF
         Botan.KeyWrap
         Botan.MAC
