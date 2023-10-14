@@ -1,5 +1,6 @@
 module Botan.Low.MACSpec
 ( spec
+, macs
 ) where
 
 import Test.Prelude
@@ -28,8 +29,11 @@ import Botan.Low.RNG
 --     , [ "Poly1305", "SipHash(2,4)", "X9.19-MAC" ]
 --     ]
 
-macs :: [(ByteString, Int)]
-macs =
+macs :: [MACName]
+macs = fmap fst macsAndNonceSzs
+
+macsAndNonceSzs :: [(MACName, Int)]
+macsAndNonceSzs =
     [ ("CMAC(AES-256)", 0)
     , ("GMAC(AES-256)", 16)
     -- , ("CBC-MAC(AES-256)", 16) -- Not supported
@@ -43,7 +47,7 @@ message :: ByteString
 message = "Fee fi fo fum! I smell the blood of an Englishman!"
 
 spec :: Spec
-spec = testSuite macs (chars . fst) $ \ (h,nonceSz) -> do
+spec = testSuite macsAndNonceSzs (chars . fst) $ \ (h,nonceSz) -> do
     it "can initialize a mac context" $ do
         ctx <- macInit h
         pass

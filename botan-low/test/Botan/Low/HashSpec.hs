@@ -1,5 +1,7 @@
 module Botan.Low.HashSpec
 ( spec
+, cryptohashes
+, checksums
 , hashes
 ) where
 
@@ -11,8 +13,8 @@ import qualified Data.ByteString as ByteString
 import Botan.Bindings.Hash
 import Botan.Low.Hash
 
-hashes :: [HashName]
-hashes = 
+cryptohashes :: [HashName]
+cryptohashes = 
     -- [ "BLAKE2b(128)"
     -- , "BLAKE2b(256)"
     -- , "BLAKE2b(512)"
@@ -51,10 +53,17 @@ hashes =
     , "Streebog-256"
     , "Streebog-512"
     , "Whirlpool"
-    , "Adler32"
+    ]
+
+checksums :: [HashName]
+checksums = 
+    [ "Adler32"
     , "CRC24"
     , "CRC32"
     ]
+
+hashes :: [HashName]
+hashes = cryptohashes ++ checksums
 
 message = "Fee fi fo fum! I smell the blood of an Englishman!"
 

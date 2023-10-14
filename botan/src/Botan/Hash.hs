@@ -174,7 +174,7 @@ data Hash
     -- Combination strategies
     | Parallel Hash Hash
     | Comb4P Hash Hash
-    -- Checksums
+    -- Checksums -- TODO: Split off checksums from cryptohashes
     | Adler32
     | CRC24
     | CRC32
