@@ -180,6 +180,15 @@ data Hash
     | CRC32
     deriving (Show, Eq)
 
+-- data Hash
+--     = Cryptohash Cryptohash
+--     | Checksum Checksum
+
+-- data Checksum
+--     = Adler32
+--     | CRC24
+--     | CRC32
+
 -- TODO: Proper parser-builder
 hashName :: Hash -> HashName
 hashName spec = case spec of

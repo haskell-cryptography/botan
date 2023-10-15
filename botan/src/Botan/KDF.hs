@@ -7,38 +7,64 @@ import Botan.Hash
 import Botan.MAC
 import Botan.Prelude
 
+-- Sources: https://github.com/randombit/botan/blob/master/src/lib/kdf/kdf.cpp
+-- Due to the blurring of mac vs hash, it is difficult to determine whether
+-- a given algorithm works with macs, hashes, both, macs and hashes-via-hmac, or hashes and only hmac
+-- According to source:
+-- HKDF, HKDF-Extract, HKDF-Expand use kdf_create_mac_or_hash but the H literally stands for HMAC so...
+-- KDF2, KDF1-18033, KDF1 use Hash
+-- TLS-12-PRF is unimplemented, not in documentation (relic of Botan 2?), and uses kdf_create_mac_or_hash
+-- X9.42-PRF is deprecated, has a unique create function, and uses Hash
+-- SP800-108-Counter, -Feedback, -Pipeline use kdf_create_mac_or_hash
+-- SP800-56A has two unique create functions, and uses Hash or HMAC (but trying to use hash fails according to tests)
+-- SP800-56C has two unique create functions, and uses macs or hashes
+
 data KDF
-    = HKDF MAC
-    | HKDF_Extract MAC
-    | HKDF_Expand MAC
+    = HKDF Hash
+    | HKDF_Extract Hash
+    | HKDF_Expand Hash
     | KDF2 Hash
     | KDF1_18033 Hash
     | KDF1 Hash
-    | TLS_PRF
-    | TLS_12_PRF MAC
-    | SP800_108_Counter MAC
-    | SP800_108_Feedback MAC
-    | SP800_108_Pipeline MAC
-    | SP800_56AHash Hash
-    | SP800_56AMAC MAC
-    | SP800_56C MAC
+    | TLS_12_PRF Hash -- Not mentioned but still in code?
+    -- NOTE: Despite documentation stating it only works with SHA-1,
+    -- it "works" with many hashes: MD5, RIPEMD-160, SHA-1, all SHA-2, SM3, both Streebog
+    -- however I don't think it is correct behavior as the actual code appears to only
+    -- allocate a SHA-1 hash context
+    -- | X9_42_PRF Hash
+    | X9_42_PRF
+    -- NOTE: These SP800 accept / require HMAC wrapping
+    | SP800_108_Counter Hash
+    | SP800_108_Feedback Hash
+    | SP800_108_Pipeline Hash
+    | SP800_56A Hash
+    | SP800_56C Hash 
     deriving (Show, Eq)
+
+-- TODO: | SP800_108 SP800_108_Mode MAC
+
+data SP800_108_Mode
+    = Counter
+    | Feedback
+    | Pipeline
     
 kdfName :: KDF -> KDFName
-kdfName (HKDF m)                = "HKDF(" <> macName m <> ")"
-kdfName (HKDF_Extract m)        = "HKDF-Extract(" <> macName m <> ")"
-kdfName (HKDF_Expand m)         = "HKDF-Expand(" <> macName m <> ")"
+kdfName (HKDF h)                = "HKDF(" <> hashName h <> ")"
+kdfName (HKDF_Extract h)        = "HKDF-Extract(" <> hashName h <> ")"
+kdfName (HKDF_Expand h)         = "HKDF-Expand(" <> hashName h <> ")"
 kdfName (KDF2 h)                = "KDF2(" <> hashName h <> ")"
 kdfName (KDF1_18033 h)          = "KDF1-18033(" <> hashName h <> ")"
 kdfName (KDF1 h)                = "KDF1(" <> hashName h <> ")"
-kdfName TLS_PRF                 = "TLS-PRF"
-kdfName (TLS_12_PRF m)          = "TLS-12-PRF(" <> macName m <> ")"
-kdfName (SP800_108_Counter m)   = "SP800-108-Counter(" <>  macName m <> ")"
-kdfName (SP800_108_Feedback m)  = "SP800-108-Feedback(" <> macName m <> ")"
-kdfName (SP800_108_Pipeline m)  = "SP800-108-Pipeline(" <> macName m <> ")"
-kdfName (SP800_56AHash h)       = "SP800-56A(" <> hashName h <> ")"
-kdfName (SP800_56AMAC m)        = "SP800-56A(" <> macName m <> ")"
-kdfName (SP800_56C m)           = "SP800-56C(" <> macName m <> ")"
+kdfName (TLS_12_PRF h)          = "TLS-12-PRF(" <> hashName h <> ")"
+-- NOTE: Many hashes do not throw an error for this KDF but are not necessarily correct
+-- kdfName (X9_42_PRF h)           = "X9.42-PRF(" <> hashName h <> ")"
+-- Only SHA-1 is valid for X9_42_PRF according to the source
+kdfName X9_42_PRF               = "X9.42-PRF(SHA-1)"
+kdfName (SP800_108_Counter h)   = "SP800-108-Counter(HMAC(" <> hashName h <> "))"
+kdfName (SP800_108_Feedback h)  = "SP800-108-Feedback(HMAC(" <> hashName h <> "))"
+kdfName (SP800_108_Pipeline h)  = "SP800-108-Pipeline(HMAC(" <> hashName h <> "))"
+kdfName (SP800_56A h)           = "SP800-56A(HMAC(" <> hashName h <> "))"
+kdfName (SP800_56C h)           = "SP800-56C(HMAC(" <> hashName h <> "))"
 
 -- NOTE: This works:
 --  > kdf "KDF1(SHA-256)" 32 "Fee fi fo fum!" "English" "Bread"
@@ -47,6 +73,9 @@ kdfName (SP800_56C m)           = "SP800-56C(" <> macName m <> ")"
 --  *** Exception: BadParameterException (-32) ...
 --  > kdf "KDF1(MD5)" 16 "Fee fi fo fum!" "English" "Bread"
 --  "\234\176\202\212A\162\154]\238J\131aKL\142\197"
+-- Also this works but shouldnt
+--  > kdf "X9.42-PRF(Streebog-256)" 10 "secret" "salt" "label"
+--  "\163\224\173\&1>\218$tx\228"
 
 kdf :: KDF -> Int -> ByteString -> ByteString -> ByteString -> ByteString
 kdf algo outLen secret salt label = unsafePerformIO $ Low.kdf (kdfName algo) outLen secret salt label

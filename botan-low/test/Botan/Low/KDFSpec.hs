@@ -32,17 +32,13 @@ import Botan.Low.KDF
 
 kdfs = concat
     [ [ "HKDF(" <> h <> ")" | h <-cryptohashes ]
-    -- , [ "HKDF-Extract(" <> h <> ")" | h <- cryptohashes ]
+    , [ "HKDF-Extract(" <> h <> ")" | h <- cryptohashes ]
     , [ "HKDF-Expand(" <> h <> ")" | h <- cryptohashes ]
     , [ "KDF2(" <> h <> ")" | h <- hashes ]
     , [ "KDF1-18033(" <> h <> ")" | h <- hashes ]
     , [ "KDF1(" <> h <> ")" | h <- hashes ]
     , [ "TLS-12-PRF(" <> h <> ")" | h <- cryptohashes ]
-    -- , [ "X9.42-PRF(" <> h <> ")"| h <- hashes ]
     , [ "X9.42-PRF(SHA-1)" ]
-    -- , [ "SP800-108-Counter(" <>  m <> ")" | m <- macs ]
-    -- , [ "SP800-108-Feedback(" <> m <> ")" | m <- macs ]
-    -- , [ "SP800-108-Pipeline(" <> m <> ")" | m <- macs ]
     , [ "SP800-108-Counter(HMAC(" <>  h <> "))" | h <- cryptohashes ]
     , [ "SP800-108-Feedback(HMAC(" <> h <> "))" | h <- cryptohashes ]
     , [ "SP800-108-Pipeline(HMAC(" <> h <> "))" | h <- cryptohashes ]
