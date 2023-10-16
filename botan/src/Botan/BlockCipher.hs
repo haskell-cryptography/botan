@@ -9,6 +9,7 @@ import Botan.Prelude
 --  For block ciphers with nonces, see Cipher
 
 type BlockCipherKey = ByteString
+type BlockCipher128Key = ByteString
 
 data BlockCipherKeySpec
     = BlockCipherKeySpec

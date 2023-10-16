@@ -5,24 +5,34 @@ import qualified Botan.Low.KeyWrap as Low
 import Botan.BlockCipher
 import Botan.Prelude
 
-nistKeyWrapEncode :: BlockCipher -> Int -> ByteString -> ByteString -> IO ByteString
-nistKeyWrapEncode = Low.nistKeyWrapEncode . blockCipherName
+-- NOTE: These friendlier names reflect the higher-level C++ interface names
+--  as opposed to Botan.Low.KeyWrap and the C FFI names, but drop the 'nist'
+--  prefix for even simpler nomenclature
 
-nistKeyWrapDecode :: BlockCipher -> Int -> ByteString -> ByteString -> IO ByteString
-nistKeyWrapDecode = Low.nistKeyWrapDecode . blockCipherName
+type KWKey = ByteString
+type KWPKey = ByteString
 
--- NOTE: Functions are not well documented, but do work.
--- What documentation that exists says it takes 128-bit ciphers
---  but other ciphers work too in newer mode (padding = 1)
-{-
-import Data.ByteString
-import Botan.Low.BlockCipher
-import Botan.Low.KeyWrap
-import Botan.Low.RNG
-import Botan.Low.Utility
-kwbc bc = nistKeyWrapEncode (blockCipherName bc)
-key = "Fee fi fo fum! I smell the blood of an Englishman!" :: ByteString
-kek <- systemRNGGetIO 32
-kwbc AES256 1 key kek >>= flip hexEncode 0
-"7511E9B6C7F2969464BD72471638CCA57A332944C856261385E2C8A37AB5012FAB708171FB5198D710A5E38F868AB80F2D6FE83E41E9A3260E4058BDC99C613D"
--}
+type KWWrappedKey = ByteString
+type KWPWrappedKey = ByteString
+
+keyWrap :: BlockCipher128 -> KWKey -> BlockCipher128Key -> IO KWWrappedKey
+keyWrap bc = nistKeyWrapEncode bc False
+
+keyUnwrap :: BlockCipher128 -> KWWrappedKey -> BlockCipher128Key -> IO KWKey
+keyUnwrap bc = nistKeyWrapDecode bc False
+
+keyWrapPadded :: BlockCipher128 -> KWPKey -> BlockCipher128Key -> IO KWPWrappedKey
+keyWrapPadded bc = nistKeyWrapEncode bc True
+
+keyUnwrapPadded :: BlockCipher128 -> KWPWrappedKey -> BlockCipher128Key -> IO KWPKey
+keyUnwrapPadded bc = nistKeyWrapDecode bc True
+
+-- NOTE: The Botan FFI conflates the unpadded and padded key wrap functions using the
+--  int / bool flag to select which.
+--  I feel it best to split them, but here we can provide a form consistent with the FFI
+
+nistKeyWrapEncode :: BlockCipher128 -> Bool -> ByteString -> ByteString -> IO ByteString
+nistKeyWrapEncode bc padded = Low.nistKeyWrapEncode (blockCipher128Name bc) (fromEnum padded)
+
+nistKeyWrapDecode :: BlockCipher128 -> Bool -> ByteString -> ByteString -> IO ByteString
+nistKeyWrapDecode bc padded = Low.nistKeyWrapDecode (blockCipher128Name bc) (fromEnum padded)

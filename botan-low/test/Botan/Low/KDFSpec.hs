@@ -47,7 +47,7 @@ kdfs = concat
     ]
 
 spec :: Spec
-spec = ftestSuite kdfs chars $ \ algo -> do
+spec = testSuite kdfs chars $ \ algo -> do
     describe "kdf" $ do
         it "can derive a key" $ do
             key <- kdf algo 3 "secret" "salt" "label"
