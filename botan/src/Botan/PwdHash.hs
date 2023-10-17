@@ -31,6 +31,10 @@ pwdhashTimed algo msec outLen passphrase salt = unsafePerformIO $ do
         salt
     return ((p1,p2,p3), out)
 
+-- NOTE: We have the correct parameters for Scrypt and the Argons
+--  However, the order is not necessarily correct, and it may also
+--  be inconsistent comparing pwdhash with pwdhashTimed.
+-- Further investigation is needed
 data PBKDF
     = PBKDF2 MAC Int        -- Iterations
     | Scrypt Int Int Int    -- N, r, p
