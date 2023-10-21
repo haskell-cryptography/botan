@@ -45,6 +45,20 @@ import Botan.Low.PubKey
 -- * SRP-6 Server Session type
 -- */
 
+-- TODO: Unify with other / move to botan
+type Identifier = ByteString
+type Password = ByteString
+type Salt = ByteString
+
+type HashId = ByteString -- HashName
+
+type GroupId = ByteString -- NOTE: Should be a DLGroup, potentially just the modp/srp/* ones
+
+type SRP6Verifier = ByteString
+type SRP6BValue = ByteString
+type SRP6AValue = ByteString
+type SRP6SharedSecret = ByteString
+
 newtype SRP6ServerSessionCtx = MkSRP6ServerSessionCtx { getSRP6ForeignPtr :: ForeignPtr SRP6Struct }
 
 withSRP6Ptr :: SRP6ServerSessionCtx -> (SRP6Ptr -> IO a) -> IO a
@@ -59,7 +73,7 @@ withSRP6ServerSessionCtx = mkWithTemp srp6ServerSessionInit srp6ServerSessionDes
 srp6ServerSessionDestroy :: SRP6ServerSessionCtx -> IO ()
 srp6ServerSessionDestroy srp6 = finalizeForeignPtr (getSRP6ForeignPtr srp6)
 
-srp6ServerSessionStep1 :: SRP6ServerSessionCtx -> ByteString -> ByteString -> ByteString -> RNGCtx -> IO ByteString
+srp6ServerSessionStep1 :: SRP6ServerSessionCtx -> SRP6Verifier -> GroupId -> HashId -> RNGCtx -> IO SRP6BValue
 srp6ServerSessionStep1 srp6 verifier groupId hashId rng = withSRP6Ptr srp6 $ \ srp6Ptr -> do
     asBytesLen verifier $ \ verifierPtr verifierLen -> do
         asCString groupId $ \ groupIdPtr -> do
@@ -75,7 +89,7 @@ srp6ServerSessionStep1 srp6 verifier groupId hashId rng = withSRP6Ptr srp6 $ \ s
                         outPtr
                         outLen
 
-srp6ServerSessionStep2 :: SRP6ServerSessionCtx -> ByteString -> IO ByteString
+srp6ServerSessionStep2 :: SRP6ServerSessionCtx -> SRP6AValue -> IO SRP6SharedSecret
 srp6ServerSessionStep2 srp6 a = withSRP6Ptr srp6 $ \ srp6Ptr -> do
     asBytesLen a $ \ aPtr aLen -> do
         allocBytesQuerying $ \ outPtr outLen -> botan_srp6_server_session_step2
@@ -85,7 +99,7 @@ srp6ServerSessionStep2 srp6 a = withSRP6Ptr srp6 $ \ srp6Ptr -> do
             outPtr
             outLen
 
-srp6GenerateVerifier :: ByteString -> ByteString -> ByteString -> ByteString -> ByteString -> IO ByteString
+srp6GenerateVerifier :: Identifier -> Password -> Salt -> GroupId -> HashId -> IO SRP6Verifier
 srp6GenerateVerifier identifier password salt groupId hashId = asCString identifier $ \ identifierPtr -> do
     asCString password $ \ passwordPtr -> do
         asBytesLen salt $ \ saltPtr saltLen -> do
@@ -102,7 +116,7 @@ srp6GenerateVerifier identifier password salt groupId hashId = asCString identif
                         outLen
 
 -- NOTE: ORDER IS DIFFERENT FROM SERVER GENERATE VERIFIER
-srp6ClientAgree :: ByteString -> ByteString -> ByteString -> ByteString -> ByteString -> ByteString -> RNGCtx -> IO (ByteString, ByteString)
+srp6ClientAgree :: Identifier -> Password -> GroupId -> HashId -> Salt -> SRP6BValue -> RNGCtx -> IO (SRP6AValue, SRP6SharedSecret)
 srp6ClientAgree identifier password groupId hashId salt b rng = do
     asCString identifier $ \ identifierPtr -> do
         asCString password $ \ passwordPtr -> do
@@ -132,8 +146,8 @@ srp6ClientAgree identifier password groupId hashId salt b rng = do
                                             kSzPtr
                                         kSz <- fromIntegral <$> peek kSzPtr
                                         aSz <- fromIntegral <$> peek aSzPtr
-                                        allocBytesWith kSz $ \ encapPtr -> do
-                                            allocBytes aSz $ \ sharedPtr -> do
+                                        allocBytesWith kSz $ \ kPtr -> do
+                                            allocBytes aSz $ \ aPtr -> do
                                                 throwBotanIfNegative_ $ botan_srp6_client_agree
                                                     identifierPtr
                                                     passwordPtr
@@ -144,12 +158,14 @@ srp6ClientAgree identifier password groupId hashId salt b rng = do
                                                     bPtr
                                                     bLen
                                                     rngPtr
-                                                    nullPtr
+                                                    aPtr
                                                     aSzPtr
-                                                    nullPtr
+                                                    kPtr
                                                     kSzPtr
 
-srp6GroupSize :: ByteString -> IO Int
+-- NOTE: Missing FFI function: srp6_group_identifierz
+
+srp6GroupSize :: GroupId -> IO Int
 srp6GroupSize groupId = asCString groupId $ \ groupIdPtr -> do
     alloca $ \ szPtr -> do
         throwBotanIfNegative_ $ botan_srp6_group_size groupIdPtr szPtr
