@@ -14,6 +14,7 @@ key = "Fee fi fo fum"
 counter :: HOTPCounter
 counter = 12345
 
+-- TODO: Do any other hashes work?
 hotpHashes :: [ HashName ]
 hotpHashes =
     [ "SHA-1"
