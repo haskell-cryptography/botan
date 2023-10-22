@@ -59,13 +59,16 @@ privKeyDestroy :: PrivKey -> IO ()
 privKeyDestroy privKey = finalizeForeignPtr (getPrivKeyForeignPtr privKey)
 
 -- TODO: Probably catch -1 (INVALID_INPUT), return Bool
-privKeyCheckKey :: PrivKey -> RNGCtx -> PubKeyCheckKeyFlags -> IO ()
+privKeyCheckKey :: PrivKey -> RNGCtx -> CheckKeyFlags -> IO ()
 privKeyCheckKey sk rng flags = withPrivKeyPtr sk $ \ skPtr -> do
     withRNGPtr rng $ \ rngPtr -> do
         throwBotanIfNegative_ $ botan_privkey_check_key skPtr rngPtr flags
 
 -- NOTE: Expectes PKCS #8 / PEM structure
 -- botan_privkey_export -> null password? and botan_privkey_export_encrypted_... -> use a password?
+-- NOTE: This is probably a bad implementation; null pointer and empty string are different
+--  and unencrypted is not the same as encrypted with "" as a pasword
+--  We'll fix this by having privKeyLoad and privKeyLoadEncrypted be separate functions
 privKeyLoad :: ByteString -> ByteString -> IO PrivKey
 privKeyLoad bits password = alloca $ \ outPtr -> do
     asBytesLen bits $ \ bitsPtr bitsLen -> do
@@ -77,6 +80,12 @@ privKeyLoad bits password = alloca $ \ outPtr -> do
             out <- peek outPtr
             foreignPtr <- newForeignPtr botan_privkey_destroy out
             return $ MkPrivKey foreignPtr
+
+pattern PrivKeyExportDER :: PrivKeyExportFlags
+pattern PrivKeyExportDER = BOTAN_PRIVKEY_EXPORT_FLAG_DER
+
+pattern PrivKeyExportPEM :: PrivKeyExportFlags
+pattern PrivKeyExportPEM = BOTAN_PRIVKEY_EXPORT_FLAG_PEM
 
 -- NOTE: Different from allocBytesQuerying / INSUFFICIENT_BUFFER_SPACE
 privKeyExport :: PrivKey -> PrivKeyExportFlags -> IO ByteString
@@ -155,13 +164,13 @@ pubKeyExport pk flags = withPubKeyPtr pk $ \ pkPtr -> do
 pubKeyAlgoName :: PubKey -> IO ByteString
 pubKeyAlgoName = mkGetCString withPubKeyPtr botan_pubkey_algo_name
 
-pattern CheckKeyNone :: PubKeyCheckKeyFlags
-pattern CheckKeyNone = BOTAN_PUBKEY_CHECK_KEY_FLAGS_NONE
+pattern CheckKeyNone :: CheckKeyFlags
+pattern CheckKeyNone = BOTAN_CHECK_KEY_NONE
 
-pattern CheckKeyExpensiveTests :: PubKeyCheckKeyFlags
-pattern CheckKeyExpensiveTests = BOTAN_PUBKEYCHECK_KEY_FLAGS_EXPENSIVE_TESTS
+pattern CheckKeyExpensiveTests :: CheckKeyFlags
+pattern CheckKeyExpensiveTests = BOTAN_CHECK_KEY_EXPENSIVE_TESTS
 
-pubKeyCheckKey :: PubKey -> RNGCtx -> PubKeyCheckKeyFlags -> IO Bool
+pubKeyCheckKey :: PubKey -> RNGCtx -> CheckKeyFlags -> IO Bool
 pubKeyCheckKey pk rng flags = withPubKeyPtr pk $ \ pkPtr -> do
     withRNGPtr rng $ \ rngPtr -> do
         throwBotanCatchingSuccess $ botan_pubkey_check_key pkPtr rngPtr flags
@@ -171,7 +180,7 @@ pubKeyCheckKey pk rng flags = withPubKeyPtr pk $ \ pkPtr -> do
 pubKeyEstimatedStrength :: PubKey -> IO Int
 pubKeyEstimatedStrength pk = fromIntegral <$> mkGetSize withPubKeyPtr botan_pubkey_estimated_strength pk
 
-pubKeyFingerprint :: PubKey -> ByteString -> IO ByteString
+pubKeyFingerprint :: PubKey -> HashName -> IO ByteString
 pubKeyFingerprint pk algo = withPubKeyPtr pk $ \ pkPtr -> do
     asCString algo $ \ algoPtr -> do
         allocBytesQuerying $ \ outPtr outLen -> botan_pubkey_fingerprint

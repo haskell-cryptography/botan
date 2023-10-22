@@ -141,6 +141,9 @@ See your appropriate package manager.
 
 - NOTE: Regarding unsafeDupablePerormIO: https://botan.randombit.net/handbook/api_ref/footguns.html#multithreaded-access
 
+- Botan test vectors: https://github.com/randombit/botan/tree/master/src/tests/data
+    - We can parse these
+
 # Issues
 
 ## CAPI vs CCALL

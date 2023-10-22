@@ -9,22 +9,23 @@ import Botan.Prelude
 
 -- TODO: Dig into Key agreement (KA) vs key exchange (KE / KX) vs key encapsulation mechanism (KEM)
 -- NOTE: libsodium uses kx for key exchange
+-- ALG SOURCES: https://github.com/randombit/botan/blob/a303f4af1504e7ac349dd798190924ea08ead9b7/src/lib/pubkey/pk_algs.cpp
+-- NOTE: Testing shows SM2 is broken or at least finnicky
 data PK                     -- NOTE: PQ = post-quantum, NS = national standard
     = RSA Word32            -- Encryption, signing, key encapsulation
-    | SM2 ECGroup           -- NS, Encryption, signing
+    | SM2 ECGroup           -- NS, Encryption, signing -- NOTE: Accepts SM2_Sig and SM2_Enc as names too
     | ElGamal DLGroup       -- Encryption
     | DSA DLGroup           -- Signing
     | ECDSA ECGroup         -- Signing
     | ECKCDSA ECGroup       -- NS, Signing
     | ECGDSA ECGroup        -- NS, Signing
-    | GOST_34_10 ECGroup    -- NS, Signing
-    | Ed25519               -- Signing
+    | GOST_34_10 ECGroup    -- NS, Signing -- NOTE: Accepts "" as param too, alternate names "GOST-34.10-2012-256" and "GOST-34.10-2012-512"
+    | Ed25519               -- Signing; TODO: Variant (Prehashed, Pure)
     | XMSS XMSS             -- PQ, signing
     | DH DLGroup            -- Key exchange
     | ECDH ECGroup          -- Key exchange
-    | Curve25519            -- Key exchange
+    | Curve25519            -- Key exchange, aka X25519
     -- New in 3.x?
-    | X25519            -- Key encapsulation? Unknown parameters, throws NotImplementedException (-40) on privKeyCreate, likely missing something
     | Dilithium         -- PQ, signing, unknown parameters
     | Kyber             -- PQ, key encapsulation, unknown parameters
     -- | SPHINCSPlus    -- PQ, signing, unknown parameters, possibly unavailable because brew botan is 3.0
@@ -43,14 +44,13 @@ pkName (DSA _)          = "DSA"
 pkName (ECDSA _)        = "ECDSA"
 pkName (ECKCDSA _)      = "ECKCDSA"
 pkName (ECGDSA _)       = "ECGDSA"
-pkName (GOST_34_10 _)   = "GOST_3.10"
+pkName (GOST_34_10 _)   = "GOST-34.10"
 pkName Ed25519          = "Ed25519"
 pkName (XMSS _)         = "XMSS"
 pkName (DH _)           = "DH"
 pkName (ECDH _)         = "ECDH"
 pkName Curve25519       = "Curve25519"
 -- New in 3.x?
-pkName X25519           = "X25519"
 pkName Dilithium        = "Dilithium"   -- "Dilithium-6x5-r3"   -- TODO: Find full listing in doxygen 
 pkName Kyber            = "Kyber"       -- "Kyber-1024-r3"      -- TODO: Find full listing in doxygen 
 -- pkName SPHINCSPlus      = "SPHINCS+"  -- Doesn't work :/      -- TODO: Find full listing in doxygen 
@@ -71,7 +71,6 @@ pkParams (DH grp)         = dlGroupName grp
 pkParams (ECDH grp)       = ecGroupName grp
 pkParams Curve25519       = ""
 -- New in 3.x? Unknown params!
-pkParams X25519           = ""
 pkParams Dilithium        = ""
 pkParams Kyber            = ""
 -- pkParams SPHINCSPlus      = ""
@@ -228,8 +227,8 @@ data PKExportFlags
     | PKExportPEM   -- BOTAN_PRIVKEY_EXPORT_FLAG_PEM
 
 data PKCheckKeyFlags
-    = PKCheckKeyNone            -- BOTAN_PUBKEY_CHECK_KEY_FLAGS_NONE
-    | PKCheckKeyExpensiveTests  -- BOTAN_PUBKEYCHECK_KEY_FLAGS_EXPENSIVE_TESTS
+    = PKCheckKeyNone            -- BOTAN_CHECK_KEY_NONE
+    | PKCheckKeyExpensiveTests  -- BOTAN_CHECK_KEY_EXPENSIVE_TESTS
 
 -- NOTE: Need to confirm  that this is all EME (encryption) padding
 data PKPadding

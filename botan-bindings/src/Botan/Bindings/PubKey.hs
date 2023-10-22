@@ -51,15 +51,15 @@ foreign import ccall unsafe botan_privkey_create :: Ptr PrivKeyPtr -> Ptr CChar 
 foreign import ccall unsafe "&botan_privkey_destroy" botan_privkey_destroy :: FinalizerPtr PrivKeyStruct
 
 -- #define BOTAN_CHECK_KEY_EXPENSIVE_TESTS 1
-type PubKeyCheckKeyFlags = Word32
-pattern BOTAN_PUBKEY_CHECK_KEY_FLAGS_NONE = 0 :: PubKeyCheckKeyFlags -- NOTE: NOT ACTUAL FLAG.
-pattern BOTAN_PUBKEYCHECK_KEY_FLAGS_EXPENSIVE_TESTS = 1 :: PubKeyCheckKeyFlags
+type CheckKeyFlags = Word32
+pattern BOTAN_CHECK_KEY_NONE = 0 :: CheckKeyFlags -- NOTE: NOT ACTUAL FLAG.
+pattern BOTAN_CHECK_KEY_EXPENSIVE_TESTS = 1 :: CheckKeyFlags
 
 -- NOTE: returns -1 (INVALID_INPUT) if key is wrong?
 {-|
 @BOTAN_PUBLIC_API(2,0) int botan_privkey_check_key(botan_privkey_t key, botan_rng_t rng, uint32_t flags);@
 -}
-foreign import ccall unsafe botan_privkey_check_key :: PrivKeyPtr -> RNGPtr -> PubKeyCheckKeyFlags -> IO BotanErrorCode
+foreign import ccall unsafe botan_privkey_check_key :: PrivKeyPtr -> RNGPtr -> CheckKeyFlags -> IO BotanErrorCode
 
 -- BOTAN_DEPRECATED("Use botan_privkey_create") BOTAN_PUBLIC_API(2,0)
 -- int botan_privkey_create_rsa(botan_privkey_t* key, botan_rng_t rng, size_t n_bits);
@@ -326,7 +326,7 @@ Returns 0 if key is valid, negative if invalid key or some other error
 
 @BOTAN_PUBLIC_API(2,0) int botan_pubkey_check_key(botan_pubkey_t key, botan_rng_t rng, uint32_t flags);@
 -}
-foreign import ccall unsafe botan_pubkey_check_key :: PubKeyPtr -> RNGPtr -> PubKeyCheckKeyFlags -> IO BotanErrorCode
+foreign import ccall unsafe botan_pubkey_check_key :: PubKeyPtr -> RNGPtr -> CheckKeyFlags -> IO BotanErrorCode
 
 {-|
 @BOTAN_PUBLIC_API(2,0) int botan_pubkey_estimated_strength(botan_pubkey_t key, size_t* estimate);@
