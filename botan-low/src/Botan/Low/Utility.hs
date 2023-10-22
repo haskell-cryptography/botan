@@ -33,6 +33,9 @@ import Botan.Bindings.Utility
 
 import Botan.Low.Error
 import Botan.Low.Prelude
+import Botan.Low.Make (allocBytesQuerying, allocBytesQueryingCString)
+
+-- NOTE: Use of Text is unique here - leave for Text for `botan`
 
 -- | Returns 0 if x[0..len] == y[0..len], -1 otherwise.
 constantTimeCompare :: ByteString -> ByteString -> Int -> IO Bool
@@ -69,32 +72,22 @@ hexEncode bytes flags =  Text.decodeUtf8 <$> do
 -- DISCUSS: Return value, maybe vs exception
 -- DISCUSS: Botan documentation is lacking here
 -- WARNING: Does not actually check that len is a multiple of 2
--- Could ByteString.pack . Text.unpack for efficiency, but is unsafe and requires
---  that the Text only include hex chars and is of even length
--- DISCUSS: Ignoring the Ptr CSize that returns the actual decoded length.
---  We need the array (and thus its length) /before/ we call botan_hex_decode :/
 hexDecode :: Text -> IO ByteString
 hexDecode txt = do
     asBytesLen (Text.encodeUtf8 txt) $ \ hexPtr hexLen -> do
-        allocBytes (fromIntegral $ div (hexLen + 1) 2) $ \ bytesPtr -> do
-            alloca $ \ szPtr -> do
-                throwBotanIfNegative_ $ botan_hex_decode hexPtr hexLen bytesPtr szPtr
+        allocBytesQuerying $ \ bytesPtr szPtr -> do
+            botan_hex_decode hexPtr hexLen bytesPtr szPtr
 
 -- NOTE: Does not check tht base64Len == peek sizePtr
--- DISCUSS: Ignoring the Ptr CSize that returns the actual decoded length.
 base64Encode :: ByteString -> IO Text
 base64Encode bytes = Text.decodeUtf8 <$> do
     asBytesLen bytes $ \ bytesPtr bytesLen -> do
-        allocBytes (4 * ceiling (fromIntegral bytesLen / 3)) $ \ base64Ptr -> do
-            alloca $ \ szPtr -> do
-                throwBotanIfNegative_ $ botan_base64_encode bytesPtr bytesLen base64Ptr szPtr
+        allocBytesQueryingCString $ \ base64Ptr szPtr -> do
+            botan_base64_encode bytesPtr bytesLen base64Ptr szPtr
 
 -- | Ditto everything hexDecode
--- NOTE: Since must be
 base64Decode :: Text -> IO ByteString
 base64Decode txt = do
     asBytesLen (Text.encodeUtf8 txt) $ \ base64Ptr base64Len -> do
-        let padLen = fromIntegral $ Text.length $ Text.takeWhileEnd (== '=') txt
-        allocBytes (fromIntegral $ (3 * (div base64Len 4)) - padLen) $ \ bytesPtr -> do
-            alloca $ \ szPtr -> do
-                throwBotanIfNegative_ $ botan_base64_decode base64Ptr base64Len bytesPtr szPtr
+        allocBytesQueryingCString $ \ bytesPtr szPtr -> do
+            botan_base64_decode base64Ptr base64Len bytesPtr szPtr
