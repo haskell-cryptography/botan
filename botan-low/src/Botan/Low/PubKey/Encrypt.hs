@@ -52,6 +52,11 @@ encryptOutputLength :: EncryptCtx -> Int -> IO Int
 encryptOutputLength = mkGetSize_csize withEncryptPtr botan_pk_op_encrypt_output_length
 
 -- NOTE: This properly takes advantage of szPtr, queries the buffer size - do this elsewhere
+-- NOTE: SM2 take a hash instead of a padding, and encrypt fails with InsufficientBufferSpace
+--  if sm2p256v1 is not used as the curve when creating the key (but creating the key and
+--  the encryption context do not fail)
+--  This implies that encryptOutputLength may be wrong or hardcoded for SM2 or that we
+--  are not supposed to use curves other than sm2p256v1 - this needs investigating
 encrypt :: EncryptCtx -> RNGCtx -> ByteString -> IO ByteString
 encrypt enc rng ptext = withEncryptPtr enc $ \ encPtr -> do
     withRNGPtr rng $ \ rngPtr -> do
