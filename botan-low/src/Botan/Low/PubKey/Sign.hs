@@ -62,9 +62,12 @@ signUpdate = mkSetBytesLen withSignPtr botan_pk_op_sign_update
 signFinish :: SignCtx -> RNGCtx -> IO ByteString
 signFinish sign rng = withSignPtr sign $ \ signPtr -> do
     withRNGPtr rng $ \ rngPtr -> do
+        -- NOTE: Investigation into DER format shows lots of trailing nulls that may need to be trimmed
+        --  using the output of szPtr if sz is just an upper-bound estimate
         sz <- signOutputLength sign
         allocBytes sz $ \ sigPtr -> do
             alloca $ \ szPtr -> do
+                poke szPtr (fromIntegral sz)
                 throwBotanIfNegative_ $ botan_pk_op_sign_finish signPtr rngPtr sigPtr szPtr
 
 -- /**
