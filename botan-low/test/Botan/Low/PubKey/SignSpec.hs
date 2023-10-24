@@ -40,7 +40,7 @@ pkTestName (pk, param, padding) = chars $ pk <> " " <> param <> " " <> padding
 -- TODO: Test DER format
 
 spec :: Spec
-spec = ftestSuite pks pkTestName $ \ (pk, param, algo) -> do
+spec = testSuite pks pkTestName $ \ (pk, param, algo) -> do
     it "signCreate" $ do
         rng <- rngInit "system"
         privKey <- privKeyCreate pk param rng

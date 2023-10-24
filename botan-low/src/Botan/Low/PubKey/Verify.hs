@@ -52,7 +52,6 @@ verifyUpdate :: VerifyCtx -> ByteString -> IO ()
 verifyUpdate = mkSetBytesLen withVerifyPtr botan_pk_op_verify_update
 
 -- TODO: Signature type
--- NOTE: Ignores szPtr result
 verifyFinish :: VerifyCtx -> ByteString -> IO Bool
 verifyFinish verify sig = withVerifyPtr verify $ \ verifyPtr -> do
     asBytesLen sig $ \ sigPtr sigLen -> do
