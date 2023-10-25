@@ -40,6 +40,16 @@ pks =
 pkTestName :: (ByteString, ByteString, ByteString) -> String
 pkTestName (pk, param, padding) = chars $ pk <> " " <> param <> " " <> padding
 
+-- SEE: signFinish for more details
+-- NOTE: Verified signatures pass for all algorithms in standard format
+--  Fails for only 4 in DER format via BadParameterException, but for important algs:
+--  RSA, Ed25519, XMSS, Dilithium
+--  The context and signatures are created without throwing any errors,
+--  compared to earlier which failed to even create a context, but
+--  it is possible that I need to figure out correct parameters and I doubt
+--  it is coincidence that the EMSA4 / empty params are the ones that are failing.
+--  Yet, it works for standard format.
+
 spec :: Spec
 spec = testSuite pks pkTestName $ \ (pk, param, algo) -> do
     it "verifyCreate" $ do
