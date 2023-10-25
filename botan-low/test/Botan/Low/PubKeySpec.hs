@@ -6,6 +6,7 @@ module Botan.Low.PubKeySpec
 
 import Test.Prelude
 
+import Botan.Low.MPI
 import Botan.Low.RNG
 import Botan.Low.PubKey
 
@@ -46,6 +47,54 @@ pks =
 pkTestName :: (ByteString, ByteString) -> String
 pkTestName (pk, param) = chars $ pk <> " " <> param
 
+-- NOTE: Known fields are: n, e, p, q, g, a, b
+--  ECGroup PrivKey: x plus all in PubKey
+--  EGGroup PubKey: public_x, public_y, base_x, base_y, p, a, b, cofactor, order
+--  DLGroup PubKey: p, q, g, y (not all groups have all four)
+--  DLGroup PrivKey: p, q, g, x, y
+--  RSA PubKey: p, q, d, c, d1, d2
+--  RSA PrivKey: n, e, d, p, q, d1, d2, c
+
+ecGroupPrivFields = [ "x" , "public_x", "public_y", "base_x", "base_y", "p", "a", "b", "cofactor", "order" ]
+ecGroupPubFields = [ "public_x", "public_y", "base_x", "base_y", "p", "a", "b", "cofactor", "order" ]
+
+dlGroupPrivFields = [ "p", "q", "g", "x", "y" ]
+dlGroupPubFields = [ "p", "q", "g", "y" ]
+
+privKeyFields "RSA"         = [ "p", "q", "d", "n", "e"] -- TODO: Check
+privKeyFields "SM2"         = ecGroupPrivFields
+privKeyFields "ElGamal"     = dlGroupPrivFields
+privKeyFields "DSA"         = dlGroupPrivFields
+privKeyFields "ECDSA"       = ecGroupPrivFields
+privKeyFields "ECKCDSA"     = ecGroupPrivFields
+privKeyFields "ECGDSA"      = ecGroupPrivFields
+privKeyFields "GOST-34.10"  = ecGroupPrivFields
+privKeyFields "Ed25519"     = [] -- TODO
+privKeyFields "XMSS"        = [] -- TODO
+privKeyFields "DH"          = dlGroupPrivFields
+privKeyFields "ECDH"        = ecGroupPrivFields
+privKeyFields "Curve25519"  = [] -- TODO
+privKeyFields "Dilithium"   = [] -- TODO
+privKeyFields "Kyber"       = [] -- TODO
+privKeyFields "McEliece"    = [] -- TODO
+
+pubKeyFields "RSA"         = [ "n", "e" ]
+pubKeyFields "SM2"         = ecGroupPubFields
+pubKeyFields "ElGamal"     = dlGroupPubFields
+pubKeyFields "DSA"         = dlGroupPubFields
+pubKeyFields "ECDSA"       = ecGroupPubFields
+pubKeyFields "ECKCDSA"     = ecGroupPubFields
+pubKeyFields "ECGDSA"      = ecGroupPubFields
+pubKeyFields "GOST-34.10"  = ecGroupPubFields
+pubKeyFields "Ed25519"     = [] -- TODO
+pubKeyFields "XMSS"        = [] -- TODO
+pubKeyFields "DH"          = dlGroupPubFields
+pubKeyFields "ECDH"        = ecGroupPubFields
+pubKeyFields "Curve25519"  = [] -- TODO
+pubKeyFields "Dilithium"   = [] -- TODO
+pubKeyFields "Kyber"       = [] -- TODO
+pubKeyFields "McEliece"    = [] -- TODO
+
 -- NOTE: These tests are going to be very slow if we create new keys every time
 spec :: Spec
 spec = testSuite pks pkTestName $ \ (pk, param) -> do
@@ -78,8 +127,6 @@ spec = testSuite pks pkTestName $ \ (pk, param) -> do
         privKey <- privKeyCreate pk param rng
         privKeyAlgoName privKey
         pass
-    it "privKeyGetField" $ do
-        pending
     it "privKeyExportPubKey" $ do
         rng <- rngInit "system"
         privKey <- privKeyCreate pk param rng
@@ -126,5 +173,20 @@ spec = testSuite pks pkTestName $ \ (pk, param) -> do
         pubKey <- privKeyExportPubKey privKey
         pubKeyFingerprint pubKey "SHA-256"
         pass
-    it "pubKeyGetField" $ do
-        pending
+    describe "privKeyGetField" $ do
+        forM_ (privKeyFields pk) $ \ field -> do
+            it (chars field) $ do
+                rng <- rngInit "system"
+                privKey <- privKeyCreate pk param rng
+                mp <- mpInit
+                privKeyGetField mp privKey field
+                pass
+    describe "pubKeyGetField" $ do
+        forM_ (pubKeyFields pk) $ \ field -> do
+            it (chars field) $ do
+                rng <- rngInit "system"
+                privKey <- privKeyCreate pk param rng
+                pubKey <- privKeyExportPubKey privKey
+                mp <- mpInit
+                pubKeyGetField mp pubKey field
+                pass

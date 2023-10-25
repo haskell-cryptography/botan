@@ -16,7 +16,7 @@ password = "password"
 salt :: ByteString
 salt = "salt"
 
--- NOTE: DLGroup
+-- NOTE: Consolidate with DLGroup
 groupIds :: [GroupId]
 groupIds =
     [ "ffdhe/ietf/2048"
