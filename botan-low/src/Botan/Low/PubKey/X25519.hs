@@ -26,6 +26,11 @@ import Botan.Low.PubKey
 -- * Algorithm specific key operations: X25519
 -- */
 
+-- NOTE: X25519 is Curve25519:
+--  lib/pubkey/curve25519/curve25519.h:
+--      typedef Curve25519_PublicKey X25519_PublicKey;
+--      typedef Curve25519_PrivateKey X25519_PrivateKey;
+
 -- NOTE: Input must be exactly 32 bytes long
 privKeyLoadX25519 :: ByteString -> IO PrivKey
 privKeyLoadX25519 = mkInit_bytes MkPrivKey botan_privkey_load_x25519 botan_privkey_destroy
