@@ -32,6 +32,8 @@ import Botan.Low.RNG
 --  https://botan.randombit.net/handbook/api_ref/pubkey.html#key-encapsulation
 -- KYBER is post-quantum
 
+type KEMSharedKey = ByteString
+type KEMEncapsulatedKey = ByteString
 
 newtype KEMEncryptCtx = MkKEMEncryptCtx { getKEMEncryptForeignPtr :: ForeignPtr KEMEncryptStruct }
 
@@ -62,27 +64,16 @@ kemEncryptEncapsulatedKeyLength = mkGetSize withKEMEncryptPtr botan_pk_op_kem_en
 -- NOTE: Awkward because of double-query and returning double bytestrings
 --  Cannot use allocBytesQuerying because of double-return
 -- NOTE: Returns (SharedKey, EncapsulatedKey)
-kemEncryptCreateSharedKey :: KEMEncryptCtx -> RNGCtx -> ByteString -> Int -> IO (ByteString,ByteString)
+kemEncryptCreateSharedKey :: KEMEncryptCtx -> RNGCtx -> ByteString -> Int -> IO (KEMSharedKey,KEMEncapsulatedKey)
 kemEncryptCreateSharedKey ke rng salt desiredLen = withKEMEncryptPtr ke $ \ kePtr -> do
     withRNGPtr rng $ \ rngPtr -> do
         asBytesLen salt $ \ saltPtr saltLen -> do
             alloca $ \ sharedSzPtr -> do 
                 alloca $ \ encapSzPtr -> do
-                    -- Query sizes
-                    -- TODO: Actually ensure expected error (insufficient buffer space)
-                    --  and propagate unexpected errors
-                    _ <- botan_pk_op_kem_encrypt_create_shared_key
-                        kePtr
-                        rngPtr
-                        saltPtr
-                        saltLen
-                        (fromIntegral desiredLen)
-                        nullPtr
-                        sharedSzPtr
-                        nullPtr
-                        encapSzPtr
-                    sharedSz <- fromIntegral <$> peek sharedSzPtr
-                    encapSz <- fromIntegral <$> peek encapSzPtr
+                    sharedSz <- kemEncryptSharedKeyLength ke desiredLen
+                    encapSz <-  kemEncryptEncapsulatedKeyLength ke
+                    poke sharedSzPtr (fromIntegral sharedSz)
+                    poke encapSzPtr (fromIntegral encapSz)
                     allocBytesWith encapSz $ \ encapPtr -> do
                         allocBytes sharedSz $ \ sharedPtr -> do
                             throwBotanIfNegative_ $ botan_pk_op_kem_encrypt_create_shared_key
@@ -91,9 +82,9 @@ kemEncryptCreateSharedKey ke rng salt desiredLen = withKEMEncryptPtr ke $ \ kePt
                                 saltPtr
                                 saltLen
                                 (fromIntegral desiredLen)
-                                nullPtr
+                                sharedPtr
                                 sharedSzPtr
-                                nullPtr
+                                encapPtr
                                 encapSzPtr
 
 newtype KEMDecryptCtx = MkKEMDecryptCtx { getKEMDecryptForeignPtr :: ForeignPtr KEMDecryptStruct }
@@ -119,16 +110,24 @@ kemDecryptDestroy keDecrypt = finalizeForeignPtr (getKEMDecryptForeignPtr keDecr
 kemDecryptSharedKeyLength :: KEMDecryptCtx -> Int -> IO Int
 kemDecryptSharedKeyLength = mkGetSize_csize withKEMDecryptPtr botan_pk_op_kem_decrypt_shared_key_length
 
-kemDecryptSharedKey :: KEMDecryptCtx -> ByteString -> ByteString -> Int -> IO ByteString
+kemDecryptSharedKey :: KEMDecryptCtx -> ByteString -> KEMEncapsulatedKey -> Int -> IO KEMSharedKey
 kemDecryptSharedKey kd salt encap desiredLen = withKEMDecryptPtr kd $ \ kdPtr -> do
     asBytesLen salt $ \ saltPtr saltLen -> do
         asBytesLen encap $ \ encapPtr encapLen -> do
-            allocBytesQuerying $ \ outPtr outLen -> botan_pk_op_kem_decrypt_shared_key
-                kdPtr
-                saltPtr
-                saltLen
-                encapPtr
-                encapLen
-                (fromIntegral desiredLen)
-                outPtr
-                outLen
+            -- TODO: Consolidate with allocBytesUpperBound or whatever I end up calling it
+            alloca $ \ sharedSzPtr -> do
+                sharedSz <- kemDecryptSharedKeyLength kd desiredLen
+                poke sharedSzPtr (fromIntegral sharedSz)
+                bytes <- allocBytes sharedSz $ \ outPtr -> do
+                    throwBotanIfNegative_ $ botan_pk_op_kem_decrypt_shared_key
+                        kdPtr
+                        saltPtr
+                        saltLen
+                        encapPtr
+                        encapLen
+                        (fromIntegral desiredLen)
+                        outPtr
+                        sharedSzPtr
+                actualSharedSz <- peek sharedSzPtr
+                return $!! ByteString.take (fromIntegral actualSharedSz) bytes
+
