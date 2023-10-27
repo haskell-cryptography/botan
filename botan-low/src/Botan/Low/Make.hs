@@ -352,11 +352,14 @@ mkSetBytesLen withPtr set typ bytes = withPtr typ $ \ typPtr -> do
 
 -- EXPERIMENTAL
 
+-- TODO: allocBytesEstimating
+
 -- NOTE: This properly takes advantage of szPtr, queries the buffer size - use this elsewhere
 -- NOTE: This throws any botan codes other than BOTAN_FFI_ERROR_INSUFFICIENT_BUFFER_SPACE
 allocBytesQuerying :: (Ptr byte -> Ptr CSize -> IO BotanErrorCode) -> IO ByteString
 allocBytesQuerying fn = do
     alloca $ \ szPtr -> do
+        -- TODO: Maybe poke szPtr 0 for extra safety in cas its not initially zero
         code <- fn nullPtr szPtr
         case code of
             InsufficientBufferSpace -> do

@@ -78,25 +78,11 @@ keyAgreementSize :: KeyAgreementCtx -> IO Int
 keyAgreementSize = mkGetSize withKeyAgreementPtr botan_pk_op_key_agreement_size
 
 keyAgreement :: KeyAgreementCtx -> ByteString -> ByteString -> IO ByteString
--- NOTE: This is not just causing a lock, its not interruptable.
--- keyAgreement ka key salt = withKeyAgreementPtr ka $ \ kaPtr -> do
---     asBytesLen key $ \ keyPtr keyLen -> do
---         asBytesLen salt $ \ saltPtr saltLen -> do
---             allocBytesQuerying $ \ outPtr outLen -> botan_pk_op_key_agreement
---                 kaPtr
---                 outPtr
---                 outLen
---                 keyPtr
---                 keyLen
---                 saltPtr
---                 saltLen
--- This also hangs :|
 keyAgreement ka key salt = withKeyAgreementPtr ka $ \ kaPtr -> do
     asBytesLen key $ \ keyPtr keyLen -> do
         asBytesLen salt $ \ saltPtr saltLen -> do
             outSz <- keyAgreementSize ka
             alloca $ \ szPtr -> do
-                print "about to call FFI"
                 out <- allocBytes outSz $ \ outPtr -> do
                     throwBotanIfNegative_ $ botan_pk_op_key_agreement
                         kaPtr
@@ -106,17 +92,5 @@ keyAgreement ka key salt = withKeyAgreementPtr ka $ \ kaPtr -> do
                         keyLen
                         saltPtr
                         saltLen
-                print "Finished FFI"
                 sz <- fromIntegral <$> peek szPtr
                 return $! ByteString.take sz out
-
-{-
-import Botan.PubKey.KeyAgreement
-import Botan.KDF
-import Botan.Hash
-(ska,pka) <- newKeyAgreementKeyPair Curve25519KA
-(skb,pkb) <- newKeyAgreementKeyPair Curve25519KA
--- This hangs and runs out of memory, doesn't seem to matter which curve?
-keyAgreement ska pkb (KDF2 (SHA3 SHA3_512)) "foo"
--}
--- Should make the jump off of 9.4 to 9.6, might fix some of these strange FFI issues
