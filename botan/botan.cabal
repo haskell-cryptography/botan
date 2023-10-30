@@ -41,6 +41,7 @@ library
         Botan.RNG
         Botan.Utility
         Botan.Version
+        Botan.X509
         Botan.ZFEC
     other-modules:
         Botan.Prelude

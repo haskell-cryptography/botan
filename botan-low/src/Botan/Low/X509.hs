@@ -26,6 +26,8 @@ import qualified Data.ByteString.Char8 as Char8
 import Botan.Bindings.PubKey
 import Botan.Bindings.X509
 
+import Botan.Low.Hash (HashName(..))
+
 import Botan.Low.Error
 import Botan.Low.Make
 import Botan.Low.Prelude
@@ -38,6 +40,8 @@ import Data.ByteString (packCString)
 -- /*
 -- * X.509 certificates
 -- **************************/
+
+type DistinguishedName = ByteString
 
 newtype X509Cert = MkX509Cert { getX509CertForeignPtr :: ForeignPtr X509CertStruct }
 
@@ -81,7 +85,7 @@ x509CertNotAfter cert = withX509CertPtr cert $ \ certPtr -> do
         fromIntegral <$> peek timePtr
 
 
-x509CertGetPubKeyFingerprint :: X509Cert -> ByteString -> IO ByteString
+x509CertGetPubKeyFingerprint :: X509Cert -> HashName -> IO ByteString
 x509CertGetPubKeyFingerprint cert algo = withX509CertPtr cert $ \ certPtr -> do
     asCString algo $ \ algoPtr -> do
         allocBytesQuerying $ \ outPtr outLen -> botan_x509_cert_get_fingerprint
@@ -109,7 +113,7 @@ x509CertGetPublicKey = mkInit_with MkPubKey (flip botan_x509_cert_get_public_key
 
 -- Distinguished Names
 --  SEE: https://www.ibm.com/docs/en/ibm-mq/7.5?topic=certificates-distinguished-names
-x509CertGetIssuerDN :: X509Cert -> ByteString -> Int -> IO ByteString
+x509CertGetIssuerDN :: X509Cert -> DistinguishedName -> Int -> IO ByteString
 x509CertGetIssuerDN cert key index = withX509CertPtr cert $ \ certPtr -> do
     asCString key $ \ keyPtr -> do
         allocBytesQuerying $ \ outPtr outLen -> botan_x509_cert_get_issuer_dn
@@ -121,7 +125,7 @@ x509CertGetIssuerDN cert key index = withX509CertPtr cert $ \ certPtr -> do
 
 -- Distinguished Names
 --  SEE: https://www.ibm.com/docs/en/ibm-mq/7.5?topic=certificates-distinguished-names
-x509CertGetSubjectDN :: X509Cert -> ByteString -> Int -> IO ByteString
+x509CertGetSubjectDN :: X509Cert -> DistinguishedName -> Int -> IO ByteString
 x509CertGetSubjectDN cert key index = withX509CertPtr cert $ \ certPtr -> do
     asCString key $ \ keyPtr -> do
         allocBytesQuerying $ \ outPtr outLen -> botan_x509_cert_get_issuer_dn
