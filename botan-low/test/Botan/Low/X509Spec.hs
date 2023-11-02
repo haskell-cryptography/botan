@@ -70,4 +70,71 @@ spec = focus $ do
         cert <- x509CertLoad testCert
         na <- x509CertNotAfter cert
         pass
-        
+    it "x509CertGetPubKeyFingerprint" $ do
+        cert <- x509CertLoad testCert
+        fp <- x509CertGetPubKeyFingerprint cert "SHA-256" -- TODO: HashName
+        pass
+    it "x509CertGetSerialNumber" $ do
+        cert <- x509CertLoad testCert
+        sn <- x509CertGetSerialNumber cert
+        pass
+    it "x509CertGetAuthorityKeyId" $ do
+        cert <- x509CertLoad testCert
+        akid <- x509CertGetAuthorityKeyId cert
+        pass
+    it "x509CertGetSubjectKeyId" $ do
+        cert <- x509CertLoad testCert
+        sid <- x509CertGetSubjectKeyId cert
+        pass
+    it "x509CertGetPublicKeyBits" $ do
+        cert <- x509CertLoad testCert
+        pkbits <- x509CertGetPublicKeyBits cert
+        pass
+    it "x509CertGetPublicKey" $ do
+        cert <- x509CertLoad testCert
+        pk <- x509CertGetPublicKey cert
+        pass
+    it "x509CertGetIssuerDN" $ do
+        cert <- x509CertLoad testCert
+        _ <- x509CertGetIssuerDN cert "CN" 0 -- TODO: Distinguished names, etc
+        pass
+    it "x509CertGetSubjectDN" $ do
+        cert <- x509CertLoad testCert
+        _ <- x509CertGetSubjectDN cert "CN" 0 -- TODO: Distinguished names, etc
+        pass
+    it "x509CertToString" $ do
+        cert <- x509CertLoad testCert
+        pass
+    it "x509CertAllowedUsage" $ do
+        cert <- x509CertLoad testCert
+        allowed <- x509CertAllowedUsage cert NoConstraints
+        pass
+    it "x509CertHostnameMatch" $ do
+        cert <- x509CertLoad testCert
+        matched <- x509CertHostnameMatch cert testCertHostname
+        pass
+    it "x509CertVerify" $ do
+        cert <- x509CertLoad testCert
+        -- x509CertVerify cert
+        pending
+    it "x509CertValidationStatus" $ do
+        cert <- x509CertLoad testCert
+        -- x509CertValidationStatus cert
+        pending
+    it "x509CRLLoad" $ do
+        cert <- x509CertLoad testCert
+        -- x509CRLLoad cert
+        pending
+    it "x509CRLLoadFile" $ do
+        cert <- x509CertLoad testCert
+        -- x509CRLLoadFile cert
+        pending
+    it "x509IsRevoked" $ do
+        cert <- x509CertLoad testCert
+        -- x509IsRevoked cert
+        pending
+    it "x509CertVerifyWithCLR" $ do
+        cert <- x509CertLoad testCert
+        -- x509CertVerifyWithCLR cert
+        pending
+
