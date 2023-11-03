@@ -8,6 +8,7 @@ import Botan.Low.X509
 
 import Paths_botan_low
 
+-- NOTE: Taken from https://fm4dd.com/openssl/certexamples.shtm
 testCert :: ByteString
 testCert = "-----BEGIN CERTIFICATE-----\
 \MIID2jCCA0MCAg39MA0GCSqGSIb3DQEBBQUAMIGbMQswCQYDVQQGEwJKUDEOMAwG\
@@ -38,8 +39,39 @@ testCert = "-----BEGIN CERTIFICATE-----\
 testCertFile :: FilePath
 testCertFile = "test-data/4096b-rsa-example-cert.pem"
 
+{-
+Version: 1
+Subject: C="JP",X520.State="Tokyo",O="Frank4DD",CN="www.example.com"
+Issuer: C="JP",X520.State="Tokyo",X520.Locality="Chuo-ku",O="Frank4DD",OU="WebCert Support",CN="Frank4DD Web CA",PKCS9.EmailAddress="support@frank4dd.com"
+Issued: 2012/08/22 05:28:00 UTC
+Expires: 2017/08/21 05:28:00 UTC
+Constraints:
+ None
+Signature algorithm: RSA/EMSA3(SHA-1)
+Serial number: 0DFD
+Public Key [RSA-4096]
+
+-----BEGIN PUBLIC KEY-----
+MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAsL1iEzi3sk20tUP1GnKn
+iCyCtelBy70spiJW24k+5qQ+EjMAd+N8aSJVzeuHwtGNcpU+iy3l+ErewHCaxiFd
+wDJiXLA7Dc4KOe+y6rTb5zpCx9BqI4rBRCkIkRF+oDoKvbVkqsGhDXHExLAF7leg
+ENUk/hterNNIjfdoY1/Vf1eurJ0cE7Cf6eFkaS0nQI+Nu9oYjNfaiIPc64fdntq0
+MuxP1EoVuIKTq4YNn+n3AgZvmlyIGvqsWki3IXA1Lz166SMU3fzlkNt0IbyBM5Bm
+z5QQPCezcPSgsmsW2DARW9YtJQY8Ci45nKIoYiOz1bYQDrvwe9Q9oSnBYyqX7+A9
+VGpv9FbpisIcLoWVTYy6tQUdRSkSdQoqCxuMAk69C1YLb71MoRa0vtz3VEdE+R5Q
+EFjzMkAx4AqWzh1tMHNIW7jXjv5UvNi44nhjRcSpjARRfZbDds7AOkMN9l5G9vxB
+ZbVwrabjsFc7XZODA652g18vczGbqhR6b+ZVk2w1cA3chEDXJWJWwBGw3rxEKP6w
+DmRZfeDLut6wIC4j3mTeCHUv+PKK+SmkGgjntA7gG+BljSEONnGEOU7BB1rfhSDg
+DEqX/YTT4w3rtbn3+NAzrbIshnl/TVYqirbbWh6b3e629s7GrG3ABlJfnzUCY+Ki
+Jj0gfU4amaj07pBHDPzbW3kCAwEAAQ==
+-----END PUBLIC KEY-----
+
+-}
+
 testCertHostname :: ByteString
-testCertHostname = "foo.com"
+testCertHostname = "www.example.com"
+
+testCertValidTimestamp = 1420092000
 
 spec :: Spec
 spec = focus $ do
@@ -115,12 +147,13 @@ spec = focus $ do
         pass
     it "x509CertVerify" $ do
         cert <- x509CertLoad testCert
-        -- x509CertVerify cert
-        pending
+        (success, status) <- x509CertVerify cert [] [] Nothing 0 testCertHostname testCertValidTimestamp
+        pass
     it "x509CertValidationStatus" $ do
         cert <- x509CertLoad testCert
-        -- x509CertValidationStatus cert
+        _ <- x509CertValidationStatus 0
         pending
+    -- NOTE: May need to generate a proper test cert with CA and CRL
     it "x509CRLLoad" $ do
         cert <- x509CertLoad testCert
         -- x509CRLLoad cert

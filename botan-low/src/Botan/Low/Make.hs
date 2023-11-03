@@ -397,3 +397,7 @@ mkWithTemp4 init destroy x y z w = bracket (init x y z w) destroy
 withPtrs :: (forall a . typ -> (ptr -> IO a) -> IO a) -> [typ] -> ([ptr] -> IO b) -> IO b
 withPtrs withPtr []         act = act []
 withPtrs withPtr (typ:typs) act = withPtr typ $ \ typPtr -> withPtrs withPtr typs (act . (typPtr:))
+
+-- withNullablePtr
+
+-- withNullablePtrList

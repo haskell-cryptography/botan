@@ -192,6 +192,11 @@ x509CertVerify cert icerts tcerts tpath strength hostname time = do
                                 time
                             code <- fromIntegral <$> peek statusPtr
                             return (success, code)
+    -- TODO: The above works, but there's more to it
+    --  Need to allow null pointer for empty lists too, something like:
+    --      where
+    --          withNullPtr withPtr m = if m == mempty then ($ nullPtr) else withPtr m
+    --  but we'll need to fiddle with this function (and x509CertVerifyWithCLR)
 
 x509CertValidationStatus :: Int -> IO (Maybe ByteString)
 x509CertValidationStatus code = do
