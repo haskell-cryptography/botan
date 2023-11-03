@@ -131,7 +131,7 @@ cipherStart = mkSetBytesLen withCipherPtr botan_cipher_start
 -- Some ciphers (ChaChaPoly, EAX) may consume less input than the reported ideal granularity
 cipherUpdate :: CipherCtx -> CipherUpdateFlags -> Int -> ByteString -> IO (Int,ByteString)
 cipherUpdate ctx flags outputSz input = withCipherPtr ctx $ \ ctxPtr -> do
-    asBytesLen input $ \ inputPtr inputSz -> do
+    unsafeAsBytesLen input $ \ inputPtr inputSz -> do
         alloca $ \ consumedPtr -> do
             alloca $ \ writtenPtr -> do
                 output <- allocBytes outputSz $ \ outputPtr -> do

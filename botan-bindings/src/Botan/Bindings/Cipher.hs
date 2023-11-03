@@ -180,7 +180,7 @@ Encrypt some data
                                   size_t input_size,
                                   size_t* input_consumed);@
 -}
-foreign import ccall unsafe botan_cipher_update
+foreign import ccall safe botan_cipher_update
     :: CipherPtr
     -> CipherUpdateFlags
     -> Ptr Word8    -- output
