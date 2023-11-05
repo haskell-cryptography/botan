@@ -5,6 +5,20 @@
 
 extern "C" {
 
+    typedef struct hs_botan_x509_ca_struct* hs_botan_x509_ca_t;
+    typedef struct hs_botan_x509_csr_struct* hs_botan_x509_csr_t;
+    typedef struct hs_botan_x509_exts_struct* hs_botan_x509_exts_t;
+
+    int hs_botan_x509_ca_create(hs_botan_x509_ca_t* ca, botan_x509_cert_t cert, botan_privkey_t key, const char* hash_fn, botan_rng_t rng);
+    int hs_botan_x509_ca_create_padding(hs_botan_x509_ca_t* ca, botan_x509_cert_t cert, botan_privkey_t key, const char* hash_fn, const char* padding_fn, botan_rng_t rng);
+
+    int hs_botan_x509_ca_destroy(hs_botan_x509_ca_t ca);
+
+    int hs_botan_x509_ca_sign_request(botan_x509_cert_t* cert, hs_botan_x509_csr_t csr, botan_rng_t rng, uint64_t not_before, uint64_t not_after);
+
+    int hs_botan_x509_ca_make_cert(botan_x509_cert_t* cert, botan_pk_op_sign_t signer, botan_rng_t rng, botan_mp_t serial_number, const char* sig_algo, botan_pubkey_t key, uint64_t not_before, uint64_t not_after, const char* issuer_dn, const char* subject_dn, hs_botan_x509_exts_t exts);
+    int hs_botan_x509_ca_choose_extensions(hs_botan_x509_exts_t* exts, hs_botan_x509_csr_t csr, botan_x509_cert_t ca_cert, const char* hash_fn);
+
     /*
     -- X509_CA::X509_CA(const X509_Certificate &cert, const Private_Key &key, const std::string &hash_fn, RandomNumberGenerator &rng)
     hs_botan_x509_ca_create         :: Ptr X509CAPtr -> X509CertPtr -> PrivKeyPtr -> Ptr CChar -> RNGPtr -> IO BotanErrorCode
