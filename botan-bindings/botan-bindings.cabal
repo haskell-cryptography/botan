@@ -9,13 +9,16 @@ description:
     Raw bindings to the Botan cryptography library
 
 source-repository head
-  type:     git
-  location: https://github.com/apotheca/botan.git
+    type:     git
+    location: https://github.com/apotheca/botan.git
+
+flag XFFI
+    description: Enable experimental / upstream ffi support
+    manual: True
+    default: False
 
 library
     hs-source-dirs:   src
-    cxx-sources:
-        cbits/hs_botan/x509_ca.cpp
     default-language: Haskell2010
     default-extensions:
         NoImplicitPrelude
@@ -61,7 +64,6 @@ library
         Botan.Bindings.Version
         Botan.Bindings.View
         Botan.Bindings.X509
-        Botan.Bindings.X509.CA
         Botan.Bindings.ZFEC
     other-modules:
         Botan.Bindings.Prelude
@@ -72,13 +74,19 @@ library
         text
     includes:
         botan/ffi.h
-    include-dirs:
-        cbits
     if os(windows)
         -- UNTESTED, PROBABLY WRONG
         extra-libraries: botan-3
     else
         pkgconfig-depends: botan-3 >= 3.0.0
     -- cc-options:     -Wall
-    -- ghc-options:    -Wall -funbox-strict-fields  
-    cxx-options: -std=c++20 
+    -- ghc-options:    -Wall -funbox-strict-fields
+    if flag(XFFI)
+        exposed-modules:
+            Botan.Bindings.X509.CA
+        cxx-options: -std=c++20
+        include-dirs:
+            cbits
+        cxx-sources:
+            cbits/hs_botan/x509_ca.cpp
+        cpp-options: -DXFFI

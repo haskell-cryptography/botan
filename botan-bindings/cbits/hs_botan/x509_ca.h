@@ -1,14 +1,16 @@
-#ifndef HS_BOTAN_X509_CRL_H
-#define HS_BOTAN_X509_CRL_H
+#ifndef HS_BOTAN_X509_CA_H
+#define HS_BOTAN_X509_CA_H
 
 #include <botan/ffi.h>
 
 extern "C" {
 
     typedef struct hs_botan_x509_ca_struct* hs_botan_x509_ca_t;
-    typedef struct hs_botan_x509_csr_struct* hs_botan_x509_csr_t;
+    typedef struct hs_botan_x509_csr_struct* hs_botan_x509_csr_t; // PKCS10Request
     typedef struct hs_botan_x509_exts_struct* hs_botan_x509_exts_t;
 
+    // TODO: BOTAN_FFI_EXPORT(3, 0) ...
+    
     int hs_botan_x509_ca_create(hs_botan_x509_ca_t* ca, botan_x509_cert_t cert, botan_privkey_t key, const char* hash_fn, botan_rng_t rng);
     int hs_botan_x509_ca_create_padding(hs_botan_x509_ca_t* ca, botan_x509_cert_t cert, botan_privkey_t key, const char* hash_fn, const char* padding_fn, botan_rng_t rng);
 
