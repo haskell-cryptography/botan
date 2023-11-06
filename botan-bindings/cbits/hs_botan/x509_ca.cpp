@@ -33,4 +33,16 @@ int hs_botan_x509_ca_choose_extensions(hs_botan_x509_exts_t* exts, hs_botan_x509
     return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
 }
 
+// TODO: Move to x509_csr.cpp
+
+struct hs_botan_x509_cert_options_struct { uint64_t value; };
+
+int hs_botan_x509_create_cert_req(hs_botan_x509_csr_t* csr, hs_botan_x509_cert_options_t opts, botan_privkey_t key, const char* hash_fn, botan_rng_t rng) {
+    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+}
+
+int hs_botan_x509_csr_create(hs_botan_x509_csr_t* csr, botan_privkey_t key, const char* subject_dn, hs_botan_x509_exts_t extensions, const char* hash_fn, botan_rng_t rng, const char* padding_fn, const char* challenge) {
+    return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
+}
+
 }

@@ -69,4 +69,32 @@ foreign import ccall unsafe hs_botan_x509_ca_choose_extensions
     -> X509CertPtr
     -> Ptr CChar
     -> IO BotanErrorCode
-    
+
+-- TODO: Move to Botan.Bindings.X509.CSR    
+
+data X509CertOptionsStruct
+type X509CertOptionsPtr = Ptr X509CertOptionsStruct
+
+foreign import ccall unsafe hs_botan_x509_create_cert_req
+    :: Ptr PKCS10RequestPtr
+    -> X509CertOptionsPtr
+    -> PrivKeyPtr
+    -> Ptr CChar
+    -> RNGPtr
+    -> IO BotanErrorCode
+
+foreign import ccall unsafe hs_botan_x509_csr_create
+    :: Ptr PKCS10RequestPtr
+    -> PrivKeyPtr
+    -> Ptr CChar
+    -> X509ExtensionsPtr
+    -> Ptr CChar
+    -> RNGPtr
+    -> Ptr CChar
+    -> Ptr CChar
+    -> IO BotanErrorCode
+
+    -- typedef struct hs_botan_x509_cert_options_struct* hs_botan_x509_cert_options_t;
+
+    -- int hs_botan_x509_create_cert_req(botan_x509_csr_t* csr, hs_botan_x509_cert_options_t opts, botan_privkey_t key, const char* hash_fn, botan_rng_t rng);
+    -- int hs_botan_x509_csr_create(botan_x509_csr_t* csr, botan_privkey_t key, const char* subject_dn, hs_botan_x509_exts_t extensions, const char* hash_fn, botan_rng_t rng, const char* padding_fn, const char* challenge);

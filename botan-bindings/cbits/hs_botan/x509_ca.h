@@ -36,6 +36,13 @@ extern "C" {
     hs_botan_x509_ca_choose_extensions :: Ptr X509ExtensionsPtr -> PKCS10RequestPtr -> X509CertPtr -> Ptr CChar -> IO BotanErrorCode
     */
 
+    // TODO: Move to x509_csr.h
+
+    typedef struct hs_botan_x509_cert_options_struct* hs_botan_x509_cert_options_t;
+
+    int hs_botan_x509_create_cert_req(hs_botan_x509_csr_t* csr, hs_botan_x509_cert_options_t opts, botan_privkey_t key, const char* hash_fn, botan_rng_t rng);
+    int hs_botan_x509_csr_create(hs_botan_x509_csr_t* csr, botan_privkey_t key, const char* subject_dn, hs_botan_x509_exts_t extensions, const char* hash_fn, botan_rng_t rng, const char* padding_fn, const char* challenge);
+
     /*
     PKCS10_Request create_cert_req(const X509_Cert_Options &opts, const Private_Key &key, const std::string &hash_fn, RandomNumberGenerator &rng)¶
     PKCS10_Request PKCS10_Request::create(const Private_Key &key, const X509_DN &subject_dn, const Extensions &extensions, const std::string &hash_fn, RandomNumberGenerator &rng, const std::string &padding_scheme = "", const std::string &challenge = "")
