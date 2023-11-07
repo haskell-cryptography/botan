@@ -27,6 +27,46 @@ Use homebrew: `brew install botan`
 
 See your appropriate package manager.
 
+### Experimental support
+
+Some features rely on experimental FFI code that will be contributed upstream to C++ Botan. To enable it:
+
+1) Clone the experimental [botan fork](https://github.com/apotheca/botan-upstream)
+
+2) [Build and install](https://github.com/randombit/botan/blob/master/doc/building.rst) from source
+
+3) Set `extra-lib-dirs` and `extra-include-dirs`, either as a CLI parameter, or in the `*.cabal` or `cabal.project` file.
+
+4) Use the `XFFI` flag to enable the experimental FFI modules.
+
+So it'll look something like this:
+
+```sh
+# Clone
+git clone https://github.com/apotheca/botan-upstream $BOTAN_CPP
+
+# Build and install C++
+cd $BOTAN_CPP
+./configure.py --prefix=$BOTAN_OUT
+make
+make install
+
+# Play around with it
+cd $BOTAN_HASKELL
+cabal repl botan-low -fXFFI --extra-lib-dirs=$BOTAN_OUT/lib --extra-include-dirs=$BOTAN_OUT/include
+```
+
+To check that you've done everything correctly, you can run the following:
+
+```
+import Botan.Bindings.Version 
+import Foreign.C.String
+import Prelude
+botan_version_string >>= peekCString
+```
+
+The version will say `unreleased` if it is properly pointing to our built Botan.
+
 # TODO LIST
 
 - Documentation / fix existing documentation

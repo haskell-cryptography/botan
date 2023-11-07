@@ -29,3 +29,11 @@ packages:
     -- This may end up using either `botan` or `crypto-schemes` and `crypto-schemes-botan`
     -- and is a candidate for merging with `crypton` if sufficient compatibility is possible.
     -- botanite
+
+-- Uncomment to point to a local botan install:
+-- extra-lib-dirs:
+--     $BOTAN_OUT/lib
+-- extra-include-dirs:
+--     $BOTAN_OUT/include
+-- Or as command-line arguments:
+-- cabal repl botan-bindings --extra-lib-dirs=$BOTAN_OUT/lib --extra-include-dirs $BOTAN_OUT/include
