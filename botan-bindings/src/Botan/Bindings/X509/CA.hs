@@ -19,7 +19,7 @@ type PKCS10RequestPtr = Ptr PKCS10RequestStruct
 data X509ExtensionsStruct
 type X509ExtensionsPtr = Ptr X509ExtensionsStruct
 
-foreign import ccall unsafe hs_botan_x509_ca_create
+foreign import ccall unsafe botan_x509_ca_create
     :: Ptr X509CAPtr
     -> X509CertPtr
     -> PrivKeyPtr
@@ -27,7 +27,7 @@ foreign import ccall unsafe hs_botan_x509_ca_create
     -> RNGPtr
     -> IO BotanErrorCode
 
-foreign import ccall unsafe hs_botan_x509_ca_create_padding
+foreign import ccall unsafe botan_x509_ca_create_padding
     :: Ptr X509CAPtr
     -> X509CertPtr
     -> PrivKeyPtr
@@ -36,11 +36,11 @@ foreign import ccall unsafe hs_botan_x509_ca_create_padding
     -> RNGPtr
     -> IO BotanErrorCode
 
-foreign import ccall unsafe hs_botan_x509_ca_destroy
+foreign import ccall unsafe botan_x509_ca_destroy
     :: X509CAPtr
     -> IO BotanErrorCode
 
-foreign import ccall unsafe hs_botan_x509_ca_sign_request
+foreign import ccall unsafe botan_x509_ca_sign_request
     :: Ptr X509CAPtr
     -> PKCS10RequestPtr
     -> RNGPtr
@@ -48,7 +48,7 @@ foreign import ccall unsafe hs_botan_x509_ca_sign_request
     -> Word64
     -> IO BotanErrorCode
 
-foreign import ccall unsafe hs_botan_x509_ca_make_cert
+foreign import ccall unsafe botan_x509_ca_make_cert
     :: Ptr X509CAPtr
     -> SignPtr
     -> RNGPtr
@@ -63,7 +63,7 @@ foreign import ccall unsafe hs_botan_x509_ca_make_cert
     -> X509ExtensionsPtr
     -> IO BotanErrorCode
 
-foreign import ccall unsafe hs_botan_x509_ca_choose_extensions
+foreign import ccall unsafe botan_x509_ca_choose_extensions
     :: Ptr X509ExtensionsPtr
     -> PKCS10RequestPtr
     -> X509CertPtr
@@ -94,7 +94,7 @@ foreign import ccall unsafe hs_botan_x509_csr_create
     -> Ptr CChar
     -> IO BotanErrorCode
 
-    -- typedef struct hs_botan_x509_cert_options_struct* hs_botan_x509_cert_options_t;
+-- typedef struct hs_botan_x509_cert_options_struct* hs_botan_x509_cert_options_t;
 
-    -- int hs_botan_x509_create_cert_req(botan_x509_csr_t* csr, hs_botan_x509_cert_options_t opts, botan_privkey_t key, const char* hash_fn, botan_rng_t rng);
-    -- int hs_botan_x509_csr_create(botan_x509_csr_t* csr, botan_privkey_t key, const char* subject_dn, hs_botan_x509_exts_t extensions, const char* hash_fn, botan_rng_t rng, const char* padding_fn, const char* challenge);
+-- int hs_botan_x509_create_cert_req(botan_x509_csr_t* csr, hs_botan_x509_cert_options_t opts, botan_privkey_t key, const char* hash_fn, botan_rng_t rng);
+-- int hs_botan_x509_csr_create(botan_x509_csr_t* csr, botan_privkey_t key, const char* subject_dn, hs_botan_x509_exts_t extensions, const char* hash_fn, botan_rng_t rng, const char* padding_fn, const char* challenge);
