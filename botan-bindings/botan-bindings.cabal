@@ -84,9 +84,4 @@ library
     if flag(XFFI)
         exposed-modules:
             Botan.Bindings.X509.CA
-        cxx-options: -std=c++20
-        include-dirs:
-            cbits
-        cxx-sources:
-            cbits/hs_botan/x509_ca.cpp
         cpp-options: -DXFFI
