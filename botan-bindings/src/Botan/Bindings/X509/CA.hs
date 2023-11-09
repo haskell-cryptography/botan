@@ -93,3 +93,11 @@ foreign import ccall unsafe botan_x509_csr_create
     -> Ptr CChar
     -> Ptr CChar
     -> IO BotanErrorCode
+
+foreign import ccall unsafe botan_x509_create_self_signed_cert
+    :: Ptr X509CertPtr
+    -> X509CertOptionsPtr
+    -> PrivKeyPtr
+    -> Ptr CChar
+    -> RNGPtr
+    -> IO BotanErrorCode
