@@ -12,11 +12,18 @@ source-repository head
   type:     git
   location: https://github.com/apotheca/botan.git
 
--- For tests
+flag XFFI
+    description: Enable experimental / upstream ffi support
+    manual: True
+    default: False
+
 -- NOTE: Use data-files instead, if this is inappropriate
+-- NOTE: This causes a soft error:
+--  Ignoring trailing fields after sections: "extra-source-files"
+-- This error may be incorrect / inappropriate
 extra-source-files:
-    test-data/**/*.der
-    test-data/**/*.pem
+    test-data/*.der
+    test-data/*.pem
 
 library
     hs-source-dirs:   src
@@ -80,7 +87,11 @@ library
         deepseq,
         text
     -- cc-options:     -Wall
-    -- ghc-options:    -Wall -funbox-strict-fields     
+    -- ghc-options:    -Wall -funbox-strict-fields    
+    if flag(XFFI)
+        exposed-modules:
+            Botan.Low.X509.CA
+        cpp-options: -DXFFI 
 
 test-suite botan-low-tests
     type:             exitcode-stdio-1.0

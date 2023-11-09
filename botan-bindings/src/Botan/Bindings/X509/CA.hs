@@ -41,25 +41,49 @@ foreign import ccall unsafe botan_x509_ca_destroy
     -> IO BotanErrorCode
 
 foreign import ccall unsafe botan_x509_ca_sign_request
-    :: Ptr X509CAPtr
+    :: Ptr X509CertPtr
+    -> X509CAPtr
     -> PKCS10RequestPtr
     -> RNGPtr
     -> Word64
     -> Word64
     -> IO BotanErrorCode
 
-foreign import ccall unsafe botan_x509_ca_make_cert
-    :: Ptr X509CAPtr
+-- foreign import ccall unsafe botan_x509_ca_sign_request_serial
+--     :: Ptr X509CertPtr
+--     -> X509CAPtr
+--     -> PKCS10RequestPtr
+--     -> RNGPtr
+--     -> MPPtr
+--     -> Word64
+--     -> Word64
+--     -> IO BotanErrorCode
+
+-- foreign import ccall unsafe botan_x509_ca_make_cert
+--     :: Ptr X509CertPtr
+--     -> SignPtr
+--     -> RNGPtr
+--     -> MPPtr
+--     -> Ptr CChar
+--     -> PubKeyPtr
+--     -> Word64
+--     -> Word64
+--     -> Ptr Word8 -> CSize
+--     -> Ptr Word8 -> CSize
+--     -> X509ExtensionsPtr
+--     -> IO BotanErrorCode
+
+foreign import ccall unsafe botan_x509_ca_make_cert_serial
+    :: Ptr X509CertPtr
     -> SignPtr
     -> RNGPtr
     -> MPPtr
     -> Ptr CChar
-    -> Ptr Word8
-    -> CSize
+    -> PubKeyPtr
     -> Word64
     -> Word64
-    -> Ptr CChar
-    -> Ptr CChar
+    -> Ptr Word8 -> CSize
+    -> Ptr Word8 -> CSize
     -> X509ExtensionsPtr
     -> IO BotanErrorCode
 
@@ -86,7 +110,7 @@ foreign import ccall unsafe botan_x509_create_cert_req
 foreign import ccall unsafe botan_x509_csr_create
     :: Ptr PKCS10RequestPtr
     -> PrivKeyPtr
-    -> Ptr CChar
+    -> Ptr Word8 -> CSize
     -> X509ExtensionsPtr
     -> Ptr CChar
     -> RNGPtr
