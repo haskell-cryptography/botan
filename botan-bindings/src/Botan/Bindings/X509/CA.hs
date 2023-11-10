@@ -7,6 +7,7 @@ import Botan.Bindings.PubKey
 import Botan.Bindings.PubKey.Sign
 import Botan.Bindings.RNG
 import Botan.Bindings.X509
+import Botan.Bindings.X509.Ext
 
 -- Certificate Authority
 data X509CAStruct
@@ -15,9 +16,6 @@ type X509CAPtr = Ptr X509CAStruct
 -- Certificate Signing Request, rename to that / CSR at higher levels
 data PKCS10RequestStruct
 type PKCS10RequestPtr = Ptr PKCS10RequestStruct
-
-data X509ExtensionsStruct
-type X509ExtensionsPtr = Ptr X509ExtensionsStruct
 
 foreign import ccall unsafe botan_x509_ca_create
     :: Ptr X509CAPtr

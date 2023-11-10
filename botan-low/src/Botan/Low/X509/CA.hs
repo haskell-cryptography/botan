@@ -10,6 +10,7 @@ import Botan.Low.RNG
 import Botan.Low.X509
 
 import Botan.Bindings.X509.CA
+import Botan.Bindings.X509.Ext
 
 -- /*
 -- * X.509 certificate authority
