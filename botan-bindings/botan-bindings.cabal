@@ -87,4 +87,5 @@ library
             Botan.Bindings.X509.CRL
             Botan.Bindings.X509.DN
             Botan.Bindings.X509.Ext
+            Botan.Bindings.X509.Store
         cpp-options: -DXFFI
