@@ -220,6 +220,7 @@ foreign import ccall unsafe botan_x509_cert_validation_status :: CInt -> IO CStr
 {-
 X.509 CRL
 -}
+-- TODO: Move to X509.CRL
 
 {-|
 @typedef struct botan_x509_crl_struct* botan_x509_crl_t;@
