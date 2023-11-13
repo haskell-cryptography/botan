@@ -57,3 +57,32 @@ foreign import ccall unsafe botan_x509_cert_store_certificate_known
     :: X509CertStorePtr
     -> X509CertPtr
     -> IO BotanErrorCode
+
+{-
+In-memory cert store
+-}
+
+foreign import ccall unsafe botan_x509_cert_store_in_memory_load_dir
+    :: Ptr X509CertStorePtr
+    -> Ptr CChar
+    -> IO BotanErrorCode
+
+foreign import ccall unsafe botan_x509_cert_store_in_memory_load_cert
+    :: Ptr X509CertStorePtr
+    -> X509CertPtr
+    -> IO BotanErrorCode
+
+foreign import ccall unsafe botan_x509_cert_store_in_memory_create
+    :: Ptr X509CertStorePtr
+    -> IO BotanErrorCode
+
+foreign import ccall unsafe botan_x509_cert_store_in_memory_add_certificate
+    :: X509CertStorePtr
+    -> X509CertPtr
+    -> IO BotanErrorCode
+
+foreign import ccall unsafe botan_x509_cert_store_in_memory_add_crl
+    :: X509CertStorePtr
+    -> X509CRLPtr
+    -> IO BotanErrorCode
+
