@@ -86,3 +86,13 @@ foreign import ccall unsafe botan_x509_cert_store_in_memory_add_crl
     -> X509CRLPtr
     -> IO BotanErrorCode
 
+{-
+Flatfile cert store
+-}
+
+-- TODO: Probably rename botan_x509_cert_store_flatfile_load
+foreign import ccall unsafe botan_x509_cert_store_flatfile_create
+    :: Ptr X509CertStorePtr
+    -> Ptr CChar
+    -> CBool
+    -> IO BotanErrorCode
