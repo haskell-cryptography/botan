@@ -3,6 +3,7 @@ module Botan.Bindings.X509.Store where
 import Botan.Bindings.Error
 import Botan.Bindings.Prelude
 import Botan.Bindings.PubKey
+import Botan.Bindings.RNG
 import Botan.Bindings.X509
 
 data X509CertStoreStruct
@@ -152,10 +153,45 @@ foreign import ccall unsafe botan_x509_cert_store_sql_affirm_cert
     :: X509CertStorePtr
     -> X509CertPtr
     -> IO BotanErrorCode
-    
+
 -- NOTE: See notes about returning arrays of things, improper return pointer type
 foreign import ccall unsafe botan_x509_cert_store_sql_generate_crls
     :: Ptr X509CRLPtr -> Ptr CSize
     -> X509CertStorePtr
     -> IO BotanErrorCode
 
+{-
+SQLite3 cert store
+-}
+
+foreign import ccall unsafe botan_x509_cert_store_sqlite3_create
+    :: Ptr X509CertStorePtr
+    -> Ptr CChar
+    -> Ptr CChar
+    -> RNGPtr
+    -> Ptr CChar
+    -> IO BotanErrorCode
+
+{-
+System cert store
+-}
+
+foreign import ccall unsafe botan_x509_cert_store_system_create
+    :: Ptr X509CertStorePtr
+    -> IO BotanErrorCode
+
+{-
+MacOS cert store
+-}
+
+foreign import ccall unsafe botan_x509_cert_store_macos_create
+    :: Ptr X509CertStorePtr
+    -> IO BotanErrorCode
+
+{-
+Windows cert store
+-}
+
+foreign import ccall unsafe botan_x509_cert_store_windows_create
+    :: Ptr X509CertStorePtr
+    -> IO BotanErrorCode
