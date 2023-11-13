@@ -2,6 +2,7 @@ module Botan.Bindings.X509.Store where
 
 import Botan.Bindings.Error
 import Botan.Bindings.Prelude
+import Botan.Bindings.PubKey
 import Botan.Bindings.X509
 
 data X509CertStoreStruct
@@ -96,3 +97,65 @@ foreign import ccall unsafe botan_x509_cert_store_flatfile_create
     -> Ptr CChar
     -> CBool
     -> IO BotanErrorCode
+
+{-
+SQL cert store
+-}
+
+-- NOTE: Returns boolean success code
+foreign import ccall unsafe botan_x509_cert_store_sql_insert_cert
+    :: X509CertStorePtr
+    -> X509CertPtr
+    -> IO BotanErrorCode
+
+-- NOTE: Returns boolean success code
+foreign import ccall unsafe botan_x509_cert_store_sql_remove_cert
+    :: X509CertStorePtr
+    -> X509CertPtr
+    -> IO BotanErrorCode
+
+-- NOTE: Returns nullPtr if not found
+foreign import ccall unsafe botan_x509_cert_store_sql_find_key
+    :: Ptr PrivKeyPtr
+    -> X509CertStorePtr
+    -> X509CertPtr
+    -> IO BotanErrorCode
+
+-- NOTE: See notes about returning arrays of things, improper return pointer type
+foreign import ccall unsafe botan_x509_cert_store_sql_find_certs_for_key
+    :: Ptr X509CertPtr -> Ptr CSize
+    -> X509CertStorePtr
+    -> PrivKeyPtr
+    -> IO BotanErrorCode
+
+-- NOTE: Returns boolean success code
+foreign import ccall unsafe botan_x509_cert_store_sql_insert_key
+    :: X509CertStorePtr
+    -> X509CertPtr
+    -> PrivKeyPtr
+    -> IO BotanErrorCode
+
+-- NOTE: *DOES NOT* return boolean success code
+foreign import ccall unsafe botan_x509_cert_store_sql_remove_key
+    :: X509CertStorePtr
+    -> PrivKeyPtr
+    -> IO BotanErrorCode
+
+foreign import ccall unsafe botan_x509_cert_store_sql_revoke_cert
+    :: X509CertStorePtr
+    -> X509CertPtr
+    -> Word32
+    -> Word64
+    -> IO BotanErrorCode
+
+foreign import ccall unsafe botan_x509_cert_store_sql_affirm_cert
+    :: X509CertStorePtr
+    -> X509CertPtr
+    -> IO BotanErrorCode
+    
+-- NOTE: See notes about returning arrays of things, improper return pointer type
+foreign import ccall unsafe botan_x509_cert_store_sql_generate_crls
+    :: Ptr X509CRLPtr -> Ptr CSize
+    -> X509CertStorePtr
+    -> IO BotanErrorCode
+
