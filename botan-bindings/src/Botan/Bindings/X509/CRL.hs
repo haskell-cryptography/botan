@@ -14,9 +14,7 @@ type X509CRLEntryPtr = Ptr X509CRLEntryStruct
 -- TODO: These functions are only bound to declarations, and the functions are currently not implemented
 -- Do not use them yet, it will just crash
 
-foreign import ccall unsafe "&botan_x509_crl_entry_destroy" botan_x509_crl_entry_destroy
-    :: X509CRLEntryPtr
-    -> IO BotanErrorCode
+foreign import ccall unsafe "&botan_x509_crl_entry_destroy" botan_x509_crl_entry_destroy :: FinalizerPtr X509CRLEntryStruct
 
 foreign import ccall unsafe botan_x509_crl_entry_create
     :: Ptr X509CRLEntryPtr

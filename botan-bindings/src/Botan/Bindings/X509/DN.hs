@@ -7,9 +7,7 @@ import Botan.Bindings.X509
 data X509DNStruct
 type X509DNPtr = Ptr X509DNStruct
 
-foreign import ccall unsafe "&botan_x509_dn_destroy" botan_x509_dn_destroy
-    :: X509DNPtr
-    -> IO BotanErrorCode
+foreign import ccall unsafe "&botan_x509_dn_destroy" botan_x509_dn_destroy :: FinalizerPtr X509DNStruct
 
 
 foreign import ccall unsafe botan_x509_dn_create

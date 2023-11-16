@@ -13,10 +13,6 @@ import Botan.Bindings.X509.Ext
 data X509CAStruct
 type X509CAPtr = Ptr X509CAStruct
 
--- Certificate Signing Request, rename to that / CSR at higher levels
-data PKCS10RequestStruct
-type PKCS10RequestPtr = Ptr PKCS10RequestStruct
-
 foreign import ccall unsafe botan_x509_ca_create
     :: Ptr X509CAPtr
     -> X509CertPtr
@@ -34,9 +30,7 @@ foreign import ccall unsafe botan_x509_ca_create_padding
     -> RNGPtr
     -> IO BotanErrorCode
 
-foreign import ccall unsafe "&botan_x509_ca_destroy" botan_x509_ca_destroy
-    :: X509CAPtr
-    -> IO BotanErrorCode
+foreign import ccall unsafe "&botan_x509_ca_destroy" botan_x509_ca_destroy :: FinalizerPtr X509CAStruct
 
 foreign import ccall unsafe botan_x509_ca_sign_request
     :: Ptr X509CertPtr
@@ -92,10 +86,13 @@ foreign import ccall unsafe botan_x509_ca_choose_extensions
     -> Ptr CChar
     -> IO BotanErrorCode
 
--- TODO: Move to Botan.Bindings.X509.CSR    
+-- TODO: Move to Botan.Bindings.X509.CSR
 
-data X509CertOptionsStruct
-type X509CertOptionsPtr = Ptr X509CertOptionsStruct
+-- Certificate Signing Request, rename to that / CSR at higher levels
+data PKCS10RequestStruct
+type PKCS10RequestPtr = Ptr PKCS10RequestStruct
+
+foreign import ccall unsafe "&botan_x509_csr_destroy" botan_x509_csr_destroy :: FinalizerPtr PKCS10RequestStruct
 
 foreign import ccall unsafe botan_x509_create_cert_req
     :: Ptr PKCS10RequestPtr
@@ -125,9 +122,11 @@ foreign import ccall unsafe botan_x509_create_self_signed_cert
     -> IO BotanErrorCode
 
 -- TODO: Probably move to Botan.Bindings.X509.Options
-foreign import ccall unsafe "&botan_x509_cert_options_destroy" botan_x509_cert_options_destroy
-    :: X509CertOptionsPtr
-    -> IO BotanErrorCode
+
+data X509CertOptionsStruct
+type X509CertOptionsPtr = Ptr X509CertOptionsStruct
+
+foreign import ccall unsafe "&botan_x509_cert_options_destroy" botan_x509_cert_options_destroy :: FinalizerPtr X509CertOptionsStruct
 
 foreign import ccall unsafe botan_x509_cert_options_create
     :: Ptr X509CertOptionsPtr
@@ -144,12 +143,12 @@ foreign import ccall unsafe botan_x509_cert_options_create_common
 
 foreign import ccall unsafe botan_x509_cert_options_set_common_name
     :: X509CertOptionsPtr
- 
+    -> Ptr CChar
     -> IO BotanErrorCode
 
 foreign import ccall unsafe botan_x509_cert_options_set_country
     :: X509CertOptionsPtr
-    -> Ptr CChar 
+    -> Ptr CChar
     -> IO BotanErrorCode
 
 foreign import ccall unsafe botan_x509_cert_options_set_org
@@ -159,7 +158,7 @@ foreign import ccall unsafe botan_x509_cert_options_set_org
 
 foreign import ccall unsafe botan_x509_cert_options_set_org_unit
     :: X509CertOptionsPtr
-    -> Ptr CChar 
+    -> Ptr CChar
     -> IO BotanErrorCode
 
 foreign import ccall unsafe botan_x509_cert_options_set_more_org_units
@@ -169,37 +168,37 @@ foreign import ccall unsafe botan_x509_cert_options_set_more_org_units
 
 foreign import ccall unsafe botan_x509_cert_options_set_locality
     :: X509CertOptionsPtr
-    -> Ptr CChar 
+    -> Ptr CChar
     -> IO BotanErrorCode
 
 foreign import ccall unsafe botan_x509_cert_options_set_state
     :: X509CertOptionsPtr
-    -> Ptr CChar 
+    -> Ptr CChar
     -> IO BotanErrorCode
 
 foreign import ccall unsafe botan_x509_cert_options_set_serial_number
     :: X509CertOptionsPtr
-    -> Ptr CChar 
+    -> Ptr CChar
     -> IO BotanErrorCode
 
 foreign import ccall unsafe botan_x509_cert_options_set_email
     :: X509CertOptionsPtr
-    -> Ptr CChar 
+    -> Ptr CChar
     -> IO BotanErrorCode
 
 foreign import ccall unsafe botan_x509_cert_options_set_uri
     :: X509CertOptionsPtr
-    -> Ptr CChar 
+    -> Ptr CChar
     -> IO BotanErrorCode
 
 foreign import ccall unsafe botan_x509_cert_options_set_ip
     :: X509CertOptionsPtr
-    -> Ptr CChar 
+    -> Ptr CChar
     -> IO BotanErrorCode
 
 foreign import ccall unsafe botan_x509_cert_options_set_dns
     :: X509CertOptionsPtr
-    -> Ptr CChar 
+    -> Ptr CChar
     -> IO BotanErrorCode
 
 foreign import ccall unsafe botan_x509_cert_options_set_more_dns
@@ -209,12 +208,12 @@ foreign import ccall unsafe botan_x509_cert_options_set_more_dns
 
 foreign import ccall unsafe botan_x509_cert_options_set_xmpp
     :: X509CertOptionsPtr
-    -> Ptr CChar 
+    -> Ptr CChar
     -> IO BotanErrorCode
 
 foreign import ccall unsafe botan_x509_cert_options_set_challenge
     :: X509CertOptionsPtr
-    -> Ptr CChar 
+    -> Ptr CChar
     -> IO BotanErrorCode
 
 -- // Or _set_not_before
