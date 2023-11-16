@@ -9,7 +9,7 @@ import Botan.Bindings.X509
 data X509CertStoreStruct
 type X509CertStorePtr = Ptr X509CertStoreStruct
 
-foreign import ccall unsafe botan_x509_cert_store_destroy
+foreign import ccall unsafe "&botan_x509_cert_store_destroy" botan_x509_cert_store_destroy
     :: X509CertStorePtr
     -> IO BotanErrorCode
 

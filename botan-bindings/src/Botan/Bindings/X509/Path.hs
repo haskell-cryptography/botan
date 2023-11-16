@@ -11,11 +11,11 @@ type X509PathValidationRestrictionsPtr = Ptr X509PathValidationRestrictionsStruc
 data X509PathValidationResultStruct
 type X509PathValidationResultPtr = Ptr X509PathValidationResultStruct
 
-foreign import ccall unsafe botan_x509_path_validation_restrictions_destroy
+foreign import ccall unsafe "&botan_x509_path_validation_restrictions_destroy" botan_x509_path_validation_restrictions_destroy
     :: X509PathValidationRestrictionsPtr
     -> IO BotanErrorCode
 
-foreign import ccall unsafe botan_x509_path_validation_result_destroy
+foreign import ccall unsafe "&botan_x509_path_validation_result_destroy" botan_x509_path_validation_result_destroy
     :: X509PathValidationResultPtr
     -> IO BotanErrorCode
 

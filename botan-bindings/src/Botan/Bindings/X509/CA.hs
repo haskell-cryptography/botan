@@ -34,7 +34,7 @@ foreign import ccall unsafe botan_x509_ca_create_padding
     -> RNGPtr
     -> IO BotanErrorCode
 
-foreign import ccall unsafe botan_x509_ca_destroy
+foreign import ccall unsafe "&botan_x509_ca_destroy" botan_x509_ca_destroy
     :: X509CAPtr
     -> IO BotanErrorCode
 
@@ -125,8 +125,7 @@ foreign import ccall unsafe botan_x509_create_self_signed_cert
     -> IO BotanErrorCode
 
 -- TODO: Probably move to Botan.Bindings.X509.Options
-
-foreign import ccall unsafe botan_x509_cert_options_destroy
+foreign import ccall unsafe "&botan_x509_cert_options_destroy" botan_x509_cert_options_destroy
     :: X509CertOptionsPtr
     -> IO BotanErrorCode
 
