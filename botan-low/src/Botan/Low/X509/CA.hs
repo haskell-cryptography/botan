@@ -1,8 +1,11 @@
 module Botan.Low.X509.CA where
 
+import Data.Bool
+
 import Botan.Low.Error
 import Botan.Low.Prelude
 import Botan.Low.Hash
+import Botan.Low.Make
 import Botan.Low.MPI
 import Botan.Low.PubKey
 import Botan.Low.PubKey.Sign
@@ -91,4 +94,138 @@ withX509CertOptionsPtr = withForeignPtr . getX509CertOptionsForeignPtr
 
 x509CertOptionsDestroy :: X509CertOptions -> IO ()
 x509CertOptionsDestroy opts = finalizeForeignPtr (getX509CertOptionsForeignPtr opts)
+
+x509CertOptionsCreate :: IO X509CertOptions
+x509CertOptionsCreate = mkInit MkX509CertOptions botan_x509_cert_options_create botan_x509_cert_options_destroy
+
+x509CertOptionsCreateCommon
+    :: ByteString
+    -> ByteString
+    -> ByteString
+    -> ByteString
+    -> Word32
+    -> IO X509CertOptions
+x509CertOptionsCreateCommon common_name country org org_unit expiration_time = do
+    alloca $ \ outPtr -> do
+        asCString common_name $ \ cnPtr -> do
+            asCString country $ \ countryPtr -> do
+                asCString org $ \ orgPtr -> do
+                    asCString org_unit $ \ orgUnitPtr -> do
+                        throwBotanIfNegative_ $ botan_x509_cert_options_create_common outPtr
+                            cnPtr
+                            countryPtr
+                            orgPtr
+                            orgUnitPtr
+                            expiration_time
+        out <- peek outPtr
+        foreignPtr <- newForeignPtr botan_x509_cert_options_destroy out
+        return $ MkX509CertOptions foreignPtr
+
+x509CertOptionSetCommonName :: X509CertOptions -> ByteString -> IO ()
+x509CertOptionSetCommonName = mkSetCString withX509CertOptionsPtr botan_x509_cert_options_set_common_name
+
+x509CertOptionSetCountry :: X509CertOptions -> ByteString -> IO ()
+x509CertOptionSetCountry = mkSetCString withX509CertOptionsPtr botan_x509_cert_options_set_country
+
+x509CertOptionSetOrg :: X509CertOptions -> ByteString -> IO ()
+x509CertOptionSetOrg = mkSetCString withX509CertOptionsPtr botan_x509_cert_options_set_org
+
+x509CertOptionSetOrgUnit :: X509CertOptions -> ByteString -> IO ()
+x509CertOptionSetOrgUnit = mkSetCString withX509CertOptionsPtr botan_x509_cert_options_set_org_unit
+
+x509CertOptionSetMoreOrgUnits :: X509CertOptions -> [ByteString] -> IO ()
+x509CertOptionSetMoreOrgUnits opts more_org_units = withX509CertOptionsPtr opts $ \ optsPtr -> do
+    withPtrs asCString more_org_units $ \ morePtrs -> do
+        allocaArray moreLen $ \ (morePtrArrayPtr :: Ptr (Ptr CChar)) -> do
+            pokeArray morePtrArrayPtr morePtrs
+            throwBotanIfNegative_ $ botan_x509_cert_options_set_more_org_units
+                optsPtr
+                morePtrArrayPtr
+                (fromIntegral moreLen)
+    where
+        moreLen = length more_org_units
+
+x509CertOptionSetLocality :: X509CertOptions -> ByteString -> IO ()
+x509CertOptionSetLocality = mkSetCString withX509CertOptionsPtr botan_x509_cert_options_set_locality
+
+x509CertOptionSetState :: X509CertOptions -> ByteString -> IO ()
+x509CertOptionSetState = mkSetCString withX509CertOptionsPtr botan_x509_cert_options_set_state
+
+x509CertOptionSetSerialNumber :: X509CertOptions -> ByteString -> IO ()
+x509CertOptionSetSerialNumber = mkSetCString withX509CertOptionsPtr botan_x509_cert_options_set_serial_number
+
+x509CertOptionSetEmail :: X509CertOptions -> ByteString -> IO ()
+x509CertOptionSetEmail = mkSetCString withX509CertOptionsPtr botan_x509_cert_options_set_email
+
+x509CertOptionSetURI :: X509CertOptions -> ByteString -> IO ()
+x509CertOptionSetURI = mkSetCString withX509CertOptionsPtr botan_x509_cert_options_set_uri
+
+x509CertOptionSetIP :: X509CertOptions -> ByteString -> IO ()
+x509CertOptionSetIP = mkSetCString withX509CertOptionsPtr botan_x509_cert_options_set_ip
+
+x509CertOptionSetDNS :: X509CertOptions -> ByteString -> IO ()
+x509CertOptionSetDNS = mkSetCString withX509CertOptionsPtr botan_x509_cert_options_set_dns
+
+x509CertOptionSetMoreDNS :: X509CertOptions -> [ByteString] -> IO ()
+x509CertOptionSetMoreDNS opts more_dns = withX509CertOptionsPtr opts $ \ optsPtr -> do
+    withPtrs asCString more_dns $ \ morePtrs -> do
+        allocaArray moreLen $ \ (morePtrArrayPtr :: Ptr (Ptr CChar)) -> do
+            pokeArray morePtrArrayPtr morePtrs
+            throwBotanIfNegative_ $ botan_x509_cert_options_set_more_dns
+                optsPtr
+                morePtrArrayPtr
+                (fromIntegral moreLen)
+    where
+        moreLen = length more_dns
+
+x509CertOptionSetXMPP :: X509CertOptions -> ByteString -> IO ()
+x509CertOptionSetXMPP = mkSetCString withX509CertOptionsPtr botan_x509_cert_options_set_xmpp
+
+x509CertOptionSetChallenge :: X509CertOptions -> ByteString -> IO ()
+x509CertOptionSetChallenge = mkSetCString withX509CertOptionsPtr botan_x509_cert_options_set_challenge
+
+x509CertOptionSetStart :: X509CertOptions -> Word64 -> IO ()
+x509CertOptionSetStart = mkSet withX509CertOptionsPtr botan_x509_cert_options_set_start
+
+x509CertOptionSetEnd :: X509CertOptions -> Word64 -> IO ()
+x509CertOptionSetEnd = mkSet withX509CertOptionsPtr botan_x509_cert_options_set_end
+
+-- // TODO: Convenience functions for set_start_duration, set_expires
+
+x509CertOptionSetIsCA :: X509CertOptions -> Bool -> IO ()
+x509CertOptionSetIsCA = mkSetOn withX509CertOptionsPtr (CBool . bool 0 1) botan_x509_cert_options_set_is_ca
+
+x509CertOptionSetPathLimit :: X509CertOptions -> Int -> IO ()
+x509CertOptionSetPathLimit = mkSetCSize withX509CertOptionsPtr botan_x509_cert_options_set_path_limit
+
+x509CertOptionSet_padding_scheme :: X509CertOptions -> ByteString -> IO ()
+x509CertOptionSet_padding_scheme = mkSetCString withX509CertOptionsPtr botan_x509_cert_options_set_padding_scheme
+
+-- NOTE: Should probably be Word rather than Int
+x509CertOptionSetKeyConstraints :: X509CertOptions -> Int -> IO ()
+x509CertOptionSetKeyConstraints = mkSetOn withX509CertOptionsPtr fromIntegral botan_x509_cert_options_set_key_constraints
+
+x509CertOptionSetExConstraints :: X509CertOptions -> [ByteString] -> IO ()
+x509CertOptionSetExConstraints opts exConstraints = withX509CertOptionsPtr opts $ \ optsPtr -> do
+    withPtrs asCString exConstraints $ \ exPtrs -> do
+        allocaArray exLen $ \ (exPtrArrayPtr :: Ptr (Ptr CChar)) -> do
+            pokeArray exPtrArrayPtr exPtrs
+            throwBotanIfNegative_ $ botan_x509_cert_options_set_ex_constraints
+                optsPtr
+                exPtrArrayPtr
+                (fromIntegral exLen)
+    where
+        exLen = length exConstraints
+
+x509CertOptionSetExtensions :: X509CertOptions -> X509Extensions -> IO ()
+x509CertOptionSetExtensions opts extensions = withX509CertOptionsPtr opts $ \ optsPtr -> do
+    withX509ExtensionsPtr extensions $ \ extensionPtr -> do
+        throwBotanIfNegative_ $ botan_x509_cert_options_set_extensions
+            optsPtr
+            extensionPtr
+
+-- TODO: botan_x509_cert_options getters
+
+-- TODO: botan_x509_cert_options functions (above is just members)
+-- There's only a few though so its easy
 

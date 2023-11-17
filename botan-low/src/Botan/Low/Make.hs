@@ -304,6 +304,21 @@ mkAction
 mkAction withPtr action typ = withPtr typ $ \ typPtr -> do
     throwBotanIfNegative_ $ action typPtr
 
+mkSet
+    :: WithPtr typ ptr
+    -> (ptr -> a -> IO BotanErrorCode)
+    -> typ -> a -> IO ()
+mkSet withPtr set typ a = withPtr typ $ \ typPtr -> do
+    throwBotanIfNegative_ $ set typPtr a
+
+mkSetOn
+    :: WithPtr typ ptr
+    -> (a -> b)
+    -> (ptr -> b -> IO BotanErrorCode)
+    -> typ -> a -> IO ()
+mkSetOn withPtr fn set typ sz = withPtr typ $ \ typPtr -> do
+    throwBotanIfNegative_ $ set typPtr (fn sz)
+
 type SetCSize ptr = ptr -> CSize -> IO BotanErrorCode
 type SetCInt ptr = ptr -> CInt -> IO BotanErrorCode
 
