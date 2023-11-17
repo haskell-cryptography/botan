@@ -21,16 +21,16 @@ newtype X509CA = MkX509CA { getX509CAForeignPtr :: ForeignPtr X509CAStruct }
 withX509CAPtr :: X509CA -> (X509CAPtr -> IO a) -> IO a
 withX509CAPtr = withForeignPtr . getX509CAForeignPtr
 
--- PKCS10Request
-newtype X509CSR = MkX509CSR { getX509CSRForeignPtr :: ForeignPtr PKCS10RequestStruct }
-
-withX509CSRPtr :: X509CSR -> (PKCS10RequestPtr -> IO a) -> IO a
-withX509CSRPtr = withForeignPtr . getX509CSRForeignPtr
+x509CADestroy :: X509CA -> IO ()
+x509CADestroy ca = finalizeForeignPtr (getX509CAForeignPtr ca)
 
 newtype X509Extensions = MkX509Extensions { getX509ExtensionsForeignPtr :: ForeignPtr X509ExtensionsStruct }
 
 withX509ExtensionsPtr :: X509Extensions -> (X509ExtensionsPtr -> IO a) -> IO a
 withX509ExtensionsPtr = withForeignPtr . getX509ExtensionsForeignPtr
+
+x509ExtensionsDestroy :: X509Extensions -> IO ()
+x509ExtensionsDestroy exts = finalizeForeignPtr (getX509ExtensionsForeignPtr exts)
 
 type X509DN = ByteString
 
@@ -44,9 +44,6 @@ x509CACreate = undefined
 x509CACreatePadding :: X509Cert -> PrivKey -> HashName -> X509PaddingName -> RNGCtx -> IO X509CA
 x509CACreatePadding = undefined
 
-x509CADestroy :: X509CA -> IO ()
-x509CADestroy ca = finalizeForeignPtr (getX509CAForeignPtr ca)
-
 x509CASignRequest :: X509CA -> X509CSR -> RNGCtx -> Word64 -> Word64 -> IO X509Cert
 x509CASignRequest = undefined
 
@@ -57,16 +54,20 @@ x509CAMakeCertSerial = undefined
 x509CAChooseExtensions :: X509CSR -> X509Cert -> HashName -> IO X509Extensions
 x509CAChooseExtensions = undefined
 
--- TODO: Move to Botan.Bindings.X509.CSR    
+-- TODO: Move to Botan.Bindings.X509.CSR   
 
 -- /*
 -- * X.509 certificate signing request
 -- **************************/
 
-newtype X509CertOptions = MkX509CertOptions { getX509CertOptionsForeignPtr :: ForeignPtr X509CertOptionsStruct }
+-- PKCS10Request
+newtype X509CSR = MkX509CSR { getX509CSRForeignPtr :: ForeignPtr PKCS10RequestStruct }
 
-withX509CertOptionsPtr :: X509CertOptions -> (X509CertOptionsPtr -> IO a) -> IO a
-withX509CertOptionsPtr = withForeignPtr . getX509CertOptionsForeignPtr
+withX509CSRPtr :: X509CSR -> (PKCS10RequestPtr -> IO a) -> IO a
+withX509CSRPtr = withForeignPtr . getX509CSRForeignPtr
+
+x509CSRDestroy :: X509CSR -> IO ()
+x509CSRDestroy csr = finalizeForeignPtr (getX509CSRForeignPtr csr)
 
 x509CreateCertReq :: X509CertOptions -> PrivKey -> HashName -> RNGCtx -> IO X509CSR
 x509CreateCertReq = undefined
@@ -74,8 +75,20 @@ x509CreateCertReq = undefined
 x509CSRCreate :: PrivKey -> X509DN -> X509Extensions -> HashName -> RNGCtx -> X509PaddingName -> X509Challenge -> IO X509CSR
 x509CSRCreate privKey subjectDn exts hash_fn rng padding_fn challenge = undefined
 
-x509CSRDestroy :: X509CSR -> IO ()
-x509CSRDestroy csr = finalizeForeignPtr (getX509CSRForeignPtr csr)
-
 x509CreateSelfSignedCert :: X509CertOptions -> PrivKey -> HashName -> RNGCtx -> IO X509Cert
 x509CreateSelfSignedCert = undefined
+
+-- /*
+-- * X.509 certificate options
+-- **************************/
+
+-- TODO: Probably move to Botan.Low.X509.Options
+
+newtype X509CertOptions = MkX509CertOptions { getX509CertOptionsForeignPtr :: ForeignPtr X509CertOptionsStruct }
+
+withX509CertOptionsPtr :: X509CertOptions -> (X509CertOptionsPtr -> IO a) -> IO a
+withX509CertOptionsPtr = withForeignPtr . getX509CertOptionsForeignPtr
+
+x509CertOptionsDestroy :: X509CertOptions -> IO ()
+x509CertOptionsDestroy opts = finalizeForeignPtr (getX509CertOptionsForeignPtr opts)
+
