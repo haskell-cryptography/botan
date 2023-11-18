@@ -151,7 +151,7 @@ foreign import ccall unsafe botan_x509_cert_options_set_country
     -> Ptr CChar
     -> IO BotanErrorCode
 
-foreign import ccall unsafe botan_x509_cert_options_set_org
+foreign import ccall unsafe botan_x509_cert_options_set_organization
     :: X509CertOptionsPtr
     -> Ptr CChar
     -> IO BotanErrorCode

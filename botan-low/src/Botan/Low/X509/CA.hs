@@ -128,7 +128,7 @@ x509CertOptionsSetCountry :: X509CertOptions -> ByteString -> IO ()
 x509CertOptionsSetCountry = mkSetCString withX509CertOptionsPtr botan_x509_cert_options_set_country
 
 x509CertOptionsSetOrg :: X509CertOptions -> ByteString -> IO ()
-x509CertOptionsSetOrg = mkSetCString withX509CertOptionsPtr botan_x509_cert_options_set_org
+x509CertOptionsSetOrg = mkSetCString withX509CertOptionsPtr botan_x509_cert_options_set_organization
 
 x509CertOptionsSetOrgUnit :: X509CertOptions -> ByteString -> IO ()
 x509CertOptionsSetOrgUnit = mkSetCString withX509CertOptionsPtr botan_x509_cert_options_set_org_unit
