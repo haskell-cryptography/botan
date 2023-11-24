@@ -91,6 +91,7 @@ library
     if flag(XFFI)
         exposed-modules:
             Botan.Low.X509.CA
+            Botan.Low.X509.Store
         cpp-options: -DXFFI 
 
 test-suite botan-low-tests

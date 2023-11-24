@@ -9,9 +9,7 @@ import Botan.Bindings.X509
 data X509CertStoreStruct
 type X509CertStorePtr = Ptr X509CertStoreStruct
 
--- foreign import ccall unsafe "&botan_x509_cert_store_destroy" botan_x509_cert_store_destroy
---     :: X509CertStorePtr
---     -> IO BotanErrorCode
+foreign import ccall unsafe "&botan_x509_cert_store_destroy" botan_x509_cert_store_destroy :: FinalizerPtr X509CertStoreStruct
 
 foreign import ccall unsafe botan_x509_cert_store_find_cert
     :: Ptr X509CertPtr
@@ -20,15 +18,6 @@ foreign import ccall unsafe botan_x509_cert_store_find_cert
     -> Ptr Word8 -> CSize
     -> IO BotanErrorCode
 
--- NOTE: The return type of this is either incorrect here or in C/C++
--- It just needs to be an array of certs. How do we return this properly? Warrants discussion.
--- Might need to change
---      botan_x509_cert_t** certs, size_t* certs_len,
--- back to
---      botan_x509_cert_t* certs, size_t* certs_len,
--- in botan-upstream.
--- Hs FFI only cares that its a pointer, so it doesn't cause compiler issues.
--- NOTE: CURRENTLY DOESNT MATCH ACTUAL C FFI DEFINITION
 foreign import ccall unsafe botan_x509_cert_store_find_all_certs
     :: Ptr X509CertPtr -> Ptr CSize
     -> X509CertStorePtr

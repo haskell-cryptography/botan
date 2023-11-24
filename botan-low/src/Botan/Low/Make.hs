@@ -39,6 +39,57 @@ type WithPtr typ ptr = (forall a . typ -> (ptr -> IO a) -> IO a)
 Initializers and destroyers
 -}
 
+-- TODO: Generalize all this away to simplify
+--  Note the change in position of the destructor argument within the mk function itself,
+--  as well as the position of the argument within the initializer
+{-
+type Construct struct typ = ForeignPtr struct -> typ
+type Destruct struct = FinalizerPtr struct
+type Initialize0 struct = Ptr (Ptr struct) -> IO BotanErrorCode
+
+mkInit0
+    :: Construct struct typ
+    -> Destruct struct
+    -> Initialize0 struct
+    -> IO typ
+mkInit0 construct destruct init0 = do
+    alloca $ \ outPtr -> do
+        throwBotanIfNegative_ $ init0 outPtr
+        out <- peek outPtr
+        foreignPtr <- newForeignPtr destruct out
+        return $ construct foreignPtr
+-}
+-- More complex constructors can build on this with more arguments, but there is a choice
+--  This choice is left vs right, return arguments before or after.
+--  The effectiveness of this choice depends on the structure of the FFI
+--  If we changed the FFI to always have trailing return arguments (instead of leading),
+--  then we could type
+--      Initializer1 withArg0 ... struct
+--  instead of
+--      Initializer1 struct withArg0 ...
+--  Note that even Construct follows trailing return arguments as does Haskell,
+--  so there is justifcation for converting the FFI to that format wholesale;
+--  such effort (rewriting the Botan FFI to be 100% consistent) is far beyond
+--  the scope of this project at this time.
+-- SEE: mkInit_with
+-- EXAMPLE:
+{-
+mkFoo :: A -> B -> C -> IO Foo
+mkFoo a b c = withA a $ \ a' -> do
+    withB b $ \ b' -> do
+        withC c $ \ c' -> do
+            -- Trailing-return style
+            mkInit0 MkFoo botan_foo_destroy $ botan_foo_create a' b' c'
+            -- Vs current leading-return style
+            mkInit MkFoo (\ ptr -> botan_foo_create ptr a' b' c') botan_x509_cert_store_destroy
+            -- Note the explicit ptr argument and the necessary parenthesis
+-}
+-- SEE: x509CertStoreSqlite3Create for how the current style makes ad-hoc constructors
+--  more difficult than necessary unless we initialize the return pointer first
+-- Also note that initializing the return value pointer last is probably a good practice in general
+--  and trailing-return style makes that easy
+-- END TODO
+
 type Constr struct typ = ForeignPtr struct -> typ
 
 type Initializer struct = Ptr (Ptr struct) -> IO BotanErrorCode
