@@ -88,6 +88,7 @@ mkFoo a b c = withA a $ \ a' -> do
 --  more difficult than necessary unless we initialize the return pointer first
 -- Also note that initializing the return value pointer last is probably a good practice in general
 --  and trailing-return style makes that easy
+-- ON THE OTHER HAND trailing-return style makes querying for sizes difficult
 -- END TODO
 
 type Constr struct typ = ForeignPtr struct -> typ

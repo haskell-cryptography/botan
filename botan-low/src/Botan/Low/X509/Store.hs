@@ -1,5 +1,8 @@
 module Botan.Low.X509.Store where
 
+import Data.Bool
+import Foreign.Marshal.Utils
+
 import Botan.Low.Error
 import Botan.Low.Make
 import Botan.Low.Prelude
@@ -7,12 +10,8 @@ import Botan.Low.PubKey
 import Botan.Low.RNG
 import Botan.Low.X509
 
+import Botan.Bindings.X509
 import Botan.Bindings.X509.Store
-
--- data X509CertStoreStruct
--- type X509CertStorePtr = Ptr X509CertStoreStruct
-
--- foreign import ccall unsafe "&botan_x509_cert_store_destroy" botan_x509_cert_store_destroy :: FinalizerPtr X509CertStoreStruct
 
 newtype X509CertStore = MkX509CertStore { getX509CertStoreForeignPtr :: ForeignPtr X509CertStoreStruct }
 
@@ -22,93 +21,143 @@ withX509CertStorePtr = withForeignPtr . getX509CertStoreForeignPtr
 x509CertStoreDestroy :: X509CertStore -> IO ()
 x509CertStoreDestroy ca = finalizeForeignPtr (getX509CertStoreForeignPtr ca)
 
--- foreign import ccall unsafe botan_x509_cert_store_find_cert
---     :: Ptr X509CertPtr
---     -> X509CertStorePtr
---     -> Ptr Word8 -> CSize
---     -> Ptr Word8 -> CSize
---     -> IO BotanErrorCode
+-- NOTE: mkInit cannot handle Maybes (checking for nullPtr), need a mkInitMaybe
 x509CertStoreFindCert :: X509CertStore -> ByteString -> ByteString -> IO (Maybe X509Cert)
-x509CertStoreFindCert = undefined
+x509CertStoreFindCert store subject_dn key_id = withX509CertStorePtr store $ \ store_ptr -> do
+    asBytesLen subject_dn $ \ subject_dn_ptr subject_dn_len -> do
+        asBytesLen key_id $ \ key_id_ptr key_id_len -> do
+            alloca $ \ outPtr -> do
+                throwBotanIfNegative_ $ botan_x509_cert_store_find_cert
+                    outPtr
+                    store_ptr
+                    subject_dn_ptr
+                    subject_dn_len
+                    key_id_ptr
+                    key_id_len
+                out <- peek outPtr
+                if out == nullPtr
+                then return Nothing
+                else do
+                    foreignPtr <- newForeignPtr botan_x509_cert_destroy out
+                    return $ Just $ MkX509Cert foreignPtr
 
--- foreign import ccall unsafe botan_x509_cert_store_find_all_certs
---     :: Ptr X509CertPtr -> Ptr CSize
---     -> X509CertStorePtr
---     -> Ptr Word8 -> CSize
---     -> Ptr Word8 -> CSize
---     -> IO BotanErrorCode
+-- TODO: Need some sort of allocArrayQuerying, or a mkArrayInit
+-- NOTE: Untested
 x509CertStoreFindAllCerts :: X509CertStore -> ByteString -> ByteString -> IO [X509Cert]
-x509CertStoreFindAllCerts = undefined
+x509CertStoreFindAllCerts store subject_dn key_id = withX509CertStorePtr store $ \ store_ptr -> do
+    asBytesLen subject_dn $ \ subject_dn_ptr subject_dn_len -> do
+        asBytesLen key_id $ \ key_id_ptr key_id_len -> do
+            let fn arrPtr szPtr = botan_x509_cert_store_find_all_certs arrPtr szPtr store_ptr subject_dn_ptr subject_dn_len key_id_ptr key_id_len
+            alloca $ \ szPtr -> do
+                code <- fn nullPtr szPtr
+                case code of
+                    InsufficientBufferSpace -> do
+                        sz <- fromIntegral <$> peek szPtr
+                        allocaArray sz $ \ arrPtr -> do
+                            throwBotanIfNegative_ $ fn arrPtr szPtr
+                            certPtrs <- peekArray sz arrPtr
+                            -- NOTE: Cannot use mkInit because that performs an alloca and a peek,
+                            --  whereas we have already performed that work here
+                            forM certPtrs $ \ certPtr -> do
+                                foreignPtr <- newForeignPtr botan_x509_cert_destroy certPtr
+                                return $ MkX509Cert foreignPtr
+                    _                       ->  throwBotanError code
 
--- foreign import ccall unsafe botan_x509_cert_store_find_cert_by_pubkey_sha1
---     :: Ptr X509CertPtr
---     -> X509CertStorePtr
---     -> Ptr Word8        -- NOTE: SHA1 hash length is static, so we can just drop the size_t
---     -> IO BotanErrorCode
+-- TODO: Use mkInitMaybe
 x509CertStoreFindCertByPubkeySHA1 :: X509CertStore -> ByteString -> IO (Maybe X509Cert)
-x509CertStoreFindCertByPubkeySHA1 = undefined
+x509CertStoreFindCertByPubkeySHA1 store digest = withX509CertStorePtr store $ \ store_ptr -> do
+    asBytesLen digest $ \ digest_ptr _ -> do
+        alloca $ \ outPtr -> do
+            throwBotanIfNegative_ $ botan_x509_cert_store_find_cert_by_pubkey_sha1
+                outPtr
+                store_ptr
+                digest_ptr
+            out <- peek outPtr
+            if out == nullPtr
+            then return Nothing
+            else do
+                foreignPtr <- newForeignPtr botan_x509_cert_destroy out
+                return $ Just $ MkX509Cert foreignPtr
 
--- foreign import ccall unsafe botan_x509_cert_store_find_cert_by_raw_subject_dn_sha256
---     :: Ptr X509CertPtr
---     -> X509CertStorePtr
---     -> Ptr Word8        -- NOTE: SHA1 hash length is static, so we can just drop the size_t
---     -> IO BotanErrorCode
+-- TODO: Use mkInitMaybe
 x509CertStoreFindCertByRawSubjectDNSHA256 :: X509CertStore -> ByteString -> IO (Maybe X509Cert)
-x509CertStoreFindCertByRawSubjectDNSHA256 = undefined
+x509CertStoreFindCertByRawSubjectDNSHA256 store digest = withX509CertStorePtr store $ \ store_ptr -> do
+    asBytesLen digest $ \ digest_ptr _ -> do
+        alloca $ \ outPtr -> do
+            throwBotanIfNegative_ $ botan_x509_cert_store_find_cert_by_raw_subject_dn_sha256
+                outPtr
+                store_ptr
+                digest_ptr
+            out <- peek outPtr
+            if out == nullPtr
+            then return Nothing
+            else do
+                foreignPtr <- newForeignPtr botan_x509_cert_destroy out
+                return $ Just $ MkX509Cert foreignPtr
 
--- foreign import ccall unsafe botan_x509_cert_store_find_crl_for
---     :: Ptr X509CRLPtr
---     -> X509CertStorePtr
---     -> X509CertPtr
---     -> IO BotanErrorCode
+-- TODO: Use mkInitMaybe
 x509CertStoreFindCRLFor :: X509CertStore -> X509Cert -> IO (Maybe X509CRL)
-x509CertStoreFindCRLFor = undefined
+x509CertStoreFindCRLFor store cert = withX509CertStorePtr store $ \ store_ptr -> do
+    withX509CertPtr cert $ \ cert_ptr -> do
+        alloca $ \ outPtr -> do
+            throwBotanIfNegative_ $ botan_x509_cert_store_find_crl_for
+                outPtr
+                store_ptr
+                cert_ptr
+            out <- peek outPtr
+            if out == nullPtr
+            then return Nothing
+            else do
+                foreignPtr <- newForeignPtr botan_x509_crl_destroy out
+                return $ Just $ MkX509CRL foreignPtr
 
--- -- // NOTE: Returns cert_store.certificate_known ? 0 : -1;
--- foreign import ccall unsafe botan_x509_cert_store_certificate_known
---     :: X509CertStorePtr
---     -> X509CertPtr
---     -> IO BotanErrorCode
 x509CertStoreCertificateKnown :: X509CertStore -> X509Cert -> IO Bool
-x509CertStoreCertificateKnown = undefined
+x509CertStoreCertificateKnown store cert = withX509CertStorePtr store $ \ store_ptr -> do
+    withX509CertPtr cert $ \ cert_ptr -> do
+        throwBotanCatchingSuccess $ botan_x509_cert_store_certificate_known store_ptr cert_ptr
 
 -- {-
 -- In-memory cert store
 -- -}
 
--- foreign import ccall unsafe botan_x509_cert_store_in_memory_load_dir
---     :: Ptr X509CertStorePtr
---     -> Ptr CChar
---     -> IO BotanErrorCode
+-- TODO: Get rid of bytestring paths
 x509CertStoreInMemoryLoadDir :: ByteString -> IO X509CertStore
-x509CertStoreInMemoryLoadDir = undefined
+x509CertStoreInMemoryLoadDir path = asCString path $ \ path_ptr -> mkInit
+                MkX509CertStore
+                (\ ptr -> botan_x509_cert_store_in_memory_load_dir
+                    ptr
+                    path_ptr
+                )
+                botan_x509_cert_store_destroy
 
--- foreign import ccall unsafe botan_x509_cert_store_in_memory_load_cert
---     :: Ptr X509CertStorePtr
---     -> X509CertPtr
---     -> IO BotanErrorCode
 x509CertStoreInMemoryLoadCert :: X509Cert -> IO X509CertStore
-x509CertStoreInMemoryLoadCert = undefined
+x509CertStoreInMemoryLoadCert cert = withX509CertPtr cert $ \ cert_ptr -> mkInit
+                MkX509CertStore
+                (\ ptr -> botan_x509_cert_store_in_memory_load_cert
+                    ptr
+                    cert_ptr
+                )
+                botan_x509_cert_store_destroy
 
--- foreign import ccall unsafe botan_x509_cert_store_in_memory_create
---     :: Ptr X509CertStorePtr
---     -> IO BotanErrorCode
 x509CertStoreInMemoryCreate :: IO X509CertStore
-x509CertStoreInMemoryCreate = undefined
+x509CertStoreInMemoryCreate = mkInit
+        MkX509CertStore
+        botan_x509_cert_store_in_memory_create
+        botan_x509_cert_store_destroy
 
--- foreign import ccall unsafe botan_x509_cert_store_in_memory_add_certificate
---     :: X509CertStorePtr
---     -> X509CertPtr
---     -> IO BotanErrorCode
 x509CertStoreInMemoryAddCertificate :: X509CertStore -> X509Cert -> IO ()
-x509CertStoreInMemoryAddCertificate = undefined
+x509CertStoreInMemoryAddCertificate store cert = withX509CertStorePtr store $ \ store_ptr -> do
+    withX509CertPtr cert $ \ cert_ptr -> do
+        throwBotanIfNegative_ $ botan_x509_cert_store_in_memory_add_certificate
+            store_ptr
+            cert_ptr
 
--- foreign import ccall unsafe botan_x509_cert_store_in_memory_add_crl
---     :: X509CertStorePtr
---     -> X509CRLPtr
---     -> IO BotanErrorCode
 x509CertStoreInMemoryAddCRL :: X509CertStore -> X509CRL -> IO ()
-x509CertStoreInMemoryAddCRL = undefined
+x509CertStoreInMemoryAddCRL store crl = withX509CertStorePtr store $ \ store_ptr -> do
+    withX509CRLPtr crl $ \ crl_ptr -> do
+        throwBotanIfNegative_ $ botan_x509_cert_store_in_memory_add_crl
+            store_ptr
+            crl_ptr
 
 -- {-
 -- Flatfile cert store
@@ -121,7 +170,14 @@ x509CertStoreInMemoryAddCRL = undefined
 --     -> CBool
 --     -> IO BotanErrorCode
 x509CertStoreFlatfileCreate :: ByteString -> Bool -> IO X509CertStore
-x509CertStoreFlatfileCreate = undefined
+x509CertStoreFlatfileCreate path ignore_non_ca = asCString path $ \ path_ptr -> mkInit
+    MkX509CertStore
+    (\ ptr -> botan_x509_cert_store_flatfile_create
+        ptr
+        path_ptr
+        (fromBool ignore_non_ca)
+    )
+    botan_x509_cert_store_destroy
 
 -- {-
 -- SQL cert store
@@ -215,8 +271,18 @@ x509CertStoreSQLGenerateCRLs = undefined
 --     -> IO BotanErrorCode
 -- {-
 x509CertStoreSqlite3Create :: ByteString -> ByteString -> RNGCtx -> ByteString -> IO X509CertStore
-x509CertStoreSqlite3Create = undefined
-
+x509CertStoreSqlite3Create db_path passwd rng table_prefix = asCString db_path $ \ db_path_ptr -> do
+    asCString passwd $ \ passwd_ptr -> do
+        withRNGPtr rng $ \ rng_ptr -> do
+            asCString table_prefix $ \ table_prefix_ptr -> mkInit
+                MkX509CertStore
+                (\ ptr -> botan_x509_cert_store_sqlite3_create
+                    ptr
+                    db_path_ptr
+                    passwd_ptr rng_ptr
+                    table_prefix_ptr
+                )
+                botan_x509_cert_store_destroy
 -- -}
 
 -- {-
@@ -227,7 +293,7 @@ x509CertStoreSqlite3Create = undefined
 --     :: Ptr X509CertStorePtr
 --     -> IO BotanErrorCode
 x509CertStoreSystemCreate :: IO X509CertStore
-x509CertStoreSystemCreate = undefined
+x509CertStoreSystemCreate = mkInit MkX509CertStore botan_x509_cert_store_system_create botan_x509_cert_store_destroy
 
 -- {-
 -- MacOS cert store
