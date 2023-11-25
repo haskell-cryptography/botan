@@ -10,6 +10,7 @@ import Botan.Low.PubKey
 import Botan.Low.RNG
 import Botan.Low.X509
 
+import Botan.Bindings.PubKey
 import Botan.Bindings.X509
 import Botan.Bindings.X509.Store
 
@@ -41,8 +42,8 @@ x509CertStoreFindCert store subject_dn key_id = withX509CertStorePtr store $ \ s
                     foreignPtr <- newForeignPtr botan_x509_cert_destroy out
                     return $ Just $ MkX509Cert foreignPtr
 
--- TODO: Need some sort of allocArrayQuerying, or a mkArrayInit
 -- NOTE: Untested
+-- TODO: Need some sort of allocArrayQuerying, or a mkArrayInit
 x509CertStoreFindAllCerts :: X509CertStore -> ByteString -> ByteString -> IO [X509Cert]
 x509CertStoreFindAllCerts store subject_dn key_id = withX509CertStorePtr store $ \ store_ptr -> do
     asBytesLen subject_dn $ \ subject_dn_ptr subject_dn_len -> do
@@ -164,11 +165,6 @@ x509CertStoreInMemoryAddCRL store crl = withX509CertStorePtr store $ \ store_ptr
 -- -}
 
 -- -- TODO: Probably rename botan_x509_cert_store_flatfile_load
--- foreign import ccall unsafe botan_x509_cert_store_flatfile_create
---     :: Ptr X509CertStorePtr
---     -> Ptr CChar
---     -> CBool
---     -> IO BotanErrorCode
 x509CertStoreFlatfileCreate :: ByteString -> Bool -> IO X509CertStore
 x509CertStoreFlatfileCreate path ignore_non_ca = asCString path $ \ path_ptr -> mkInit
     MkX509CertStore
@@ -184,79 +180,111 @@ x509CertStoreFlatfileCreate path ignore_non_ca = asCString path $ \ path_ptr -> 
 -- -}
 
 -- -- NOTE: Returns boolean success code
--- foreign import ccall unsafe botan_x509_cert_store_sql_insert_cert
---     :: X509CertStorePtr
---     -> X509CertPtr
---     -> IO BotanErrorCode
 x509CertStoreSQLInsertCert :: X509CertStore -> X509Cert -> IO Bool
-x509CertStoreSQLInsertCert = undefined
+x509CertStoreSQLInsertCert store cert = withX509CertStorePtr store $ \ store_ptr -> do
+    withX509CertPtr cert $ \ cert_ptr -> do
+        throwBotanCatchingSuccess $ botan_x509_cert_store_sql_insert_cert
+            store_ptr
+            cert_ptr
 
 -- -- NOTE: Returns boolean success code
--- foreign import ccall unsafe botan_x509_cert_store_sql_remove_cert
---     :: X509CertStorePtr
---     -> X509CertPtr
---     -> IO BotanErrorCode
 x509CertStoreSQLRemoveCert :: X509CertStore -> X509Cert -> IO Bool
-x509CertStoreSQLRemoveCert = undefined
+x509CertStoreSQLRemoveCert store cert = withX509CertStorePtr store $ \ store_ptr -> do
+    withX509CertPtr cert $ \ cert_ptr -> do
+        throwBotanCatchingSuccess $ botan_x509_cert_store_sql_remove_cert
+            store_ptr
+            cert_ptr
 
--- -- NOTE: Returns nullPtr if not found
--- foreign import ccall unsafe botan_x509_cert_store_sql_find_key
---     :: Ptr PrivKeyPtr
---     -> X509CertStorePtr
---     -> X509CertPtr
---     -> IO BotanErrorCode
+-- TODO: Use mkInitMaybe
 x509CertStoreSQLFindKey :: X509CertStore -> X509Cert -> IO (Maybe PrivKey)
-x509CertStoreSQLFindKey = undefined
+x509CertStoreSQLFindKey store cert = withX509CertStorePtr store $ \ store_ptr -> do
+    withX509CertPtr cert $ \ cert_ptr -> do
+        alloca $ \ outPtr -> do
+            throwBotanIfNegative_ $ botan_x509_cert_store_sql_find_key
+                outPtr
+                store_ptr
+                cert_ptr
+            out <- peek outPtr
+            if out == nullPtr
+            then return Nothing
+            else do
+                foreignPtr <- newForeignPtr botan_privkey_destroy out
+                return $ Just $ MkPrivKey foreignPtr
 
--- -- NOTE: See notes about returning arrays of things, improper return pointer type
--- foreign import ccall unsafe botan_x509_cert_store_sql_find_certs_for_key
---     :: Ptr X509CertPtr -> Ptr CSize
---     -> X509CertStorePtr
---     -> PrivKeyPtr
---     -> IO BotanErrorCode
+-- NOTE: See notes about returning arrays of things, improper return pointer type
+-- TODO: Need some sort of allocArrayQuerying, or a mkArrayInit
 x509CertStoreSQLFindCertsForKey :: X509CertStore -> PrivKey -> IO [X509Cert]
-x509CertStoreSQLFindCertsForKey = undefined
+x509CertStoreSQLFindCertsForKey store privkey = withX509CertStorePtr store $ \ store_ptr -> do
+    withPrivKeyPtr privkey $ \ privkey_ptr -> do
+            let fn arrPtr szPtr = botan_x509_cert_store_sql_find_certs_for_key arrPtr szPtr store_ptr privkey_ptr
+            alloca $ \ szPtr -> do
+                code <- fn nullPtr szPtr
+                case code of
+                    InsufficientBufferSpace -> do
+                        sz <- fromIntegral <$> peek szPtr
+                        allocaArray sz $ \ arrPtr -> do
+                            throwBotanIfNegative_ $ fn arrPtr szPtr
+                            certPtrs <- peekArray sz arrPtr
+                            -- NOTE: Cannot use mkInit because that performs an alloca and a peek,
+                            --  whereas we have already performed that work here
+                            forM certPtrs $ \ certPtr -> do
+                                foreignPtr <- newForeignPtr botan_x509_cert_destroy certPtr
+                                return $ MkX509Cert foreignPtr
+                    _                       ->  throwBotanError code
 
 -- -- NOTE: Returns boolean success code
--- foreign import ccall unsafe botan_x509_cert_store_sql_insert_key
---     :: X509CertStorePtr
---     -> X509CertPtr
---     -> PrivKeyPtr
---     -> IO BotanErrorCode
 x509CertStoreSQLInsertKey :: X509CertStore -> X509Cert -> PrivKey -> IO Bool
-x509CertStoreSQLInsertKey = undefined
+x509CertStoreSQLInsertKey store cert privkey = withX509CertStorePtr store $ \ store_ptr -> do
+    withX509CertPtr cert $ \ cert_ptr -> do
+        withPrivKeyPtr privkey $ \ privkey_ptr -> do
+            throwBotanCatchingSuccess $ botan_x509_cert_store_sql_insert_key
+                store_ptr
+                cert_ptr
+                privkey_ptr
 
 -- -- NOTE: *DOES NOT* return boolean success code
--- foreign import ccall unsafe botan_x509_cert_store_sql_remove_key
---     :: X509CertStorePtr
---     -> PrivKeyPtr
---     -> IO BotanErrorCode
-x509CertStoreSQLRemoveKey :: X509CertStore -> PrivKey -> IO Bool
-x509CertStoreSQLRemoveKey = undefined
+x509CertStoreSQLRemoveKey :: X509CertStore -> PrivKey -> IO ()
+x509CertStoreSQLRemoveKey store privkey = withX509CertStorePtr store $ \ store_ptr -> do
+    withPrivKeyPtr privkey $ \ privkey_ptr -> do
+        throwBotanIfNegative_ $ botan_x509_cert_store_sql_remove_key
+            store_ptr
+            privkey_ptr
 
--- foreign import ccall unsafe botan_x509_cert_store_sql_revoke_cert
---     :: X509CertStorePtr
---     -> X509CertPtr
---     -> Word32
---     -> Word64
---     -> IO BotanErrorCode
-x509CertStoreSQLRevokeCert :: X509CertStore -> X509Cert -> Word32 -> Word64 -> IO Bool
-x509CertStoreSQLRevokeCert = undefined
+x509CertStoreSQLRevokeCert :: X509CertStore -> X509Cert -> Word32 -> Word64 -> IO ()
+x509CertStoreSQLRevokeCert store cert crl_code time = withX509CertStorePtr store $ \ store_ptr -> do
+    withX509CertPtr cert $ \ cert_ptr -> do
+        throwBotanIfNegative_ $ botan_x509_cert_store_sql_revoke_cert
+            store_ptr
+            cert_ptr
+            crl_code
+            time
 
--- foreign import ccall unsafe botan_x509_cert_store_sql_affirm_cert
---     :: X509CertStorePtr
---     -> X509CertPtr
---     -> IO BotanErrorCode
-x509CertStoreSQLAffirmCert :: X509CertStore -> X509Cert -> IO Bool
-x509CertStoreSQLAffirmCert = undefined
+x509CertStoreSQLAffirmCert :: X509CertStore -> X509Cert -> IO ()
+x509CertStoreSQLAffirmCert store cert = withX509CertStorePtr store $ \ store_ptr -> do
+    withX509CertPtr cert $ \ cert_ptr -> do
+        throwBotanIfNegative_ $ botan_x509_cert_store_sql_affirm_cert
+            store_ptr
+            cert_ptr
 
 -- -- NOTE: See notes about returning arrays of things, improper return pointer type
--- foreign import ccall unsafe botan_x509_cert_store_sql_generate_crls
---     :: Ptr X509CRLPtr -> Ptr CSize
---     -> X509CertStorePtr
---     -> IO BotanErrorCode
+-- TODO: Need some sort of allocArrayQuerying, or a mkArrayInit
 x509CertStoreSQLGenerateCRLs :: X509CertStore -> IO [X509CRL]
-x509CertStoreSQLGenerateCRLs = undefined
+x509CertStoreSQLGenerateCRLs store = withX509CertStorePtr store $ \ store_ptr -> do
+    let fn arrPtr szPtr = botan_x509_cert_store_sql_generate_crls arrPtr szPtr store_ptr
+    alloca $ \ szPtr -> do
+        code <- fn nullPtr szPtr
+        case code of
+            InsufficientBufferSpace -> do
+                sz <- fromIntegral <$> peek szPtr
+                allocaArray sz $ \ arrPtr -> do
+                    throwBotanIfNegative_ $ fn arrPtr szPtr
+                    crlPtrs <- peekArray sz arrPtr
+                    -- NOTE: Cannot use mkInit because that performs an alloca and a peek,
+                    --  whereas we have already performed that work here
+                    forM crlPtrs $ \ crlPtr -> do
+                        foreignPtr <- newForeignPtr botan_x509_crl_destroy crlPtr
+                        return $ MkX509CRL foreignPtr
+            _                       ->  throwBotanError code
 
 -- {-
 -- SQLite3 cert store
