@@ -84,9 +84,12 @@ library
     if flag(XFFI)
         exposed-modules:
             Botan.Bindings.X509.CA
+            Botan.Bindings.X509.CSR
             Botan.Bindings.X509.CRL
             Botan.Bindings.X509.DN
-            Botan.Bindings.X509.Ext
+            Botan.Bindings.X509.Extensions
+            -- Botan.Bindings.X509.OCSP
+            Botan.Bindings.X509.Options
             Botan.Bindings.X509.Path
             Botan.Bindings.X509.Store
         cpp-options: -DXFFI

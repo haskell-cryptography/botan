@@ -22,7 +22,7 @@ withX509CertStorePtr = withForeignPtr . getX509CertStoreForeignPtr
 x509CertStoreDestroy :: X509CertStore -> IO ()
 x509CertStoreDestroy ca = finalizeForeignPtr (getX509CertStoreForeignPtr ca)
 
--- NOTE: mkInit cannot handle Maybes (checking for nullPtr), need a mkInitMaybe
+-- NOTE: mkInit cannot handle Maybes (checking for nullPtr), need a mkInitMaybe or to use maybePeek
 x509CertStoreFindCert :: X509CertStore -> ByteString -> ByteString -> IO (Maybe X509Cert)
 x509CertStoreFindCert store subject_dn key_id = withX509CertStorePtr store $ \ store_ptr -> do
     asBytesLen subject_dn $ \ subject_dn_ptr subject_dn_len -> do
@@ -164,7 +164,6 @@ x509CertStoreInMemoryAddCRL store crl = withX509CertStorePtr store $ \ store_ptr
 -- Flatfile cert store
 -- -}
 
--- -- TODO: Probably rename botan_x509_cert_store_flatfile_load
 x509CertStoreFlatfileCreate :: ByteString -> Bool -> IO X509CertStore
 x509CertStoreFlatfileCreate path ignore_non_ca = asCString path $ \ path_ptr -> mkInit
     MkX509CertStore
@@ -175,11 +174,10 @@ x509CertStoreFlatfileCreate path ignore_non_ca = asCString path $ \ path_ptr -> 
     )
     botan_x509_cert_store_destroy
 
--- {-
--- SQL cert store
--- -}
+{-
+SQL cert store
+-}
 
--- -- NOTE: Returns boolean success code
 x509CertStoreSQLInsertCert :: X509CertStore -> X509Cert -> IO Bool
 x509CertStoreSQLInsertCert store cert = withX509CertStorePtr store $ \ store_ptr -> do
     withX509CertPtr cert $ \ cert_ptr -> do
@@ -187,7 +185,6 @@ x509CertStoreSQLInsertCert store cert = withX509CertStorePtr store $ \ store_ptr
             store_ptr
             cert_ptr
 
--- -- NOTE: Returns boolean success code
 x509CertStoreSQLRemoveCert :: X509CertStore -> X509Cert -> IO Bool
 x509CertStoreSQLRemoveCert store cert = withX509CertStorePtr store $ \ store_ptr -> do
     withX509CertPtr cert $ \ cert_ptr -> do
@@ -232,7 +229,6 @@ x509CertStoreSQLFindCertsForKey store privkey = withX509CertStorePtr store $ \ s
                                 return $ MkX509Cert foreignPtr
                     _                       ->  throwBotanError code
 
--- -- NOTE: Returns boolean success code
 x509CertStoreSQLInsertKey :: X509CertStore -> X509Cert -> PrivKey -> IO Bool
 x509CertStoreSQLInsertKey store cert privkey = withX509CertStorePtr store $ \ store_ptr -> do
     withX509CertPtr cert $ \ cert_ptr -> do
@@ -242,7 +238,6 @@ x509CertStoreSQLInsertKey store cert privkey = withX509CertStorePtr store $ \ st
                 cert_ptr
                 privkey_ptr
 
--- -- NOTE: *DOES NOT* return boolean success code
 x509CertStoreSQLRemoveKey :: X509CertStore -> PrivKey -> IO ()
 x509CertStoreSQLRemoveKey store privkey = withX509CertStorePtr store $ \ store_ptr -> do
     withPrivKeyPtr privkey $ \ privkey_ptr -> do
@@ -286,18 +281,11 @@ x509CertStoreSQLGenerateCRLs store = withX509CertStorePtr store $ \ store_ptr ->
                         return $ MkX509CRL foreignPtr
             _                       ->  throwBotanError code
 
--- {-
--- SQLite3 cert store
--- -}
+{-
+SQLite3 cert store
+NOTE: Not confirmed to be implemented correctly C++-side
+-}
 
--- foreign import ccall unsafe botan_x509_cert_store_sqlite3_create
---     :: Ptr X509CertStorePtr
---     -> Ptr CChar
---     -> Ptr CChar
---     -> RNGPtr
---     -> Ptr CChar
---     -> IO BotanErrorCode
--- {-
 x509CertStoreSqlite3Create :: ByteString -> ByteString -> RNGCtx -> ByteString -> IO X509CertStore
 x509CertStoreSqlite3Create db_path passwd rng table_prefix = asCString db_path $ \ db_path_ptr -> do
     asCString passwd $ \ passwd_ptr -> do
@@ -311,32 +299,28 @@ x509CertStoreSqlite3Create db_path passwd rng table_prefix = asCString db_path $
                     table_prefix_ptr
                 )
                 botan_x509_cert_store_destroy
--- -}
 
--- {-
--- System cert store
--- -}
+{-
+System cert store
+-}
 
--- foreign import ccall unsafe botan_x509_cert_store_system_create
---     :: Ptr X509CertStorePtr
---     -> IO BotanErrorCode
 x509CertStoreSystemCreate :: IO X509CertStore
 x509CertStoreSystemCreate = mkInit MkX509CertStore botan_x509_cert_store_system_create botan_x509_cert_store_destroy
 
--- {-
--- MacOS cert store
--- -}
+{-
+MacOS cert store
+NOTE: OS-specific, covered by System certificate store type?
+-}
 
 -- foreign import ccall unsafe botan_x509_cert_store_macos_create
 --     :: Ptr X509CertStorePtr
 --     -> IO BotanErrorCode
--- NOTE: OS-specific, covered by System certificate store type?
 
--- {-
--- Windows cert store
--- -}
+{-
+Windows cert store
+NOTE: OS-specific, covered by System certificate store type?
+-}
 
 -- foreign import ccall unsafe botan_x509_cert_store_windows_create
 --     :: Ptr X509CertStorePtr
 --     -> IO BotanErrorCode
--- NOTE: OS-specific, covered by System certificate store type?

@@ -8,10 +8,10 @@ import Botan.Bindings.X509.Store
 data X509PathValidationRestrictionsStruct
 type X509PathValidationRestrictionsPtr = Ptr X509PathValidationRestrictionsStruct
 
+foreign import ccall unsafe "&botan_x509_path_validation_restrictions_destroy" botan_x509_path_validation_restrictions_destroy :: FinalizerPtr X509PathValidationRestrictionsStruct
+
 data X509PathValidationResultStruct
 type X509PathValidationResultPtr = Ptr X509PathValidationResultStruct
-
-foreign import ccall unsafe "&botan_x509_path_validation_restrictions_destroy" botan_x509_path_validation_restrictions_destroy :: FinalizerPtr X509PathValidationRestrictionsStruct
 
 foreign import ccall unsafe "&botan_x509_path_validation_result_destroy" botan_x509_path_validation_result_destroy :: FinalizerPtr X509PathValidationResultStruct
 

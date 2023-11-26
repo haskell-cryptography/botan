@@ -209,6 +209,8 @@ x509CertValidationStatus code = do
 -- * X.509 CRL
 -- **************************/
 
+-- TODO: Move to Botan.Low.X509.CRL after merging extended FFI
+
 newtype X509CRL = MkX509CRL { getX509CRLForeignPtr :: ForeignPtr X509CRLStruct }
 
 withX509CRLPtr :: X509CRL -> (X509CRLPtr -> IO a) -> IO a

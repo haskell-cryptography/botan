@@ -3,7 +3,7 @@ module Botan.Bindings.X509.CRL where
 import Botan.Bindings.Error
 import Botan.Bindings.Prelude
 import Botan.Bindings.X509
-import Botan.Bindings.X509.Ext
+import Botan.Bindings.X509.Extensions
 
 -- Certificate Authority
 data X509CRLEntryStruct

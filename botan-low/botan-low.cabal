@@ -91,6 +91,13 @@ library
     if flag(XFFI)
         exposed-modules:
             Botan.Low.X509.CA
+            Botan.Low.X509.CSR
+            Botan.Low.X509.CRL
+            Botan.Low.X509.DN
+            Botan.Low.X509.Extensions
+            -- Botan.Low.X509.OCSP
+            Botan.Low.X509.Options
+            Botan.Low.X509.Path
             Botan.Low.X509.Store
         cpp-options: -DXFFI 
 
