@@ -12,7 +12,7 @@ withX509DNPtr :: X509DN -> (X509DNPtr -> IO a) -> IO a
 withX509DNPtr = withForeignPtr . getX509DNForeignPtr
 
 x509DNDestroy :: X509DN -> IO ()
-x509DNDestroy exts = finalizeForeignPtr (getX509DNForeignPtr exts)
+x509DNDestroy dn = finalizeForeignPtr (getX509DNForeignPtr dn)
 
 -- foreign import ccall unsafe botan_x509_dn_create
 --     :: Ptr X509DNPtr

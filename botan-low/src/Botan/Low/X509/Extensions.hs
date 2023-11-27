@@ -20,7 +20,7 @@ withX509ExtensionPtr :: X509Extension -> (X509ExtensionPtr -> IO a) -> IO a
 withX509ExtensionPtr = withForeignPtr . getX509ExtensionForeignPtr
 
 x509ExtensionDestroy :: X509Extension -> IO ()
-x509ExtensionDestroy exts = finalizeForeignPtr (getX509ExtensionForeignPtr exts)
+x509ExtensionDestroy ext = finalizeForeignPtr (getX509ExtensionForeignPtr ext)
 
 -- TODO: See C FFI for discussion on pending implementation
 
