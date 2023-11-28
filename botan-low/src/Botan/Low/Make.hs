@@ -435,6 +435,7 @@ allocBytesQuerying fn = do
             _                       -> do
                 throwBotanError code
 
+-- NOTE: Does not check length of taken string, vulnerable to null byte injection
 allocBytesQueryingCString :: (Ptr byte -> Ptr CSize -> IO BotanErrorCode) -> IO ByteString
 allocBytesQueryingCString action = do
     cstring <- allocBytesQuerying action

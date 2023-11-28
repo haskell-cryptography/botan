@@ -18,6 +18,9 @@ foreign import ccall unsafe botan_x509_cert_store_find_cert
     -> Ptr Word8 -> CSize
     -> IO BotanErrorCode
 
+-- // NOTE: Returns an array of results
+-- // SEE: Discussion on arrays / ownership
+-- NOTE: FFI function is actually x509_cert_t** but should be x509_cert_t* like here
 foreign import ccall unsafe botan_x509_cert_store_find_all_certs
     :: Ptr X509CertPtr -> Ptr CSize
     -> X509CertStorePtr
