@@ -110,6 +110,7 @@ test-suite botan-low-tests
         botan-bindings,
         botan-low,
         bytestring,
+        directory,
         hspec,
         QuickCheck,
         text
