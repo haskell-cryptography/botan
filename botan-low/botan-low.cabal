@@ -155,6 +155,18 @@ test-suite botan-low-tests
     default-extensions:
         NoImplicitPrelude
         OverloadedStrings
+    if flag(XFFI)
+        other-modules:
+            Botan.Low.X509.CASpec
+            Botan.Low.X509.CSRSpec
+            Botan.Low.X509.CRLSpec
+            Botan.Low.X509.DNSpec
+            Botan.Low.X509.ExtensionsSpec
+            -- Botan.Low.X509.OCSPSpec
+            Botan.Low.X509.OptionsSpec
+            Botan.Low.X509.PathSpec
+            Botan.Low.X509.StoreSpec
+        cpp-options: -DXFFI 
 
 benchmark botan-low-bench
     hs-source-dirs: bench

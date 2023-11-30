@@ -74,7 +74,7 @@ testCertHostname = "www.example.com"
 testCertValidTimestamp = 1420092000
 
 spec :: Spec
-spec = focus $ do
+spec = do
     it "x509CertLoad" $ do
         cert <- x509CertLoad testCert
         pass
