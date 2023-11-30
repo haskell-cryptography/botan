@@ -13,6 +13,7 @@ import Botan.Low.X509
 import Botan.Low.X509.Store
 
 import Paths_botan_low
+import Botan.Low.X509.Store (X509CertStore, x509CertStoreInMemoryCreate)
 
 dbFile :: FilePath
 dbFile = "test-data/x509-store.db"
@@ -54,7 +55,7 @@ inMemCertDir = "test-data/certs"
 flatfileFile :: FilePath
 flatfileFile = "test-data/flatfile.certstore"
 
-mkTempSqlStore :: IO  X509CertStore
+mkTempSqlStore :: IO X509CertStore
 mkTempSqlStore = do
     tmpDBPath <- getDataFileName "test-data/x509-sql-tmp.db"
     exists <- doesFileExist tmpDBPath
@@ -62,67 +63,101 @@ mkTempSqlStore = do
     rng <- rngInit "system"
     x509CertStoreSqlite3Create (BC.pack tmpDBPath) dbPasswd rng "test"
 
+mkInMemStore :: IO X509CertStore
+mkInMemStore = do
+    inMem <- x509CertStoreInMemoryCreate
+    x509CertStoreInMemoryAddCertificate inMem =<< loadTestCert
+    return inMem
+
 spec :: Spec
-spec = focus $ do
+spec = do
     describe "X509CertStore" $ do
         -- Generic cert store functions
         it "x509CertStoreFindCert" $ do
-            pass :: IO ()
+            -- NOTE: Need a cert and the subjectDN or keyid
+            inMem <- mkInMemStore
+            let subjectDN = ""
+                keyID = ""
+            _ <- x509CertStoreFindCert inMem subjectDN keyID
+            pending
         it "x509CertStoreFindAllCerts" $ do
-            pass :: IO ()
+            -- NOTE: Need a cert and the subjectDN or keyid
+            inMem <- mkInMemStore
+            let subjectDN = ""
+                keyID = ""
+            _ <- x509CertStoreFindAllCerts inMem subjectDN keyID
+            pending
         it "x509CertStoreFindCertByPubkeySHA1" $ do
-            pass :: IO ()
+            -- NOTE: Need a cert and the privkey it was signed with to do this
+            -- inMem <- mkInMemStore
+            -- x509CertStoreFindCertByPubkeySHA1 inMem 
+            pending :: IO ()
         it "x509CertStoreFindCertByRawSubjectDNSHA256" $ do
-            pass :: IO ()
+            -- NOTE: Need a cert and the subjectDN
+            -- inMem <- mkInMemStore
+            -- x509CertStoreFindCertByRawSubjectDNSHA256 inMem
+            pending :: IO ()
         it "x509CertStoreFindCRLFor" $ do
-            pass :: IO ()
+            -- NOTE: Need a cert related to a CRL
+            inMem <- mkInMemStore
+            knownCert <- loadTestCert
+            _ <- x509CertStoreFindCRLFor inMem knownCert
+            pending
         it "x509CertStoreCertificateKnown" $ do
-            pass :: IO ()
+            inMem <- mkInMemStore
+            knownCert <- loadTestCert
+            x509CertStoreCertificateKnown inMem knownCert
+            pass
         -- InMemory cert store functions
         it "x509CertStoreInMemoryLoadDir" $ do
             inMemPath <- BC.pack <$> getDataFileName inMemCertDir
             inMem <- x509CertStoreInMemoryLoadDir inMemPath
-            pass :: IO ()
+            pass
         it "x509CertStoreInMemoryLoadCert" $ do
             inMem <- x509CertStoreInMemoryLoadCert =<< loadTestCert
-            pass :: IO ()
+            pass
         it "x509CertStoreInMemoryCreate" $ do
             inMem <- x509CertStoreInMemoryCreate
-            pass :: IO ()
+            pass
         it "x509CertStoreInMemoryAddCertificate" $ do
-            pass :: IO ()
+            inMem <- x509CertStoreInMemoryCreate
+            x509CertStoreInMemoryAddCertificate inMem =<< loadTestCert
+            pass
         it "x509CertStoreInMemoryAddCRL" $ do
-            pass :: IO ()
+            -- TODO:
+            -- inMem <- x509CertStoreInMemoryCreate
+            -- x509CertStoreInMemoryAddCRL inMem =<< loadTestCRL
+            pending :: IO ()
         -- Flatfile cert store functions
         it "x509CertStoreFlatfileCreate" $ do
             flatfilePath <- BC.pack <$> getDataFileName flatfileFile
             -- NOTE: Currently fails with BAD_PARAMETER because the file is empty.
             flat <- x509CertStoreFlatfileCreate flatfilePath False
-            pass :: IO ()
+            pending
         -- SQL cert store functions
         it "x509CertStoreSQLInsertCert" $ do
             sql <- mkTempSqlStore
             testCert <- loadTestCert
             x509CertStoreSQLInsertCert sql testCert
-            pass :: IO ()
+            pass
         it "x509CertStoreSQLRemoveCert" $ do
             sql <- mkTempSqlStore
             testCert <- loadTestCert
             x509CertStoreSQLInsertCert sql testCert
             x509CertStoreSQLRemoveCert sql testCert
-            pass :: IO ()
+            pass
         it "x509CertStoreSQLFindKey" $ do
             -- NOTE: Need a cert and the privkey it was signed with to do this
-            pass :: IO ()
+            pending :: IO ()
         it "x509CertStoreSQLFindCertsForKey" $ do
             -- NOTE: Need a cert and the privkey it was signed with to do this
-            pass :: IO ()
+            pending :: IO ()
         it "x509CertStoreSQLInsertKey" $ do
             -- NOTE: Need a cert and the privkey it was signed with to do this
-            pass :: IO ()
+            pending :: IO ()
         it "x509CertStoreSQLRemoveKey" $ do
             -- NOTE: Need a cert and the privkey it was signed with to do this
-            pass :: IO ()
+            pending :: IO ()
         it "x509CertStoreSQLRevokeCert" $ do
             sql <- mkTempSqlStore
             testCert <- loadTestCert
@@ -131,24 +166,24 @@ spec = focus $ do
                 testCert
                 0   -- "    `Unspecified"
                 1701393290
-            pass :: IO ()
+            pass
         it "x509CertStoreSQLAffirmCert" $ do
             sql <- mkTempSqlStore
             testCert <- loadTestCert
             x509CertStoreSQLInsertCert sql testCert
             x509CertStoreSQLAffirmCert sql testCert
-            pass :: IO ()
+            pass
         it "x509CertStoreSQLGenerateCRLs" $ do
             sql <- mkTempSqlStore
             -- TODO: Load with appropriate data
             crls <- x509CertStoreSQLGenerateCRLs sql
-            pass :: IO ()
+            pass
         -- Sqlite3 cert store functions
         it "x509CertStoreSqlite3Create" $ do
             dbPath <- BC.pack <$> getDataFileName dbFile
             rng <- rngInit "system"
             x509CertStoreSqlite3Create dbPath dbPasswd rng "test"
-            pass :: IO ()
+            pass
         -- System cert store functions
         it "x509CertStoreSystemCreate" $ do
             sys <- x509CertStoreSystemCreate
