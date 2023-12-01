@@ -125,8 +125,8 @@ x509CertOptionsSetIsCA = mkSetOn withX509CertOptionsPtr (CBool . bool 0 1) botan
 x509CertOptionsSetPathLimit :: X509CertOptions -> Int -> IO ()
 x509CertOptionsSetPathLimit = mkSetCSize withX509CertOptionsPtr botan_x509_cert_options_set_path_limit
 
-x509CertOptionsSet_padding_scheme :: X509CertOptions -> ByteString -> IO ()
-x509CertOptionsSet_padding_scheme = mkSetCString withX509CertOptionsPtr botan_x509_cert_options_set_padding_scheme
+x509CertOptionsSetPaddingScheme :: X509CertOptions -> ByteString -> IO ()
+x509CertOptionsSetPaddingScheme = mkSetCString withX509CertOptionsPtr botan_x509_cert_options_set_padding_scheme
 
 -- NOTE: Should probably be Word rather than Int
 x509CertOptionsSetKeyConstraints :: X509CertOptions -> Int -> IO ()
