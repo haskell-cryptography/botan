@@ -50,11 +50,8 @@ spec = focus $ do
             rng <- rngInit "system"
             key <- privKeyCreate "RSA" "2048" rng
             options <- mkTestOptions
-            -- NOTE: Truncates unit tests, suspected confirmation
-            --  of incorrect memory / ownership tranfser
-            -- TODO: Work on the C++ side to get this working
-            -- csr <- x509CreateCertReq options key "SHA-256" rng
-            pending
+            csr <- x509CreateCertReq options key "SHA-256" rng
+            pass
         it "x509CSRCreate" $ do
             -- TODO: Relies on Extensions being complete, plus manual encoding of subjectDN
             -- rng <- rngInit "system"
@@ -67,10 +64,8 @@ spec = focus $ do
         -- NOTE: Should self-signed be here under CSR, under CA, or under its own thing?
         it "x509CreateSelfSignedCert" $ do
             rng <- rngInit "system"
-            key <- privKeyCreate "Ed25519" "" rng
+            key <- privKeyCreate "RSA" "2048" rng
             options <- mkTestOptions
-            -- NOTE: Truncates unit tests, suspected confirmation
-            --  of incorrect memory / ownership tranfser
-            -- TODO: Work on the C++ side to get this working
-            -- cert <- x509CreateSelfSignedCert options key "SHA-256" rng
-            pending
+            cert <- x509CreateSelfSignedCert options key "SHA-256" rng
+            pass
+
