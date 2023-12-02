@@ -17,7 +17,7 @@ spec = do
             pass
         it "x509CertOptionsCreateCommon" $ do
             opts <- x509CertOptionsCreateCommon
-                "example.com" "US" "ExampleOrg" "ExampleOrgUnit" (60 * 60 * 24)
+                "example.org" "US" "ExampleOrg" "ExampleOrgUnit" (60 * 60 * 24)
             pass
         it "x509CertOptionsSetCommonName" $ do
             opts <- x509CertOptionsCreate

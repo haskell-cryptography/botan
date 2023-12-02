@@ -151,6 +151,7 @@ test-suite botan-low-tests
         Botan.Low.X509Spec
         Botan.Low.ZFECSpec
         Test.Prelude
+        Paths_botan_low
     --   ghc-options: 
     default-language: Haskell2010
     default-extensions:

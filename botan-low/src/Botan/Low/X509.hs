@@ -138,6 +138,10 @@ x509CertGetSubjectDN cert key index = withX509CertPtr cert $ \ certPtr -> do
 x509CertToString :: X509Cert -> IO ByteString
 x509CertToString = mkGetCString withX509CertPtr botan_x509_cert_to_string
 
+-- NOTE: Per X509 key usage extension, the extension should
+--  only be present if at least one of the bits is set, and
+--  usage is unrestricted if the extension is not present.
+--  That is, it is an optional restriction.
 pattern NoConstraints = BOTAN_X509_CERT_KEY_CONSTRAINTS_NO_CONSTRAINTS
 pattern DigitalSignature = BOTAN_X509_CERT_KEY_CONSTRAINTS_DIGITAL_SIGNATURE
 pattern NonRepudiation = BOTAN_X509_CERT_KEY_CONSTRAINTS_NON_REPUDIATION

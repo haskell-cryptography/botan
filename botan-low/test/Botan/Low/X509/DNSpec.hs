@@ -11,4 +11,4 @@ spec :: Spec
 spec = do
     describe "thing" $ do
         it "action" $ do
-            pass :: IO ()
+            pending
