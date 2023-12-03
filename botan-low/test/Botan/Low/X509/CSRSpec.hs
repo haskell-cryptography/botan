@@ -44,7 +44,7 @@ mkSelfSignedOptions = do
     return opts
 
 spec :: Spec
-spec = focus $ do
+spec = do
     describe "X509CSR" $ do
         it "x509CreateCertReq" $ do
             rng <- rngInit "system"
