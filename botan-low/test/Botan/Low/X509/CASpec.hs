@@ -11,8 +11,9 @@ import Botan.Low.X509.CA
 import Botan.Low.X509.CSR
 import Botan.Low.X509.Options
 
+-- NOTE: Failing because not properly implemented on C++ side
 spec :: Spec
-spec = focus $ do
+spec = do
     describe "X509CA" $ do
         it "x509CACreate" $ do
             rng <- rngInit "system"
