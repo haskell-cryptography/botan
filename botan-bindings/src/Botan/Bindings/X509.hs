@@ -251,6 +251,7 @@ check if the certificate is revoked on that particular CRL
 @BOTAN_PUBLIC_API(2,13) int botan_x509_is_revoked(botan_x509_crl_t crl, botan_x509_cert_t cert);@
 -}
 foreign import ccall unsafe botan_x509_is_revoked :: X509CRLPtr -> X509CertPtr -> IO BotanErrorCode
+-- TODO: Probably rename to botan_x509_crl_is_revoked for consistency
 
 {-|
 Different flavor of `botan_x509_cert_verify`, supports revocation lists.
