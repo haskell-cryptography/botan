@@ -6,10 +6,93 @@ import Botan.Low.Prelude
 import Botan.Low.X509
 import Botan.Low.X509.Extensions
 
+import Botan.Bindings.X509
 import Botan.Bindings.X509.Extensions
 import Botan.Bindings.X509.CRL
+import Botan.Low.X509.CSR (X509IssuerDN)
 
--- TODO: Missing CRL functions in C++ side
+--
+-- CRL
+--
+
+--  TODO: Eventually move original / read-only CRL functions here too
+
+x509CRLGetRevoked :: X509CRL -> IO [X509CRLEntry]
+x509CRLGetRevoked crl = withX509CRLPtr crl $ \ crlPtr -> do
+    -- TODO: Some sort of allocArrayQuerying
+    undefined
+
+x509CRLGetIssuerDN :: X509CRL -> ByteString -> Int -> IO X509IssuerDN
+x509CRLGetIssuerDN crl key index = withX509CRLPtr crl $ \ crlPtr -> do
+    asBytes key $ \ keyPtr -> do
+        allocBytesQuerying $ \ outPtr outLen -> botan_x509_crl_get_issuer_dn
+            outPtr
+            outLen
+            crlPtr
+            keyPtr
+            (fromIntegral index)
+
+x509CRLExtensions :: X509CRL -> IO X509Extensions
+x509CRLExtensions crl = withX509CRLPtr crl $ \ crlPtr -> mkInit
+        MkX509Extensions
+        (\ ptr -> botan_x509_crl_extensions ptr crlPtr)
+        botan_x509_exts_destroy
+
+x509CRLAuthorityKeyId :: X509CRL -> IO ByteString
+x509CRLAuthorityKeyId crl = withX509CRLPtr crl $ \ crlPtr -> do
+    allocBytesQuerying $ \ outPtr outLen -> botan_x509_crl_authority_key_id
+        outPtr outLen
+        crlPtr
+
+x509CRLSerialNumber :: X509CRL -> IO Word32
+x509CRLSerialNumber crl = withX509CRLPtr crl $ \ crlPtr -> do
+    alloca $ \ snPtr -> do
+        throwBotanIfNegative_ $ botan_x509_crl_serial_number snPtr crlPtr
+        peek snPtr
+
+x509CRLThisUpdate :: X509CRL -> IO Word64
+x509CRLThisUpdate crl = withX509CRLPtr crl $ \ crlPtr -> do
+    alloca $ \ timePtr -> do
+        throwBotanIfNegative_ $ botan_x509_crl_this_update timePtr crlPtr
+        peek timePtr
+
+x509CRLThatUpdate :: X509CRL -> IO Word64
+x509CRLThatUpdate crl = withX509CRLPtr crl $ \ crlPtr -> do
+    alloca $ \ timePtr -> do
+        throwBotanIfNegative_ $ botan_x509_crl_next_update timePtr crlPtr
+        peek timePtr
+
+x509CRLIssuingDistributionPoint :: X509CRL -> IO ByteString
+x509CRLIssuingDistributionPoint crl = withX509CRLPtr crl $ \ crlPtr -> do
+    allocBytesQuerying $ \ outPtr outLen -> botan_x509_crl_issuing_distribution_point
+        outPtr outLen
+        crlPtr
+
+x509CRLCreateDER :: ByteString -> IO X509CRL
+x509CRLCreateDER der = do
+    asBytesLen der $ \ derPtr derLen -> mkInit
+        MkX509CRL
+        (\ptr -> botan_x509_crl_create_der ptr derPtr derLen)
+        botan_x509_crl_destroy
+
+x509CRLCreate :: X509IssuerDN -> Word64 -> Word64 -> [X509CRLEntry] -> IO X509CRL
+x509CRLCreate der this next entries = do
+    -- TODO: withArray, ownership transfer
+    -- asBytesLen der $ \ derPtr derLen -> mkInit
+    --     MkX509CRL
+    --     (\ptr -> botan_x509_crl_create ptr derPtr derLen)
+    --     botan_x509_crl_destroy
+    undefined
+
+x509CRLAddEntry :: X509CRL -> X509CRLEntry -> IO ()
+x509CRLAddEntry crl entry = undefined
+
+x509CRLRevokeCert :: X509CRL -> X509Cert -> X509CRLCode -> IO ()
+x509CRLRevokeCert crl entry reason = undefined
+
+--
+-- CRL Entry
+--
 
 newtype X509CRLEntry = MkX509CRLEntry { getX509CRLEntryForeignPtr :: ForeignPtr X509CRLEntryStruct }
 
