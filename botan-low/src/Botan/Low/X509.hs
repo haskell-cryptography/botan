@@ -265,6 +265,5 @@ x509CertVerifyWithCLR cert icerts tcerts crls tpath strength hostname time = do
                                     (fromIntegral strength)
                                     hostnamePtr
                                     time
-                                success <- undefined
                                 code <- fromIntegral <$> peek statusPtr
                                 return (success, code)

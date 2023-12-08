@@ -56,8 +56,8 @@ x509CRLThisUpdate crl = withX509CRLPtr crl $ \ crlPtr -> do
         throwBotanIfNegative_ $ botan_x509_crl_this_update timePtr crlPtr
         peek timePtr
 
-x509CRLThatUpdate :: X509CRL -> IO Word64
-x509CRLThatUpdate crl = withX509CRLPtr crl $ \ crlPtr -> do
+x509CRLNextUpdate :: X509CRL -> IO Word64
+x509CRLNextUpdate crl = withX509CRLPtr crl $ \ crlPtr -> do
     alloca $ \ timePtr -> do
         throwBotanIfNegative_ $ botan_x509_crl_next_update timePtr crlPtr
         peek timePtr

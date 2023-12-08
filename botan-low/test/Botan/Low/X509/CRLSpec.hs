@@ -35,9 +35,80 @@ loadTestCert = x509CertLoad
     \-----END CERTIFICATE-----\
     \"
 
+-- TODO: Actually have a der-encoded CRL...
+derEncodedCRL = ""
+
+issuerDN = ""
+this = 1701393290
+next = this + (60 * 60 * 24)
+
+-- TODO: Include issuerDNKey and issuerDNIndex into issuerDN
+issuerDNKey = ""
+issuerDNIndex = 0
+
+loadTestCRL =  do
+    cert <- loadTestCert
+    entry <- x509CRLEntryCreate cert BOTAN_X509_CRL_CODE_UNSPECIFIED
+    x509CRLCreate issuerDN this next [entry]
+
+
 -- NOTE: Failing because not properly implemented on C++ side
 spec :: Spec
 spec = do
+    describe "CRL" $ do
+        it "x509CRLCreateDER" $ do
+            crl <- x509CRLCreateDER derEncodedCRL
+            pass
+        it "x509CRLCreate" $ do
+            -- TODO: Test with creating entries
+            -- crl <- x509CRLCreate issuerDN this next []
+            cert <- loadTestCert
+            entry <- x509CRLEntryCreate cert BOTAN_X509_CRL_CODE_UNSPECIFIED
+            crl <- x509CRLCreate issuerDN this next [entry]
+            pass
+        it "x509CRLGetRevoked" $ do
+            crl <- loadTestCRL
+            revoked <- x509CRLGetRevoked crl
+            pass
+        it "x509CRLGetIssuerDN" $ do
+            crl <- loadTestCRL
+            val <- x509CRLGetIssuerDN crl issuerDNKey issuerDNIndex
+            pass
+        it "x509CRLExtensions" $ do
+            crl <- loadTestCRL
+            exts <- x509CRLExtensions crl
+            pass
+        it "x509CRLAuthorityKeyId" $ do
+            crl <- loadTestCRL
+            akid <- x509CRLAuthorityKeyId crl
+            pass
+        it "x509CRLSerialNumber" $ do
+            crl <- loadTestCRL
+            serial <- x509CRLSerialNumber crl
+            pass
+        it "x509CRLThisUpdate" $ do
+            crl <- loadTestCRL
+            time <- x509CRLThisUpdate crl
+            pass
+        it "x509CRLNextUpdate" $ do
+            crl <- loadTestCRL
+            time <- x509CRLNextUpdate crl
+            pass
+        it "x509CRLIssuingDistributionPoint" $ do
+            crl <- loadTestCRL
+            idp <- x509CRLIssuingDistributionPoint crl
+            pass
+        it "x509CRLAddEntry" $ do
+            crl <- x509CRLCreate issuerDN this next []
+            cert <- loadTestCert
+            entry <- x509CRLEntryCreate cert BOTAN_X509_CRL_CODE_UNSPECIFIED
+            x509CRLAddEntry crl entry
+            pass
+        it "x509CRLRevokeCert" $ do
+            crl <- x509CRLCreate issuerDN this next []
+            cert <- loadTestCert
+            x509CRLRevokeCert crl cert BOTAN_X509_CRL_CODE_UNSPECIFIED
+            pass
     describe "CRLEntry" $ do
         it "x509CRLEntryCreate" $ do
             cert <- loadTestCert
