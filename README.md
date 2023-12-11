@@ -1,212 +1,137 @@
-# botan
+<!-- EXAMPLE: https://github.com/alichtman/stronghold#readme -->
 
-Low-level Haskell bindings for the Botan cryptography library
+# Welcome to botan
 
-These are bindings to Botan's [low-level C89 FFI module](https://botan.randombit.net/handbook/api_ref/ffi.html), which should pair excellently with Haskell's own `CApiFFI` - see [here](https://downloads.haskell.org/ghc/9.0.1/docs/html/users_guide/exts/ffi.html?highlight=capiffi#extension-CApiFFI) for more details.
+<!-- Badges (hackage, Haskell-CI)  -->
 
-- [Devlog](https://discourse.haskell.org/t/botan-bindings-devlog/6855?u=apothecalabs)
-- [Github](https://github.com/apotheca/botan) - see a bug? [Open a ticket!](https://github.com/apotheca/botan/issues/new)
+`botan` is a set of Haskell bindings for the [Botan](https://botan.randombit.net/) cryptography library.
 
-## Installing Botan
+> Botan's goal is to be the best option for cryptography in C++ by offering the tools necessary to implement a range of practical systems, such as TLS protocol, X.509 certificates, modern AEAD ciphers, PKCS#11 and TPM hardware support, password hashing, and post quantum crypto schemes.
 
-Botan 3 must be installed for this library to work.
+- [Welcome to botan](#Welcome-to-botan)
+- [Introduction](#Introduction)
+- [Installation](#Installation)
+    - [Unix package](#Unix-package)
+    - [MacOS package](#MacOS-package)
+    - [From source](#From-source)
+    - [Windows from source](#Windows-from-source)
+- [License](#License)
 
-> Botan is available already in nearly all [packaging systems](https://repology.org/project/botan/versions) so you probably only need to build from source if you need unusual options or are building for an old system which has out of date packages.
->
-> - https://botan.randombit.net/handbook/building.html
+# Introduction
 
-### Windows
+This project has the goal of providing a set of safe and performant bindings to the Botan C++ cryptography library via its C FFI (Foreign Function Interface). It does this by providing 3 libraries at varying levels of complexity and abstraction:
 
-- TODO
+- `botan-bindings` contains raw bindings with buffers and pointers, and is otherwise an almost a 1:1 translation of the C FFI into Haskell
+- `botan-low` contains low-level bindings with imperative IO and exceptions, and safely wraps buffers and pointers into bytestrings and autoreleased objects
+- `botan` contains high-level bindings with strong types and idiomatic Haskell, and provides algebraic data types and convenience functions
 
-### MacOS
+We suggest using the highest-level library possible, unless you wish to build your own abstraction over the Botan C++ library. The highest-level stable library is currently: `botan-low`
 
-Use homebrew: `brew install botan`
+This library provides its bindings through the Botan C FFI, which does not currently cover the entire range of features available in C++. As such, it provides a sizeable yet limited subset of those features.
 
-### Unix
+These bindings provide the following features:
 
-See your appropriate package manager.
+- Random number generators
+- Hashing and non-cryptographic checksums
+- Message authentication codes
+- Block, mode, and AEAD ciphers
+- Password hashing and key derivation functions
+- Hash- and time-based one-time passwords
+- Post-quantum crypto schemes
+- SRP6 password authenticated key exchange
+- X.509 certificate systems (experimental)
+- ZFEC forward error correction
 
-### Experimental support
+> NOTE: This project includes efforts to expand this subset of features through a fork of the Botan C++ library - see [Enabling experimental support](#Enabling-experimental-support) for more details. This fork will be contributed back to the original library when it becomes sufficiently stable.
 
-Some features rely on experimental FFI code that will be contributed upstream to C++ Botan. To enable it:
+# Installation
 
-1) Clone the experimental [botan fork](https://github.com/apotheca/botan-upstream)
+This library requires Botan 3 to be installed in order to work. See [Building the Library](https://botan.randombit.net/handbook/building.html) in the handbook for more details.
 
-2) [Build and install](https://github.com/randombit/botan/blob/master/doc/building.rst) from source
+## Unix package
 
-3) Set `extra-lib-dirs` and `extra-include-dirs`, either as a CLI parameter, or in the `*.cabal` or `cabal.project` file.
+Botan is available already in nearly all [packaging systems](https://repology.org/project/botan/versions) so you can probably install it through your distribution / system package manager.
 
-4) Use the `XFFI` flag to enable the experimental FFI modules.
+```shell
+sudo apt update
+sudo apt install botan
+```
 
-So it'll look something like this:
+## MacOS package
 
-```sh
-# Clone
-git clone https://github.com/apotheca/botan-upstream $BOTAN_CPP
+Botan is available through the [Homebrew](https://brew.sh/) package manager:
 
-# Build and install C++
-cd $BOTAN_CPP
-./configure.py --prefix=$BOTAN_OUT
+```shell
+brew install botan
+```
+
+## From source
+
+Botan can be built from source, for additional configuration options and customization.
+
+Botan’s build configuration is controlled by `configure.py`, and requires Python 3.x or later.
+
+This works for most systems:
+
+```shell
+./configure.py [--prefix=/some/directory]
 make
 make install
-
-# Play around with it
-cd $BOTAN_HASKELL
-cabal repl botan-low -fXFFI --extra-lib-dirs=$BOTAN_OUT/lib --extra-include-dirs=$BOTAN_OUT/include
 ```
 
-To check that you've done everything correctly, you can run the following:
+If you wish to run unit tests before installation, run `make check` before `make install`.
 
-```
-import Botan.Bindings.Version 
-import Foreign.C.String
-import Prelude
-botan_version_string >>= peekCString
-```
+On platforms that do not understand the `#!` convention for beginning script files, or that have Python installed in an unusual spot, you might need to prefix the `configure.py` command with `python3` or `/path/to/python`:
 
-The version will say `unreleased` if it is properly pointing to our built Botan.
-
-# TODO LIST
-
-- Documentation / fix existing documentation
-- Consistent / better nomenclature - get rid of explicit 'botan' except for a few explicit things
-- Use [the actual headers](https://github.com/randombit/botan/blob/release-3/src/lib/ffi/ffi.h) because [the documentation is sometimes wrong / missing](https://botan.randombit.net/handbook/api_ref/ffi.html).
-- Use `MonadIO m => m a` instead of `IO a` wherever possible.
-- Use `Text` and ~~`ByteArray`~~ `ByteString`.
-- `{-# INLINE #-}` and `{-# NOINLINE #-}`
-- `{-# UNPACK #-}`
-- `HasCallStack`
-- https://downloads.haskell.org/ghc/9.0.1/docs/html/users_guide/exts/ffi.html?highlight=capiffi#memory-allocations
-- Complete documentation
-- `Botan.Prelude` and `NoImplicitPrelude`
-- Fix using `Ptr x` for everything from `const uint8_t *in` to `uint8_t out[]`
-    - See if there are specific types for this.
-- `ScrubbedBytes` using `botan_scrub_mem`
-- Discuss: Patterns vs constants - 
-    - `pattern BOTAN_FFI_SUCCESS = 0 :: BotanErrorCode` vs `data BotanErrorCode = Success | ...`
-    - Possibly use `*.hsc` and a `Botan.Constants` file.
-- Discuss: Initializing foreign pointers
-    - Old way: `opaqueForeignPtr <- alloca $ newForeignPtr botan_hash_destroy`
-        - likely was causing exceptions
-        - I used alloc when replacing ByteArray.alloc, but that actually uses `Bytestring.mallocByteString`
-    - New way: `opaqueForeignPtr <- malloc >>= newForeignPtr botan_hash_destroy`
-        - Switched to `malloc `, now mostly just looking for sanity check / confirmation that this was the correct thing to do.
-    - STALE - SEE Botan.Make
-- Consistency (in particular, `Random` is bad with `randomFoo :: Int -> foo -> result` vs `foo -> Int -> result`)
-- Replace some `Ptr CChar` with `CString` as appropriate (when null-terminated).
-- Reusing data types / constants between modules: eg, some `MacType` expect a `HashType` a la `HMAC SHA256` / `HMAC(SHA-256)`
-- Conditional compilation / support checks for algorithms.
-- Discuss ffi `unsafe` and destructors
-    - I do not remember why I did not mark them as `unsafe` in the first place
-    - After reading this, I am inclined to believe that it is fine for them to be `unsafe`.
-        - https://frasertweedale.github.io/blog-fp/posts/2022-09-23-ffi-safety-and-gc.html
-- Vanish `Text` and then only reintroduce after safely wrapping types (Text is just in the way right now)
-- Examine copy-safety regarding `withBytes` and `ByteString.unsafeUseAs...`
-    - Use the faster unsafe variants as applicable.
-- The terminology of `ByteString.useAsCString` vs `CString.withCString`
-    - We will use `asCString` and `asBytes` to avoid colliding nomenclature
-    - Having implemented the `as-` helpers, they probably do some unnecessary copying
-        - We've likey overreached on the safety vs speed aspect, re: unnecessary copying
-- Some `CString` trailing `NUL` handling, eg: `macName m` yields `"HMAC(SHA-384)\NUL"`
-- Use `CString` / `Text` for null-terminated strings, bytestrings otherwise.
-- `BlockCipher` encrypt / decrypt should throw an error upon improper length
-    - Padding on encrypt is a stopgap
-    - Requires remembering length to lop off padding on decrypt
-- Turn this TODO list into github tickets
-    - Also any specific issues mentioned by contributors, readers, and testers, such as [this](https://discourse.haskell.org/t/botan-bindings-devlog/6855/30?u=apothecalabs).
-- Better `CSize` vs `Int` handling
-    - Expose `Int` to haskell, `CSize` to c, use `fromIntegral` in the `mk-` functions
-- Organization
-    - Botan.Bindings.*
-        - Lowest-level 1:1 bindings
-        - Matches Botan FFI as closely as possible
-        - Not wrapped with unsafePerformIO
-    - Botan.Low.*
-        - Low-level idiomatic bindings
-        - Hides initialization / copying to preserve referential transparency
-        - Wrap relevant things in unsafePerformIO
-    - Botan.* - exports or re-exports highest-level bindings available (eg, Botan.Fundep or Botan.Tyfam)
-- A [bcrypt-like](https://en.wikipedia.org/wiki/Bcrypt#Description) generalized format for hashes / digest / cryptexts
-- Use `mask / bracket` in the right places (like `freeViewBytesLenFunPtr / freeViewCStringFunPtr`)
-- Correct capitalization of algorithm names
-- NOTE: Have discovered in `botan_privkey_export`
-    -   -- * On input *out_len is number of bytes in out[]
-        -- * On output *out_len is number of bytes written (or required)
-        -- * If out is not big enough no output is written, *out_len is set and 1 is returned
-        - 1 is INVALID_VERIFIER
-    - Some other (including already-implemented) functions probably follow this rule
-    - We have not encountered issues due to ignoring the outlen and calculating sizes explicitly so far
-    - SEE: ignoring szPtr
-- Conformance layers for libraries like `libsodium` and [raaz](https://hackage.haskell.org/package/raaz)
-- Take advantage of size pointers properly, see docs:
-    -   "If exporting a value (a string or a blob) the function takes a pointer to the output array and a read/write pointer to the length. If the length is insufficient, an error is returned. So passing nullptr/0 allows querying the final value."
-    -   "... the application typically passes both an output buffer and a pointer to a length field. On entry, the length field should be set to the number of bytes available in the output buffer. If there is sufficient room, the output is written to the buffer, the actual number of bytes written is returned in the length field, and the function returns 0 (success). Otherwise, the number of bytes required is placed in the length parameter, and then BOTAN_FFI_ERROR_INSUFFICIENT_BUFFER_SPACE is returned."
-    - Use `allocBytesQuerying` (or whatever it turns into)
-    - Some functions differ slightly or greatly - see `botan_privkey_export`
-- `withFoo` clashes with `withFooPtr` - the former signifies a temporary object, the latter as casting to its ptr
-- Convenience functions for deprecated-because-specific-subset
-- Prettier READMEs
-    - https://readme.so/editor
-    - https://shields.io/badges
-- Differentiate throwBotanCatchingSuccess and throwBotanCatchingInvalidIdentifier
-    - throwBotanCatchingSuccess should be (0 = True, _ = False)
-    - throwBotanCatchingInvalidIdentifier should be (0 = True, 1 = False, _ = Error)
-- Consideration of strict and lazy bytestring in APIs
-- Swap module nomenclature `Botan.Low.Cipher`, `Botan.Bindings.Cipher` with `Botan.Cipher.Low`, `Botan.Cipher.Bindings`
-- `Inline` and `NoInline` as appropriate
-- Strictify / force-evaluate results as necesary
-    - Example, bcryptGenerateIO (is bad function, needs cleanup anyway): 
-        - return $! ByteString.copy $! ByteString.take (fromIntegral sz) out
-- Use doxygen (https://botan.randombit.net/doxygen/) to dig into differentiating algo types
-- A bcrypt-like format for marking cryptexts
-    - `$h[hid]$...` for hashes, etc
-- Found the best / easiest docs
-    - https://botan.randombit.net/doxygen/ffi_8h.html
-    - Make a `Botan.Bindings.Macro/Constants` module for constants
-    - Cover all functions
-- Make sure all `unsafeDupablePerformIO` is used properly
-    - "It may even happen that one of the duplicated IO actions is only run partially, and then interrupted in the middle without an exception being raised. Therefore, functions like bracket cannot be used safely within unsafeDupablePerformIO."
-- Rabin-Karp fingerprints, rolling hashes
-- Backwards-compatibility for older compilers 
-- Botan MAC FFI is missing query for nonce sizes.
-- Getting some occasional InsufficientBufferSpaceException in mpToStrIO
-- Testing is made difficult by the number of algorithms, and their particular quirks.
-    - Testing each function separately will result in tens of thousands of tests, generating
-      more noise than signal.
-
-# Helpful References
-
-- https://botan.randombit.net/handbook/api_ref/ffi.html#versioning
-
-- NOTE: Regarding unsafeDupablePerormIO: https://botan.randombit.net/handbook/api_ref/footguns.html#multithreaded-access
-
-- Botan test vectors: https://github.com/randombit/botan/tree/master/src/tests/data
-    - We can parse these
-
-# Issues
-
-## CAPI vs CCALL
-
-We should be trying to use `capi` instead of `ccall`, a la: 
-
-https://wiki.haskell.org/Foreign_Function_Interface
-
-However, this causes issues, eg:
-
-```
-error: call to undeclared function 'botan_version_string'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
---  warning: incompatible integer to pointer conversion returning 'int' from a function with result type 'char *' [-Wint-conversion]
+```shell
+python3 ./configure.py [arguments]
 ```
 
-Complicating things is (from the Foreign.ForeignPtr docs):
+The `make install` target has a default directory in which it will install Botan (typically `/usr/local`). You can override this by using the `--prefix` argument to `configure.py`, like so:
 
+```shell
+./configure.py --prefix=/botan [arguments]
 ```
-type FinalizerPtr a = FunPtr (Ptr a -> IO ())
--- ^ Note that the foreign function must use the ccall calling convention.
+
+Some features rely on third party libraries which your system might not have or that you might not want the resulting binary to depend on. For instance to enable `sqlite3` support, add `--with-sqlite3` to your invocation of `configure.py`.
+
+```shell
+./configure.py --with-sqlite3 [arguments]
 ```
 
-It is therefore possible that we must use `ccall`. Further investigation is needed.
+## Windows from source
 
+Prebuilt botan is not available for windows, and it must be built from source. The process is similar to building from source in Unix or MacOS.
 
+You need to have a copy of Python installed, and have both Python and your chosen compiler in your path. Open a command shell (or the SDK shell), and run:
 
+```shell
+python3 configure.py --cc=msvc --os=windows
+nmake
+nmake check
+nmake install
+```
+
+Alternately, starting in Botan 3.2, there is additionally support for using the ninja build tool as an alternative to nmake:
+
+```shell
+python3 configure.py --cc=msvc --os=windows --build-tool=ninja
+ninja
+ninja check
+ninja install
+```
+
+For MinGW, use:
+
+```shell
+python3 configure.py --cc=gcc --os=mingw
+make
+```
+
+By default the install target will be `C:\botan`; you can modify this with the `--prefix` option.
+
+When building your applications, all you have to do is tell the compiler to look for both include files and library files in C:\botan, and it will find both. Or you can move them to a place where they will be in the default compiler search paths (consult your documentation and/or local expert for details).
+
+# License
+
+This project is licensed under the [BSD 3-Clause License](https://github.com/apotheca/botan/blob/main/LICENSE) and is free, open-source software.
