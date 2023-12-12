@@ -17,6 +17,8 @@
     - [MacOS package](#MacOS-package)
     - [From source](#From-source)
     - [Windows from source](#Windows-from-source)
+- [Usage](#Usage)
+- [Tutorials](#Tutorials)
 - [License](#License)
 
 </details>
@@ -195,6 +197,96 @@ By default the install target will be `C:\botan`; you can modify this with the `
 When building your applications, all you have to do is tell the compiler to look for both include files and library files in C:\botan, and it will find both. Or you can move them to a place where they will be in the default compiler search paths (consult your documentation and/or local expert for details).
 
 </details>
+
+# Usage
+
+You will need to add `botan` as a package dependency in order to use it.
+
+<details><summary>Cabal</summary>
+
+This package is not yet available on hackage, so you'll have to add the repo to your `cabal.project` file using a `source-repository-package` stanza:
+
+```
+source-repository-package
+    type: git
+    location: git://github.com/apotheca/botan.git
+    tag: [commit-hash]
+```
+
+Then, add it to your `[project].cabal` under the `build-depends` stanza:
+
+```
+build-depends:
+    botan-low
+```
+
+If you installed botan in a non-standard location, you may need to specify where using `--extra-include-dirs` and `--extra-lib-dirs` flags:
+
+```shell
+cabal repl TARGET --extra-include-dirs /botan/include --extra-lib-dirs /botan/lib
+```
+
+You can add these flags permanently to your `cabal.project` or `cabal.project.local` file:
+
+```
+extra-include-dirs:
+- /botan/include
+extra-lib-dirs:
+- /botan/lib
+```
+
+</details>
+
+<details><summary>Stack</summary>
+
+> Untested.
+
+This package is not yet available on stackage, so you'll have to add the repo to your `stack.yaml` file under the `extra-deps` stanza:
+
+```
+extra-deps:
+- github: apotheca/botan
+  commit: [commit-hash]
+```
+
+Then, add it to your `package.yaml` file under the `dependencies` stanza:
+
+```
+dependencies:
+- botan-low
+```
+
+If you installed botan in a non-standard location, you may need to specify where using `--extra-include-dirs` and `--extra-lib-dirs` flags:
+
+```shell
+stack repl TARGET --extra-include-dirs /botan/include --extra-lib-dirs /botan/lib
+```
+
+You can add these flags permanently to your `stack.yaml` or global `config.yaml` file:
+
+```
+extra-include-dirs:
+- /botan/include
+extra-lib-dirs:
+- /botan/lib
+```
+
+</details>
+
+After you have added `botan` as a dependency, you can begin importing modules and using them in your code.
+
+```haskell
+import Botan.Low.Hash
+
+main = do
+    hashCtx <- hashInit "SHA-256"
+    digest <- hashUpdateFinalize ctx "Fee fi fo fum!"
+    print digest
+```
+
+# Tutorials
+
+There are no tutorials available at this time. For the moment, the unit tests are your best bet for an example of working code.
 
 # License
 
