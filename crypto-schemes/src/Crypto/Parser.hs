@@ -1,5 +1,4 @@
-{-# LANGUAGE FlexibleInstances #-}
-module Botan.Prelude.Parser where
+module Crypto.Parser where
 
 import qualified Data.ByteString as ByteString
 import qualified Data.Text as Text
@@ -8,13 +7,10 @@ import qualified Data.Text as Text
 import Data.ByteString.Internal (w2c)
 import Data.String (IsString(..))
 
+import Crypto.Prelude
 
-import Botan.Prelude
-
-
--- TODO: Name parser - small one-shot / offline parser that just moves an index around
--- NOTE: Assumes ASCII
--- NOTE: Didn't want to pull in a heavy parser
+-- NOTE: Small one-shot / offline parser that just moves an index around
+-- Didn't want to pull in a heavy parser
 
 type Pos = Int
 type Inp = ByteString
@@ -80,10 +76,19 @@ anyByte = MkParser $ \ (pos,inp) -> case ByteString.indexMaybe inp pos of
     Nothing ->  Left "end of input"
     Just w  ->  Right (w,(pos+1,inp))
 
-satisfy :: Parser a -> Text -> (a -> Bool) -> Parser a
-satisfy p cond pred = p >>= \ a -> if pred a
+satisfy :: Text -> (Word8 -> Bool) -> Parser Word8
+satisfy cond pred = anyByte >>= \ a -> if pred a
     then return a
-    else err $ "failed to satisfy: " <> cond
+    else err cond
+
+byte :: Word8 -> Parser Word8
+byte w = satisfy ("expected " <> showText w) (== w)
+
+bytestring :: ByteString -> Parser ByteString
+bytestring bs =  ByteString.pack <$> foldr
+    (\ w -> (<*>) ((:) <$> byte w))
+    (pure [])
+    (ByteString.unpack bs)
 
 eof :: Parser ()
 eof = MkParser $ \ (pos,inp) -> 
@@ -92,17 +97,8 @@ eof = MkParser $ \ (pos,inp) ->
         then Left $ "input remaining (" <> showText pos <> "/" <> showText len <> " consumed)"
         else Right ((),(pos,inp))
 
-peekChar :: Parser Char
-peekChar = w2c <$> peekByte
-
-anyChar :: Parser Char
-anyChar = w2c <$> anyByte
-
-char :: Char -> Parser Char
-char c = satisfy anyChar ("expected " <> showText c) (== c)
-
-string :: Foldable f => f Char -> Parser [Char]
-string = foldr (\ c -> (<*>) ((:) <$> char c)) (pure [])
+-- oneOf :: ByteString -> Parser Word8
+-- oneOf bs = satisfy 
 
 -- MCF (Modular crypt format) -like
 --  A relaxed format: operation-algorithm-artefact

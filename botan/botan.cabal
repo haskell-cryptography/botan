@@ -45,7 +45,6 @@ library
         Botan.ZFEC
     other-modules:
         Botan.Prelude
-        Botan.Prelude.Parser
         Paths_botan
     build-depends:
         base >= 4 && < 5,

@@ -23,6 +23,7 @@ library
         FlexibleContexts
         FlexibleInstances
         GeneralizedNewtypeDeriving
+        InstanceSigs
         MultiParamTypeClasses
         NoImplicitPrelude
         OverloadedStrings
@@ -40,6 +41,8 @@ library
         Crypto.ErrorCorrection
         Crypto.Hash
         Crypto.Merkle
+        Crypto.PEM
+        Crypto.Parser
         Crypto.Prelude
         Crypto.Public
         Crypto.Random
@@ -49,6 +52,8 @@ library
         Paths_crypto_schemes
     build-depends:
         base >= 4 && < 5,
+        base16,
+        base64,
         bytestring,
         text
     -- cc-options:     -Wall

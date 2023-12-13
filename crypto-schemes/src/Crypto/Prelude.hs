@@ -1,5 +1,6 @@
 module Crypto.Prelude
 ( module Prelude
+, module Control.Applicative
 , module Control.Monad
 , module Control.Exception
 , module Data.ByteString
@@ -18,6 +19,7 @@ module Crypto.Prelude
 
 import Prelude
 
+import Control.Applicative
 import Control.Monad
 import Control.Exception
 
@@ -35,6 +37,7 @@ import GHC.Stack
 
 import qualified Data.ByteString.Char8 as Char8
 import qualified Data.Text as Text
+import qualified Type.Reflection as Control
 
 showText :: (Show a) => a -> Text
 showText = Text.pack . show
