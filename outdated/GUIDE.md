@@ -1,5 +1,7 @@
 # Guide
 
+<!-- TODO: Refactor this into CONTRIBUTING.md -->
+
 ## Wrapping botan initializers and destructors
 
 `Botan` uses a double-pointer method of initializing objects, as the return value is already used for a success / error code.

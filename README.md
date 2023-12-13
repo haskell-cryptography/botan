@@ -345,6 +345,7 @@ There are several resources for this project that might be helpful:
 - **[Devlog](https://discourse.haskell.org/t/botan-bindings-devlog/6855?u=apothecalabs)** for project status and updates.
 - **[GitHub](https://github.com/apotheca/botan)** for Haskell source code, issues, and pull requests.
 - **[Upstream C++ Github](https://github.com/apotheca/botan-upstream)** experimental fork of Botan C++
+- **[Proposal](https://github.com/haskellfoundation/tech-proposals/pull/57)** Haskell Foundation funding proposal submission thread.
 
 As well, there are resources for the original Botan C++ library:
 
@@ -352,6 +353,7 @@ As well, there are resources for the original Botan C++ library:
 - **[Botan C++ Github](https://github.com/randombit/botan/)** for original Botan C++ source code, issues, and pull requests.
 - **[Botan Handbook](https://botan.randombit.net/handbook/)** for documentation on the original library
 - **[Botan FFI](https://botan.randombit.net/handbook/api_ref/ffi.html)** for documentation on the Botan C FFI
+- **[Issue](https://github.com/randombit/botan/issues/3627)** FFI APIs for X.509 are insufficient
 
 # License
 
