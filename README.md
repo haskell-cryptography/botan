@@ -1,6 +1,6 @@
 # Welcome to botan
 
-<!-- Badges (hackage, Haskell-CI)  -->
+<!-- TODO: Badges (hackage, Haskell-CI)  -->
 
 `botan` is a set of Haskell bindings for the [Botan](https://botan.randombit.net/) cryptography library.
 
@@ -388,6 +388,9 @@ git checkout https://github.com/apotheca/botan -b some_new_branch
 # Acknowledgements
 
 This project has received funding from the Haskell Foundation, with support from Mercury.
+
+<!-- TODO: Acknowlege code contributors -->
+<!-- TODO: Adding a CONTRIBUTING file: https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/setting-guidelines-for-repository-contributors -->
 
 # Donations
 
