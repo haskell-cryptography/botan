@@ -19,7 +19,14 @@
     - [Windows from source](#Windows-from-source)
 - [Usage](#Usage)
 - [Tutorials](#Tutorials)
+- [Enabling experimental support](#Enabling-experimental-support)
+- [Resources](#Resources)
 - [License](#License)
+- [Contributing](#Contributing)
+    - [Reporting Bugs](#Reporting-Bugs)
+    - [Assist in Development](#Assist-in-Development)
+- [Acknowledgements](#Acknowledgements)
+- [Donations](#Donations)
 
 </details>
 
@@ -288,6 +295,102 @@ main = do
 
 There are no tutorials available at this time. For the moment, the unit tests are your best bet for an example of working code.
 
+# Enabling experimental support
+
+Some features rely on an experimental fork of the Botan C++ library, which will be contributed back upstream to Botan C++ when it is stable.
+
+<details><summary>Build with experimental features</summary>
+
+1.  Clone the experimental [fork](https://github.com/apotheca/botan-upstream)
+
+```shell
+git clone https://github.com/apotheca/botan-upstream $BOTAN_CPP
+```
+
+2.  Build and install the experimental fork as [from source](#From-source). You may wish to install to a non-standard location using `--prefix` during configuration, to avoid overwriting any pre-existing install.
+
+```shell
+cd $BOTAN_CPP
+./configure.py --prefix=$BOTAN_OUT
+make
+make install
+```
+
+3.  Use the `XFFI` flag to enable the experimental FFI modules. If you installed the experimental fork to a non-standard location, you may also need to specify where using `--extra-include-dirs` and `--extra-lib-dirs` flags.
+
+```shell
+cd $BOTAN_HASKELL
+cabal build TARGET -fXFFI --extra-include-dirs $BOTAN_OUT/include --extra-lib-dirs $BOTAN_OUT/lib
+# or
+stack build TARGET --flag XFFI --extra-include-dirs $BOTAN_OUT/include --extra-lib-dirs $BOTAN_OUT/lib
+```
+
+To check that you've done everything correctly, you can run the following:
+
+```
+import Botan.Bindings.Version 
+import Foreign.C.String
+import Prelude
+botan_version_string >>= peekCString
+```
+
+The version will say `unreleased` if it is properly pointing to our built Botan.
+
+</details>
+
+# Resources
+
+There are several resources for this project that might be helpful:
+
+- **[Devlog](https://discourse.haskell.org/t/botan-bindings-devlog/6855?u=apothecalabs)** for project status and updates.
+- **[GitHub](https://github.com/apotheca/botan)** for Haskell source code, issues, and pull requests.
+- **[Upstream C++ Github](https://github.com/apotheca/botan-upstream)** experimental fork of Botan C++
+
+As well, there are resources for the original Botan C++ library:
+
+- **[Botan](https://botan.randombit.net/)** Crypto and TLS for Modern C++
+- **[Botan C++ Github](https://github.com/randombit/botan/)** for original Botan C++ source code, issues, and pull requests.
+- **[Botan Handbook](https://botan.randombit.net/handbook/)** for documentation on the original library
+- **[Botan FFI](https://botan.randombit.net/handbook/api_ref/ffi.html)** for documentation on the Botan C FFI
+
 # License
 
 This project is licensed under the [BSD 3-Clause License](https://github.com/apotheca/botan/blob/main/LICENSE) and is free, open-source software.
+
+# Contributing
+
+There are several ways to contribute to the development of this project, and we are happy to receive any bug reports, fixes, documentation, and any other improvements to this project. 
+
+## Reporting Bugs
+
+See a bug? 
+
+1. Describe the issue
+
+2. Write down the steps required to reproduce the issue
+
+3. Report the issue by [opening a ticket!](https://github.com/apotheca/botan/issues/new)
+
+## Assist in Development
+
+Want to help?
+
+1. Fork or clone the repo, and create a new branch:
+
+```shell
+git checkout https://github.com/apotheca/botan -b some_new_branch
+```
+
+2. Make your changes, and test them
+
+3. Submit a pull request with a comprehensive description of the changes
+
+# Acknowledgements
+
+This project has received funding from the Haskell Foundation, with support from Mercury.
+
+# Donations
+
+This is free, open-source software. If you'd like to support the continued development of this project and future projects like this, or just to say thanks, you can donate directly using the following link(s):
+
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/V7V1S5JTG)
