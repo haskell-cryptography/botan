@@ -8,6 +8,13 @@ build-type:     Simple
 description:
     Raw bindings to the Botan cryptography library
 
+tested-with:
+    GHC == 9.0.2,
+    GHC == 9.2.8,
+    GHC == 9.4.7,
+    GHC == 9.6.3,
+    GHC == 9.8.1
+
 source-repository head
     type:     git
     location: https://github.com/apotheca/botan.git
