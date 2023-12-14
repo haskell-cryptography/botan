@@ -65,6 +65,8 @@ library
         Botan.Bindings.View
         Botan.Bindings.X509
         Botan.Bindings.ZFEC
+        -- EXPERIMENTAL
+        Botan.CAPI
     other-modules:
         Botan.Bindings.Prelude
         Paths_botan_bindings
