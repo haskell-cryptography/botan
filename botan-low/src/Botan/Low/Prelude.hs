@@ -126,6 +126,7 @@ asBytes bs f = asBytesLen bs (\ ptr _ -> f ptr)
 unsafeAsBytes :: ByteString -> (Ptr byte -> IO a) -> IO a
 unsafeAsBytes bs f = unsafeAsBytesLen bs (\ ptr _ -> f ptr) 
 
+-- WARNING: This should not be using `useAsCStringLen`
 asBytesLen :: ByteString -> (Ptr byte -> CSize -> IO a) -> IO a
 asBytesLen bs f = ByteString.useAsCStringLen bs (\ (ptr,len) -> f (castPtr ptr) (fromIntegral len))
 
