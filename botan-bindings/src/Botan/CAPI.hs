@@ -10,8 +10,11 @@ Portability : POSIX
 
 {-# LANGUAGE CApiFFI
            , CPP
+           , DeriveDataTypeable
            , DerivingStrategies
            , GeneralizedNewtypeDeriving
+           , RoleAnnotations
+           , StandaloneKindSignatures
            #-}
 
 module Botan.CAPI where
@@ -30,6 +33,9 @@ import           Data.Word
 
 #if MIN_VERSION_base (4,18,0)
 import           Foreign.C.ConstPtr
+#else
+import           Data.Data
+import           Data.Kind
 #endif
 
 import           Foreign.C.Types
@@ -48,7 +54,8 @@ import           Foreign.Storable
 type ConstPtr :: Type -> Type
 type role ConstPtr phantom
 newtype ConstPtr a = ConstPtr { unConstPtr :: Ptr a }
-    deriving newtype (Eq, Ord, Data, Storable)
+    deriving stock (Data)
+    deriving newtype (Eq, Ord, Storable)
 
 instance Show (ConstPtr a) where
     showsPrec d (ConstPtr p) = showParen (d > 10) $ showString "ConstPtr " . showsPrec 11 p
@@ -112,12 +119,12 @@ foreign import capi safe "botan/ffi.h botan_rng_get"
     -> CSize       -- ^ out_len
     -> IO CInt
 
--- foreign import capi safe "botan/ffi.h botan_rng_add_entropy"
---   botan_rng_add_entropy
---     :: RNGPtr     -- ^ rng
---     -> ConstPtr Word8  -- ^ entropy
---     -> CSize           -- ^ entropy_len
---     -> IO CInt
+foreign import capi safe "botan/ffi.h botan_rng_add_entropy"
+  botan_rng_add_entropy
+    :: RNGPtr     -- ^ rng
+    -> ConstPtr Word8  -- ^ entropy
+    -> CSize           -- ^ entropy_len
+    -> IO CInt
 
 -- Low-level
 
@@ -135,12 +142,12 @@ rngInit name = do
         ByteString.useAsCString name $ \ namePtr -> do 
             throwErrorIfNegative_ $ botan_rng_init outPtr (ConstPtr namePtr)
         out <- runRNGPtr <$> peek outPtr
-        macForeignPtr <- newForeignPtr botan_rng_destroy out
-        return $ MkRNG macForeignPtr
-        -- NOTE: We can avoid type-specific newtype wrapping and unwrapping with coerce
+        rngForeignPtr <- newForeignPtr botan_rng_destroy out
+        return $ MkRNG rngForeignPtr
+        -- NOTE: We could avoid type-specific newtype wrapping and unwrapping with coerce
         -- out <- peek outPtr
-        -- macForeignPtr <- newForeignPtr botan_rng_destroy (coerce out)
-        -- return $ coerce macForeignPtr
+        -- rngForeignPtr <- newForeignPtr botan_rng_destroy (coerce out)
+        -- return $ coerce rngForeignPtr
 
 rngGet :: Int -> RNG -> IO ByteString
 rngGet len rng = do
@@ -148,11 +155,11 @@ rngGet len rng = do
         allocBytes len $ \ bytesPtr -> do
             throwErrorIfNegative_ $ botan_rng_get rngPtr bytesPtr (fromIntegral len)
 
--- rngAddEntropy :: RNG -> ByteString -> IO ()
--- rngAddEntropy rng bytes = do
---     withRNGPtr rng $ \ rngPtr -> do
---         asBytesLen bytes $ \ bytesPtr bytesLen -> do
---             throwBotanIfNegative_ $ botan_rng_add_entropy rngPtr bytesPtr bytesLen
+rngAddEntropy :: RNG -> ByteString -> IO ()
+rngAddEntropy rng bytes = do
+    withRNGPtr rng $ \ rngPtr -> do
+        asBytesLen bytes $ \ bytesPtr bytesLen -> do
+            throwErrorIfNegative_ $ botan_rng_add_entropy rngPtr (ConstPtr bytesPtr) bytesLen
 
 -- Helpers, taken from botan-low
 
