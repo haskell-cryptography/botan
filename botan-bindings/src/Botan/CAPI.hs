@@ -23,6 +23,7 @@ import           Control.Monad
 import           Data.ByteString (ByteString)
 import qualified Data.ByteString as ByteString
 import qualified Data.ByteString.Internal as ByteString
+import           Data.Coerce
 import           Data.Word
 
 -- Bindings
@@ -41,26 +42,16 @@ import           Foreign.ForeignPtr
 import           Foreign.Marshal.Alloc
 import           Foreign.Storable
 
-#if MIN_VERSION_base (4,18,0)
+#if !(MIN_VERSION_base (4,18,0))
 
-constPtr :: Ptr a -> ConstPtr a
-constPtr = ConstPtr
+-- NOTE: Taken from Foreign.C.ConstPtr, more or less
+type ConstPtr :: Type -> Type
+type role ConstPtr phantom
+newtype ConstPtr a = ConstPtr { unConstPtr :: Ptr a }
+    deriving newtype (Eq, Ord, Data, Storable)
 
-#else
-
-type ConstPtr = Ptr
-
-constPtr :: Ptr a -> ConstPtr a
-constPtr = id
-
-unConstPtr :: Ptr a -> Ptr a
-unConstPtr = id
-
--- Or, from 
--- type ConstPtr :: Type -> Type
--- type role ConstPtr phantom
--- newtype ConstPtr a = ConstPtr { unConstPtr :: Ptr a }
---     deriving (Eq, Ord)
+instance Show (ConstPtr a) where
+    showsPrec d (ConstPtr p) = showParen (d > 10) $ showString "ConstPtr " . showsPrec 11 p
 
 #endif
 
@@ -84,11 +75,18 @@ rngDestroy rng = finalizeForeignPtr (getRNGForeignPtr rng)
 
 -- Bindings
 
+-- data RNGStruct
 -- Causes gnarly errors
 -- data    {-# CTYPE "botan/ffi.h" "botan_rng_struct" #-} RNGStruct
-data RNGStruct
-newtype {-# CTYPE "botan/ffi.h" "botan_rng_t"      #-} RNGPtr = MkRNGPtr { runRNGPtr :: Ptr RNGStruct }
-    deriving newtype (Eq, Ord, Storable)
+-- Fixes the gnarly errors
+data {-# CTYPE "botan/ffi.h" "struct botan_rng_struct" #-} RNGStruct
+
+newtype {-# CTYPE "botan/ffi.h" "botan_rng_t" #-} RNGPtr
+    = MkRNGPtr { runRNGPtr :: Ptr RNGStruct }
+        deriving newtype (Eq, Ord, Storable)
+
+-- NOTE: The benefits of these shenanigans are that we actually get to use
+--  RNGPtr in the API with it automatically converting
 
 {- NOPE
 foreign import capi safe "botan/ffi.h botan_rng_destroy"
@@ -126,22 +124,23 @@ foreign import capi safe "botan/ffi.h botan_rng_get"
 newtype RNG = MkRNG { getRNGForeignPtr :: ForeignPtr RNGStruct }
 
 withRNGPtr :: RNG -> (RNGPtr -> IO a) -> IO a
-withRNGPtr rng f = withRNGStructPtr rng (f . MkRNGPtr)
-
-withRNGStructPtr :: RNG -> (Ptr RNGStruct -> IO a) -> IO a
-withRNGStructPtr = withForeignPtr . getRNGForeignPtr
+withRNGPtr (MkRNG rng) f = withForeignPtr rng (f . MkRNGPtr)
 
 rngDestroy :: RNG -> IO ()
-rngDestroy rng = finalizeForeignPtr (getRNGForeignPtr rng)
+rngDestroy (MkRNG rng) = finalizeForeignPtr rng
 
 rngInit :: ByteString -> IO RNG
 rngInit name = do
     alloca $ \ outPtr -> do
         ByteString.useAsCString name $ \ namePtr -> do 
-            throwErrorIfNegative_ $ botan_rng_init outPtr (constPtr namePtr)
+            throwErrorIfNegative_ $ botan_rng_init outPtr (ConstPtr namePtr)
         out <- runRNGPtr <$> peek outPtr
         macForeignPtr <- newForeignPtr botan_rng_destroy out
         return $ MkRNG macForeignPtr
+        -- NOTE: We can avoid type-specific newtype wrapping and unwrapping with coerce
+        -- out <- peek outPtr
+        -- macForeignPtr <- newForeignPtr botan_rng_destroy (coerce out)
+        -- return $ coerce macForeignPtr
 
 rngGet :: Int -> RNG -> IO ByteString
 rngGet len rng = do
@@ -155,27 +154,26 @@ rngGet len rng = do
 --         asBytesLen bytes $ \ bytesPtr bytesLen -> do
 --             throwBotanIfNegative_ $ botan_rng_add_entropy rngPtr bytesPtr bytesLen
 
--- Helpers
+-- Helpers, taken from botan-low
 
 throwErrorIfNegative_ :: IO CInt -> IO ()
 throwErrorIfNegative_ act = do
     e <- act
     when (e < 0) $ error $ "Botan: " ++ show e
 
--- Old
 allocBytes :: Int -> (Ptr byte -> IO ()) -> IO ByteString
 allocBytes sz f = ByteString.create sz (f . castPtr)
 
 asBytesLen :: ByteString -> (Ptr byte -> CSize -> IO a) -> IO a
 asBytesLen bs f = ByteString.useAsCStringLen bs (\ (ptr,len) -> f (castPtr ptr) (fromIntegral len))
 
--- TODO: Consistent 
+-- TODO: Consistent asFoo, asConstFoo, unsafeFoo, unsafeConstFoo variants
 
 -- type CBytes = Ptr Word8
 -- type CBytesLen = (Ptr Word8, Int)
 
 -- asCBytes :: ByteString -> (CBytes -> IO a) -> IO a
--- asCBytesLen :: ByteString -> (CBytesLen -> IO a) -> IO a 
+-- asCBytesLen :: ByteString -> (CBytesLen -> IO a) -> IO a
 
 -- type ConstCBytes = ConstPtr Word8
 -- type ConstCBytesLen = (ConstCBytes, Int)
