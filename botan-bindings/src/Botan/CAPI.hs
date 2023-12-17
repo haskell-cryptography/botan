@@ -48,6 +48,8 @@ import           Foreign.ForeignPtr
 import           Foreign.Marshal.Alloc
 import           Foreign.Storable
 
+-- ConstPtr shim
+
 #if !(MIN_VERSION_base (4,18,0))
 
 -- NOTE: Taken from Foreign.C.ConstPtr, more or less
@@ -62,104 +64,92 @@ instance Show (ConstPtr a) where
 
 #endif
 
-{- Old
-data RNGStruct
-type RNGPtr = Ptr RNGStruct
-
-foreign import ccall unsafe "&botan_rng_destroy" botan_rng_destroy :: FinalizerPtr RNGStruct
-
-foreign import ccall unsafe botan_rng_init :: Ptr RNGPtr -> Ptr CChar -> IO BotanErrorCode
-
-newtype RNG = MkRNG { getRNGForeignPtr :: ForeignPtr RNGStruct }
-
-withRNGPtr :: RNG -> (RNGPtr -> IO a) -> IO a
-withRNGPtr = withForeignPtr . runRNGPtr
-
-rngDestroy :: RNG -> IO ()
-rngDestroy rng = finalizeForeignPtr (getRNGForeignPtr rng)
-
--}
-
 -- Bindings
 
--- data RNGStruct
--- Causes gnarly errors
--- data    {-# CTYPE "botan/ffi.h" "botan_rng_struct" #-} RNGStruct
--- Fixes the gnarly errors
-data {-# CTYPE "botan/ffi.h" "struct botan_rng_struct" #-} RNGStruct
+data {-# CTYPE "botan/ffi.h" "struct botan_rng_struct" #-} BotanRNGStruct
 
-newtype {-# CTYPE "botan/ffi.h" "botan_rng_t" #-} RNGPtr
-    = MkRNGPtr { runRNGPtr :: Ptr RNGStruct }
+newtype {-# CTYPE "botan/ffi.h" "botan_rng_t" #-} BotanRNG
+    = MkBotanRNG { runBotanRNG :: Ptr BotanRNGStruct }
         deriving newtype (Eq, Ord, Storable)
 
 -- NOTE: The benefits of these shenanigans are that we actually get to use
---  RNGPtr in the API with it automatically converting
-
-{- NOPE
-foreign import capi safe "botan/ffi.h botan_rng_destroy"
-  botan_rng_destroy
-    :: RNGPtr -- ^ rng
-    -> IO CInt
--}
+--  BotanRNG in the API with it automatically converting
 
 foreign import capi safe "botan/ffi.h &botan_rng_destroy"
   botan_rng_destroy
-    :: FinalizerPtr RNGStruct
+    :: FinalizerPtr BotanRNGStruct
 
 foreign import capi safe "botan/ffi.h botan_rng_init"
   botan_rng_init
-    :: Ptr RNGPtr       -- ^ rng
+    :: Ptr BotanRNG       -- ^ rng
     -> ConstPtr CChar   -- ^ rng_type
     -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_rng_get"
   botan_rng_get
-    :: RNGPtr -- ^ rng
+    :: BotanRNG -- ^ rng
     -> Ptr Word8   -- ^ out
     -> CSize       -- ^ out_len
     -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_rng_add_entropy"
   botan_rng_add_entropy
-    :: RNGPtr     -- ^ rng
+    :: BotanRNG     -- ^ rng
     -> ConstPtr Word8  -- ^ entropy
     -> CSize           -- ^ entropy_len
     -> IO CInt
 
 -- Low-level
 
-newtype RNG = MkRNG { getRNGForeignPtr :: ForeignPtr RNGStruct }
+mkBindings
+    ::  (Storable botan)
+    =>  (Ptr struct -> botan)
+    ->  (botan -> Ptr struct)
+    ->  (ForeignPtr struct -> object)
+    ->  (object -> ForeignPtr struct)
+    ->  FinalizerPtr struct
+    ->  (   botan -> IO object
+        ,   object -> (botan -> IO a) -> IO a
+        ,   object -> IO ()
+        ,   (Ptr botan -> IO CInt) -> IO object
+        )
+mkBindings mkBotan runBotan mkForeign runForeign destroy = bindings where
+    bindings = (newObject, withObject, objectDestroy, createObject)
+    newObject botan = do
+        foreignPtr <- newForeignPtr destroy (runBotan botan)
+        return $ mkForeign foreignPtr
+    withObject object f = withForeignPtr (runForeign object) (f . mkBotan)
+    objectDestroy object = finalizeForeignPtr (runForeign object)
+    createObject init = alloca $ \ outPtr -> do
+        throwErrorIfNegative_ $ init outPtr
+        out <- peek outPtr
+        newObject out
 
-withRNGPtr :: RNG -> (RNGPtr -> IO a) -> IO a
-withRNGPtr (MkRNG rng) f = withForeignPtr rng (f . MkRNGPtr)
+newtype RNG = MkRNG { getRNGForeignPtr :: ForeignPtr BotanRNGStruct }
 
-rngDestroy :: RNG -> IO ()
-rngDestroy (MkRNG rng) = finalizeForeignPtr rng
+newRNG      :: BotanRNG -> IO RNG
+withRNG     :: RNG -> (BotanRNG -> IO a) -> IO a
+rngDestroy  :: RNG -> IO ()
+createRNG   :: (Ptr BotanRNG -> IO CInt) -> IO RNG
+(newRNG, withRNG, rngDestroy, createRNG)
+    = mkBindings MkBotanRNG runBotanRNG MkRNG getRNGForeignPtr botan_rng_destroy
 
 rngInit :: ByteString -> IO RNG
 rngInit name = do
-    alloca $ \ outPtr -> do
-        ByteString.useAsCString name $ \ namePtr -> do 
-            throwErrorIfNegative_ $ botan_rng_init outPtr (ConstPtr namePtr)
-        out <- runRNGPtr <$> peek outPtr
-        rngForeignPtr <- newForeignPtr botan_rng_destroy out
-        return $ MkRNG rngForeignPtr
-        -- NOTE: We could avoid type-specific newtype wrapping and unwrapping with coerce
-        -- out <- peek outPtr
-        -- rngForeignPtr <- newForeignPtr botan_rng_destroy (coerce out)
-        -- return $ coerce rngForeignPtr
+    ByteString.useAsCString name $ \ namePtr -> do 
+        createRNG $ \ outPtr -> botan_rng_init outPtr (ConstPtr namePtr)
 
 rngGet :: Int -> RNG -> IO ByteString
 rngGet len rng = do
-    withRNGPtr rng $ \ rngPtr -> do
+    withRNG rng $ \ botanRNG -> do
         allocBytes len $ \ bytesPtr -> do
-            throwErrorIfNegative_ $ botan_rng_get rngPtr bytesPtr (fromIntegral len)
+            throwErrorIfNegative_ $ botan_rng_get botanRNG bytesPtr (fromIntegral len)
 
 rngAddEntropy :: RNG -> ByteString -> IO ()
 rngAddEntropy rng bytes = do
-    withRNGPtr rng $ \ rngPtr -> do
+    withRNG rng $ \ botanRNG -> do
         asBytesLen bytes $ \ bytesPtr bytesLen -> do
-            throwErrorIfNegative_ $ botan_rng_add_entropy rngPtr (ConstPtr bytesPtr) bytesLen
+            throwErrorIfNegative_ $ botan_rng_add_entropy botanRNG (ConstPtr bytesPtr) bytesLen
 
 -- Helpers, taken from botan-low
 
