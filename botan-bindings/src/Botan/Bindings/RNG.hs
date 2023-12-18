@@ -27,6 +27,11 @@ newtype {-# CTYPE "botan/ffi.h" "botan_rng_t" #-} BotanRNG
     = MkBotanRNG { runBotanRNG :: Ptr BotanRNGStruct }
         deriving newtype (Eq, Ord, Storable)
 
+-- | Frees all resources of the random number generator object
+foreign import capi safe "botan/ffi.h &botan_rng_destroy"
+    botan_rng_destroy
+        :: FinalizerPtr BotanRNGStruct
+
 -- WARNING: Not real botan constants, values are taken from documentation / source code.
 -- TODO: Maybe move to Botan.Low.RNG
 pattern BOTAN_RNG_TYPE_SYSTEM
@@ -38,11 +43,6 @@ pattern BOTAN_RNG_TYPE_SYSTEM            = "system"             -- ^ system RNG
 pattern BOTAN_RNG_TYPE_USER              = "user"               -- ^ userspace RNG
 pattern BOTAN_RNG_TYPE_USER_THREADSAFE   = "user-threadsafe"    -- ^ userspace RNG, with internal locking
 pattern BOTAN_RNG_TYPE_RDRAND            = "rdrand"             -- ^ directly read RDRAND
-
--- | Frees all resources of the random number generator object
-foreign import capi safe "botan/ffi.h &botan_rng_destroy"
-    botan_rng_destroy
-        :: FinalizerPtr BotanRNGStruct
 
 {- |
 Initialize a random number generator object

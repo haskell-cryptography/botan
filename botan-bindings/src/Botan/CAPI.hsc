@@ -63,6 +63,18 @@ foreign import capi safe "botan/ffi.h &botan_rng_destroy"
     botan_rng_destroy
         :: FinalizerPtr BotanRNGStruct
 
+-- TODO: Contemplate also directly exposing destructor. eg:
+{-
+foreign import capi "botan/ffi.h botan_cipher_destroy"
+    botan_cipher_destroy
+        :: Botan_cipher_t -- ^ cipher
+        -> IO CInt
+
+foreign import capi safe "botan/ffi.h &botan_rng_destroy"
+    botan_rng_finalizer
+        :: FinalizerPtr BotanRNGStruct
+-}
+
 foreign import capi safe "botan/ffi.h botan_rng_init"
     botan_rng_init
         :: Ptr BotanRNG     -- ^ rng
