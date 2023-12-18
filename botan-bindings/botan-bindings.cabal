@@ -21,10 +21,15 @@ library
     hs-source-dirs:   src
     default-language: Haskell2010
     default-extensions:
+        DeriveDataTypeable
+        DerivingStrategies
+        GeneralizedNewtypeDeriving
         NoImplicitPrelude
         OverloadedStrings
         PatternSynonyms
+        RoleAnnotations
         ScopedTypeVariables
+        StandaloneKindSignatures
     exposed-modules:
         Botan.Bindings.Bcrypt
         Botan.Bindings.BlockCipher
@@ -38,6 +43,7 @@ library
         Botan.Bindings.MAC
         Botan.Bindings.MPI
         -- Botan.Bindings.PBKDF
+        Botan.Bindings.Prelude
         Botan.Bindings.PubKey
         Botan.Bindings.PubKey.Decrypt
         Botan.Bindings.PubKey.DH
@@ -68,7 +74,6 @@ library
         -- EXPERIMENTAL
         Botan.CAPI
     other-modules:
-        Botan.Bindings.Prelude
         Paths_botan_bindings
     build-depends:
         base >= 4 && < 5,

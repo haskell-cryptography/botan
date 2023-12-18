@@ -8,61 +8,37 @@ Stability   : experimental
 Portability : POSIX
 -}
 
-{-# LANGUAGE CApiFFI
-           , CPP
-           , DeriveDataTypeable
-           , DerivingStrategies
-           , GeneralizedNewtypeDeriving
-           , RoleAnnotations
-           , StandaloneKindSignatures
-           #-}
+{-# LANGUAGE CApiFFI, CPP #-}
 
 module Botan.CAPI where
 
-import           Prelude
+import Botan.Bindings.Prelude
 
 import           Control.Monad
 
-import           Data.ByteString (ByteString)
 import qualified Data.ByteString as ByteString
 import qualified Data.ByteString.Internal as ByteString
-import           Data.Coerce
-import           Data.Word
 
 -- Bindings
 
-#if MIN_VERSION_base (4,18,0)
-import           Foreign.C.ConstPtr
-#else
-import           Data.Data
-import           Data.Kind
-#endif
+-- import           Foreign.C.Types
+-- import           Foreign.Ptr
 
-import           Foreign.C.Types
-import           Foreign.Ptr
+-- -- Low-level
 
--- Low-level
+-- import           Foreign.C.String
+-- import           Foreign.ForeignPtr
+-- import           Foreign.Marshal.Alloc
+-- import           Foreign.Storable
 
-import           Foreign.C.String
-import           Foreign.ForeignPtr
-import           Foreign.Marshal.Alloc
-import           Foreign.Storable
-
--- ConstPtr shim
-
-#if !(MIN_VERSION_base (4,18,0))
-
--- NOTE: Taken from Foreign.C.ConstPtr, more or less
-type ConstPtr :: Type -> Type
-type role ConstPtr phantom
-newtype ConstPtr a = ConstPtr { unConstPtr :: Ptr a }
-    deriving stock (Data)
-    deriving newtype (Eq, Ord, Storable)
-
-instance Show (ConstPtr a) where
-    showsPrec d (ConstPtr p) = showParen (d > 10) $ showString "ConstPtr " . showsPrec 11 p
-
-#endif
+-- NOTE: Necessary to access '#const' for patterns
+#include <botan/ffi.h>
+-- Eg:
+pattern BOTAN_FFI_SUCCESS
+    ,   BOTAN_FFI_INVALID_VERIFIER
+    ::  (Eq a, Num a) => a
+pattern BOTAN_FFI_SUCCESS                         = #const BOTAN_FFI_SUCCESS
+pattern BOTAN_FFI_INVALID_VERIFIER                = #const BOTAN_FFI_INVALID_VERIFIER
 
 -- Bindings
 
@@ -72,32 +48,39 @@ newtype {-# CTYPE "botan/ffi.h" "botan_rng_t" #-} BotanRNG
     = MkBotanRNG { runBotanRNG :: Ptr BotanRNGStruct }
         deriving newtype (Eq, Ord, Storable)
 
--- NOTE: The benefits of these shenanigans are that we actually get to use
---  BotanRNG in the API with it automatically converting
+pattern BOTAN_RANDOM_TYPE_SYSTEM
+    ,   BOTAN_RANDOM_TYPE_USER
+    ,   BOTAN_RANDOM_TYPE_USER_THREADSAFE
+    ,   BOTAN_RANDOM_TYPE_RDRAND
+    ::  (Eq a, IsString a) => a
+pattern BOTAN_RANDOM_TYPE_SYSTEM            = "system"
+pattern BOTAN_RANDOM_TYPE_USER              = "user"
+pattern BOTAN_RANDOM_TYPE_USER_THREADSAFE   = "user-threadsafe"
+pattern BOTAN_RANDOM_TYPE_RDRAND            = "rdrand"
 
 foreign import capi safe "botan/ffi.h &botan_rng_destroy"
-  botan_rng_destroy
-    :: FinalizerPtr BotanRNGStruct
+    botan_rng_destroy
+        :: FinalizerPtr BotanRNGStruct
 
 foreign import capi safe "botan/ffi.h botan_rng_init"
-  botan_rng_init
-    :: Ptr BotanRNG       -- ^ rng
-    -> ConstPtr CChar   -- ^ rng_type
-    -> IO CInt
+    botan_rng_init
+        :: Ptr BotanRNG     -- ^ rng
+        -> ConstPtr CChar   -- ^ rng_type
+        -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_rng_get"
-  botan_rng_get
-    :: BotanRNG -- ^ rng
-    -> Ptr Word8   -- ^ out
-    -> CSize       -- ^ out_len
-    -> IO CInt
+    botan_rng_get
+        :: BotanRNG     -- ^ rng
+        -> Ptr Word8    -- ^ out
+        -> CSize        -- ^ out_len
+        -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_rng_add_entropy"
-  botan_rng_add_entropy
-    :: BotanRNG     -- ^ rng
-    -> ConstPtr Word8  -- ^ entropy
-    -> CSize           -- ^ entropy_len
-    -> IO CInt
+    botan_rng_add_entropy
+        :: BotanRNG         -- ^ rng
+        -> ConstPtr Word8   -- ^ entropy
+        -> CSize            -- ^ entropy_len
+        -> IO CInt
 
 -- Low-level
 
