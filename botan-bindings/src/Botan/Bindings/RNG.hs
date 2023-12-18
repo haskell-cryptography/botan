@@ -8,7 +8,7 @@ Stability   : experimental
 Portability : POSIX
 -}
 
-{-# LANGUAGE CApiFFI, CPP #-}
+{-# LANGUAGE CApiFFI #-}
 
 module Botan.Bindings.RNG where
 

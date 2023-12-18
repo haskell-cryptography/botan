@@ -10,7 +10,7 @@ Portability : POSIX
 Generate and validate Bcrypt password hashes
 -}
 
-{-# LANGUAGE CApiFFI, CPP #-}
+{-# LANGUAGE CApiFFI #-}
 
 module Botan.Bindings.Bcrypt where
 

@@ -12,110 +12,83 @@ Most applications want the higher level cipher API which provides authenticated 
 This API exists as an escape hatch for applications which need to implement custom primitives using a PRP.
 -}
 
+{-# LANGUAGE CApiFFI #-}
+
 module Botan.Bindings.BlockCipher where
 
-import Botan.Bindings.Error
 import Botan.Bindings.Prelude
 
--- NOTE: Effectively, this is ECB mode. Do not use unless you know what you are doing.
+-- | Opaque BlockCipher struct
+data {-# CTYPE "botan/ffi.h" "struct botan_block_cipher_struct" #-} BotanBlockCipherStruct
 
-{-|
-Raw Block Cipher (PRP) interface
+-- | Botan BlockCipher object
+newtype {-# CTYPE "botan/ffi.h" "botan_block_cipher_t" #-} BotanBlockCipher
+    = MkBotanBlockCipher { runBotanBlockCipher :: Ptr BotanBlockCipherStruct }
+        deriving newtype (Eq, Ord, Storable)
 
-@typedef struct botan_block_cipher_struct* botan_block_cipher_t;@
--}
-data BlockCipherStruct
-type BlockCipherPtr = Ptr BlockCipherStruct
+-- | Destroy a block cipher object
+foreign import capi safe "botan/ffi.h &botan_block_cipher_destroy"
+    botan_block_cipher_destroy
+        :: FinalizerPtr BotanBlockCipherStruct
 
-{-|
-Initialize a block cipher object
+-- | Initialize a block cipher object
+foreign import capi "botan/ffi.h botan_block_cipher_init"
+    botan_block_cipher_init
+        :: Ptr BotanBlockCipher -- ^ bc
+        -> ConstPtr CChar       -- ^ cipher_name
+        -> IO CInt
 
-@BOTAN_PUBLIC_API(2,1) int botan_block_cipher_init(botan_block_cipher_t* bc,
-                                                  const char* cipher_name);@
--}
+-- | Reinitializes the block cipher
+foreign import capi "botan/ffi.h botan_block_cipher_clear"
+    botan_block_cipher_clear
+        :: BotanBlockCipher -- ^ bc
+        -> IO CInt          -- ^ 0 on success, a negative value on failure
 
-foreign import ccall unsafe botan_block_cipher_init :: Ptr BlockCipherPtr -> CString -> IO BotanErrorCode
+-- | Set the key for a block cipher instance
+foreign import capi "botan/ffi.h botan_block_cipher_set_key"
+    botan_block_cipher_set_key
+        :: BotanBlockCipher -- ^ bc
+        -> ConstPtr Word8   -- ^ key[]
+        -> CSize            -- ^ len
+        -> IO CInt
 
-{-|
-Destroy a block cipher object
+-- | Return the positive block size of this block cipher, or negative to indicate an error
+foreign import capi "botan/ffi.h botan_block_cipher_block_size"
+    botan_block_cipher_block_size
+        :: BotanBlockCipher -- ^ bc
+        -> IO CInt
 
-- \@return 0 if success, error if invalid object handle
+-- | Encrypt one or more blocks with the cipher
+foreign import capi "botan/ffi.h botan_block_cipher_encrypt_blocks"
+    botan_block_cipher_encrypt_blocks
+        :: BotanBlockCipher -- ^ bc
+        -> ConstPtr Word8   -- ^ in[]
+        -> Ptr Word8        -- ^ out[]
+        -> CSize            -- ^ blocks
+        -> IO CInt
 
-@BOTAN_PUBLIC_API(2,1) int botan_block_cipher_destroy(botan_block_cipher_t bc);@
--}
-foreign import ccall unsafe "&botan_block_cipher_destroy" botan_block_cipher_destroy :: FinalizerPtr BlockCipherStruct
+-- | Decrypt one or more blocks with the cipher
+foreign import capi "botan/ffi.h botan_block_cipher_decrypt_blocks"
+    botan_block_cipher_decrypt_blocks
+        :: BotanBlockCipher -- ^ bc
+        -> ConstPtr Word8   -- ^ in[]
+        -> Ptr Word8        -- ^ out[]
+        -> CSize            -- ^ blocks
+        -> IO CInt
 
-{-|
-Reinitializes the block cipher
+-- | Get the name of this block cipher
+foreign import capi "botan/ffi.h botan_block_cipher_name"
+    botan_block_cipher_name
+        :: BotanBlockCipher -- ^ cipher the object to read
+        -> Ptr CChar        -- ^ name output buffer
+        -> Ptr CSize        -- ^ name_len on input, the length of buffer, on success the number of bytes written
+        -> IO CInt
 
-- \@return 0 on success, a negative value on failure
-
-@BOTAN_PUBLIC_API(2,1) int botan_block_cipher_clear(botan_block_cipher_t bc);@
--}
-
-foreign import ccall unsafe botan_block_cipher_clear :: BlockCipherPtr -> IO BotanErrorCode
-
-{-|
-Set the key for a block cipher instance
-
-@BOTAN_PUBLIC_API(2,1) int botan_block_cipher_set_key(botan_block_cipher_t bc,
-                                                     const uint8_t key[], size_t len);@
--}
-
-foreign import ccall unsafe botan_block_cipher_set_key :: BlockCipherPtr -> Ptr Word8 -> CSize -> IO BotanErrorCode
-
-{-|
-Return the positive block size of this block cipher, or negative to
-indicate an error
-
-@BOTAN_PUBLIC_API(2,1) int botan_block_cipher_block_size(botan_block_cipher_t bc);@
--}
-foreign import ccall unsafe botan_block_cipher_block_size :: BlockCipherPtr -> IO BotanErrorCode
-
-{-|
-Encrypt one or more blocks with the cipher
-
-@BOTAN_PUBLIC_API(2,1) int botan_block_cipher_encrypt_blocks(botan_block_cipher_t bc,
-                                                            const uint8_t in[],
-                                                            uint8_t out[],
-                                                            size_t blocks);@
--}
-foreign import ccall unsafe botan_block_cipher_encrypt_blocks :: BlockCipherPtr -> Ptr Word8 -> Ptr Word8 -> CSize -> IO BotanErrorCode
-
-{-|
-Decrypt one or more blocks with the cipher
-
-@BOTAN_PUBLIC_API(2,1) int botan_block_cipher_decrypt_blocks(botan_block_cipher_t bc,
-                                                            const uint8_t in[],
-                                                            uint8_t out[],
-                                                            size_t blocks);@
--}
-
-foreign import ccall unsafe botan_block_cipher_decrypt_blocks :: BlockCipherPtr -> Ptr Word8 -> Ptr Word8 -> CSize -> IO BotanErrorCode
-
-{-|
-Get the name of this block cipher
-
-- \@param cipher the object to read
-- \@param name output buffer
-- \@param name_len on input, the length of buffer, on success the number of bytes written
-
-@BOTAN_PUBLIC_API(2,8) int botan_block_cipher_name(botan_block_cipher_t cipher,
-                                                  char* name, size_t* name_len);@
--}
-foreign import ccall unsafe botan_block_cipher_name :: BlockCipherPtr -> Ptr CChar -> Ptr CSize -> IO BotanErrorCode
-
-{-|
-Get the key length limits of this block cipher
-
-- \@param cipher the object to read
-- \@param out_minimum_keylength if non-NULL, will be set to minimum keylength of cipher
-- \@param out_maximum_keylength if non-NULL, will be set to maximum keylength of cipher
-- \@param out_keylength_modulo if non-NULL will be set to byte multiple of valid keys
-
-@BOTAN_PUBLIC_API(2,8) int botan_block_cipher_get_keyspec(botan_block_cipher_t cipher,
-                                                         size_t* out_minimum_keylength,
-                                                         size_t* out_maximum_keylength,
-                                                         size_t* out_keylength_modulo);@
--}
-foreign import ccall unsafe botan_block_cipher_get_keyspec :: BlockCipherPtr -> Ptr CSize -> Ptr CSize -> Ptr CSize -> IO BotanErrorCode
+-- | Get the key length limits of this block cipher
+foreign import capi "botan/ffi.h botan_block_cipher_get_keyspec"
+    botan_block_cipher_get_keyspec
+        :: BotanBlockCipher -- ^ cipher the object to read
+        -> Ptr CSize        -- ^ out_minimum_keylength if non-NULL, will be set to minimum keylength of cipher
+        -> Ptr CSize        -- ^ out_maximum_keylength if non-NULL, will be set to maximum keylength of cipher
+        -> Ptr CSize        -- ^ out_keylength_modulo if non-NULL will be set to byte multiple of valid keys
+        -> IO CInt
