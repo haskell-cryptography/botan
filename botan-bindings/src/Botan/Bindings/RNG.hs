@@ -34,15 +34,15 @@ foreign import capi safe "botan/ffi.h &botan_rng_destroy"
 
 -- WARNING: Not real botan constants, values are taken from documentation / source code.
 -- TODO: Maybe move to Botan.Low.RNG
-pattern BOTAN_RNG_TYPE_SYSTEM
-    ,   BOTAN_RNG_TYPE_USER
-    ,   BOTAN_RNG_TYPE_USER_THREADSAFE
-    ,   BOTAN_RNG_TYPE_RDRAND
+pattern BOTAN_RNG_TYPE_SYSTEM           -- ^ system RNG
+    ,   BOTAN_RNG_TYPE_USER             -- ^ userspace RNG
+    ,   BOTAN_RNG_TYPE_USER_THREADSAFE  -- ^ userspace RNG, with internal locking
+    ,   BOTAN_RNG_TYPE_RDRAND           -- ^ directly read RDRAND
     ::  (Eq a, IsString a) => a
-pattern BOTAN_RNG_TYPE_SYSTEM            = "system"             -- ^ system RNG
-pattern BOTAN_RNG_TYPE_USER              = "user"               -- ^ userspace RNG
-pattern BOTAN_RNG_TYPE_USER_THREADSAFE   = "user-threadsafe"    -- ^ userspace RNG, with internal locking
-pattern BOTAN_RNG_TYPE_RDRAND            = "rdrand"             -- ^ directly read RDRAND
+pattern BOTAN_RNG_TYPE_SYSTEM            = "system"
+pattern BOTAN_RNG_TYPE_USER              = "user"
+pattern BOTAN_RNG_TYPE_USER_THREADSAFE   = "user-threadsafe"
+pattern BOTAN_RNG_TYPE_RDRAND            = "rdrand"
 
 {- |
 Initialize a random number generator object

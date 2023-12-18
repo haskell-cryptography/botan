@@ -17,7 +17,6 @@ repeatedly to encrypt an entire message.
 
 module Botan.Bindings.Cipher where
 
-import Botan.Bindings.Error
 import Botan.Bindings.Prelude
 
 #include <botan/ffi.h>
@@ -162,8 +161,7 @@ foreign import capi "botan/ffi.h botan_cipher_start"
         -> CSize           -- ^ nonce_len
         -> IO CInt
 
--- WARNING: Not real botan constants, values are taken from documentation / source code.
--- TODO: Maybe move to Botan.Low.RNG
+-- TODO: Maybe move to Botan.Low.Cipher
 pattern BOTAN_CIPHER_UPDATE_FLAG_NONE
     ,   BOTAN_CIPHER_UPDATE_FLAG_FINAL
     ::  (Eq a, Num a) => a

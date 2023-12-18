@@ -17,15 +17,20 @@ module Botan.Bindings.Bcrypt where
 import Botan.Bindings.Prelude
 import Botan.Bindings.RNG
 
--- WARNING: Not real botan constants, values are taken from documentation / source code.
--- TODO: Maybe move to Botan.Low.Bcrypt, or 
+-- TODO: Maybe move to Botan.Low.Bcrypt
 pattern BOTAN_BCRYPT_WORK_FACTOR_LOW
     ,   BOTAN_BCRYPT_WORK_FACTOR_MEDIUM
     ,   BOTAN_BCRYPT_WORK_FACTOR_HIGH
     ::  (Eq a, Num a) => a
-pattern BOTAN_BCRYPT_WORK_FACTOR_LOW      = 12  -- ^ Should not cause noticable CPU usage
-pattern BOTAN_BCRYPT_WORK_FACTOR_MEDIUM   = 14  -- ^ May cause noticable CPU usage
-pattern BOTAN_BCRYPT_WORK_FACTOR_HIGH     = 16  -- ^ May block for several seconds
+
+-- | Should not cause noticable CPU usage
+pattern BOTAN_BCRYPT_WORK_FACTOR_LOW      = 12
+
+-- | May cause noticable CPU usage
+pattern BOTAN_BCRYPT_WORK_FACTOR_MEDIUM   = 14
+
+-- | May block for several seconds
+pattern BOTAN_BCRYPT_WORK_FACTOR_HIGH     = 16
 
 {- |
 Create a password hash using Bcrypt
