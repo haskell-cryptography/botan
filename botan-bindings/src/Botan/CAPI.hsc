@@ -32,6 +32,7 @@ import qualified Data.ByteString.Internal as ByteString
 -- import           Foreign.Storable
 
 -- NOTE: Necessary to access '#const' for patterns
+-- NOTE: Necessitates the use of *.hsc files
 #include <botan/ffi.h>
 -- Eg:
 pattern BOTAN_FFI_SUCCESS

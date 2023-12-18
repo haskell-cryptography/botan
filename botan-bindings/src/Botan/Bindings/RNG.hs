@@ -14,7 +14,6 @@ module Botan.Bindings.RNG where
 
 import Data.ByteString (ByteString)
 
-import Botan.Bindings.Error
 import Botan.Bindings.Prelude
 
 -- WARNING: Remove after other modules are fixed and the compiler stops whining
@@ -28,7 +27,8 @@ newtype {-# CTYPE "botan/ffi.h" "botan_rng_t" #-} BotanRNG
     = MkBotanRNG { runBotanRNG :: Ptr BotanRNGStruct }
         deriving newtype (Eq, Ord, Storable)
 
--- WARNING: Not real botan constants, values are taken from documentation / source code. 
+-- WARNING: Not real botan constants, values are taken from documentation / source code.
+-- TODO: Maybe move to Botan.Low.RNG
 pattern BOTAN_RNG_TYPE_SYSTEM
     ,   BOTAN_RNG_TYPE_USER
     ,   BOTAN_RNG_TYPE_USER_THREADSAFE
@@ -44,14 +44,18 @@ foreign import capi safe "botan/ffi.h &botan_rng_destroy"
     botan_rng_destroy
         :: FinalizerPtr BotanRNGStruct
 
-{-
+{- |
 Initialize a random number generator object
 
 rng_type has the possible values:
-    "system": system RNG
-    "user": userspace RNG
-    "user-threadsafe": userspace RNG, with internal locking
-    "rdrand": directly read RDRAND
+
+    - "system": system RNG
+    
+    - "user": userspace RNG
+    
+    - "user-threadsafe": userspace RNG, with internal locking
+    
+    - "rdrand": directly read RDRAND
 
 Set rng_type to null to let the library choose some default.
 -}
@@ -108,6 +112,7 @@ foreign import capi "botan/ffi.h botan_system_rng_get"
 
 {- |
 Reseed a random number generator
+
 Uses the System_RNG as a seed generator.
 -}
 foreign import capi "botan/ffi.h botan_rng_reseed"
