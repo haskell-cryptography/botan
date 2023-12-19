@@ -32,54 +32,61 @@ the words by their lexicographical order, and choose the modulus to be
 the number of words in the dictionary.
 -}
 
+{-# LANGUAGE CApiFFI #-}
+
 module Botan.Bindings.FPE where
 
 import Botan.Bindings.Error
 import Botan.Bindings.MPI
 import Botan.Bindings.Prelude
 
--- NOTE: This module lacks documentation, and is not mentioned in the FFI bindings.
---  It is mentioned in the C++ docs, but the construction significantly differs.
---  I did find these functions in the actual header, and have implemented them as to my best guess
---  It is untested, pending an understanding of what the expected parameters are.
+#include <botan/ffi.h>
 
-{-|
-Opaque FPE object
+type BotanMP = MPPtr
 
-@typedef struct botan_fpe_struct* botan_fpe_t;@
--}
-data FPEStruct
-type FPEPtr = Ptr FPEStruct
+-- | Opaque FPE struct
+data {-# CTYPE "botan/ffi.h" "struct botan_fpe_struct" #-} BotanFPEStruct
 
--- #define BOTAN_FPE_FLAG_FE1_COMPAT_MODE 1
-type FPEFlags = Word32
-pattern BOTAN_FPE_FLAG_NONE = 0 :: FPEFlags -- Not a real flag
-pattern BOTAN_FPE_FLAG_FE1_COMPAT_MODE = 1 :: FPEFlags
+-- | Botan FPE object
+newtype {-# CTYPE "botan/ffi.h" "botan_fpe_t" #-} BotanFPE
+    = MkBotanFPE { runBotanFPE :: Ptr BotanFPEStruct }
+        deriving newtype (Eq, Ord, Storable)
 
-{-
-@BOTAN_PUBLIC_API(2,8) 
-int botan_fpe_fe1_init(botan_fpe_t* fpe, botan_mp_t n,
-                       const uint8_t key[], size_t key_len,
-                       size_t rounds, uint32_t flags);@
--}
-foreign import ccall unsafe botan_fpe_fe1_init :: Ptr FPEPtr -> MPPtr -> Ptr Word8 -> CSize -> CSize -> Word32 -> IO BotanErrorCode
+-- | Destroy the FPE object
+foreign import capi safe "botan/ffi.h &botan_fpe_destroy"
+    botan_fpe_destroy
+        :: FinalizerPtr BotanFPEStruct
 
-{-|
-- \@return 0 if success, error if invalid object handle
+pattern BOTAN_FPE_FLAG_NONE 
+    ,   BOTAN_FPE_FLAG_FE1_COMPAT_MODE
+    ::  (Eq a, Num a) => a
 
-@BOTAN_PUBLIC_API(2,8)
-int botan_fpe_destroy(botan_fpe_t fpe);@
--}
-foreign import ccall unsafe "&botan_fpe_destroy" botan_fpe_destroy :: FinalizerPtr FPEStruct
+-- Not an actual flag
+pattern BOTAN_FPE_FLAG_NONE            = 0
+pattern BOTAN_FPE_FLAG_FE1_COMPAT_MODE = #const BOTAN_FPE_FLAG_FE1_COMPAT_MODE
 
-{-|
-@BOTAN_PUBLIC_API(2,8)
-int botan_fpe_encrypt(botan_fpe_t fpe, botan_mp_t x, const uint8_t tweak[], size_t tweak_len);@
--}
-foreign import ccall unsafe botan_fpe_encrypt :: FPEPtr -> MPPtr -> Ptr Word8 -> CSize -> IO BotanErrorCode
+foreign import capi "botan/ffi.h botan_fpe_fe1_init"
+    botan_fpe_fe1_init
+        :: Ptr BotanFPE     -- ^ fpe
+        -> BotanMP          -- ^ n
+        -> ConstPtr Word8   -- ^ key[]
+        -> CSize            -- ^ key_len
+        -> CSize            -- ^ rounds
+        -> Word32           -- ^ flags
+        -> IO CInt
 
-{-|
-@BOTAN_PUBLIC_API(2,8)
-int botan_fpe_decrypt(botan_fpe_t fpe, botan_mp_t x, const uint8_t tweak[], size_t tweak_len);@
--}
-foreign import ccall unsafe botan_fpe_decrypt :: FPEPtr -> MPPtr -> Ptr Word8 -> CSize -> IO BotanErrorCode
+foreign import capi "botan/ffi.h botan_fpe_encrypt"
+    botan_fpe_encrypt
+        :: BotanFPE         -- ^ fpe
+        -> BotanMP          -- ^ x
+        -> ConstPtr Word8   -- ^ tweak[]
+        -> CSize            -- ^ tweak_len
+        -> IO CInt
+
+foreign import capi "botan/ffi.h botan_fpe_decrypt"
+    botan_fpe_decrypt
+        :: BotanFPE         -- ^ fpe
+        -> BotanMP          -- ^ x
+        -> ConstPtr Word8   -- ^ tweak[]
+        -> CSize            -- ^ tweak_len
+        -> IO CInt
