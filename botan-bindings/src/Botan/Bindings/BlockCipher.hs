@@ -31,21 +31,25 @@ foreign import capi safe "botan/ffi.h &botan_block_cipher_destroy"
     botan_block_cipher_destroy
         :: FinalizerPtr BotanBlockCipherStruct
 
+-- WARNING: Remove after fixing botan-low
+type BlockCipherPtr = BotanBlockCipher
+type BlockCipherStruct = BotanBlockCipherStruct
+
 -- | Initialize a block cipher object
-foreign import capi "botan/ffi.h botan_block_cipher_init"
+foreign import capi safe "botan/ffi.h botan_block_cipher_init"
     botan_block_cipher_init
         :: Ptr BotanBlockCipher -- ^ bc
         -> ConstPtr CChar       -- ^ cipher_name
         -> IO CInt
 
 -- | Reinitializes the block cipher
-foreign import capi "botan/ffi.h botan_block_cipher_clear"
+foreign import capi safe "botan/ffi.h botan_block_cipher_clear"
     botan_block_cipher_clear
         :: BotanBlockCipher -- ^ bc
         -> IO CInt          -- ^ 0 on success, a negative value on failure
 
 -- | Set the key for a block cipher instance
-foreign import capi "botan/ffi.h botan_block_cipher_set_key"
+foreign import capi safe "botan/ffi.h botan_block_cipher_set_key"
     botan_block_cipher_set_key
         :: BotanBlockCipher -- ^ bc
         -> ConstPtr Word8   -- ^ key[]
@@ -53,13 +57,13 @@ foreign import capi "botan/ffi.h botan_block_cipher_set_key"
         -> IO CInt
 
 -- | Return the positive block size of this block cipher, or negative to indicate an error
-foreign import capi "botan/ffi.h botan_block_cipher_block_size"
+foreign import capi safe "botan/ffi.h botan_block_cipher_block_size"
     botan_block_cipher_block_size
         :: BotanBlockCipher -- ^ bc
         -> IO CInt
 
 -- | Encrypt one or more blocks with the cipher
-foreign import capi "botan/ffi.h botan_block_cipher_encrypt_blocks"
+foreign import capi safe "botan/ffi.h botan_block_cipher_encrypt_blocks"
     botan_block_cipher_encrypt_blocks
         :: BotanBlockCipher -- ^ bc
         -> ConstPtr Word8   -- ^ in[]
@@ -68,7 +72,7 @@ foreign import capi "botan/ffi.h botan_block_cipher_encrypt_blocks"
         -> IO CInt
 
 -- | Decrypt one or more blocks with the cipher
-foreign import capi "botan/ffi.h botan_block_cipher_decrypt_blocks"
+foreign import capi safe "botan/ffi.h botan_block_cipher_decrypt_blocks"
     botan_block_cipher_decrypt_blocks
         :: BotanBlockCipher -- ^ bc
         -> ConstPtr Word8   -- ^ in[]
@@ -77,7 +81,7 @@ foreign import capi "botan/ffi.h botan_block_cipher_decrypt_blocks"
         -> IO CInt
 
 -- | Get the name of this block cipher
-foreign import capi "botan/ffi.h botan_block_cipher_name"
+foreign import capi safe "botan/ffi.h botan_block_cipher_name"
     botan_block_cipher_name
         :: BotanBlockCipher -- ^ cipher the object to read
         -> Ptr CChar        -- ^ name output buffer
@@ -85,7 +89,7 @@ foreign import capi "botan/ffi.h botan_block_cipher_name"
         -> IO CInt
 
 -- | Get the key length limits of this block cipher
-foreign import capi "botan/ffi.h botan_block_cipher_get_keyspec"
+foreign import capi safe "botan/ffi.h botan_block_cipher_get_keyspec"
     botan_block_cipher_get_keyspec
         :: BotanBlockCipher -- ^ cipher the object to read
         -> Ptr CSize        -- ^ out_minimum_keylength if non-NULL, will be set to minimum keylength of cipher

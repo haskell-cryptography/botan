@@ -37,7 +37,7 @@ Create a password hash using Bcrypt
 
 Output is formatted bcrypt $2a$...
 -}
-foreign import capi "botan/ffi.h botan_bcrypt_generate"
+foreign import capi safe "botan/ffi.h botan_bcrypt_generate"
       botan_bcrypt_generate
             :: Ptr Word8      -- ^ out buffer holding the password hash, should be of length 64 bytes
             -> Ptr CSize      -- ^ out_len the desired output length in bytes
@@ -49,7 +49,7 @@ foreign import capi "botan/ffi.h botan_bcrypt_generate"
             -> IO CInt        -- ^ 0 on success, a negative value on failure
 
 -- | Check a previously created password hash
-foreign import capi "botan/ffi.h botan_bcrypt_is_valid"
+foreign import capi safe "botan/ffi.h botan_bcrypt_is_valid"
       botan_bcrypt_is_valid
             :: ConstPtr CChar -- ^ pass the password to check against
             -> ConstPtr CChar -- ^ hash the stored hash to check against
