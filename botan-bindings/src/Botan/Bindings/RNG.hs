@@ -16,8 +16,9 @@ import Data.ByteString (ByteString)
 
 import Botan.Bindings.Prelude
 
--- WARNING: Remove after other modules are fixed and the compiler stops whining
+-- WARNING: Remove after fixing botan-low
 type RNGPtr = BotanRNG
+type RNGStruct = BotanRNGStruct
 
 -- | Opaque RNG struct
 data {-# CTYPE "botan/ffi.h" "struct botan_rng_struct" #-} BotanRNGStruct
@@ -66,33 +67,51 @@ foreign import capi safe "botan/ffi.h botan_rng_init"
         -> IO CInt          -- ^ 0 if success, else error code
 
 -- | Callback for getting random bytes from the rng, return 0 for success
-type BotanRNGGetCallback
-    = Ptr ()        -- ^ context
+type BotanRNGGetCallback ctx
+    =  Ptr ctx      -- ^ context
     -> Ptr Word8    -- ^ out
     -> CSize        -- ^ out_len
     -> IO CInt
 
+-- NOTE: "Wrapper stubs can't be used with CApiFFI."
+foreign import ccall "wrapper"
+    mallocBotanRNGGetCallbackFunPtr
+        :: BotanRNGGetCallback ctx
+        -> IO (FunPtr (BotanRNGGetCallback ctx))
+
 -- | Callback for adding entropy to the rng, return 0 for success
-type BotanRNGAddEntropyCallback
-    = Ptr ()            -- ^ context
+type BotanRNGAddEntropyCallback ctx
+    =  Ptr ctx          -- ^ context
     -> ConstPtr Word8   -- ^ input[]
     -> CSize            -- ^ length
     -> IO CInt
 
+-- NOTE: "Wrapper stubs can't be used with CApiFFI."
+foreign import ccall "wrapper"
+    mallocBotanRNGAddEntropyCallbackFunPtr
+        :: BotanRNGAddEntropyCallback ctx
+        -> IO (FunPtr (BotanRNGAddEntropyCallback ctx))
+
 -- | Callback called when rng is destroyed
-type BotanRNGDestroyCallback
-    = Ptr () -- ^ context
+type BotanRNGDestroyCallback ctx
+    =  Ptr ctx  -- ^ context
     -> IO ()
+
+-- NOTE: "Wrapper stubs can't be used with CApiFFI."
+foreign import ccall "wrapper"
+    mallocBotanRNGDestroyCallbackFunPtr
+        :: BotanRNGDestroyCallback ctx
+        -> IO (FunPtr (BotanRNGDestroyCallback ctx))
 
 -- | Initialize a custom random number generator from a set of callback functions
 foreign import capi safe "botan/ffi.h botan_rng_init_custom"
     botan_rng_init_custom
-        :: Ptr BotanRNG                         -- ^ rng_out
-        -> ConstPtr CChar                       -- ^ rng_name name of the rng
-        -> Ptr ()                               -- ^ context an application-specific context passed to the callback functions
-        -> FunPtr BotanRNGGetCallback           -- ^ get_cb
-        -> FunPtr BotanRNGAddEntropyCallback    -- ^ add_entropy_cb may be NULL
-        -> FunPtr BotanRNGDestroyCallback       -- ^ destroy_cb may be NULL
+        :: Ptr BotanRNG     -- ^ rng_out
+        -> ConstPtr CChar   -- ^ rng_name name of the rng
+        -> Ptr ctx          -- ^ context an application-specific context passed to the callback functions
+        -> FunPtr (BotanRNGGetCallback ctx)         -- ^ get_cb
+        -> FunPtr (BotanRNGAddEntropyCallback ctx)  -- ^ add_entropy_cb may be NULL
+        -> FunPtr (BotanRNGDestroyCallback ctx)     -- ^ destroy_cb may be NULL
         -> IO CInt
 
 -- | Get random bytes from a random number generators
@@ -104,7 +123,7 @@ foreign import capi safe "botan/ffi.h botan_rng_get"
         -> IO CInt      -- ^ 0 on success, negative on failure
 
 -- | Get random bytes from system random number generator
-foreign import capi "botan/ffi.h botan_system_rng_get"
+foreign import capi safe "botan/ffi.h botan_system_rng_get"
     botan_system_rng_get
         :: Ptr Word8    -- ^ out output buffer of size out_len
         -> CSize        -- ^ out_len number of requested bytes
@@ -115,14 +134,14 @@ Reseed a random number generator
 
 Uses the System_RNG as a seed generator.
 -}
-foreign import capi "botan/ffi.h botan_rng_reseed"
+foreign import capi safe "botan/ffi.h botan_rng_reseed"
     botan_rng_reseed
         :: BotanRNG -- ^ rng rng object
         -> CSize    -- ^ bits number of bits to reseed with
         -> IO CInt  -- ^ 0 on success, a negative value on failure
 
 -- | Reseed a random number generator
-foreign import capi "botan/ffi.h botan_rng_reseed_from_rng"
+foreign import capi safe "botan/ffi.h botan_rng_reseed_from_rng"
     botan_rng_reseed_from_rng
         :: BotanRNG -- ^ rng rng object
         -> BotanRNG -- ^ source_rng the rng that will be read from

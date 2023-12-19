@@ -8,6 +8,8 @@ Stability   : experimental
 Portability : POSIX
 -}
 
+{-# LANGUAGE CApiFFI #-}
+
 module Botan.Bindings.View where
 
 import Data.Void
@@ -15,31 +17,28 @@ import Data.Void
 import Botan.Bindings.Error
 import Botan.Bindings.Prelude
 
--- typedef void* botan_view_ctx;
-type ViewCtx = Ptr Void
+type BotanViewContext a = Ptr a
 
-{-|
-Viewer function for binary data
+type BotanViewBinCallback ctx
+    =   BotanViewContext ctx    -- ^ view_ctx some application context
+    ->  ConstPtr Word8          -- ^ data the binary data
+    ->  CSize                   -- ^ len the length of data in bytes
+    ->  CInt
 
-- \@param view_ctx some application context
-- \@param data the binary data
-- \@param len the length of data in bytes
+-- NOTE: "Wrapper stubs can't be used with CApiFFI."
+foreign import ccall "wrapper"
+    mallocBotanViewBinCallbackFunPtr
+        :: BotanViewBinCallback ctx
+        -> IO (FunPtr (BotanViewBinCallback ctx))
 
-@typedef int (*botan_view_bin_fn)(botan_view_ctx view_ctx, const uint8_t* data, size_t len);@
--}
-foreign import ccall "wrapper" mallocViewBinFunPtr
-    :: (Ptr a -> Ptr Word8 -> CSize -> IO BotanErrorCode)
-    -> IO (FunPtr (Ptr a -> Ptr Word8 -> CSize -> IO BotanErrorCode))
+type BotanViewStrCallback ctx
+    =   BotanViewContext ctx    -- ^ view_ctx some application context
+    ->  ConstPtr CChar          -- ^ str the null terminated string
+    ->  CSize                   -- ^ len the length of string *including* the null terminator
+    ->  CInt
 
-{-|
-Viewer function for string data
-
-- \@param view_ctx some application context
-- \@param str the null terminated string
-- \@param len the length of string *including* the null terminator
-
-@typedef int (*botan_view_str_fn)(botan_view_ctx view_ctx, const char* str, size_t len);@
--}
-foreign import ccall "wrapper" mallocViewStrFunPtr
-    :: (Ptr a -> Ptr CChar -> CSize -> IO BotanErrorCode)
-    -> IO (FunPtr (Ptr a -> Ptr CChar -> CSize -> IO BotanErrorCode))
+-- NOTE: "Wrapper stubs can't be used with CApiFFI."
+foreign import ccall "wrapper"
+    mallocBotanViewStrCallbackFunPtr
+        :: BotanViewStrCallback ctx
+        -> IO (FunPtr (BotanViewStrCallback ctx))
