@@ -106,11 +106,11 @@ pattern BOTAN_FFI_ERROR_ROUGHTIME_ERROR = #const BOTAN_FFI_ERROR_ROUGHTIME_ERROR
 -- | Something bad happened, but we are not sure why or how.
 pattern BOTAN_FFI_ERROR_UNKNOWN_ERROR = #const BOTAN_FFI_ERROR_UNKNOWN_ERROR
 
-foreign import capi "botan/ffi.h botan_error_description"
+foreign import capi safe "botan/ffi.h botan_error_description"
     botan_error_description
         :: CInt                -- ^ err
         -> IO (ConstPtr CChar)
 
-foreign import capi "botan/ffi.h botan_error_last_exception_message"
+foreign import capi safe "botan/ffi.h botan_error_last_exception_message"
     botan_error_last_exception_message
         :: IO (ConstPtr CChar)

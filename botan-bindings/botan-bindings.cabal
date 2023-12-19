@@ -42,7 +42,6 @@ library
         Botan.Bindings.KeyWrap
         Botan.Bindings.MAC
         Botan.Bindings.MPI
-        -- Botan.Bindings.PBKDF
         Botan.Bindings.Prelude
         Botan.Bindings.PubKey
         Botan.Bindings.PubKey.Decrypt
@@ -63,7 +62,6 @@ library
         Botan.Bindings.PubKey.X25519
         Botan.Bindings.PwdHash
         Botan.Bindings.RNG
-        -- Botan.Bindings.Scrypt
         Botan.Bindings.SRP6
         Botan.Bindings.TOTP
         Botan.Bindings.Utility

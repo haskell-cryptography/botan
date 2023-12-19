@@ -14,6 +14,7 @@ module Botan.CAPI where
 
 import Botan.Bindings.Prelude
 
+import           Control.Exception
 import           Control.Monad
 
 import qualified Data.ByteString as ByteString
@@ -48,6 +49,10 @@ data {-# CTYPE "botan/ffi.h" "struct botan_rng_struct" #-} BotanRNGStruct
 newtype {-# CTYPE "botan/ffi.h" "botan_rng_t" #-} BotanRNG
     = MkBotanRNG { runBotanRNG :: Ptr BotanRNGStruct }
         deriving newtype (Eq, Ord, Storable)
+-- NOTE: This does not allow us to take advantage of ConstPtr
+--  for objects, unlike plain type aliases
+--  Would need to promote the mkBindings generator to a full
+--  typeclass to allow to / from ForeignPtr <-> Ptr <-> ConstPtr
 
 pattern BOTAN_RANDOM_TYPE_SYSTEM
     ,   BOTAN_RANDOM_TYPE_USER
@@ -65,9 +70,9 @@ foreign import capi safe "botan/ffi.h &botan_rng_destroy"
 
 -- TODO: Contemplate also directly exposing destructor. eg:
 {-
-foreign import capi "botan/ffi.h botan_cipher_destroy"
-    botan_cipher_destroy
-        :: Botan_cipher_t -- ^ cipher
+foreign import capi safe "botan/ffi.h botan_rng_destroy"
+    botan_rng_destroy
+        :: BotanRNG -- ^ rng
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h &botan_rng_destroy"
@@ -97,6 +102,7 @@ foreign import capi safe "botan/ffi.h botan_rng_add_entropy"
 
 -- Low-level
 
+-- TODO: Determine if the use of `mask_` is appropriate
 mkBindings
     ::  (Storable botan)
     =>  (Ptr struct -> botan)
@@ -116,7 +122,7 @@ mkBindings mkBotan runBotan mkForeign runForeign destroy = bindings where
         return $ mkForeign foreignPtr
     withObject object f = withForeignPtr (runForeign object) (f . mkBotan)
     objectDestroy object = finalizeForeignPtr (runForeign object)
-    createObject init = alloca $ \ outPtr -> do
+    createObject init = mask_ $ alloca $ \ outPtr -> do
         throwErrorIfNegative_ $ init outPtr
         out <- peek outPtr
         newObject out

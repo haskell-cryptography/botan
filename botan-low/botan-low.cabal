@@ -49,7 +49,6 @@ library
         Botan.Low.KeyWrap
         Botan.Low.MAC
         Botan.Low.MPI
-        -- Botan.Low.PBKDF
         Botan.Low.PubKey
         Botan.Low.PubKey.Decrypt
         Botan.Low.PubKey.DH
@@ -68,7 +67,6 @@ library
         Botan.Low.PubKey.X25519
         Botan.Low.PwdHash
         Botan.Low.RNG
-        -- Botan.Low.Scrypt
         Botan.Low.SRP6
         Botan.Low.TOTP
         Botan.Low.Utility
