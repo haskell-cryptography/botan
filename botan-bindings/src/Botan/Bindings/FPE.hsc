@@ -36,13 +36,10 @@ the number of words in the dictionary.
 
 module Botan.Bindings.FPE where
 
-import Botan.Bindings.Error
 import Botan.Bindings.MPI
 import Botan.Bindings.Prelude
 
 #include <botan/ffi.h>
-
-type BotanMP = MPPtr
 
 -- | Opaque FPE struct
 data {-# CTYPE "botan/ffi.h" "struct botan_fpe_struct" #-} BotanFPEStruct
@@ -65,7 +62,7 @@ pattern BOTAN_FPE_FLAG_NONE
 pattern BOTAN_FPE_FLAG_NONE            = 0
 pattern BOTAN_FPE_FLAG_FE1_COMPAT_MODE = #const BOTAN_FPE_FLAG_FE1_COMPAT_MODE
 
-foreign import capi "botan/ffi.h botan_fpe_fe1_init"
+foreign import capi safe "botan/ffi.h botan_fpe_fe1_init"
     botan_fpe_fe1_init
         :: Ptr BotanFPE     -- ^ fpe
         -> BotanMP          -- ^ n
@@ -75,7 +72,7 @@ foreign import capi "botan/ffi.h botan_fpe_fe1_init"
         -> Word32           -- ^ flags
         -> IO CInt
 
-foreign import capi "botan/ffi.h botan_fpe_encrypt"
+foreign import capi safe "botan/ffi.h botan_fpe_encrypt"
     botan_fpe_encrypt
         :: BotanFPE         -- ^ fpe
         -> BotanMP          -- ^ x
@@ -83,7 +80,7 @@ foreign import capi "botan/ffi.h botan_fpe_encrypt"
         -> CSize            -- ^ tweak_len
         -> IO CInt
 
-foreign import capi "botan/ffi.h botan_fpe_decrypt"
+foreign import capi safe "botan/ffi.h botan_fpe_decrypt"
     botan_fpe_decrypt
         :: BotanFPE         -- ^ fpe
         -> BotanMP          -- ^ x
