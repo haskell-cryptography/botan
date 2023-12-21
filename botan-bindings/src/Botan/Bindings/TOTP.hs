@@ -42,7 +42,6 @@ counter a timestamp is used.
 
 module Botan.Bindings.TOTP where
 
-import Botan.Bindings.Error
 import Botan.Bindings.Prelude
 
 -- NOTE: RFC 6238
@@ -88,12 +87,3 @@ foreign import capi safe "botan/ffi.h botan_totp_check"
     -> CSize        -- ^ acceptable_clock_drift specifies the acceptable amount
                     --   of clock drift (in terms of time steps) between the two hosts.
     -> IO CInt
-
--- OLD BEGIN
-
-type TOTPPtr = BotanTOTP
-type TOTPStruct = BotanTOTPStruct
-
-type TOTPCode = Word32
-type TOTPTimestep = Word64
-type TOTPTimestamp = Word64

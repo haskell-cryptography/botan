@@ -115,8 +115,3 @@ foreign import capi safe "botan/ffi.h botan_srp6_group_size"
         :: ConstPtr CChar -- ^ group_id
         -> Ptr CSize      -- ^ group_p_bytes
         -> IO CInt
-
--- OLD BEGIN
-
-type SRP6Ptr = BotanSRP6ServerSession
-type SRP6Struct = BotanSRP6ServerSessionStruct

@@ -16,10 +16,6 @@ import Data.ByteString (ByteString)
 
 import Botan.Bindings.Prelude
 
--- WARNING: Remove after fixing botan-low
-type RNGPtr = BotanRNG
-type RNGStruct = BotanRNGStruct
-
 -- | Opaque RNG struct
 data {-# CTYPE "botan/ffi.h" "struct botan_rng_struct" #-} BotanRNGStruct
 

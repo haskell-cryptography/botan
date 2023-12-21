@@ -31,10 +31,6 @@ foreign import capi safe "botan/ffi.h &botan_block_cipher_destroy"
     botan_block_cipher_destroy
         :: FinalizerPtr BotanBlockCipherStruct
 
--- WARNING: Remove after fixing botan-low
-type BlockCipherPtr = BotanBlockCipher
-type BlockCipherStruct = BotanBlockCipherStruct
-
 -- | Initialize a block cipher object
 foreign import capi safe "botan/ffi.h botan_block_cipher_init"
     botan_block_cipher_init

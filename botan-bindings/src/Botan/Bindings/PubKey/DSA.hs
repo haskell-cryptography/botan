@@ -12,7 +12,6 @@ Portability : POSIX
 
 module Botan.Bindings.PubKey.DSA where
 
-import Botan.Bindings.Error
 import Botan.Bindings.MPI
 import Botan.Bindings.Prelude
 import Botan.Bindings.PubKey
@@ -22,7 +21,7 @@ import Botan.Bindings.RNG
 Generates DSA key pair. Gives to a caller control over key length
 and order of a subgroup 'q'.
 -}
-foreign import capi "botan/ffi.h botan_privkey_create_dsa"
+foreign import capi safe "botan/ffi.h botan_privkey_create_dsa"
     botan_privkey_create_dsa
         :: Ptr BotanPrivKey    -- ^ key handler to the resulting key
         -> BotanRNG            -- ^ rng initialized PRNG
@@ -35,8 +34,7 @@ foreign import capi "botan/ffi.h botan_privkey_create_dsa"
                                --   BOTAN_FFI_ERROR_BAD_PARAMETER unexpected value for either `pbits' or `qbits'
                                --   BOTAN_FFI_ERROR_NOT_IMPLEMENTED functionality not implemented
 
-
-foreign import capi "botan/ffi.h botan_privkey_load_dsa"
+foreign import capi safe "botan/ffi.h botan_privkey_load_dsa"
     botan_privkey_load_dsa
         :: Ptr BotanPrivKey    -- ^ key
         -> BotanMP             -- ^ p
@@ -45,9 +43,9 @@ foreign import capi "botan/ffi.h botan_privkey_load_dsa"
         -> BotanMP             -- ^ x
         -> IO CInt
 
-foreign import capi "botan/ffi.h botan_pubkey_load_dsa"
+foreign import capi safe "botan/ffi.h botan_pubkey_load_dsa"
     botan_pubkey_load_dsa
-        :: Ptr Botan_pubkey_t -- ^ key
+        :: Ptr BotanPubKey    -- ^ key
         -> BotanMP            -- ^ p
         -> BotanMP            -- ^ q
         -> BotanMP            -- ^ g

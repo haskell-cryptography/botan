@@ -52,7 +52,9 @@ library
         Botan.Bindings.PubKey.Ed25519
         Botan.Bindings.PubKey.ElGamal
         Botan.Bindings.PubKey.Encrypt
+        -- TODO: Rename to KA?
         Botan.Bindings.PubKey.KeyAgreement
+        -- TODO: Rename to KEM?
         Botan.Bindings.PubKey.KeyEncapsulation
         -- TODO: Botan.Bindings.PubKey.Kyber
         Botan.Bindings.PubKey.RSA

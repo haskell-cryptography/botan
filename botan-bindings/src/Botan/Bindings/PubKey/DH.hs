@@ -12,13 +12,12 @@ Portability : POSIX
 
 module Botan.Bindings.PubKey.DH where
 
-import Botan.Bindings.Error
 import Botan.Bindings.MPI
 import Botan.Bindings.Prelude
 import Botan.Bindings.PubKey
 
 -- | Loads Diffie Hellman private key
-foreign import capi "botan/ffi.h botan_privkey_load_dh"
+foreign import capi safe "botan/ffi.h botan_privkey_load_dh"
     botan_privkey_load_dh
         :: Ptr BotanPrivKey    -- ^ key variable populated with key material
         -> BotanMP             -- ^ p prime order of a Z_p group
@@ -27,7 +26,7 @@ foreign import capi "botan/ffi.h botan_privkey_load_dh"
         -> IO CInt             -- ^ 0 on success, a negative value on failure
 
 -- | Loads Diffie Hellman public key
-foreign import capi "botan/ffi.h botan_pubkey_load_dh"
+foreign import capi safe "botan/ffi.h botan_pubkey_load_dh"
     botan_pubkey_load_dh
         :: Ptr BotanPrivKey   -- ^ key variable populated with key material
         -> BotanMP            -- ^ p prime order of a Z_p group

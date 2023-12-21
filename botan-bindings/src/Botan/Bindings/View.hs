@@ -14,7 +14,6 @@ module Botan.Bindings.View where
 
 import Data.Void
 
-import Botan.Bindings.Error
 import Botan.Bindings.Prelude
 
 type BotanViewContext a = Ptr a

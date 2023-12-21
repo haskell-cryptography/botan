@@ -129,8 +129,4 @@ foreign import capi safe "botan/ffi.h botan_mac_get_keyspec"
         -> Ptr CSize    -- ^ out_maximum_keylength if non-NULL, will be set to maximum keylength of MAC
         -> Ptr CSize    -- ^ out_keylength_modulo if non-NULL will be set to byte multiple of valid keys
         -> IO CInt      -- ^ 0 on success, a negative value on failure
-
--- OLD BEGIN
-
-type MACPtr = BotanMAC
-type MACFlags = Word32
+        

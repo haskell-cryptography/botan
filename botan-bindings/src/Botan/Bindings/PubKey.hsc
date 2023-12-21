@@ -263,11 +263,11 @@ foreign import capi safe "botan/ffi.h botan_pubkey_load"
         -> CSize               -- ^ len
         -> IO CInt
 
--- pattern BOTAN_PUBKEY_EXPORT_FLAG_DER    -- ^ BOTAN_PRIVKEY_EXPORT_FLAG_DER in disguise
---     ,   BOTAN_PUBKEY_EXPORT_FLAG_PEM    -- ^ BOTAN_PRIVKEY_EXPORT_FLAG_PEM in disguise
---     ::  (Eq a, Num a) => a
--- pattern BOTAN_PUBKEY_EXPORT_FLAG_DER = BOTAN_PRIVKEY_EXPORT_FLAG_DER
--- pattern BOTAN_PUBKEY_EXPORT_FLAG_PEM = BOTAN_PRIVKEY_EXPORT_FLAG_PEM
+pattern BOTAN_PUBKEY_EXPORT_FLAG_DER    -- ^ BOTAN_PRIVKEY_EXPORT_FLAG_DER in disguise
+    ,   BOTAN_PUBKEY_EXPORT_FLAG_PEM    -- ^ BOTAN_PRIVKEY_EXPORT_FLAG_PEM in disguise
+    ::  (Eq a, Num a) => a
+pattern BOTAN_PUBKEY_EXPORT_FLAG_DER = BOTAN_PRIVKEY_EXPORT_FLAG_DER
+pattern BOTAN_PUBKEY_EXPORT_FLAG_PEM = BOTAN_PRIVKEY_EXPORT_FLAG_PEM
 
 foreign import capi safe "botan/ffi.h botan_pubkey_export"
     botan_pubkey_export

@@ -325,7 +325,3 @@ foreign import capi safe "botan/ffi.h botan_mp_clear_bit"
         :: BotanMP  -- ^ n
         -> CSize    -- ^ bit
         -> IO CInt
-
--- OLD BEGIN
-
-type MPPtr = BotanMP

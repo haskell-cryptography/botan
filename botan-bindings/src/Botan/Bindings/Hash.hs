@@ -44,10 +44,6 @@ foreign import capi safe "botan/ffi.h &botan_hash_destroy"
     botan_hash_destroy
         :: FinalizerPtr BotanHashStruct
 
--- WARNING: Remove after fixing botan-low
-type HashPtr = BotanHash
-type HashStruct = BotanHashStruct
-
 -- | Initialize a hash function object
 foreign import capi safe "botan/ffi.h botan_hash_init"
     botan_hash_init
@@ -113,3 +109,10 @@ foreign import capi safe "botan/ffi.h botan_hash_clear"
     botan_hash_clear
         :: BotanHash    -- ^ hash hash object
         -> IO CInt      -- 0 on success, a negative value on failure
+
+foreign import capi safe "botan/ffi.h botan_pkcs_hash_id"
+    botan_pkcs_hash_id
+        :: ConstPtr CChar -- ^ hash_name
+        -> Ptr Word8      -- ^ pkcs_id[]
+        -> Ptr CSize      -- ^ pkcs_id_len
+        -> IO CInt
