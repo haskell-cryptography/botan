@@ -1,36 +1,23 @@
 module Botan.Bindings.PubKey.ECDH where
 
+{-# LANGUAGE CApiFFI #-}
+
 import Botan.Bindings.Error
 import Botan.Bindings.MPI
 import Botan.Bindings.Prelude
 import Botan.Bindings.PubKey
 
-{-
-ECDH specific key operations
--}
+foreign import capi "botan/ffi.h botan_pubkey_load_ecdh"
+    botan_pubkey_load_ecdh
+        :: Ptr BotanPubKey    -- ^ key
+        -> BotanMP            -- ^ public_x
+        -> BotanMP            -- ^ public_y
+        -> ConstPtr CChar     -- ^ curve_name
+        -> IO CInt
 
-{-|
-@BOTAN_PUBLIC_API(2,2)
-int botan_privkey_load_ecdh(botan_privkey_t* key,
-                            const botan_mp_t scalar,
-                            const char* curve_name);@
--}
-foreign import ccall unsafe botan_privkey_load_ecdh
-    :: Ptr PrivKeyPtr
-    -> MPPtr
-    -> CString
-    -> IO BotanErrorCode
-
-{-|
-@BOTAN_PUBLIC_API(2,2)
-int botan_pubkey_load_ecdh(botan_pubkey_t* key,
-                           const botan_mp_t public_x,
-                           const botan_mp_t public_y,
-                           const char* curve_name);@
--}
-foreign import ccall unsafe botan_pubkey_load_ecdh
-    :: Ptr PubKeyPtr
-    -> MPPtr
-    -> MPPtr
-    -> CString
-    -> IO BotanErrorCode
+foreign import capi "botan/ffi.h botan_privkey_load_ecdh"
+    botan_privkey_load_ecdh
+        :: Ptr BotanPrivKey    -- ^ key
+        -> BotanMP             -- ^ scalar
+        -> ConstPtr CChar      -- ^ curve_name
+        -> IO CInt
