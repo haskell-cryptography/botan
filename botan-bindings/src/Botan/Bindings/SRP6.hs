@@ -29,172 +29,94 @@ the server to the client, so verifiers should be protected as carefully
 as a plaintext password would be.
 -}
 
+{-# LANGUAGE CApiFFI #-}
+
 module Botan.Bindings.SRP6 where
 
-import Botan.Bindings.Error
 import Botan.Bindings.Prelude
 import Botan.Bindings.RNG
 
-{-|
-SRP-6 Server Session type
+-- | Opaque SRP-6 server session struct
+data {-# CTYPE "botan/ffi.h" "struct botan_srp6_server_session_struct" #-} BotanSRP6ServerSessionStruct
 
-@typedef struct botan_srp6_server_session_struct* botan_srp6_server_session_t;@
--}
+-- | Botan SRP-6 server session object
+newtype {-# CTYPE "botan/ffi.h" "botan_srp6_server_session_t" #-} BotanSRP6ServerSession
+    = MkBotanSRP6ServerSession { runBotanSRP6ServerSession :: Ptr BotanSRP6ServerSessionStruct }
+        deriving newtype (Eq, Ord, Storable)
 
-data SRP6Struct
-type SRP6Ptr = Ptr SRP6Struct
+-- | Frees all resources of the SRP-6 server session object
+foreign import capi safe "botan/ffi.h &botan_srp6_server_session_destroy"
+    botan_srp6_server_session_destroy
+        :: FinalizerPtr BotanSRP6ServerSessionStruct
 
-{-|
-Initialize an SRP-6 server session object
+-- | Initialize an SRP-6 server session object
+foreign import capi safe "botan/ffi.h botan_srp6_server_session_init"
+    botan_srp6_server_session_init
+        :: Ptr BotanSRP6ServerSession -- ^ srp6 SRP-6 server session object
+        -> IO CInt
 
-- \@param srp6 SRP-6 server session object
+-- | SRP-6 Server side step 1
+foreign import capi safe "botan/ffi.h botan_srp6_server_session_step1"
+    botan_srp6_server_session_step1
+        :: BotanSRP6ServerSession   -- ^ srp6 SRP-6 server session object
+        -> ConstPtr Word8           -- ^ verifier[] the verification value saved from client registration
+        -> CSize                    -- ^ verifier_len SRP-6 verifier value length
+        -> ConstPtr CChar           -- ^ group_id the SRP group id
+        -> ConstPtr CChar           -- ^ hash_id the SRP hash in use
+        -> BotanRNG                 -- ^ rng_obj a random number generator object
+        -> Ptr Word8                -- ^ B_pub[] out buffer to store the SRP-6 B value
+        -> Ptr CSize                -- ^ B_pub_len SRP-6 B value length
+        -> IO CInt                  -- ^ 0 on success, negative on failure
 
-@BOTAN_PUBLIC_API(3,0)
-int botan_srp6_server_session_init(botan_srp6_server_session_t *srp6);@
--}
-foreign import ccall unsafe botan_srp6_server_session_init :: Ptr SRP6Ptr -> IO BotanErrorCode
+-- | SRP-6 Server side step 2
+foreign import capi safe "botan/ffi.h botan_srp6_server_session_step2"
+    botan_srp6_server_session_step2
+        :: BotanSRP6ServerSession   -- ^ srp6 SRP-6 server session object
+        -> ConstPtr Word8           -- ^ A[] the client's value
+        -> CSize                    -- ^ A_len the client's value length
+        -> Ptr Word8                -- ^ key[] out buffer to store the symmetric key value
+        -> Ptr CSize                -- ^ key_len symmetric key length
+        -> IO CInt                  -- ^ 0 on success, negative on failure
 
-{-|
-Frees all resources of the SRP-6 server session object
+-- | Generate a new SRP-6 verifier
+foreign import capi safe "botan/ffi.h botan_srp6_generate_verifier"
+    botan_srp6_generate_verifier
+        :: ConstPtr CChar -- ^ identifier a username or other client identifier
+        -> ConstPtr CChar -- ^ password the secret used to authenticate user
+        -> ConstPtr Word8 -- ^ salt[] a randomly chosen value, at least 128 bits long
+        -> CSize          -- ^ salt_len the length of salt
+        -> ConstPtr CChar -- ^ group_id specifies the shared SRP group
+        -> ConstPtr CChar -- ^ hash_id specifies a secure hash function
+        -> Ptr Word8      -- ^ verifier[] out buffer to store the SRP-6 verifier value
+        -> Ptr CSize      -- ^ verifier_len SRP-6 verifier value length
+        -> IO CInt        -- ^ 0 on success, negative on failure
 
-- \@param srp6 SRP-6 server session object
-- \@return 0 if success, error if invalid object handle
+-- | SRP6a Client side
+foreign import capi safe "botan/ffi.h botan_srp6_client_agree"
+    botan_srp6_client_agree
+        :: ConstPtr CChar -- ^ username the username we are attempting login for
+        -> ConstPtr CChar -- ^ password the password we are attempting to use
+        -> ConstPtr CChar -- ^ group_id specifies the shared SRP group
+        -> ConstPtr CChar -- ^ hash_id specifies a secure hash function
+        -> ConstPtr Word8 -- ^ salt[] is the salt value sent by the server
+        -> CSize          -- ^ salt_len the length of salt
+        -> ConstPtr Word8 -- ^ uint8_t B[] is the server's public value
+        -> CSize          -- ^ B_len is the server's public value length
+        -> BotanRNG       -- ^ rng_obj is a random number generator object
+        -> Ptr Word8      -- ^ A[] out buffer to store the SRP-6 A value
+        -> Ptr CSize      -- ^ A_len SRP-6 A verifier value length
+        -> Ptr Word8      -- ^ K[] out buffer to store the symmetric value
+        -> Ptr CSize      -- ^ K_len symmetric key length
+        -> IO CInt        -- ^ 0 on success, negative on failure
 
-@BOTAN_PUBLIC_API(3,0)
-int botan_srp6_server_session_destroy(botan_srp6_server_session_t srp6);@
--}
-foreign import ccall unsafe "&botan_srp6_server_session_destroy" botan_srp6_server_session_destroy :: FinalizerPtr SRP6Struct
+-- | Return the size, in bytes, of the prime associated with group_id
+foreign import capi safe "botan/ffi.h botan_srp6_group_size"
+    botan_srp6_group_size
+        :: ConstPtr CChar -- ^ group_id
+        -> Ptr CSize      -- ^ group_p_bytes
+        -> IO CInt
 
-{-|
-SRP-6 Server side step 1
+-- OLD BEGIN
 
-- \@param srp6 SRP-6 server session object
-- \@param verifier the verification value saved from client registration
-- \@param verifier_len SRP-6 verifier value length
-- \@param group_id the SRP group id
-- \@param hash_id the SRP hash in use
-- \@param rng_obj a random number generator object
-- \@param B_pub out buffer to store the SRP-6 B value
-- \@param B_pub_len SRP-6 B value length
-- \@return 0 on success, negative on failure
-
-@BOTAN_PUBLIC_API(3,0)
-int botan_srp6_server_session_step1(botan_srp6_server_session_t srp6,
-                                    const uint8_t verifier[],
-                                    size_t verifier_len, const char *group_id,
-                                    const char *hash_id, botan_rng_t rng_obj,
-                                    uint8_t B_pub[], size_t *B_pub_len);@
--}
-foreign import ccall unsafe botan_srp6_server_session_step1
-    :: SRP6Ptr
-    -> Ptr Word8    -- Verifier
-    -> CSize        -- Verifier len
-    -> CString      -- Group id
-    -> CString      -- Hash id
-    -> RNGPtr
-    -> Ptr Word8    -- Out
-    -> Ptr CSize    -- Out len
-    -> IO BotanErrorCode
-
-{-|
-SRP-6 Server side step 2
-
-- \@param srp6 SRP-6 server session object
-- \@param A the client's value
-- \@param A_len the client's value length
-- \@param key out buffer to store the symmetric key value
-- \@param key_len symmetric key length
-- \@return 0 on success, negative on failure
-
-@BOTAN_PUBLIC_API(3,0)
-int botan_srp6_server_session_step2(botan_srp6_server_session_t srp6,
-                                    const uint8_t A[], size_t A_len,
-                                    uint8_t key[], size_t *key_len);@
--}
-foreign import ccall unsafe botan_srp6_server_session_step2
-    :: SRP6Ptr
-    -> Ptr Word8
-    -> CSize
-    -> Ptr Word8
-    -> Ptr CSize
-    -> IO BotanErrorCode
-
-{-|
-Generate a new SRP-6 verifier
-
-- \@param identifier a username or other client identifier
-- \@param password the secret used to authenticate user
-- \@param salt a randomly chosen value, at least 128 bits long
-- \@param salt_len the length of salt
-- \@param group_id specifies the shared SRP group
-- \@param hash_id specifies a secure hash function
-- \@param verifier out buffer to store the SRP-6 verifier value
-- \@param verifier_len SRP-6 verifier value length
-- \@return 0 on success, negative on failure
-
-@BOTAN_PUBLIC_API(3,0)
-int botan_srp6_generate_verifier(const char *identifier, const char *password,
-                                 const uint8_t salt[], size_t salt_len,
-                                 const char *group_id, const char *hash_id,
-                                 uint8_t verifier[], size_t *verifier_len);@
--}
-foreign import ccall unsafe botan_srp6_generate_verifier
-    :: CString      -- Identifier
-    -> CString      -- Password
-    -> Ptr Word8    -- Salt
-    -> CSize        -- Salt len
-    -> CString      -- Group id
-    -> CString      -- Hash id
-    -> Ptr Word8    -- Verifier (output)
-    -> Ptr CSize    -- Verifier len
-    -> IO BotanErrorCode
-
-{-|
-SRP6a Client side
-
-- \@param username the username we are attempting login for
-- \@param password the password we are attempting to use
-- \@param group_id specifies the shared SRP group
-- \@param hash_id specifies a secure hash function
-- \@param salt is the salt value sent by the server
-- \@param salt_len the length of salt
-- \@param B is the server's public value
-- \@param B_len is the server's public value length
-- \@param rng_obj is a random number generator object
-- \@param A out buffer to store the SRP-6 A value
-- \@param A_len SRP-6 A verifier value length
-- \@param K out buffer to store the symmetric value
-- \@param K_len symmetric key length
-- \@return 0 on success, negative on failure
-
-@BOTAN_PUBLIC_API(3,0)
-int botan_srp6_client_agree(const char *username, const char *password,
-                            const char *group_id, const char *hash_id,
-                            const uint8_t salt[], size_t salt_len,
-                            const uint8_t B[], size_t B_len, botan_rng_t rng_obj,
-                            uint8_t A[], size_t *A_len, uint8_t K[],
-                            size_t *K_len);@
--}
-foreign import ccall unsafe botan_srp6_client_agree
-    :: CString      -- Identifier
-    -> CString      -- Password
-    -> CString      -- Group id
-    -> CString      -- Hash id
-    -> Ptr Word8    -- Salt
-    -> CSize        -- Salt len
-    -> Ptr Word8    -- B
-    -> CSize        -- B len
-    -> RNGPtr
-    -> Ptr Word8    -- A (Output)
-    -> Ptr CSize    -- A len
-    -> Ptr Word8    -- K (Output)
-    -> Ptr CSize    -- K len
-    -> IO BotanErrorCode
-
-{-|
-Return the size, in bytes, of the prime associated with group_id
-
-@BOTAN_PUBLIC_API(3,0)
-int botan_srp6_group_size(const char* group_id, size_t* group_p_bytes);@
--}
-foreign import ccall unsafe botan_srp6_group_size :: CString -> Ptr CSize -> IO BotanErrorCode
+type SRP6Ptr = BotanSRP6ServerSession
+type SRP6Struct = BotanSRP6ServerSessionStruct

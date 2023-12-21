@@ -38,6 +38,8 @@ TOTP is based on the same algorithm as HOTP, but instead of a
 counter a timestamp is used.
 -}
 
+{-# LANGUAGE CApiFFI #-}
+
 module Botan.Bindings.TOTP where
 
 import Botan.Bindings.Error
@@ -45,80 +47,53 @@ import Botan.Bindings.Prelude
 
 -- NOTE: RFC 6238
 
-{-|
-TOTP
+-- | Opaque TOTP struct
+data {-# CTYPE "botan/ffi.h" "struct botan_totp_struct" #-} BotanTOTPStruct
 
-@typedef struct botan_totp_struct* botan_totp_t;@
--}
+-- | Botan TOTP object
+newtype {-# CTYPE "botan/ffi.h" "botan_totp_t" #-} BotanTOTP
+    = MkBotanTOTP { runBotanTOTP :: Ptr BotanTOTPStruct }
+        deriving newtype (Eq, Ord, Storable)
 
-data TOTPStruct
-type TOTPPtr = Ptr TOTPStruct
+-- | Destroy a TOTP instance
+foreign import capi safe "botan/ffi.h &botan_totp_destroy"
+    botan_totp_destroy
+        :: FinalizerPtr BotanTOTPStruct
+
+-- | Initialize a TOTP instance
+foreign import capi safe "botan/ffi.h botan_totp_init"
+    botan_totp_init
+    :: Ptr BotanTOTP    -- ^ totp
+    -> ConstPtr Word8   -- ^ key[]
+    -> CSize            -- ^ key_len
+    -> ConstPtr CChar   -- ^ hash_algo
+    -> CSize            -- ^ digits
+    -> CSize            -- ^ time_step
+    -> IO CInt
+
+-- | Generate a TOTP code for the provided timestamp
+foreign import capi safe "botan/ffi.h botan_totp_generate"
+    botan_totp_generate
+    :: BotanTOTP    -- ^ totp the TOTP object
+    -> Ptr Word32   -- ^ totp_code the OTP code will be written here
+    -> Word64       -- ^ timestamp the current local timestamp
+    -> IO CInt
+
+-- | Verify a TOTP code
+foreign import capi safe "botan/ffi.h botan_totp_check"
+    botan_totp_check
+    :: BotanTOTP    -- ^ totp the TOTP object
+    -> Word32       -- ^ totp_code the presented OTP
+    -> Word64       -- ^ timestamp the current local timestamp
+    -> CSize        -- ^ acceptable_clock_drift specifies the acceptable amount
+                    --   of clock drift (in terms of time steps) between the two hosts.
+    -> IO CInt
+
+-- OLD BEGIN
+
+type TOTPPtr = BotanTOTP
+type TOTPStruct = BotanTOTPStruct
 
 type TOTPCode = Word32
 type TOTPTimestep = Word64
 type TOTPTimestamp = Word64
-
-{-|
-Initialize a TOTP instance
-
-@BOTAN_PUBLIC_API(2,8)
-int botan_totp_init(botan_totp_t* totp,
-                    const uint8_t key[], size_t key_len,
-                    const char* hash_algo,
-                    size_t digits,
-                    size_t time_step);@
--}
-foreign import ccall unsafe botan_totp_init
-    :: Ptr TOTPPtr
-    -> Ptr Word8 -> CSize
-    -> CString
-    -> CSize
-    -> CSize
-    -> IO BotanErrorCode
-
-{-|
-Destroy a TOTP instance
-- \@return 0 if success, error if invalid object handle
-
-@BOTAN_PUBLIC_API(2,8)
-int botan_totp_destroy(botan_totp_t totp);@
--}
-foreign import ccall unsafe "&botan_totp_destroy" botan_totp_destroy :: FinalizerPtr TOTPStruct
-
-{-|
-Generate a TOTP code for the provided timestamp
-- \@param totp the TOTP object
-- \@param totp_code the OTP code will be written here
-- \@param timestamp the current local timestamp
-
-@BOTAN_PUBLIC_API(2,8)
-int botan_totp_generate(botan_totp_t totp,
-                        uint32_t* totp_code,
-                        uint64_t timestamp);@
--}
-foreign import ccall unsafe botan_totp_generate
-    :: TOTPPtr
-    -> Ptr TOTPCode
-    -> TOTPTimestamp
-    -> IO BotanErrorCode
-
-{-|
-Verify a TOTP code
-- \@param totp the TOTP object
-- \@param totp_code the presented OTP
-- \@param timestamp the current local timestamp
-- \@param acceptable_clock_drift specifies the acceptable amount
-of clock drift (in terms of time steps) between the two hosts.
-
-@BOTAN_PUBLIC_API(2,8)
-int botan_totp_check(botan_totp_t totp,
-                     uint32_t totp_code,
-                     uint64_t timestamp,
-                     size_t acceptable_clock_drift);@
--}
-foreign import ccall unsafe botan_totp_check
-    :: TOTPPtr
-    -> TOTPCode
-    -> TOTPTimestamp
-    -> CSize
-    -> IO BotanErrorCode
