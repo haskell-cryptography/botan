@@ -28,7 +28,7 @@ foreign import capi safe "botan/ffi.h botan_privkey_load_dh"
 -- | Loads Diffie Hellman public key
 foreign import capi safe "botan/ffi.h botan_pubkey_load_dh"
     botan_pubkey_load_dh
-        :: Ptr BotanPrivKey   -- ^ key variable populated with key material
+        :: Ptr BotanPubKey    -- ^ key variable populated with key material
         -> BotanMP            -- ^ p prime order of a Z_p group
         -> BotanMP            -- ^ g group generator
         -> BotanMP            -- ^ y public key
