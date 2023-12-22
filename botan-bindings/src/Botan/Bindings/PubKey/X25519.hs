@@ -8,36 +8,33 @@ Stability   : experimental
 Portability : POSIX
 -}
 
+{-# LANGUAGE CApiFFI #-}
+
 module Botan.Bindings.PubKey.X25519 where
 
-import Botan.Bindings.Error
 import Botan.Bindings.Prelude
 import Botan.Bindings.PubKey
 
-{-
-Algorithm specific key operations: X25519
--}
+foreign import capi safe "botan/ffi.h botan_privkey_load_x25519"
+    botan_privkey_load_x25519
+        :: Ptr BotanPrivKey    -- ^ key
+        -> ConstPtr Word8      -- ^ privkey[32]
+        -> IO CInt
 
-{-|
-@BOTAN_PUBLIC_API(2,8) int botan_privkey_load_x25519(botan_privkey_t* key,
-                                                    const uint8_t privkey[32]);@
--}
-foreign import ccall unsafe botan_privkey_load_x25519 :: Ptr PrivKeyPtr -> Ptr Word8 -> IO BotanErrorCode
+foreign import capi safe "botan/ffi.h botan_pubkey_load_x25519"
+    botan_pubkey_load_x25519
+        :: Ptr BotanPubKey    -- ^ key
+        -> ConstPtr Word8     -- ^ pubkey[32]
+        -> IO CInt
 
-{-|
-@BOTAN_PUBLIC_API(2,8) int botan_pubkey_load_x25519(botan_pubkey_t* key,
-                                                   const uint8_t pubkey[32]);@
--}
-foreign import ccall unsafe botan_pubkey_load_x25519 :: Ptr PubKeyPtr -> Ptr Word8 -> IO BotanErrorCode
+foreign import capi safe "botan/ffi.h botan_privkey_x25519_get_privkey"
+    botan_privkey_x25519_get_privkey
+        :: BotanPrivKey    -- ^ key
+        -> Ptr Word8       -- ^ output[32]
+        -> IO CInt
 
-{-|
-@BOTAN_PUBLIC_API(2,8) int botan_privkey_x25519_get_privkey(botan_privkey_t key,
-                                                           uint8_t output[32]);@
--}
-foreign import ccall unsafe botan_privkey_x25519_get_privkey :: PrivKeyPtr -> Ptr Word8 -> IO BotanErrorCode
-
-{-|
-@BOTAN_PUBLIC_API(2,8) int botan_pubkey_x25519_get_pubkey(botan_pubkey_t key,
-                                                         uint8_t pubkey[32]);@
--}
-foreign import ccall unsafe botan_pubkey_x25519_get_pubkey :: PubKeyPtr -> Ptr Word8 -> IO BotanErrorCode
+foreign import capi safe "botan/ffi.h botan_pubkey_x25519_get_pubkey"
+    botan_pubkey_x25519_get_pubkey
+        :: BotanPubKey    -- ^ key
+        -> Ptr Word8      -- ^ pubkey[32]
+        -> IO CInt
