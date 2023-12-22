@@ -8,139 +8,95 @@ Stability   : experimental
 Portability : POSIX
 -}
 
+{-# LANGUAGE CApiFFI #-}
+
 module Botan.Bindings.PubKey.KeyEncapsulation where
 
-import Botan.Bindings.Error
 import Botan.Bindings.Prelude
 import Botan.Bindings.PubKey
 import Botan.Bindings.RNG
 
-{-
-Key Encapsulation
--}
+-- | Opaque KEM encrypt struct
+data {-# CTYPE "botan/ffi.h" "struct botan_pk_op_kem_encrypt_struct" #-} BotanPKOpKEMEncryptStruct
 
-{-|
-@typedef struct botan_pk_op_kem_encrypt_struct* botan_pk_op_kem_encrypt_t;@
--}
-data KEMEncryptStruct
-type KEMEncryptPtr = Ptr KEMEncryptStruct
-{-|
-@
-BOTAN_PUBLIC_API(3,0) int botan_pk_op_kem_encrypt_create(
-   botan_pk_op_kem_encrypt_t* op,
-   botan_pubkey_t key,
-   const char* kdf);@
--}
-foreign import ccall unsafe botan_pk_op_kem_encrypt_create :: Ptr KEMEncryptPtr -> PubKeyPtr -> CString -> IO BotanErrorCode
+-- | Botan KEM encrypt object
+newtype {-# CTYPE "botan/ffi.h" "botan_pk_op_kem_encrypt_t" #-} BotanPKOpKEMEncrypt
+    = MkBotanPKOpKEMEncrypt { runBotanPKOpKEMEncrypt :: Ptr BotanPKOpKEMEncryptStruct }
+        deriving newtype (Eq, Ord, Storable)
 
-{-|
-- \@return 0 if success, error if invalid object handle
+-- | Destroy a KEM encrypt object
+foreign import capi safe "botan/ffi.h &botan_pk_op_kem_encrypt_destroy"
+    botan_pk_op_kem_encrypt_destroy
+        :: FinalizerPtr BotanPKOpKEMEncryptStruct
 
-@BOTAN_PUBLIC_API(3,0) int botan_pk_op_kem_encrypt_destroy(botan_pk_op_kem_encrypt_t op);@
--}
-foreign import ccall unsafe "&botan_pk_op_kem_encrypt_destroy" botan_pk_op_kem_encrypt_destroy :: FinalizerPtr KEMEncryptStruct
+foreign import capi safe "botan/ffi.h botan_pk_op_kem_encrypt_create"
+    botan_pk_op_kem_encrypt_create
+        :: Ptr BotanPKOpKEMEncrypt       -- ^ op
+        -> BotanPubKey                   -- ^ key
+        -> ConstPtr CChar                -- ^ kdf
+        -> IO CInt
 
-{-|
-@BOTAN_PUBLIC_API(3,0)
-int botan_pk_op_kem_encrypt_shared_key_length(
-   botan_pk_op_kem_encrypt_t op,
-   size_t desired_shared_key_length,
-   size_t* output_shared_key_length);@
--}
-foreign import ccall unsafe botan_pk_op_kem_encrypt_shared_key_length
-    :: KEMEncryptPtr
-    -> CSize
-    -> Ptr CSize
-    -> IO BotanErrorCode
+foreign import capi safe "botan/ffi.h botan_pk_op_kem_encrypt_shared_key_length"
+    botan_pk_op_kem_encrypt_shared_key_length
+        :: BotanPKOpKEMEncrypt       -- ^ op
+        -> CSize                     -- ^ desired_shared_key_length
+        -> Ptr CSize                 -- ^ output_shared_key_length
+        -> IO CInt
 
-{-|
-@BOTAN_PUBLIC_API(3,0)
-int botan_pk_op_kem_encrypt_encapsulated_key_length(
-   botan_pk_op_kem_encrypt_t op,
-   size_t* output_encapsulated_key_length);@
--}
-foreign import ccall unsafe botan_pk_op_kem_encrypt_encapsulated_key_length
-    :: KEMEncryptPtr
-    -> Ptr CSize
-    -> IO BotanErrorCode
+foreign import capi safe "botan/ffi.h botan_pk_op_kem_encrypt_encapsulated_key_length"
+    botan_pk_op_kem_encrypt_encapsulated_key_length
+        :: BotanPKOpKEMEncrypt       -- ^ op
+        -> Ptr CSize                 -- ^ output_encapsulated_key_length
+        -> IO CInt
 
-{-|
-@BOTAN_PUBLIC_API(3,0) int botan_pk_op_kem_encrypt_create_shared_key(
-   botan_pk_op_kem_encrypt_t op,
-   botan_rng_t rng,
-   const uint8_t salt[],
-   size_t salt_len,
-   size_t desired_shared_key_len,
-   uint8_t shared_key[],
-   size_t* shared_key_len,
-   uint8_t encapsulated_key[],
-   size_t* encapsulated_key_len);@
--}
-foreign import ccall unsafe botan_pk_op_kem_encrypt_create_shared_key
-    :: KEMEncryptPtr
-    -> RNGPtr
-    -> Ptr Word8    -- Salt
-    -> CSize        -- Salt len
-    -> CSize        -- Desired shared key len
-    -> Ptr Word8    -- Shared key (output)
-    -> Ptr CSize    -- Shared key len
-    -> Ptr Word8    -- Encapsulated key (output)
-    -> Ptr CSize    -- Encapsulated key len
-    -> IO BotanErrorCode
+foreign import capi safe "botan/ffi.h botan_pk_op_kem_encrypt_create_shared_key"
+    botan_pk_op_kem_encrypt_create_shared_key
+        :: BotanPKOpKEMEncrypt       -- ^ op
+        -> BotanRNG                  -- ^ rng
+        -> ConstPtr Word8            -- ^ salt[]
+        -> CSize                     -- ^ salt_len
+        -> CSize                     -- ^ desired_shared_key_len
+        -> Ptr Word8                 -- ^ shared_key[]
+        -> Ptr CSize                 -- ^ shared_key_len
+        -> Ptr Word8                 -- ^ encapsulated_key[]
+        -> Ptr CSize                 -- ^ encapsulated_key_len
+        -> IO CInt
 
-{-|
-@typedef struct botan_pk_op_kem_decrypt_struct* botan_pk_op_kem_decrypt_t;@
--}
-data KEMDecryptStruct
-type KEMDecryptPtr = Ptr KEMDecryptStruct
+-- | Opaque KEM decrypt struct
+data {-# CTYPE "botan/ffi.h" "struct botan_pk_op_kem_decrypt_struct" #-} BotanPKOpKEMDecryptStruct
 
-{-|
-@BOTAN_PUBLIC_API(3,0) int botan_pk_op_kem_decrypt_create(
-   botan_pk_op_kem_decrypt_t* op,
-   botan_privkey_t key,
-   const char* kdf);@
--}
-foreign import ccall unsafe botan_pk_op_kem_decrypt_create :: Ptr KEMDecryptPtr -> PrivKeyPtr -> CString -> IO BotanErrorCode
+-- | Botan KEM decrypt object
+newtype {-# CTYPE "botan/ffi.h" "botan_pk_op_kem_decrypt_t" #-} BotanPKOpKEMDecrypt
+    = MkBotanPKOpKEMDecrypt { runBotanPKOpKEMDecrypt :: Ptr BotanPKOpKEMDecryptStruct }
+        deriving newtype (Eq, Ord, Storable)
 
-{-|
-- \@return 0 if success, error if invalid object handle
+-- | Destroy a KEM decrypt object
+foreign import capi safe "botan/ffi.h &botan_pk_op_kem_decrypt_destroy"
+    botan_pk_op_kem_decrypt_destroy
+        :: FinalizerPtr BotanPKOpKEMDecryptStruct
 
-@BOTAN_PUBLIC_API(3,0) int botan_pk_op_kem_decrypt_destroy(botan_pk_op_kem_decrypt_t op);@
--}
+foreign import capi safe "botan/ffi.h botan_pk_op_kem_decrypt_create"
+    botan_pk_op_kem_decrypt_create
+        :: Ptr BotanPKOpKEMDecrypt       -- ^ op
+        -> BotanPrivKey                  -- ^ key
+        -> ConstPtr CChar                -- ^ kdf
+        -> IO CInt
 
-foreign import ccall unsafe "&botan_pk_op_kem_decrypt_destroy" botan_pk_op_kem_decrypt_destroy :: FinalizerPtr KEMDecryptStruct
+foreign import capi safe "botan/ffi.h botan_pk_op_kem_decrypt_shared_key_length"
+    botan_pk_op_kem_decrypt_shared_key_length
+        :: BotanPKOpKEMDecrypt       -- ^ op
+        -> CSize                     -- ^ desired_shared_key_length
+        -> Ptr CSize                 -- ^ output_shared_key_length
+        -> IO CInt
 
-{-|
-@BOTAN_PUBLIC_API(3,0)
-int botan_pk_op_kem_decrypt_shared_key_length(
-   botan_pk_op_kem_decrypt_t op,
-   size_t desired_shared_key_length,
-   size_t* output_shared_key_length);@
--}
-foreign import ccall unsafe botan_pk_op_kem_decrypt_shared_key_length
-    :: KEMDecryptPtr
-    -> CSize
-    -> Ptr CSize
-    -> IO BotanErrorCode
-
-{-|
-@BOTAN_PUBLIC_API(3,0) int botan_pk_op_kem_decrypt_shared_key(
-   botan_pk_op_kem_decrypt_t op,
-   const uint8_t salt[],
-   size_t salt_len,
-   const uint8_t encapsulated_key[],
-   size_t encapsulated_key_len,
-   size_t desired_shared_key_len,
-   uint8_t shared_key[],
-   size_t* shared_key_len);@
--}
-foreign import ccall unsafe botan_pk_op_kem_decrypt_shared_key
-    :: KEMDecryptPtr
-    -> Ptr Word8    -- Salt
-    -> CSize        -- Salt len
-    -> Ptr Word8    -- Encapsulated key
-    -> CSize        -- Encapsulated key len
-    -> CSize        -- Desired shared key len
-    -> Ptr Word8    -- Shared key (output)
-    -> Ptr CSize    -- Shared key len
-    -> IO BotanErrorCode
+foreign import capi safe "botan/ffi.h botan_pk_op_kem_decrypt_shared_key"
+    botan_pk_op_kem_decrypt_shared_key
+        :: BotanPKOpKEMDecrypt       -- ^ op
+        -> ConstPtr Word8            -- ^ salt[]
+        -> CSize                     -- ^ salt_len
+        -> ConstPtr Word8            -- ^ encapsulated_key[]
+        -> CSize                     -- ^ encapsulated_key_len
+        -> CSize                     -- ^ desired_shared_key_len
+        -> Ptr Word8                 -- ^ shared_key[]
+        -> Ptr CSize                 -- ^ shared_key_len
+        -> IO CInt
