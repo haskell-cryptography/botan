@@ -17,6 +17,7 @@ import Botan.Bindings.Prelude
 import           Control.Exception
 import           Control.Monad
 
+import           Data.ByteString (ByteString)
 import qualified Data.ByteString as ByteString
 import qualified Data.ByteString.Internal as ByteString
 
@@ -38,9 +39,11 @@ import qualified Data.ByteString.Internal as ByteString
 -- Eg:
 pattern BOTAN_FFI_SUCCESS
     ,   BOTAN_FFI_INVALID_VERIFIER
+    ,   BOTAN_FFI_ERROR_INSUFFICIENT_BUFFER_SPACE
     ::  (Eq a, Num a) => a
 pattern BOTAN_FFI_SUCCESS                         = #const BOTAN_FFI_SUCCESS
 pattern BOTAN_FFI_INVALID_VERIFIER                = #const BOTAN_FFI_INVALID_VERIFIER
+pattern BOTAN_FFI_ERROR_INSUFFICIENT_BUFFER_SPACE = #const BOTAN_FFI_ERROR_INSUFFICIENT_BUFFER_SPACE
 
 -- Bindings
 
@@ -103,29 +106,49 @@ foreign import capi safe "botan/ffi.h botan_rng_add_entropy"
 -- Low-level
 
 -- TODO: Determine if the use of `mask_` is appropriate
+-- TODO: Potentially
 mkBindings
     ::  (Storable botan)
-    =>  (Ptr struct -> botan)
-    ->  (botan -> Ptr struct)
-    ->  (ForeignPtr struct -> object)
-    ->  (object -> ForeignPtr struct)
-    ->  FinalizerPtr struct
-    ->  (   botan -> IO object
-        ,   object -> (botan -> IO a) -> IO a
-        ,   object -> IO ()
-        ,   (Ptr botan -> IO CInt) -> IO object
+    =>  (Ptr struct -> botan)                                   -- mkBotan
+    ->  (botan -> Ptr struct)                                   -- runBotan
+    ->  (ForeignPtr struct -> object)                           -- mkForeign
+    ->  (object -> ForeignPtr struct)                           -- runForeign
+    ->  FinalizerPtr struct                                     -- destroy / finalizer
+    ->  (   botan -> IO object                                  -- newObject
+        ,   object -> (botan -> IO a) -> IO a                   -- withObject
+        ,   object -> IO ()                                     -- destroyObject
+        ,   (Ptr botan -> IO CInt) -> IO object                 -- createObject
+        ,   (Ptr botan -> Ptr CSize -> IO CInt) -> IO [object]  -- createObjects
         )
 mkBindings mkBotan runBotan mkForeign runForeign destroy = bindings where
-    bindings = (newObject, withObject, objectDestroy, createObject)
+    bindings = (newObject, withObject, objectDestroy, createObject, createObjects)
     newObject botan = do
         foreignPtr <- newForeignPtr destroy (runBotan botan)
         return $ mkForeign foreignPtr
     withObject object f = withForeignPtr (runForeign object) (f . mkBotan)
     objectDestroy object = finalizeForeignPtr (runForeign object)
+    -- NOTE: This ^ is really a Haskell finalizer
+    --  We could include the actual C++ botan destructor instead of indirectly omitting it:
+    --      objectFinalize obj = new stable foreign ptr ... destroy
+    --      objectDestroy obj = withObject obj destroy
     createObject init = mask_ $ alloca $ \ outPtr -> do
         throwErrorIfNegative_ $ init outPtr
         out <- peek outPtr
         newObject out
+    createObjects inits = mask_ $ alloca $ \ szPtr -> do
+        code <- inits nullPtr szPtr
+        case code of
+            BOTAN_FFI_ERROR_INSUFFICIENT_BUFFER_SPACE -> do
+                sz <- fromIntegral <$> peek szPtr
+                allocaArray sz $ \ arrPtr -> do
+                    throwErrorIfNegative_ $ inits arrPtr szPtr
+                    -- outPtrs <- peekArray sz arrPtr
+                    -- forM outPtrs $ \ outPtr -> do
+                    --     out <- peek outPtr
+                    --     newObject out
+                    outs <- peekArray sz arrPtr
+                    forM outs newObject
+            _ -> throwErrorCode code
 
 newtype RNG = MkRNG { getRNGForeignPtr :: ForeignPtr BotanRNGStruct }
 
@@ -133,7 +156,7 @@ newRNG      :: BotanRNG -> IO RNG
 withRNG     :: RNG -> (BotanRNG -> IO a) -> IO a
 rngDestroy  :: RNG -> IO ()
 createRNG   :: (Ptr BotanRNG -> IO CInt) -> IO RNG
-(newRNG, withRNG, rngDestroy, createRNG)
+(newRNG, withRNG, rngDestroy, createRNG, _)
     = mkBindings MkBotanRNG runBotanRNG MkRNG getRNGForeignPtr botan_rng_destroy
 
 rngInit :: ByteString -> IO RNG
@@ -155,10 +178,13 @@ rngAddEntropy rng bytes = do
 
 -- Helpers, taken from botan-low
 
+throwErrorCode :: Show e => e -> a
+throwErrorCode e = error $ "Botan: " ++ show e
+
 throwErrorIfNegative_ :: IO CInt -> IO ()
 throwErrorIfNegative_ act = do
     e <- act
-    when (e < 0) $ error $ "Botan: " ++ show e
+    when (e < 0) $ throwErrorCode e
 
 allocBytes :: Int -> (Ptr byte -> IO ()) -> IO ByteString
 allocBytes sz f = ByteString.create sz (f . castPtr)
