@@ -12,8 +12,6 @@ Portability : POSIX
 
 module Botan.Bindings.RNG where
 
-import Data.ByteString (ByteString)
-
 import Botan.Bindings.Prelude
 
 -- | Opaque RNG struct

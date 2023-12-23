@@ -4,7 +4,7 @@
 
 module Botan.Bindings.Prelude
 ( module Prelude
-, module Data.ByteString
+-- , module Data.ByteString
 , module Data.String
 , module Data.Word
 , module System.IO
@@ -20,7 +20,7 @@ module Botan.Bindings.Prelude
 
 import Prelude
 
-import Data.ByteString (ByteString)
+-- import Data.ByteString (ByteString)
 import Data.String (IsString(..))
 import Data.Word
 

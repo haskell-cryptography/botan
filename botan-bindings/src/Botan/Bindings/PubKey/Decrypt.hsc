@@ -14,7 +14,6 @@ module Botan.Bindings.PubKey.Decrypt where
 
 import Botan.Bindings.Prelude
 import Botan.Bindings.PubKey
-import Botan.Bindings.RNG
 
 #include <botan/ffi.h>
 

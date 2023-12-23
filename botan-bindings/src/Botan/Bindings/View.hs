@@ -12,10 +12,9 @@ Portability : POSIX
 
 module Botan.Bindings.View where
 
-import Data.Void
-
 import Botan.Bindings.Prelude
 
+-- NOTE: If the type variable proves problematic, we will revert back to Ptr Void
 type BotanViewContext a = Ptr a
 
 type BotanViewBinCallback ctx

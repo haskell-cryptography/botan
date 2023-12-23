@@ -12,7 +12,6 @@ Portability : POSIX
 
 module Botan.Bindings.Utility where
 
-import Data.Void
 import Botan.Bindings.Prelude
 
 #include <botan/ffi.h>
@@ -31,12 +30,12 @@ foreign import capi safe "botan/ffi.h botan_scrub_mem"
         -> CSize  -- ^ bytes
         -> IO CInt
 
--- pattern BOTAN_FFI_HEX_UPPER_CASE    -- ^ NOTE: Not an actual flag
---     ,   BOTAN_FFI_HEX_LOWER_CASE
---     ::  (Eq a, Num a) => a
+pattern BOTAN_FFI_HEX_UPPER_CASE    -- ^ NOTE: Not an actual flag
+    ,   BOTAN_FFI_HEX_LOWER_CASE
+    ::  (Eq a, Num a) => a
 
--- pattern BOTAN_FFI_HEX_UPPER_CASE = 0
--- pattern BOTAN_FFI_HEX_LOWER_CASE = #const BOTAN_FFI_HEX_LOWER_CASE
+pattern BOTAN_FFI_HEX_UPPER_CASE = 0
+pattern BOTAN_FFI_HEX_LOWER_CASE = #const BOTAN_FFI_HEX_LOWER_CASE
 
 foreign import capi safe "botan/ffi.h botan_hex_encode"
     botan_hex_encode
