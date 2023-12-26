@@ -97,3 +97,36 @@ class BytePadding p where
 
 class BytePadding p => BitPadding p where
     padBits :: Int -> [Bool] -> Padded p
+
+{-
+
+-- NOTE: Block padding
+paddingLength, paddedLength, blockCount  :: Int -> Int -> Int
+paddingLength   len bsz =  let (pl,_,_) = paddingInfo len bsz in pl
+paddedLength    len bsz =  let (_,pl,_) = paddingInfo len bsz in pl
+blockCount      len bsz =  let (_,_,bc) = paddingInfo len bsz in bc
+
+-- NOTE: Block padding
+paddingInfo :: Int -> Int -> (Int, Int, Int)
+paddingInfo length blockSize = info where
+    (d,m) = divMod length blockSize
+    info@(padding,_,_) = if m == 0
+        then (0,length,d)
+        else (blockSize - m, length + padding, d + 1)
+
+-- NOTE: Block padding
+padBytes :: ByteString -> Int -> ByteString
+padBytes bytes blockSize = paddedBytes where
+    (paddingLength,paddedLength,_) = paddingInfo (ByteString.length bytes) blockSize
+    paddedBytes = if paddingLength == 0
+        then bytes
+        else bytes <> ByteString.replicate paddingLength 0
+
+-- Kinda jank, don't use any more - its better to make padding explicit
+asPaddedBytes :: ByteString -> Int -> (Ptr byte -> IO a) -> IO a
+asPaddedBytes bytes blockSize = asBytes (padBytes bytes blockSize)
+
+-- Kinda jank, don't use any more - its better to make padding explicit
+asPaddedBytesLen :: ByteString -> Int -> (Ptr byte -> CSize -> IO a) -> IO a
+asPaddedBytesLen bytes blockSize = asBytesLen (padBytes bytes blockSize)
+-}

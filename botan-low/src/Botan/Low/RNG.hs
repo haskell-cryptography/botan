@@ -27,6 +27,7 @@ newtype RNG = MkRNG { getRNGForeignPtr :: ForeignPtr BotanRNGStruct }
 
 newRNG      :: BotanRNG -> IO RNG
 withRNG     :: RNG -> (BotanRNG -> IO a) -> IO a
+-- | Destroy a random number generator object immediately
 rngDestroy  :: RNG -> IO ()
 createRNG   :: (Ptr BotanRNG -> IO CInt) -> IO RNG
 (newRNG, withRNG, rngDestroy, createRNG, _)

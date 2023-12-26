@@ -11,7 +11,7 @@ Portability : POSIX
 module Botan.Low.Version
 ( botanFFIAPIVersion
 , botanFFISupportsAPI
-, botanVersionText
+, botanVersionString
 , botanVersionMajor
 , botanVersionMinor
 , botanVersionPatch
@@ -32,6 +32,7 @@ import Botan.Bindings.Version
 
 import Botan.Low.Prelude
 import Botan.Low.Error (throwBotanCatchingSuccess)
+import GHC.Generics ((:.:)(unComp1))
 
 -- https://botan.randombit.net/handbook/api_ref/ffi.html#versioning
 
@@ -49,9 +50,8 @@ botanFFISupportsAPI version = do
 -- TODO: botanFFISupportsAPI = throwBotanCatchingSuccess . botan_ffi_supports_api . fromIntegral
 --      AFTER renaming current throwBotanCatchingSuccess to throwBotanCatchingInvalidIdentifier
 
--- | Returns a free-form string describing the version. The return value is a statically allocated string.
-botanVersionText :: IO Text
-botanVersionText = botan_version_string >>= peekCStringText
+botanVersionString :: IO ByteString
+botanVersionString = botan_version_string >>= peekCString . unConstPtr
 
 -- | Returns the major version of the library
 botanVersionMajor :: IO Int

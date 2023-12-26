@@ -132,35 +132,17 @@ Botan error code functions
 -}
 
 -- | Convert an error code into a string. Returns "Unknown error" if the error code is not a known one.
-botanErrorDescription :: BotanErrorCode -> IO String
+botanErrorDescription :: BotanErrorCode -> IO ByteString
 botanErrorDescription e = do
     descPtr <- botan_error_description e
     peekCString (unConstPtr descPtr)
 
--- | Ditto "text"
-botanErrorDescriptionText :: BotanErrorCode -> IO Text
-botanErrorDescriptionText = fmap Text.pack . botanErrorDescription
-
--- | Ditto "bytes"
-botanErrorDescriptionBytes :: BotanErrorCode -> IO ByteString
--- TODO: Use coerce + packCString?
-botanErrorDescriptionBytes = fmap Char8.pack . botanErrorDescription
-
 -- | Returns a static string stored in a thread local variable which contains the last exception message thrown.
 --  WARNING: This string buffer is overwritten on the next call to the FFI layer
-botanErrorLastExceptionMessage :: IO String
+botanErrorLastExceptionMessage :: IO ByteString
 botanErrorLastExceptionMessage = do
     msgPtr <- botan_error_last_exception_message
     peekCString (unConstPtr msgPtr)
-
--- | Ditto "text"
-botanErrorLastExceptionMessageText :: IO Text
-botanErrorLastExceptionMessageText = fmap Text.pack botanErrorLastExceptionMessage
-
--- | Ditto "bytes"
-botanErrorLastExceptionMessageBytes :: IO ByteString
--- TODO: Use coerce + packCString?
-botanErrorLastExceptionMessageBytes = fmap Char8.pack botanErrorLastExceptionMessage
 
 {-
 Exceptions

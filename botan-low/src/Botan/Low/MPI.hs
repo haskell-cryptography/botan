@@ -57,14 +57,6 @@ mpToHex mp = withMPPtr mp $ \ mpPtr -> do
 
 mpToStr :: MP -> Int -> IO ByteString
 mpToStr mp base = withMPPtr mp $ \ mpPtr -> do
-    -- NOTE: This was causing occasional InsufficientBufferSpaceException
-    -- numBits <- mpNumBits mp
-    -- let estimatedLength = baseLength numBits 2 base + 2 -- NOTE: +2 for possible prefix
-    -- allocaBytes estimatedLength $ \ bytesPtr -> do
-    --     alloca $ \ szPtr -> do
-    --         throwBotanIfNegative_ $ botan_mp_to_str mpPtr (fromIntegral base) bytesPtr szPtr
-    --         ByteString.packCString bytesPtr
-    -- We'll see if this solves that:
     allocBytesQueryingCString $ \ bytesPtr szPtr -> 
         botan_mp_to_str mpPtr (fromIntegral base) bytesPtr szPtr
 
