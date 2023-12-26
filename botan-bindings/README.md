@@ -1,8 +1,8 @@
 # botan-bindings
 
-Raw bindings with buffers and pointers.
+Raw bindings with buffers and pointers, an almost a 1:1 translation of the Botan C FFI into Haskell.
 
-This library uses the `CApiFFI` language extension, and where necessary, the `*.hsc` file extension.
+This library makes use of the `CApiFFI` language extension, and where necessary, the `*.hsc` file extension.
 
 `ConstPtr` should be used where appropriate.
 

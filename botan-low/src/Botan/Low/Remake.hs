@@ -1,112 +1,27 @@
 {-|
-Module      : Botan.Bindings.Version
-Description : Botan version info
+Module      : Botan.Low.Remake
+Description : Low-level binding generators
 Copyright   : (c) Leo D, 2023
 License     : BSD-3-Clause
 Maintainer  : leo@apotheca.io
 Stability   : experimental
 Portability : POSIX
+
+Generate low-level bindings automatically
 -}
 
-{-# LANGUAGE CApiFFI, CPP #-}
+module Botan.Low.Remake where
 
-module Botan.CAPI where
+import Botan.Low.Prelude
 
-import Botan.Bindings.Prelude
-
-import           Control.Exception
-import           Control.Monad
+import Botan.Bindings.RNG
+import Botan.Bindings.Error
 
 import           Data.ByteString (ByteString)
 import qualified Data.ByteString as ByteString
 import qualified Data.ByteString.Internal as ByteString
 
--- Bindings
-
--- import           Foreign.C.Types
--- import           Foreign.Ptr
-
--- -- Low-level
-
--- import           Foreign.C.String
--- import           Foreign.ForeignPtr
--- import           Foreign.Marshal.Alloc
--- import           Foreign.Storable
-
--- NOTE: Necessary to access '#const' for patterns
--- NOTE: Necessitates the use of *.hsc files
-#include <botan/ffi.h>
--- Eg:
-pattern BOTAN_FFI_SUCCESS
-    ,   BOTAN_FFI_INVALID_VERIFIER
-    ,   BOTAN_FFI_ERROR_INSUFFICIENT_BUFFER_SPACE
-    ::  (Eq a, Num a) => a
-pattern BOTAN_FFI_SUCCESS                         = #const BOTAN_FFI_SUCCESS
-pattern BOTAN_FFI_INVALID_VERIFIER                = #const BOTAN_FFI_INVALID_VERIFIER
-pattern BOTAN_FFI_ERROR_INSUFFICIENT_BUFFER_SPACE = #const BOTAN_FFI_ERROR_INSUFFICIENT_BUFFER_SPACE
-
--- Bindings
-
-data {-# CTYPE "botan/ffi.h" "struct botan_rng_struct" #-} BotanRNGStruct
-
-newtype {-# CTYPE "botan/ffi.h" "botan_rng_t" #-} BotanRNG
-    = MkBotanRNG { runBotanRNG :: Ptr BotanRNGStruct }
-        deriving newtype (Eq, Ord, Storable)
--- NOTE: This does not allow us to take advantage of ConstPtr
---  for objects, unlike plain type aliases
---  Would need to promote the mkBindings generator to a full
---  typeclass to allow to / from ForeignPtr <-> Ptr <-> ConstPtr
-
-pattern BOTAN_RANDOM_TYPE_SYSTEM
-    ,   BOTAN_RANDOM_TYPE_USER
-    ,   BOTAN_RANDOM_TYPE_USER_THREADSAFE
-    ,   BOTAN_RANDOM_TYPE_RDRAND
-    ::  (Eq a, IsString a) => a
-pattern BOTAN_RANDOM_TYPE_SYSTEM            = "system"
-pattern BOTAN_RANDOM_TYPE_USER              = "user"
-pattern BOTAN_RANDOM_TYPE_USER_THREADSAFE   = "user-threadsafe"
-pattern BOTAN_RANDOM_TYPE_RDRAND            = "rdrand"
-
-foreign import capi safe "botan/ffi.h &botan_rng_destroy"
-    botan_rng_destroy
-        :: FinalizerPtr BotanRNGStruct
-
--- TODO: Contemplate also directly exposing destructor. eg:
-{-
-foreign import capi safe "botan/ffi.h botan_rng_destroy"
-    botan_rng_destroy
-        :: BotanRNG -- ^ rng
-        -> IO CInt
-
-foreign import capi safe "botan/ffi.h &botan_rng_destroy"
-    botan_rng_finalizer
-        :: FinalizerPtr BotanRNGStruct
--}
-
-foreign import capi safe "botan/ffi.h botan_rng_init"
-    botan_rng_init
-        :: Ptr BotanRNG     -- ^ rng
-        -> ConstPtr CChar   -- ^ rng_type
-        -> IO CInt
-
-foreign import capi safe "botan/ffi.h botan_rng_get"
-    botan_rng_get
-        :: BotanRNG     -- ^ rng
-        -> Ptr Word8    -- ^ out
-        -> CSize        -- ^ out_len
-        -> IO CInt
-
-foreign import capi safe "botan/ffi.h botan_rng_add_entropy"
-    botan_rng_add_entropy
-        :: BotanRNG         -- ^ rng
-        -> ConstPtr Word8   -- ^ entropy
-        -> CSize            -- ^ entropy_len
-        -> IO CInt
-
--- Low-level
-
 -- TODO: Determine if the use of `mask_` is appropriate
--- TODO: Potentially
 mkBindings
     ::  (Storable botan)
     =>  (Ptr struct -> botan)                                   -- mkBotan
@@ -185,12 +100,6 @@ throwErrorIfNegative_ :: IO CInt -> IO ()
 throwErrorIfNegative_ act = do
     e <- act
     when (e < 0) $ throwErrorCode e
-
-allocBytes :: Int -> (Ptr byte -> IO ()) -> IO ByteString
-allocBytes sz f = ByteString.create sz (f . castPtr)
-
-asBytesLen :: ByteString -> (Ptr byte -> CSize -> IO a) -> IO a
-asBytesLen bs f = ByteString.useAsCStringLen bs (\ (ptr,len) -> f (castPtr ptr) (fromIntegral len))
 
 -- TODO: Consistent asFoo, asConstFoo, unsafeFoo, unsafeConstFoo variants
 

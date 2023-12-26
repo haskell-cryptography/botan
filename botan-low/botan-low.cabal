@@ -77,6 +77,7 @@ library
     other-modules:
         Botan.Low.Prelude
         Botan.Low.Make
+        Botan.Low.Remake
         Paths_botan_low
     build-depends:
         base >= 4 && < 5,
