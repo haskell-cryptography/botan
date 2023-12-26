@@ -64,9 +64,9 @@ kemEncryptEncapsulatedKeyLength = mkGetSize withKEMEncryptPtr botan_pk_op_kem_en
 -- NOTE: Awkward because of double-query and returning double bytestrings
 --  Cannot use allocBytesQuerying because of double-return
 -- NOTE: Returns (SharedKey, EncapsulatedKey)
-kemEncryptCreateSharedKey :: KEMEncryptCtx -> RNGCtx -> ByteString -> Int -> IO (KEMSharedKey,KEMEncapsulatedKey)
+kemEncryptCreateSharedKey :: KEMEncryptCtx -> RNG -> ByteString -> Int -> IO (KEMSharedKey,KEMEncapsulatedKey)
 kemEncryptCreateSharedKey ke rng salt desiredLen = withKEMEncryptPtr ke $ \ kePtr -> do
-    withRNGPtr rng $ \ rngPtr -> do
+    withRNG rng $ \ botanRNG -> do
         asBytesLen salt $ \ saltPtr saltLen -> do
             alloca $ \ sharedSzPtr -> do 
                 alloca $ \ encapSzPtr -> do
@@ -78,7 +78,7 @@ kemEncryptCreateSharedKey ke rng salt desiredLen = withKEMEncryptPtr ke $ \ kePt
                         allocBytes sharedSz $ \ sharedPtr -> do
                             throwBotanIfNegative_ $ botan_pk_op_kem_encrypt_create_shared_key
                                 kePtr
-                                rngPtr
+                                botanRNG
                                 saltPtr
                                 saltLen
                                 (fromIntegral desiredLen)

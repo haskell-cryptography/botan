@@ -10,7 +10,9 @@ Portability : POSIX
 Generate low-level bindings automatically
 -}
 
-module Botan.Low.Remake where
+module Botan.Low.Remake
+( mkBindings
+) where
 
 import Botan.Low.Prelude
 

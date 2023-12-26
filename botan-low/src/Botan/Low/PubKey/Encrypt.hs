@@ -17,7 +17,7 @@ import Botan.Bindings.PubKey.Encrypt
 import Botan.Low.Error
 import Botan.Low.Make
 import Botan.Low.Prelude
-import Botan.Low.RNG ( RNGCtx, withRNGPtr )
+import Botan.Low.RNG
 import Botan.Low.PubKey
 
 -- /*
@@ -57,13 +57,13 @@ encryptOutputLength = mkGetSize_csize withEncryptPtr botan_pk_op_encrypt_output_
 --  the encryption context do not fail)
 --  This implies that encryptOutputLength may be wrong or hardcoded for SM2 or that we
 --  are not supposed to use curves other than sm2p256v1 - this needs investigating
-encrypt :: EncryptCtx -> RNGCtx -> ByteString -> IO ByteString
+encrypt :: EncryptCtx -> RNG -> ByteString -> IO ByteString
 encrypt enc rng ptext = withEncryptPtr enc $ \ encPtr -> do
-    withRNGPtr rng $ \ rngPtr -> do
+    withRNG rng $ \ botanRNG -> do
         asBytesLen ptext $ \ ptextPtr ptextLen -> do
             allocBytesQuerying $ \ outPtr szPtr -> botan_pk_op_encrypt
                 encPtr
-                rngPtr
+                botanRNG
                 outPtr
                 szPtr
                 ptextPtr

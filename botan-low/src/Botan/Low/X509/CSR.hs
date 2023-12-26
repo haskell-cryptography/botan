@@ -34,23 +34,23 @@ x509CSRDestroy csr = finalizeForeignPtr (getX509CSRForeignPtr csr)
 
 -- NOTE: It really appears that this is the successful init pattern;
 --  I ought to formalize it using type-level lists or something
-x509CreateCertReq :: X509CertOptions -> PrivKey -> HashName -> RNGCtx -> IO X509CSR
+x509CreateCertReq :: X509CertOptions -> PrivKey -> HashName -> RNG -> IO X509CSR
 x509CreateCertReq options key hash_fn rng = withX509CertOptionsPtr options $ \ optionsPtr -> do
     withPrivKeyPtr key $ \ keyPtr -> do
         asCString hash_fn $ \ hashPtr -> do
-            withRNGPtr rng $ \ rngPtr -> do
+            withRNG rng $ \ botanRNG -> do
                 mkInit
                     MkX509CSR
-                    (\ csrPtr -> botan_x509_create_cert_req csrPtr optionsPtr keyPtr hashPtr rngPtr)
+                    (\ csrPtr -> botan_x509_create_cert_req csrPtr optionsPtr keyPtr hashPtr botanRNG)
                     botan_x509_csr_destroy
 
-x509CSRCreate :: PrivKey -> X509SubjectDN -> X509Extensions -> HashName -> RNGCtx -> X509PaddingName -> X509Challenge -> IO X509CSR
+x509CSRCreate :: PrivKey -> X509SubjectDN -> X509Extensions -> HashName -> RNG -> X509PaddingName -> X509Challenge -> IO X509CSR
 x509CSRCreate privkey subjectDN exts hash_fn rng padding_fn challenge = do
     withPrivKeyPtr privkey $ \ privkeyPtr -> do
         asBytesLen subjectDN $ \ subjectDNPtr subjectDNLen -> do
             withX509ExtensionsPtr exts $ \ extsPtr -> do
                 asCString hash_fn $ \ hashPtr -> do
-                    withRNGPtr rng $ \ rngPtr -> do
+                    withRNG rng $ \ botanRNG -> do
                         asCString padding_fn $ \ paddingPtr -> do
                             asCString challenge $ \ challengePtr -> do
                                 mkInit
@@ -61,18 +61,18 @@ x509CSRCreate privkey subjectDN exts hash_fn rng padding_fn challenge = do
                                         subjectDNPtr subjectDNLen
                                         extsPtr
                                         hashPtr
-                                        rngPtr
+                                        botanRNG
                                         paddingPtr
                                         challengePtr
                                     )
                                     botan_x509_csr_destroy
 
-x509CreateSelfSignedCert :: X509CertOptions -> PrivKey -> HashName -> RNGCtx -> IO X509Cert
+x509CreateSelfSignedCert :: X509CertOptions -> PrivKey -> HashName -> RNG -> IO X509Cert
 x509CreateSelfSignedCert options key hash_fn rng = do
     withX509CertOptionsPtr options $ \ optionsPtr -> do
         withPrivKeyPtr key $ \ keyPtr -> do
             asCString hash_fn $ \ hashPtr -> do
-                withRNGPtr rng $ \ rngPtr -> do
+                withRNG rng $ \ botanRNG -> do
                     mkInit
                         MkX509Cert
                         (\ certPtr -> botan_x509_create_self_signed_cert
@@ -80,6 +80,6 @@ x509CreateSelfSignedCert options key hash_fn rng = do
                             optionsPtr
                             keyPtr
                             hashPtr
-                            rngPtr
+                            botanRNG
                         )
                         botan_x509_cert_destroy

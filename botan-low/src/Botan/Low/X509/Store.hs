@@ -286,16 +286,16 @@ SQLite3 cert store
 NOTE: Not confirmed to be implemented correctly C++-side
 -}
 
-x509CertStoreSqlite3Create :: ByteString -> ByteString -> RNGCtx -> ByteString -> IO X509CertStore
+x509CertStoreSqlite3Create :: ByteString -> ByteString -> RNG -> ByteString -> IO X509CertStore
 x509CertStoreSqlite3Create db_path passwd rng table_prefix = asCString db_path $ \ db_path_ptr -> do
     asCString passwd $ \ passwd_ptr -> do
-        withRNGPtr rng $ \ rng_ptr -> do
+        withRNG rng $ \ botanRNG -> do
             asCString table_prefix $ \ table_prefix_ptr -> mkInit
                 MkX509CertStore
                 (\ ptr -> botan_x509_cert_store_sqlite3_create
                     ptr
                     db_path_ptr
-                    passwd_ptr rng_ptr
+                    passwd_ptr botanRNG
                     table_prefix_ptr
                 )
                 botan_x509_cert_store_destroy

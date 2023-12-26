@@ -58,19 +58,19 @@ signUpdate :: SignCtx -> ByteString -> IO ()
 signUpdate = mkSetBytesLen withSignPtr botan_pk_op_sign_update
 
 -- TODO: Signature type
-signFinish :: SignCtx -> RNGCtx -> IO ByteString
+signFinish :: SignCtx -> RNG -> IO ByteString
 signFinish sign rng = withSignPtr sign $ \ signPtr -> do
-    withRNGPtr rng $ \ rngPtr -> do
+    withRNG rng $ \ botanRNG -> do
         -- NOTE: Investigation into DER format shows lots of trailing nulls that may need to be trimmed
         --  using the output of szPtr if sz is just an upper-bound estimate
         -- sz <- signOutputLength sign
         -- allocBytes sz $ \ sigPtr -> do
         --     alloca $ \ szPtr -> do
         --         poke szPtr (fromIntegral sz)
-        --         throwBotanIfNegative_ $ botan_pk_op_sign_finish signPtr rngPtr sigPtr szPtr
+        --         throwBotanIfNegative_ $ botan_pk_op_sign_finish signPtr botanRNG sigPtr szPtr
         -- NOTE: This doesn't work, I think the output length poke is necessary
         -- allocBytesQuerying $ \ sigPtr szPtr -> do
-        --     botan_pk_op_sign_finish signPtr rngPtr sigPtr szPtr
+        --     botan_pk_op_sign_finish signPtr botanRNG sigPtr szPtr
         -- NOTE: Trying combo, this should be packaged as allocBytesUpperBound or something
         --  We get an upper bound, allocate at least that many, poke the size, perform the
         --  op, read the actual size, and trim.
@@ -78,7 +78,7 @@ signFinish sign rng = withSignPtr sign $ \ signPtr -> do
         (sz',bytes) <- allocBytesWith sz $ \ sigPtr -> do
             alloca $ \ szPtr -> do
                 poke szPtr (fromIntegral sz)
-                throwBotanIfNegative_ $ botan_pk_op_sign_finish signPtr rngPtr sigPtr szPtr
+                throwBotanIfNegative_ $ botan_pk_op_sign_finish signPtr botanRNG sigPtr szPtr
                 peek szPtr
         return $!! ByteString.take (fromIntegral sz') bytes
 

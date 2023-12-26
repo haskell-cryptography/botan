@@ -182,27 +182,27 @@ mpRightShift = mkUnaryOp_csize withMPPtr botan_mp_rshift
 mpModInverse :: MP -> MP -> MP -> IO ()
 mpModInverse = mkBinaryOp withMPPtr botan_mp_mod_inverse
 
-mpRandBits :: MP -> RNGCtx -> Int -> IO ()
+mpRandBits :: MP -> RNG -> Int -> IO ()
 mpRandBits mp rng sz = withMPPtr mp $ \ mpPtr -> do
-   withRNGPtr rng $ \ rngPtr -> do
-        throwBotanIfNegative_ $ botan_mp_rand_bits mpPtr rngPtr (fromIntegral sz)
+   withRNG rng $ \ botanRNG -> do
+        throwBotanIfNegative_ $ botan_mp_rand_bits mpPtr botanRNG (fromIntegral sz)
 
 -- NOTE: Never includes upper bound
-mpRandRange :: MP -> RNGCtx -> MP -> MP -> IO ()
+mpRandRange :: MP -> RNG -> MP -> MP -> IO ()
 mpRandRange mp rng lower upper = withMPPtr mp $ \ mpPtr -> do
-   withRNGPtr rng $ \ rngPtr -> do
+   withRNG rng $ \ botanRNG -> do
         withMPPtr lower $ \ lowerPtr -> do
             withMPPtr upper $ \ upperPtr -> do
-                throwBotanIfNegative_ $ botan_mp_rand_range mpPtr rngPtr lowerPtr upperPtr
+                throwBotanIfNegative_ $ botan_mp_rand_range mpPtr botanRNG lowerPtr upperPtr
 
 mpGCD :: MP -> MP -> MP -> IO ()
 mpGCD = mkBinaryOp withMPPtr botan_mp_gcd
 
 -- NOTE: Miller–Rabin primality test
-mpIsPrime :: MP -> RNGCtx -> Int -> IO Bool
+mpIsPrime :: MP -> RNG -> Int -> IO Bool
 mpIsPrime mp rng probability = withMPPtr mp $ \ mpPtr -> do
-    withRNGPtr rng $ \ rngPtr -> do
-        throwBotanCatchingBool $ botan_mp_is_prime mpPtr rngPtr (fromIntegral probability)
+    withRNG rng $ \ botanRNG -> do
+        throwBotanCatchingBool $ botan_mp_is_prime mpPtr botanRNG (fromIntegral probability)
 
 mpGetBit :: MP -> Int -> IO Bool
 mpGetBit = mkGetBoolCode_csize withMPPtr botan_mp_get_bit

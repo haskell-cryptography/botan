@@ -22,10 +22,10 @@ import Botan.Low.Prelude
 import Botan.Low.PubKey
 import Botan.Low.RNG
 
-privKeyCreateDSA :: RNGCtx -> Int -> Int -> IO PrivKey
-privKeyCreateDSA rng pbits qbits = withRNGPtr rng $ \ rngPtr -> do
+privKeyCreateDSA :: RNG -> Int -> Int -> IO PrivKey
+privKeyCreateDSA rng pbits qbits = withRNG rng $ \ botanRNG -> do
     alloca $ \ outPtr -> do
-        throwBotanIfNegative_ $ botan_privkey_create_dsa outPtr rngPtr (fromIntegral pbits) (fromIntegral qbits)
+        throwBotanIfNegative_ $ botan_privkey_create_dsa outPtr botanRNG (fromIntegral pbits) (fromIntegral qbits)
         out <- peek outPtr
         foreignPtr <- newForeignPtr botan_privkey_destroy out
         return $ MkPrivKey foreignPtr

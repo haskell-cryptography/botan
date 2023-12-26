@@ -26,10 +26,10 @@ import Botan.Low.RNG
 -- * Algorithm specific key operations: ElGamal
 -- */
 
-privKeyCreateElGamal :: RNGCtx -> Int -> Int -> IO PrivKey
-privKeyCreateElGamal rng pbits qbits = withRNGPtr rng $ \ rngPtr -> do
+privKeyCreateElGamal :: RNG -> Int -> Int -> IO PrivKey
+privKeyCreateElGamal rng pbits qbits = withRNG rng $ \ botanRNG -> do
     alloca $ \ outPtr -> do
-        throwBotanIfNegative_ $ botan_privkey_create_elgamal outPtr rngPtr (fromIntegral pbits) (fromIntegral qbits)
+        throwBotanIfNegative_ $ botan_privkey_create_elgamal outPtr botanRNG (fromIntegral pbits) (fromIntegral qbits)
         out <- peek outPtr
         foreignPtr <- newForeignPtr botan_privkey_destroy out
         return $ MkPrivKey foreignPtr

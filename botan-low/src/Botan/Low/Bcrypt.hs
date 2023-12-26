@@ -31,11 +31,11 @@ import Data.ByteString.Internal as ByteString
 --  Output is formatted bcrypt $2a$...
 bcryptGenerate
     :: ByteString   -- ^ The password
-    -> RNGCtx       -- ^ A random number generator
+    -> RNG          -- ^ A random number generator
     -> Int          -- ^ A work factor to slow down guessing attacks (a value of 12 to 16 is probably fine).
     -> IO ByteString
 bcryptGenerate password rng factor = asCString password $ \ passwordPtr -> do
-   withRNGPtr rng $ \ rngPtr -> do
+   withRNG rng $ \ botanRNG -> do
         alloca $ \ szPtr -> do
             {-
             -- NOTE: Despite the documentation stating:
@@ -47,7 +47,7 @@ bcryptGenerate password rng factor = asCString password $ \ passwordPtr -> do
                     outPtr
                     szPtr
                     passwordPtr
-                    rngPtr
+                    botanRNG
                     (fromIntegral factor)
                     0   -- "@param flags should be 0 in current API revision, all other uses are reserved"
             sz <- peek szPtr
@@ -71,7 +71,7 @@ bcryptGenerate password rng factor = asCString password $ \ passwordPtr -> do
                     outPtr
                     szPtr
                     passwordPtr
-                    rngPtr
+                    botanRNG
                     (fromIntegral factor)
                     0   -- "@param flags should be 0 in current API revision, all other uses are reserved"
                 ByteString.packCString (castPtr outPtr)

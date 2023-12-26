@@ -42,27 +42,27 @@ withPrivKeyPtr = withForeignPtr . getPrivKeyForeignPtr
 
 type PrivKeyName = ByteString
 
-privKeyCreate :: ByteString -> ByteString -> RNGCtx -> IO PrivKey
+privKeyCreate :: ByteString -> ByteString -> RNG -> IO PrivKey
 privKeyCreate name params rng = alloca $ \ outPtr -> do
     asCString name $ \ namePtr -> do
         asCString params $ \ paramsPtr -> do
-            withRNGPtr rng $ \ rngPtr -> do
-                throwBotanIfNegative_ $ botan_privkey_create outPtr namePtr paramsPtr rngPtr
+            withRNG rng $ \ botanRNG -> do
+                throwBotanIfNegative_ $ botan_privkey_create outPtr namePtr paramsPtr botanRNG
                 out <- peek outPtr
                 foreignPtr <- newForeignPtr botan_privkey_destroy out
                 return $ MkPrivKey foreignPtr
 
-withPrivKeyCreate :: ByteString -> ByteString -> RNGCtx -> (PrivKey -> IO a) -> IO a
+withPrivKeyCreate :: ByteString -> ByteString -> RNG -> (PrivKey -> IO a) -> IO a
 withPrivKeyCreate = mkWithTemp3 privKeyCreate privKeyDestroy
 
 privKeyDestroy :: PrivKey -> IO ()
 privKeyDestroy privKey = finalizeForeignPtr (getPrivKeyForeignPtr privKey)
 
 -- TODO: Probably catch -1 (INVALID_INPUT), return Bool
-privKeyCheckKey :: PrivKey -> RNGCtx -> CheckKeyFlags -> IO ()
+privKeyCheckKey :: PrivKey -> RNG -> CheckKeyFlags -> IO ()
 privKeyCheckKey sk rng flags = withPrivKeyPtr sk $ \ skPtr -> do
-    withRNGPtr rng $ \ rngPtr -> do
-        throwBotanIfNegative_ $ botan_privkey_check_key skPtr rngPtr flags
+    withRNG rng $ \ botanRNG -> do
+        throwBotanIfNegative_ $ botan_privkey_check_key skPtr botanRNG flags
 
 -- NOTE: Expectes PKCS #8 / PEM structure
 -- botan_privkey_export -> null password? and botan_privkey_export_encrypted_... -> use a password?
@@ -104,7 +104,7 @@ privKeyAlgoName = mkGetCString withPrivKeyPtr botan_privkey_algo_name
 -- TODO:
 -- privKeyExportEncryptedPBKDFMsec
 --     :: PrivKey
---     -> RNGCtx
+--     -> RNG
 --     -> ByteString   -- Passphrase
 --     -> Word32       -- Msec runtime
 --     -> ByteString   -- Cipher algo
@@ -116,7 +116,7 @@ privKeyAlgoName = mkGetCString withPrivKeyPtr botan_privkey_algo_name
 -- TODO:
 -- privKeyExportEncryptedPBKDFIter
 --     :: PrivKey
---     -> RNGCtx
+--     -> RNG
 --     -> ByteString   -- Passphrase
 --     -> CSize        -- Iterations
 --     -> ByteString   -- Cipher algo
@@ -170,10 +170,10 @@ pattern CheckKeyNone = BOTAN_CHECK_KEY_NONE
 pattern CheckKeyExpensiveTests :: CheckKeyFlags
 pattern CheckKeyExpensiveTests = BOTAN_CHECK_KEY_EXPENSIVE_TESTS
 
-pubKeyCheckKey :: PubKey -> RNGCtx -> CheckKeyFlags -> IO Bool
+pubKeyCheckKey :: PubKey -> RNG -> CheckKeyFlags -> IO Bool
 pubKeyCheckKey pk rng flags = withPubKeyPtr pk $ \ pkPtr -> do
-    withRNGPtr rng $ \ rngPtr -> do
-        throwBotanCatchingSuccess $ botan_pubkey_check_key pkPtr rngPtr flags
+    withRNG rng $ \ botanRNG -> do
+        throwBotanCatchingSuccess $ botan_pubkey_check_key pkPtr botanRNG flags
 
 -- Annoying - this mixes cint and csize
 --  I need to consolidate getsize / getint

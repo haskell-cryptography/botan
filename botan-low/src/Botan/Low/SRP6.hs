@@ -73,19 +73,19 @@ withSRP6ServerSessionCtx = mkWithTemp srp6ServerSessionInit srp6ServerSessionDes
 srp6ServerSessionDestroy :: SRP6ServerSessionCtx -> IO ()
 srp6ServerSessionDestroy srp6 = finalizeForeignPtr (getSRP6ForeignPtr srp6)
 
-srp6ServerSessionStep1 :: SRP6ServerSessionCtx -> SRP6Verifier -> GroupId -> HashId -> RNGCtx -> IO SRP6BValue
+srp6ServerSessionStep1 :: SRP6ServerSessionCtx -> SRP6Verifier -> GroupId -> HashId -> RNG -> IO SRP6BValue
 srp6ServerSessionStep1 srp6 verifier groupId hashId rng = withSRP6Ptr srp6 $ \ srp6Ptr -> do
     asBytesLen verifier $ \ verifierPtr verifierLen -> do
         asCString groupId $ \ groupIdPtr -> do
             asCString hashId $ \ hashIdPtr -> do
-                withRNGPtr rng $ \ rngPtr -> do
+                withRNG rng $ \ botanRNG -> do
                     allocBytesQuerying $ \ outPtr outLen -> botan_srp6_server_session_step1
                         srp6Ptr
                         verifierPtr
                         verifierLen
                         groupIdPtr
                         hashIdPtr
-                        rngPtr
+                        botanRNG
                         outPtr
                         outLen
 
@@ -116,7 +116,7 @@ srp6GenerateVerifier identifier password salt groupId hashId = asCString identif
                         outLen
 
 -- NOTE: ORDER IS DIFFERENT FROM SERVER GENERATE VERIFIER
-srp6ClientAgree :: Identifier -> Password -> GroupId -> HashId -> Salt -> SRP6BValue -> RNGCtx -> IO (SRP6AValue, SRP6SharedSecret)
+srp6ClientAgree :: Identifier -> Password -> GroupId -> HashId -> Salt -> SRP6BValue -> RNG -> IO (SRP6AValue, SRP6SharedSecret)
 srp6ClientAgree identifier password groupId hashId salt b rng = do
     asCString identifier $ \ identifierPtr -> do
         asCString password $ \ passwordPtr -> do
@@ -124,7 +124,7 @@ srp6ClientAgree identifier password groupId hashId salt b rng = do
                 asCString hashId $ \ hashIdPtr -> do
                     asBytesLen salt $ \ saltPtr saltLen -> do
                         asBytesLen b $ \ bPtr bLen -> do
-                            withRNGPtr rng $ \ rngPtr -> do
+                            withRNG rng $ \ botanRNG -> do
                                 alloca $ \ aSzPtr -> do 
                                     alloca $ \ kSzPtr -> do
                                         -- Query sizes
@@ -139,7 +139,7 @@ srp6ClientAgree identifier password groupId hashId salt b rng = do
                                             saltLen
                                             bPtr
                                             bLen
-                                            rngPtr
+                                            botanRNG
                                             nullPtr
                                             aSzPtr
                                             nullPtr
@@ -157,7 +157,7 @@ srp6ClientAgree identifier password groupId hashId salt b rng = do
                                                     saltLen
                                                     bPtr
                                                     bLen
-                                                    rngPtr
+                                                    botanRNG
                                                     aPtr
                                                     aSzPtr
                                                     kPtr
