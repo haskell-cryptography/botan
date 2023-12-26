@@ -69,80 +69,102 @@ import Botan.Bindings.Error
 
 import Botan.Low.Prelude
 
-pattern Success :: BotanErrorCode
+import qualified Data.ByteString        as ByteString
+import qualified Data.ByteString.Char8  as Char8
+import qualified Data.Text              as Text
+
+-- | Botan error code data type
+type BotanErrorCode = CInt
+
+{-
+Botan error code patterns
+-}
+
+pattern Success
+    ,   InvalidIdentifier
+    ,   InvalidInput
+    ,   BadMAC
+    ,   InsufficientBufferSpace
+    ,   StringConversionError
+    ,   ExceptionThrown
+    ,   OutOfMemory
+    ,   SystemError
+    ,   InternalError
+    ,   BadFlag
+    ,   NullPointer
+    ,   BadParameter
+    ,   KeyNotSet
+    ,   InvalidKeyLength
+    ,   InvalidObjectState
+    ,   NotImplemented
+    ,   InvalidObject
+    ,   TLSError
+    ,   HttpError
+    ,   RoughtimeError
+    ,   UnknownError
+    :: BotanErrorCode
+
 pattern Success = BOTAN_FFI_SUCCESS
-
-pattern InvalidIdentifier :: BotanErrorCode
 pattern InvalidIdentifier = BOTAN_FFI_INVALID_VERIFIER
-
-pattern InvalidInput :: BotanErrorCode
 pattern InvalidInput = BOTAN_FFI_ERROR_INVALID_INPUT
-
-pattern BadMAC :: BotanErrorCode
 pattern BadMAC = BOTAN_FFI_ERROR_BAD_MAC
-
-pattern InsufficientBufferSpace :: BotanErrorCode
 pattern InsufficientBufferSpace = BOTAN_FFI_ERROR_INSUFFICIENT_BUFFER_SPACE
-
-pattern StringConversionError :: BotanErrorCode
 pattern StringConversionError = BOTAN_FFI_ERROR_STRING_CONVERSION_ERROR
-
-pattern ExceptionThrown :: BotanErrorCode
 pattern ExceptionThrown = BOTAN_FFI_ERROR_EXCEPTION_THROWN
-
-pattern OutOfMemory :: BotanErrorCode
 pattern OutOfMemory = BOTAN_FFI_ERROR_OUT_OF_MEMORY
-
-pattern SystemError :: BotanErrorCode
 pattern SystemError = BOTAN_FFI_ERROR_SYSTEM_ERROR
-
-pattern InternalError :: BotanErrorCode
 pattern InternalError = BOTAN_FFI_ERROR_INTERNAL_ERROR
-
-pattern BadFlag :: BotanErrorCode
 pattern BadFlag = BOTAN_FFI_ERROR_BAD_FLAG
-
-pattern NullPointer :: BotanErrorCode
 pattern NullPointer = BOTAN_FFI_ERROR_NULL_POINTER
-
-pattern BadParameter :: BotanErrorCode
 pattern BadParameter = BOTAN_FFI_ERROR_BAD_PARAMETER
-
-pattern KeyNotSet :: BotanErrorCode
 pattern KeyNotSet = BOTAN_FFI_ERROR_KEY_NOT_SET
-
-pattern InvalidKeyLength :: BotanErrorCode
 pattern InvalidKeyLength = BOTAN_FFI_ERROR_INVALID_KEY_LENGTH
-
-pattern InvalidObjectState :: BotanErrorCode
 pattern InvalidObjectState = BOTAN_FFI_ERROR_INVALID_OBJECT_STATE
-
-pattern NotImplemented :: BotanErrorCode
 pattern NotImplemented = BOTAN_FFI_ERROR_NOT_IMPLEMENTED
-
-pattern InvalidObject :: BotanErrorCode
 pattern InvalidObject = BOTAN_FFI_ERROR_INVALID_OBJECT
-
-pattern TLSError :: BotanErrorCode
 pattern TLSError = BOTAN_FFI_ERROR_TLS_ERROR
-
-pattern HttpError :: BotanErrorCode
 pattern HttpError = BOTAN_FFI_ERROR_HTTP_ERROR
-
-pattern RoughtimeError :: BotanErrorCode
 pattern RoughtimeError = BOTAN_FFI_ERROR_ROUGHTIME_ERROR
-
-pattern UnknownError :: BotanErrorCode
 pattern UnknownError = BOTAN_FFI_ERROR_UNKNOWN_ERROR
 
+{-
+Botan error code functions
+-}
+
 -- | Convert an error code into a string. Returns "Unknown error" if the error code is not a known one.
-botanErrorDescription :: BotanErrorCode -> IO Text
-botanErrorDescription e = botan_error_description e >>= peekCStringText
+botanErrorDescription :: BotanErrorCode -> IO String
+botanErrorDescription e = do
+    descPtr <- botan_error_description e
+    peekCString (unConstPtr descPtr)
+
+-- | Ditto "text"
+botanErrorDescriptionText :: BotanErrorCode -> IO Text
+botanErrorDescriptionText = fmap Text.pack . botanErrorDescription
+
+-- | Ditto "bytes"
+botanErrorDescriptionBytes :: BotanErrorCode -> IO ByteString
+-- TODO: Use coerce + packCString?
+botanErrorDescriptionBytes = fmap Char8.pack . botanErrorDescription
 
 -- | Returns a static string stored in a thread local variable which contains the last exception message thrown.
 --  WARNING: This string buffer is overwritten on the next call to the FFI layer
-botanErrorLastExceptionMessage :: IO Text
-botanErrorLastExceptionMessage = botan_error_last_exception_message >>= peekCStringText
+botanErrorLastExceptionMessage :: IO String
+botanErrorLastExceptionMessage = do
+    msgPtr <- botan_error_last_exception_message
+    peekCString (unConstPtr msgPtr)
+
+-- | Ditto "text"
+botanErrorLastExceptionMessageText :: IO Text
+botanErrorLastExceptionMessageText = fmap Text.pack botanErrorLastExceptionMessage
+
+-- | Ditto "bytes"
+botanErrorLastExceptionMessageBytes :: IO ByteString
+-- TODO: Use coerce + packCString?
+botanErrorLastExceptionMessageBytes = fmap Char8.pack botanErrorLastExceptionMessage
+
+{-
+Exceptions
+-}
 
 -- | The SomeBotanException type is the root of the botan exception type hierarchy.
 data SomeBotanException = forall e . Exception e => SomeBotanException e
@@ -303,6 +325,10 @@ data UnknownException
 instance Exception UnknownException where
     toException = toBotanException
     fromException = fromBotanException
+
+{-
+Throwing exceptions
+-}
 
 throwBotanError :: HasCallStack => BotanErrorCode -> IO a
 throwBotanError r = throwBotanErrorWithCallstack r callStack

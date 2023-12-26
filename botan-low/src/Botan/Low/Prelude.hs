@@ -15,6 +15,7 @@ module Botan.Low.Prelude
 , module Foreign.Ptr
 , module Foreign.Storable
 , module GHC.Stack
+, ConstPtr(..)
 , peekCStringText
 , allocBytes
 , allocBytesWith
@@ -69,6 +70,8 @@ import qualified Data.ByteString.Unsafe as ByteString
 import qualified Data.ByteString.Char8 as Char8
 
 import qualified Data.Text.Encoding as Text
+
+import Botan.Bindings.Prelude (ConstPtr(..))
 
 -- Because:
 --  https://github.com/haskell/text/issues/239
