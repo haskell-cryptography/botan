@@ -59,7 +59,7 @@ foreign import capi safe "botan/ffi.h botan_hotp_init"
     :: Ptr BotanHOTP        -- ^ hotp
         -> ConstPtr Word8   -- ^ key[]
         -> CSize            -- ^ key_len
-        -> Ptr CChar        -- ^ hash_algo
+        -> ConstPtr CChar   -- ^ hash_algo
         -> CSize            -- ^ digits
         -> IO CInt
 

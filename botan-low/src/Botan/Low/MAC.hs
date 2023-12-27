@@ -45,47 +45,53 @@ import Botan.Low.Error
 import Botan.Low.Hash
 import Botan.Low.Make
 import Botan.Low.Prelude
+import Botan.Low.Remake
 
 -- /*
 -- * Message Authentication type
 -- */
 
-newtype MACCtx = MkMACCtx { getMACForeignPtr :: ForeignPtr MACStruct }
+newtype MAC = MkMAC { getMACForeignPtr :: ForeignPtr BotanMACStruct }
 
-withMACPtr :: MACCtx -> (MACPtr -> IO a) -> IO a
-withMACPtr = withForeignPtr . getMACForeignPtr
+newMAC      :: BotanMAC -> IO MAC
+withMAC     :: MAC -> (BotanMAC -> IO a) -> IO a
+macDestroy  :: MAC -> IO ()
+createMAC   :: (Ptr BotanMAC -> IO CInt) -> IO MAC
+(newMAC, withMAC, macDestroy, createMAC, _)
+    = mkBindings
+        MkBotanMAC runBotanMAC
+        MkMAC getMACForeignPtr
+        botan_mac_destroy
 
 type MACName = ByteString
 -- TODO: Rename MACTag?
 type MACDigest = ByteString
 
-macInit :: MACName -> IO MACCtx
-macInit name = mkInit_name_flags MkMACCtx botan_mac_init botan_mac_destroy name 0
+macInit :: MACName -> IO MAC
+macInit = mkCreateObjectCString createMAC (\ out name -> botan_mac_init out name 0)
 
-macDestroy :: MACCtx -> IO ()
-macDestroy mac = finalizeForeignPtr (getMACForeignPtr mac)
-
-withMACInit :: MACName -> (MACCtx -> IO a) -> IO a
+-- WARNING: withFooInit-style limited lifetime functions moved to high-level botan
+withMACInit :: MACName -> (MAC -> IO a) -> IO a
 withMACInit = mkWithTemp1 macInit macDestroy
 
-macOutputLength :: MACCtx -> IO Int
-macOutputLength = mkGetSize withMACPtr botan_mac_output_length
+macOutputLength :: MAC -> IO Int
+macOutputLength = mkGetSize withMAC botan_mac_output_length
 
-macSetKey :: MACCtx -> ByteString -> IO ()
-macSetKey = mkSetBytesLen withMACPtr botan_mac_set_key
+macSetKey :: MAC -> ByteString -> IO ()
+macSetKey = mkWithObjectSetterCBytesLen withMAC botan_mac_set_key
 
 -- NOTE: Not all MACs require a nonce
 --  Eg, GMAC requires a nonce
 --  Other MACs do not require a nonce, and will cause a BadParameterException (-32)
-macSetNonce :: MACCtx -> ByteString -> IO ()
-macSetNonce = mkSetBytesLen withMACPtr botan_mac_set_nonce
+macSetNonce :: MAC -> ByteString -> IO ()
+macSetNonce = mkWithObjectSetterCBytesLen withMAC botan_mac_set_nonce
 
-macUpdate :: MACCtx -> ByteString -> IO ()
-macUpdate = mkSetBytesLen withMACPtr botan_mac_update
+macUpdate :: MAC -> ByteString -> IO ()
+macUpdate = mkWithObjectSetterCBytesLen withMAC botan_mac_update
 
 -- TODO: Digest type
-macFinal :: MACCtx -> IO MACDigest
-macFinal mac = withMACPtr mac $ \ macPtr -> do
+macFinal :: MAC -> IO MACDigest
+macFinal mac = withMAC mac $ \ macPtr -> do
     -- sz <- alloca $ \ szPtr -> do
     --     throwBotanIfNegative_ $ botan_mac_output_length macPtr szPtr
     --     fromIntegral <$> peek szPtr
@@ -93,17 +99,17 @@ macFinal mac = withMACPtr mac $ \ macPtr -> do
     allocBytes sz $ \ bytesPtr -> do
         throwBotanIfNegative_ $ botan_mac_final macPtr bytesPtr
 
-macClear :: MACCtx -> IO ()
-macClear = mkAction withMACPtr botan_mac_clear
+macClear :: MAC -> IO ()
+macClear = mkAction withMAC botan_mac_clear
 
-macName :: MACCtx -> IO ByteString
-macName = mkGetCString withMACPtr botan_mac_name
+macName :: MAC -> IO ByteString
+macName = mkGetCString withMAC botan_mac_name
 
-macGetKeyspec :: MACCtx -> IO (Int,Int,Int)
-macGetKeyspec = mkGetSizes3 withMACPtr botan_mac_get_keyspec
+macGetKeyspec :: MAC -> IO (Int,Int,Int)
+macGetKeyspec = mkGetSizes3 withMAC botan_mac_get_keyspec
 
 -- TODO: MAC does not have a nonce size query, and it relies on per-algorithm knowledgre
 -- Luckily only 1 MAC actually requires a nonce (GMAC), so this isn't really an issue
---  macGetNoncespec :: MACCtx -> IO (Int,Int,Int)
+--  macGetNoncespec :: MAC -> IO (Int,Int,Int)
 -- Or
--- macGetDefaultNonceLength :: MACCtx -> IO Int
+-- macGetDefaultNonceLength :: MAC -> IO Int

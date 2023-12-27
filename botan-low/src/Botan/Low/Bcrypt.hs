@@ -44,7 +44,7 @@ bcryptGenerate password rng factor = asCString password $ \ passwordPtr -> do
                 throwBotanIfNegative_ $ botan_bcrypt_generate
                     outPtr
                     szPtr
-                    passwordPtr
+                    (ConstPtr passwordPtr)
                     botanRNG
                     (fromIntegral factor)
                     0   -- "@param flags should be 0 in current API revision, all other uses are reserved"
@@ -61,4 +61,4 @@ bcryptIsValid
     -> IO Bool
 bcryptIsValid password hash = asCString password $ \ passwordPtr -> do
     asCString hash $ \ hashPtr -> do
-        throwBotanCatchingSuccess $ botan_bcrypt_is_valid passwordPtr hashPtr
+        throwBotanCatchingSuccess $ botan_bcrypt_is_valid (ConstPtr passwordPtr) (ConstPtr hashPtr)

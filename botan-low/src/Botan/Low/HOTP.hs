@@ -45,6 +45,7 @@ import Botan.Low.Hash (HashName(..))
 import Botan.Low.Error
 import Botan.Low.Make
 import Botan.Low.Prelude
+import Botan.Low.Remake
 
 -- NOTE: RFC 4226
 -- NOTE: I think this *only* takes SHA-2, specificaly "SHA-256" and "SHA-512",
@@ -54,30 +55,39 @@ import Botan.Low.Prelude
 -- * HOTP
 -- */
 
-newtype HOTPCtx = MkHOTPCtx { getHOTPForeignPtr :: ForeignPtr HOTPStruct }
+newtype HOTP = MkHOTP { getHOTPForeignPtr :: ForeignPtr BotanHOTPStruct }
 
-withHOTPPtr :: HOTPCtx -> (HOTPPtr -> IO a) -> IO a
-withHOTPPtr = withForeignPtr . getHOTPForeignPtr
+newHOTP      :: BotanHOTP -> IO HOTP
+withHOTP     :: HOTP -> (BotanHOTP -> IO a) -> IO a
+hotpDestroy  :: HOTP -> IO ()
+createHOTP   :: (Ptr BotanHOTP -> IO CInt) -> IO HOTP
+(newHOTP, withHOTP, hotpDestroy, createHOTP, _)
+    = mkBindings
+        MkBotanHOTP runBotanHOTP
+        MkHOTP getHOTPForeignPtr
+        botan_hotp_destroy
+
+type HOTPCounter = Word64
+type HOTPCode = Word32
 
 -- NOTE: Digits should be 6-8
-hotpInit :: ByteString -> HashName -> Int -> IO HOTPCtx
-hotpInit key algo digits = alloca $ \ outPtr -> do
-    asBytesLen key $ \ keyPtr keyLen -> do
-        asCString algo $ \ algoPtr -> do
-            throwBotanIfNegative $ botan_hotp_init outPtr keyPtr keyLen algoPtr (fromIntegral digits)
-            out <- peek outPtr
-            foreignPtr <- newForeignPtr botan_hotp_destroy out
-            return $ MkHOTPCtx foreignPtr
+hotpInit :: ByteString -> HashName -> Int -> IO HOTP
+hotpInit key algo digits = asBytesLen key $ \ keyPtr keyLen -> do
+    asCString algo $ \ algoPtr -> do
+        createHOTP $ \ out -> botan_hotp_init 
+            out
+            (ConstPtr keyPtr)
+            keyLen
+            (ConstPtr algoPtr)
+            (fromIntegral digits)
 
-hotpDestroy :: HOTPCtx -> IO ()
-hotpDestroy hotp = finalizeForeignPtr (getHOTPForeignPtr hotp)
-
-withHOTPInit :: ByteString -> ByteString -> Int -> (HOTPCtx -> IO a) -> IO a
+-- WARNING: withFooInit-style limited lifetime functions moved to high-level botan
+withHOTPInit :: ByteString -> ByteString -> Int -> (HOTP -> IO a) -> IO a
 withHOTPInit = mkWithTemp3 hotpInit hotpDestroy
 
 -- NOTE: User is responsible for incrementing counter at this level
-hotpGenerate :: HOTPCtx -> HOTPCounter -> IO HOTPCode
-hotpGenerate hotp counter = withHOTPPtr hotp $ \ hotpPtr -> do
+hotpGenerate :: HOTP -> HOTPCounter -> IO HOTPCode
+hotpGenerate hotp counter = withHOTP hotp $ \ hotpPtr -> do
     alloca $ \ outPtr -> do
         throwBotanIfNegative $ botan_hotp_generate hotpPtr outPtr counter
         peek outPtr
@@ -87,8 +97,8 @@ hotpGenerate hotp counter = withHOTPPtr hotp $ \ hotpPtr -> do
 --      invalid then always returns (false,starting_counter), since the
 --      last successful authentication counter has not changed. ""
 -- NOTE: "Depending on the environment a resync_range of 3 to 10 might be appropriate."
-hotpCheck :: HOTPCtx -> HOTPCode -> HOTPCounter -> Int -> IO (Bool, HOTPCounter)
-hotpCheck hotp code counter resync = withHOTPPtr hotp $ \ hotpPtr -> do
+hotpCheck :: HOTP -> HOTPCode -> HOTPCounter -> Int -> IO (Bool, HOTPCounter)
+hotpCheck hotp code counter resync = withHOTP hotp $ \ hotpPtr -> do
     alloca $ \ outPtr -> do
         valid <- throwBotanCatchingSuccess $ botan_hotp_check hotpPtr outPtr code counter (fromIntegral resync)
         nextCounter <- peek outPtr

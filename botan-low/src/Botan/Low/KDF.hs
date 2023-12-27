@@ -48,12 +48,12 @@ kdf algo outLen secret salt label = allocBytes outLen $ \ outPtr -> do
             asBytesLen salt $ \ saltPtr saltLen -> do
                 asBytesLen label $ \ labelPtr labelLen -> do
                     throwBotanIfNegative_ $ botan_kdf
-                        algoPtr
+                        (ConstPtr algoPtr)
                         outPtr
                         (fromIntegral outLen)
-                        secretPtr
+                        (ConstPtr secretPtr)
                         secretLen
-                        saltPtr
+                        (ConstPtr saltPtr)
                         saltLen
-                        labelPtr
+                        (ConstPtr labelPtr)
                         labelLen

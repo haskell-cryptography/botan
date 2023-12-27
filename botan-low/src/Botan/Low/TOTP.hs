@@ -47,6 +47,7 @@ import Botan.Bindings.TOTP
 import Botan.Low.Error
 import Botan.Low.Make
 import Botan.Low.Prelude
+import Botan.Low.Remake
 
 -- NOTE: RFC 6238
 
@@ -54,33 +55,44 @@ import Botan.Low.Prelude
 -- * TOTP
 -- */
 
-newtype TOTPCtx = MkTOTPCtx { getTOTPForeignPtr :: ForeignPtr TOTPStruct }
+newtype TOTP = MkTOTP { getTOTPForeignPtr :: ForeignPtr BotanTOTPStruct }
 
-withTOTPPtr :: TOTPCtx -> (TOTPPtr -> IO a) -> IO a
-withTOTPPtr = withForeignPtr . getTOTPForeignPtr
+newTOTP      :: BotanTOTP -> IO TOTP
+withTOTP     :: TOTP -> (BotanTOTP -> IO a) -> IO a
+totpDestroy  :: TOTP -> IO ()
+createTOTP   :: (Ptr BotanTOTP -> IO CInt) -> IO TOTP
+(newTOTP, withTOTP, totpDestroy, createTOTP, _)
+    = mkBindings
+        MkBotanTOTP runBotanTOTP
+        MkTOTP getTOTPForeignPtr
+        botan_totp_destroy
+
+type TOTPTimestep = Word64
+type TOTPTimestamp = Word64
+type TOTPCode = Word32
 
 -- NOTE: Digits should be 6-8
-totpInit :: ByteString -> ByteString -> Int -> TOTPTimestep -> IO TOTPCtx
-totpInit key algo digits timestep = alloca $ \ outPtr -> do
-    asBytesLen key $ \ keyPtr keyLen -> do
-        asCString algo $ \ algoPtr -> do
-            throwBotanIfNegative $ botan_totp_init outPtr keyPtr keyLen algoPtr (fromIntegral digits) (fromIntegral timestep)
-            out <- peek outPtr
-            foreignPtr <- newForeignPtr botan_totp_destroy out
-            return $ MkTOTPCtx foreignPtr
+totpInit :: ByteString -> ByteString -> Int -> TOTPTimestep -> IO TOTP
+totpInit key algo digits timestep = asBytesLen key $ \ keyPtr keyLen -> do
+    asCString algo $ \ algoPtr -> do
+        createTOTP $ \ out -> botan_totp_init
+            out
+            (ConstPtr keyPtr)
+            keyLen
+            (ConstPtr algoPtr)
+            (fromIntegral digits)
+            (fromIntegral timestep)
 
-totpDestroy :: TOTPCtx -> IO ()
-totpDestroy totp = finalizeForeignPtr (getTOTPForeignPtr totp)
-
-withTOTPInit :: ByteString -> ByteString -> Int -> TOTPTimestep -> (TOTPCtx -> IO a) -> IO a
+-- WARNING: withFooInit-style limited lifetime functions moved to high-level botan
+withTOTPInit :: ByteString -> ByteString -> Int -> TOTPTimestep -> (TOTP -> IO a) -> IO a
 withTOTPInit = mkWithTemp4 totpInit totpDestroy
 
-totpGenerate :: TOTPCtx -> TOTPTimestamp -> IO TOTPCode
-totpGenerate totp timestamp = withTOTPPtr totp $ \ totpPtr -> do
+totpGenerate :: TOTP -> TOTPTimestamp -> IO TOTPCode
+totpGenerate totp timestamp = withTOTP totp $ \ totpPtr -> do
     alloca $ \ outPtr -> do
         throwBotanIfNegative $ botan_totp_generate totpPtr outPtr timestamp
         peek outPtr
 
-totpCheck :: TOTPCtx -> TOTPCode -> TOTPTimestamp -> Int -> IO Bool
-totpCheck totp code timestamp drift = withTOTPPtr totp $ \ totpPtr -> do
+totpCheck :: TOTP -> TOTPCode -> TOTPTimestamp -> Int -> IO Bool
+totpCheck totp code timestamp drift = withTOTP totp $ \ totpPtr -> do
     throwBotanCatchingSuccess $ botan_totp_check totpPtr code timestamp (fromIntegral drift)

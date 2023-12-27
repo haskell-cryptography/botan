@@ -37,11 +37,11 @@ nistKeyWrapEncode algo padded key kek = asCString algo $ \ algoPtr -> do
     asBytesLen key $ \ keyPtr keyLen -> do
         asBytesLen kek $ \ kekPtr kekLen -> do
             allocBytesQuerying $ \ wrappedKeyPtr wrappedKeyLen -> botan_nist_kw_enc
-                algoPtr
+                (ConstPtr algoPtr)
                 (fromIntegral padded)
-                keyPtr
+                (ConstPtr keyPtr)
                 keyLen
-                kekPtr
+                (ConstPtr kekPtr)
                 kekLen
                 wrappedKeyPtr
                 wrappedKeyLen
@@ -51,11 +51,11 @@ nistKeyWrapDecode algo padded wrappedKey kek = asCString algo $ \ algoPtr -> do
     asBytesLen wrappedKey $ \ wrappedKeyPtr wrappedKeyLen -> do
         asBytesLen kek $ \ kekPtr kekLen -> do
             allocBytesQuerying $ \ keyPtr keyLen -> botan_nist_kw_dec
-                algoPtr
+                (ConstPtr algoPtr)
                 (fromIntegral padded)
-                wrappedKeyPtr
+                (ConstPtr wrappedKeyPtr)
                 wrappedKeyLen
-                kekPtr
+                (ConstPtr kekPtr)
                 kekLen
                 keyPtr
                 keyLen
