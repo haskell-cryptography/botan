@@ -35,7 +35,7 @@ type VerifyAlgo = ByteString
 
 verifyCreate :: PubKey -> SignAlgoName -> SigningFlags -> IO VerifyCtx
 verifyCreate pk algo flags = alloca $ \ outPtr -> do
-    withPubKeyPtr pk $ \ pkPtr -> do
+    withPubKey pk $ \ pkPtr -> do
         asCString algo $ \ algoPtr -> do
             throwBotanIfNegative_ $ botan_pk_op_verify_create outPtr pkPtr algoPtr flags
             out <- peek outPtr

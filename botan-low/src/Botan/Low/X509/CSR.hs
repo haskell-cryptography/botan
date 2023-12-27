@@ -36,7 +36,7 @@ x509CSRDestroy csr = finalizeForeignPtr (getX509CSRForeignPtr csr)
 --  I ought to formalize it using type-level lists or something
 x509CreateCertReq :: X509CertOptions -> PrivKey -> HashName -> RNG -> IO X509CSR
 x509CreateCertReq options key hash_fn rng = withX509CertOptionsPtr options $ \ optionsPtr -> do
-    withPrivKeyPtr key $ \ keyPtr -> do
+    withPrivKey key $ \ keyPtr -> do
         asCString hash_fn $ \ hashPtr -> do
             withRNG rng $ \ botanRNG -> do
                 mkInit
@@ -46,7 +46,7 @@ x509CreateCertReq options key hash_fn rng = withX509CertOptionsPtr options $ \ o
 
 x509CSRCreate :: PrivKey -> X509SubjectDN -> X509Extensions -> HashName -> RNG -> X509PaddingName -> X509Challenge -> IO X509CSR
 x509CSRCreate privkey subjectDN exts hash_fn rng padding_fn challenge = do
-    withPrivKeyPtr privkey $ \ privkeyPtr -> do
+    withPrivKey privkey $ \ privkeyPtr -> do
         asBytesLen subjectDN $ \ subjectDNPtr subjectDNLen -> do
             withX509ExtensionsPtr exts $ \ extsPtr -> do
                 asCString hash_fn $ \ hashPtr -> do
@@ -70,7 +70,7 @@ x509CSRCreate privkey subjectDN exts hash_fn rng padding_fn challenge = do
 x509CreateSelfSignedCert :: X509CertOptions -> PrivKey -> HashName -> RNG -> IO X509Cert
 x509CreateSelfSignedCert options key hash_fn rng = do
     withX509CertOptionsPtr options $ \ optionsPtr -> do
-        withPrivKeyPtr key $ \ keyPtr -> do
+        withPrivKey key $ \ keyPtr -> do
             asCString hash_fn $ \ hashPtr -> do
                 withRNG rng $ \ botanRNG -> do
                     mkInit

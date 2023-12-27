@@ -38,7 +38,7 @@ pattern SigningDERFormatSignature = BOTAN_PUBKEY_DER_FORMAT_SIGNATURE
 
 signCreate :: PrivKey -> SignAlgoName -> SigningFlags -> IO SignCtx
 signCreate sk algo flags = alloca $ \ outPtr -> do
-    withPrivKeyPtr sk $ \ skPtr -> do
+    withPrivKey sk $ \ skPtr -> do
         asCString algo $ \ algoPtr -> do
             throwBotanIfNegative_ $ botan_pk_op_sign_create outPtr skPtr algoPtr flags
             out <- peek outPtr

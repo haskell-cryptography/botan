@@ -14,8 +14,10 @@ module Botan.Low.Remake
 ( mkBindings
 , mkCreateObject
 , mkCreateObjects
+, mkCreateObjectWith
 , mkCreateObjectCString
 , mkCreateObjectCString1
+, mkCreateObjectCBytesLen
 , mkWithObjectAction
 , mkWithObjectSetterCString
 , mkWithObjectSetterCBytesLen
@@ -137,14 +139,24 @@ mkCreateObjects newObject inits = mask_ $ alloca $ \ szPtr -> do
                     forM outs newObject
             _ -> throwBotanError code
 
+mkCreateObjectWith
+    :: ((Ptr botan -> IO CInt) -> IO object)
+    -> (arg -> (carg -> IO object) -> IO object)
+    -> (Ptr botan -> carg -> IO CInt)
+    -> arg
+    -> IO object
+mkCreateObjectWith createObject withArg init arg = withArg arg $ \ carg -> do
+    createObject $ \ outPtr -> init outPtr carg
+
 -- TODO: Rename mkCreateCString      
 mkCreateObjectCString
     :: ((Ptr botan -> IO CInt) -> IO object)
     -> (Ptr botan -> ConstPtr CChar -> IO CInt)
     -> ByteString
     -> IO object
-mkCreateObjectCString createObject init cstr = withCString cstr $ \ namePtr -> do
-    createObject $ \ outPtr -> init outPtr (ConstPtr namePtr)
+-- mkCreateObjectCString createObject init cstr = withCString cstr $ \ namePtr -> do
+--     createObject $ \ outPtr -> init outPtr (ConstPtr namePtr)
+mkCreateObjectCString createObject = mkCreateObjectWith createObject withConstCString
 
  -- TODO: Rename mkCreateCString1           
 mkCreateObjectCString1
@@ -155,6 +167,15 @@ mkCreateObjectCString1
     -> IO object
 mkCreateObjectCString1 createObject init str a = withCString str $ \ cstr -> do
     createObject $ \ outPtr -> init outPtr (ConstPtr cstr) a
+
+-- TODO: Rename mkCreateCBytes      
+mkCreateObjectCBytesLen
+    :: ((Ptr botan -> IO CInt) -> IO object)
+    -> (Ptr botan -> ConstPtr Word8 -> CSize -> IO CInt)
+    -> ByteString
+    -> IO object
+mkCreateObjectCBytesLen createObject init bytes = withCBytesLen bytes $ \ (cbytes,len) -> do
+    createObject $ \ out -> init out (ConstPtr cbytes) (fromIntegral len)
 
 {-
 Action

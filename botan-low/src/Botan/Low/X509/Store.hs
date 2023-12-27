@@ -212,7 +212,7 @@ x509CertStoreSQLFindKey store cert = withX509CertStorePtr store $ \ store_ptr ->
 -- TODO: Need some sort of allocArrayQuerying, or a mkArrayInit
 x509CertStoreSQLFindCertsForKey :: X509CertStore -> PrivKey -> IO [X509Cert]
 x509CertStoreSQLFindCertsForKey store privkey = withX509CertStorePtr store $ \ store_ptr -> do
-    withPrivKeyPtr privkey $ \ privkey_ptr -> do
+    withPrivKey privkey $ \ privkey_ptr -> do
             let fn arrPtr szPtr = botan_x509_cert_store_sql_find_certs_for_key arrPtr szPtr store_ptr privkey_ptr
             alloca $ \ szPtr -> do
                 code <- fn nullPtr szPtr
@@ -232,7 +232,7 @@ x509CertStoreSQLFindCertsForKey store privkey = withX509CertStorePtr store $ \ s
 x509CertStoreSQLInsertKey :: X509CertStore -> X509Cert -> PrivKey -> IO Bool
 x509CertStoreSQLInsertKey store cert privkey = withX509CertStorePtr store $ \ store_ptr -> do
     withX509CertPtr cert $ \ cert_ptr -> do
-        withPrivKeyPtr privkey $ \ privkey_ptr -> do
+        withPrivKey privkey $ \ privkey_ptr -> do
             throwBotanCatchingSuccess $ botan_x509_cert_store_sql_insert_key
                 store_ptr
                 cert_ptr
@@ -240,7 +240,7 @@ x509CertStoreSQLInsertKey store cert privkey = withX509CertStorePtr store $ \ st
 
 x509CertStoreSQLRemoveKey :: X509CertStore -> PrivKey -> IO ()
 x509CertStoreSQLRemoveKey store privkey = withX509CertStorePtr store $ \ store_ptr -> do
-    withPrivKeyPtr privkey $ \ privkey_ptr -> do
+    withPrivKey privkey $ \ privkey_ptr -> do
         throwBotanIfNegative_ $ botan_x509_cert_store_sql_remove_key
             store_ptr
             privkey_ptr

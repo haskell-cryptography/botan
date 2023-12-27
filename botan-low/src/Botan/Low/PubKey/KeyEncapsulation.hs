@@ -42,7 +42,7 @@ withKEMEncryptPtr = withForeignPtr . getKEMEncryptForeignPtr
 
 kemEncryptCreate :: PubKey -> KDFName -> IO KEMEncryptCtx
 kemEncryptCreate pk algo = alloca $ \ outPtr -> do
-    withPubKeyPtr pk $ \ pkPtr -> do
+    withPubKey pk $ \ pkPtr -> do
         asCString algo $ \ algoPtr -> do
             throwBotanIfNegative $ botan_pk_op_kem_encrypt_create outPtr pkPtr algoPtr
             out <- peek outPtr
@@ -94,7 +94,7 @@ withKEMDecryptPtr = withForeignPtr . getKEMDecryptForeignPtr
 
 kemDecryptCreate :: PrivKey -> KDFName -> IO KEMDecryptCtx
 kemDecryptCreate sk algo = alloca $ \ outPtr -> do
-    withPrivKeyPtr sk $ \ skPtr -> do
+    withPrivKey sk $ \ skPtr -> do
         asCString algo $ \ algoPtr -> do
             throwBotanIfNegative $ botan_pk_op_kem_decrypt_create outPtr skPtr algoPtr
             out <- peek outPtr

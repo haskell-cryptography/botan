@@ -33,11 +33,11 @@ pubKeyLoadEd25519 :: ByteString -> IO PubKey
 pubKeyLoadEd25519 = mkInit_bytes MkPubKey botan_pubkey_load_ed25519 botan_pubkey_destroy
 
 privKeyEd25519GetPrivKey :: PrivKey -> IO ByteString
-privKeyEd25519GetPrivKey sk = withPrivKeyPtr sk $ \ skPtr -> do
+privKeyEd25519GetPrivKey sk = withPrivKey sk $ \ skPtr -> do
     allocBytes 64 $ \ outPtr -> do
         throwBotanIfNegative_ $ botan_privkey_ed25519_get_privkey skPtr outPtr
 
 pubKeyEd25519GetPubKey :: PubKey -> IO ByteString
-pubKeyEd25519GetPubKey pk = withPubKeyPtr pk $ \ pkPtr -> do
+pubKeyEd25519GetPubKey pk = withPubKey pk $ \ pkPtr -> do
     allocBytes 32 $ \ outPtr -> do
         throwBotanIfNegative_ $ botan_pubkey_ed25519_get_pubkey pkPtr outPtr

@@ -22,22 +22,8 @@ import Botan.Low.Error
 import Botan.Low.Make
 import Botan.Low.Prelude
 
--- NOTE: These are not working yet
+viewBin :: BotanViewBinFn ctx -> (BotanViewBinCallback ctx -> IO a) -> IO a
+viewBin f = bracket (mallocBotanViewBinCallback f) freeBotanViewBinCallback
 
-type ViewBin = ViewCtx -> Ptr Word8 -> CSize -> IO BotanErrorCode
-type ViewBinFunPtr = FunPtr (ViewCtx  -> Ptr Word8 -> CSize -> IO BotanErrorCode)
-
-freeViewBinFunPtr :: ViewBinFunPtr -> IO ()
-freeViewBinFunPtr = freeHaskellFunPtr
-
-viewBin :: ViewBin -> (ViewBinFunPtr -> IO a) -> IO a
-viewBin f = bracket (mallocViewBinFunPtr f) freeViewBinFunPtr
-
-type ViewStr = ViewCtx -> Ptr CChar -> CSize -> IO BotanErrorCode
-type ViewStrFunPtr = FunPtr (ViewCtx  -> Ptr CChar -> CSize -> IO BotanErrorCode)
-
-freeViewStrFunPtr :: ViewStrFunPtr -> IO ()
-freeViewStrFunPtr = freeHaskellFunPtr
-
-viewStr :: ViewStr -> (ViewStrFunPtr -> IO a) -> IO a
-viewStr f = bracket (mallocViewStrFunPtr f) freeViewStrFunPtr
+viewStr :: BotanViewStrFn ctx -> (BotanViewStrCallback ctx -> IO a) -> IO a
+viewStr f = bracket (mallocBotanViewStrCallback f) freeBotanViewStrCallback

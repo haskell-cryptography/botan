@@ -32,7 +32,7 @@ withKeyAgreementPtr = withForeignPtr . getKeyAgreementForeignPtr
 -- NOTE: Silently uses the system RNG
 keyAgreementCreate :: PrivKey -> KDFName -> IO KeyAgreementCtx
 keyAgreementCreate sk algo = alloca $ \ outPtr -> do
-    withPrivKeyPtr sk $ \ skPtr -> do
+    withPrivKey sk $ \ skPtr -> do
         asCString algo $ \ algoPtr -> do
             throwBotanIfNegative_ $ botan_pk_op_key_agreement_create
                 outPtr
@@ -68,7 +68,7 @@ int botan_pk_op_key_agreement_view_public(botan_privkey_t key, botan_view_ctx ct
 }
 -}
 keyAgreementExportPublic :: PrivKey -> IO ByteString
-keyAgreementExportPublic sk = withPrivKeyPtr sk $ \ skPtr -> do
+keyAgreementExportPublic sk = withPrivKey sk $ \ skPtr -> do
     allocBytesQuerying $ \ outPtr outLen -> botan_pk_op_key_agreement_export_public
         skPtr
         outPtr

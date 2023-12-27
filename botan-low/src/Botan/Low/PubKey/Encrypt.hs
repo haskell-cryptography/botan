@@ -31,7 +31,7 @@ withEncryptPtr = withForeignPtr . getEncryptForeignPtr
 
 encryptCreate :: PubKey -> PKPaddingName -> IO EncryptCtx
 encryptCreate pk padding = alloca $ \ outPtr -> do
-    withPubKeyPtr pk $ \ pkPtr -> do
+    withPubKey pk $ \ pkPtr -> do
         asCString padding $ \ paddingPtr -> do
             throwBotanIfNegative_ $ botan_pk_op_encrypt_create
                 outPtr

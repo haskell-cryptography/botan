@@ -19,6 +19,8 @@ module Botan.Low.Prelude
 , peekCString
 , withCString
 , withCBytesLen
+, withConstCString
+, withMany
 -- Old
 , peekCStringText
 , allocBytes
@@ -99,7 +101,7 @@ peekCString :: CString -> IO ByteString
 peekCString = ByteString.packCString
 
 -- Replaces 'asCString'
-withCString :: ByteString -> (CString -> IO a) -> IO a 
+withCString :: ByteString -> (CString -> IO a) -> IO a
 withCString = ByteString.useAsCString
 
 -- type CStringLen = (Ptr CChar, Int)
@@ -108,7 +110,7 @@ peekCStringLen :: CStringLen -> IO ByteString
 peekCStringLen = ByteString.packCStringLen
 
 -- Replaces 'asCStringLen'
-withCStringLen :: ByteString -> (CStringLen -> IO a) -> IO a 
+withCStringLen :: ByteString -> (CStringLen -> IO a) -> IO a
 withCStringLen = ByteString.useAsCStringLen
 
 -- type CBytes     = Ptr Word8
@@ -125,7 +127,7 @@ peekCBytesLen :: CBytesLen -> IO ByteString
 peekCBytesLen (ptr, len) = ByteString.packCStringLen (castPtr ptr, len)
 
 -- Replaces 'asBytesLen'
-withCBytesLen :: ByteString -> (CBytesLen -> IO a) -> IO a 
+withCBytesLen :: ByteString -> (CBytesLen -> IO a) -> IO a
 withCBytesLen bs act = ByteString.useAsCStringLen bs (\ (ptr,len) -> act (castPtr ptr, len))
 
 -- QUESTION: Is it worth it to have extra types for ConstPtr versions?
@@ -137,6 +139,21 @@ type ConstCStringLen    = (ConstPtr CChar, Int)
 type ConstCBytes    = ConstPtr Word8
 type ConstCBytesLen = (ConstPtr Word8, Int)
 -}
+
+withConstCString :: ByteString -> (ConstPtr CChar -> IO a) -> IO a
+withConstCString bs act = ByteString.useAsCString bs (act . ConstPtr)
+
+{-
+Misc
+-}
+
+withMany
+    :: (forall a . object -> (cobject -> IO a) -> IO a)
+    -> [object]
+    -> ([cobject] -> IO b)
+    -> IO b
+withMany withObject []         act = act []
+withMany withObject (obj:objs) act = withObject obj $ \ cobj -> withMany withObject objs (act . (cobj:))
 
 {-
 OLD
@@ -193,10 +210,10 @@ asCStringLen :: ByteString -> (Ptr CChar -> CSize -> IO a) -> IO a
 asCStringLen bs f = ByteString.useAsCStringLen bs (\ (ptr,len) -> f ptr (fromIntegral len))
 
 asBytes :: ByteString -> (Ptr byte -> IO a) -> IO a
-asBytes bs f = asBytesLen bs (\ ptr _ -> f ptr) 
+asBytes bs f = asBytesLen bs (\ ptr _ -> f ptr)
 
 unsafeAsBytes :: ByteString -> (Ptr byte -> IO a) -> IO a
-unsafeAsBytes bs f = unsafeAsBytesLen bs (\ ptr _ -> f ptr) 
+unsafeAsBytes bs f = unsafeAsBytesLen bs (\ ptr _ -> f ptr)
 
 -- WARNING: This should not be using `useAsCStringLen`
 asBytesLen :: ByteString -> (Ptr byte -> CSize -> IO a) -> IO a

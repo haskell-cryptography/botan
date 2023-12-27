@@ -32,7 +32,7 @@ withDecryptPtr = withForeignPtr . getDecryptForeignPtr
 
 decryptCreate :: PrivKey -> PKPaddingName -> IO DecryptCtx
 decryptCreate sk padding = alloca $ \ outPtr -> do
-    withPrivKeyPtr sk $ \ skPtr -> do
+    withPrivKey sk $ \ skPtr -> do
         asCString padding $ \ paddingPtr -> do
             throwBotanIfNegative_ $ botan_pk_op_decrypt_create
                 outPtr

@@ -45,6 +45,12 @@ foreign import capi safe "botan/ffi.h botan_privkey_create"
         -> BotanRNG            -- ^ rng a random number generator
         -> IO CInt
 
+pattern BOTAN_CHECK_KEY_NORMAL_TESTS
+    ,   BOTAN_CHECK_KEY_EXPENSIVE_TESTS
+    ::  (Eq a, Num a) => a
+pattern BOTAN_CHECK_KEY_NORMAL_TESTS    = 0
+pattern BOTAN_CHECK_KEY_EXPENSIVE_TESTS = #const BOTAN_CHECK_KEY_EXPENSIVE_TESTS
+
 foreign import capi safe "botan/ffi.h botan_privkey_check_key"
     botan_privkey_check_key
         :: BotanPrivKey    -- ^ key

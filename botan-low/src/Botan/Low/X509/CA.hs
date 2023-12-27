@@ -33,7 +33,7 @@ x509CADestroy ca = finalizeForeignPtr (getX509CAForeignPtr ca)
 x509CACreate :: X509Cert -> PrivKey -> HashName -> RNG -> IO X509CA
 x509CACreate cert key hash_fn rng = do
     withX509CertPtr cert $ \ certPtr -> do
-        withPrivKeyPtr key $ \ keyPtr -> do
+        withPrivKey key $ \ keyPtr -> do
             asCString hash_fn $ \ hashPtr -> do
                 withRNG rng $ \ botanRNG -> do
                     mkInit
@@ -50,7 +50,7 @@ x509CACreate cert key hash_fn rng = do
 x509CACreatePadding :: X509Cert -> PrivKey -> HashName -> X509PaddingName -> RNG -> IO X509CA
 x509CACreatePadding cert key hash_fn padding_fn rng = do
     withX509CertPtr cert $ \ certPtr -> do
-        withPrivKeyPtr key $ \ keyPtr -> do
+        withPrivKey key $ \ keyPtr -> do
             asCString hash_fn $ \ hashPtr -> do
                 asCString padding_fn $ \ paddingPtr -> do
                     withRNG rng $ \ botanRNG -> do
@@ -83,7 +83,7 @@ x509CAMakeCertSerial signer rng serial signalgo pubkey not_before not_after subj
         withRNG rng $ \ botanRNG -> do
             withMP serial $ \ serialPtr -> do
                 asCString signalgo $ \ signalgoPtr -> do
-                    withPubKeyPtr pubkey $ \ pubkeyPtr -> do
+                    withPubKey pubkey $ \ pubkeyPtr -> do
                         asBytesLen subject_dn $ \ subject_dn_ptr subject_dn_len -> do
                             asBytesLen issuer_dn $ \ issuer_dn_ptr issuer_dn_len -> do
                                 withX509ExtensionsPtr exts $ \ extsPtr -> do
