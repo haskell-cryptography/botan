@@ -45,10 +45,8 @@ pattern UserRNG             = BOTAN_RNG_TYPE_USER
 pattern UserThreadsafeRNG   = BOTAN_RNG_TYPE_USER_THREADSAFE
 pattern RDRandRNG           = BOTAN_RNG_TYPE_RDRAND
 
--- TODO: Use asConstCString
 rngInit :: RNGType -> IO RNG
-rngInit name = asCString name $ \ namePtr -> do
-    createRNG $ \ outPtr -> botan_rng_init outPtr (ConstPtr namePtr)
+rngInit = mkCreateObjectCString createRNG botan_rng_init
 
 rngGet :: RNG -> Int -> IO ByteString
 rngGet rng len = withRNG rng $ \ botanRNG -> do

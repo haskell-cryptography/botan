@@ -21,92 +21,95 @@ import Botan.Bindings.BlockCipher
 import Botan.Low.Error
 import Botan.Low.Make
 import Botan.Low.Prelude
+import Botan.Low.Remake
 
--- |Opaque block cipher object
-newtype BlockCipherCtx = MkBlockCipherCtx { getBlockCipherForeignPtr :: ForeignPtr BlockCipherStruct }
+newtype BlockCipher = MkBlockCipher { getBlockCipherForeignPtr :: ForeignPtr BotanBlockCipherStruct }
 
-withBlockCipherPtr :: BlockCipherCtx -> (BlockCipherPtr -> IO a) -> IO a
-withBlockCipherPtr = withForeignPtr . getBlockCipherForeignPtr
+newBlockCipher      :: BotanBlockCipher -> IO BlockCipher
+withBlockCipher     :: BlockCipher -> (BotanBlockCipher -> IO a) -> IO a
+-- | Destroy a block cipher object immediately
+blockCipherDestroy  :: BlockCipher -> IO ()
+createBlockCipher   :: (Ptr BotanBlockCipher -> IO CInt) -> IO BlockCipher
+(newBlockCipher, withBlockCipher, blockCipherDestroy, createBlockCipher, _)
+    = mkBindings
+        MkBotanBlockCipher runBotanBlockCipher
+        MkBlockCipher getBlockCipherForeignPtr
+        botan_block_cipher_destroy
 
--- |Block cipher name type
+-- | Block cipher name type
 type BlockCipherName = ByteString
-
--- |Initialize a block cipher object
+    
+-- | Initialize a block cipher object
 blockCipherInit
-    :: BlockCipherName -- ^ Cipher name
-    -> IO BlockCipherCtx
-blockCipherInit = mkInit_name MkBlockCipherCtx botan_block_cipher_init botan_block_cipher_destroy
+    :: BlockCipherName  -- ^ Cipher name
+    -> IO BlockCipher
+blockCipherInit = mkCreateObjectCString createBlockCipher botan_block_cipher_init
 
-
--- |Destroy a block cipher object immediately
-blockCipherDestroy
-    :: BlockCipherCtx  -- ^ The cipher object
-    -> IO ()
-blockCipherDestroy blockCipher = finalizeForeignPtr (getBlockCipherForeignPtr blockCipher)
-
-withBlockCipherInit :: BlockCipherName -> (BlockCipherCtx -> IO a) -> IO a
+-- WARNING: withFooInit-style limited lifetime / guaranteed cleanup functions to be
+--  moved to high-level botan
+withBlockCipherInit :: BlockCipherName -> (BlockCipher -> IO a) -> IO a
 withBlockCipherInit = mkWithTemp1 blockCipherInit blockCipherDestroy
 
--- |Reinitializes the block cipher
+-- | Reinitializes the block cipher
 blockCipherClear
-    :: BlockCipherCtx  -- ^ The cipher object
+    :: BlockCipher  -- ^ The cipher object
     -> IO ()
-blockCipherClear = mkAction withBlockCipherPtr botan_block_cipher_clear
+blockCipherClear = mkWithObjectAction withBlockCipher botan_block_cipher_clear
 
 -- | Set the key for a block cipher instance
 --
 -- Error if the key is not valid.
 blockCipherSetKey
-    :: BlockCipherCtx  -- ^ The cipher object
+    :: BlockCipher  -- ^ The cipher object
     -> ByteString   -- ^ A cipher key
     -> IO ()
-blockCipherSetKey = mkSetBytesLen withBlockCipherPtr botan_block_cipher_set_key
+blockCipherSetKey = mkSetBytesLen withBlockCipher (\ cipher key -> botan_block_cipher_set_key cipher (ConstPtr key))
 
--- |Return the positive block size of this block cipher, or negative to
+-- | Return the positive block size of this block cipher, or negative to
 --  indicate an error
 blockCipherBlockSize
-    :: BlockCipherCtx  -- ^ The cipher object
+    :: BlockCipher  -- ^ The cipher object
     -> IO Int
-blockCipherBlockSize = mkGetIntCode withBlockCipherPtr botan_block_cipher_block_size
+blockCipherBlockSize = mkGetIntCode withBlockCipher botan_block_cipher_block_size
 
--- |Encrypt one or more blocks with the cipher
+-- | Encrypt one or more blocks with the cipher
 blockCipherEncryptBlocks
-    :: BlockCipherCtx  -- ^ The cipher object
+    :: BlockCipher  -- ^ The cipher object
     -> ByteString   -- ^ The plaintext
     -> IO ByteString
-blockCipherEncryptBlocks blockCipher bytes = withBlockCipherPtr blockCipher $ \ blockCipherPtr -> do
+blockCipherEncryptBlocks blockCipher bytes = withBlockCipher blockCipher $ \ blockCipherPtr -> do
     asBytesLen bytes $ \ bytesPtr bytesLen -> do
         allocBytes (fromIntegral bytesLen) $ \ destPtr -> do
             throwBotanIfNegative_ $ botan_block_cipher_encrypt_blocks
                 blockCipherPtr
-                bytesPtr
+                (ConstPtr bytesPtr)
                 destPtr
                 bytesLen
 
--- |Decrypt one or more blocks with the cipher
+-- | Decrypt one or more blocks with the cipher
 blockCipherDecryptBlocks
-    :: BlockCipherCtx  -- ^ The cipher object
+    :: BlockCipher  -- ^ The cipher object
     -> ByteString   -- ^ The ciphertext
     -> IO ByteString
-blockCipherDecryptBlocks blockCipher bytes = withBlockCipherPtr blockCipher $ \ blockCipherPtr -> do
+blockCipherDecryptBlocks blockCipher bytes = withBlockCipher blockCipher $ \ blockCipherPtr -> do
     asBytesLen bytes $ \ bytesPtr bytesLen -> do
         allocBytes (fromIntegral bytesLen) $ \ destPtr -> do
             throwBotanIfNegative_ $ botan_block_cipher_decrypt_blocks
                 blockCipherPtr
-                bytesPtr
+                (ConstPtr bytesPtr)
                 destPtr
                 bytesLen
 
--- |Get the name of this block cipher
+-- | Get the name of this block cipher
 blockCipherName
-    :: BlockCipherCtx  -- ^ The cipher object
+    :: BlockCipher  -- ^ The cipher object
     -> IO BlockCipherName
-blockCipherName = mkGetCString withBlockCipherPtr botan_block_cipher_name
+blockCipherName = mkGetCString withBlockCipher botan_block_cipher_name
 
--- |Get the key length limits of this block cipher
+-- | Get the key length limits of this block cipher
 --
 --  Returns the minimum, maximum, and modulo of valid keys.
 blockCipherGetKeyspec
-    :: BlockCipherCtx  -- ^ The cipher object
+    :: BlockCipher  -- ^ The cipher object
     -> IO (Int,Int,Int)
-blockCipherGetKeyspec = mkGetSizes3 withBlockCipherPtr botan_block_cipher_get_keyspec
+blockCipherGetKeyspec = mkGetSizes3 withBlockCipher botan_block_cipher_get_keyspec

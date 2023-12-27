@@ -12,10 +12,56 @@ Generate low-level bindings automatically
 
 module Botan.Low.Remake
 ( mkBindings
+, mkCreateObject
+, mkCreateObjects
+, mkCreateObjectCString
+, mkCreateObjectCString1
+, mkWithObjectAction
+, mkWithObjectSetterCString
+, mkWithObjectSetterCBytesLen
 ) where
 
 import Botan.Low.Prelude
 import Botan.Low.Error
+
+import qualified Data.ByteString.Internal as ByteString
+
+-- ByteString Helpers
+
+-- NOTE: Was allocBytes
+createByteString :: Int -> (Ptr byte -> IO ()) -> IO ByteString
+createByteString sz f = ByteString.create sz (f . castPtr)
+
+-- NOTE: Was allocBytesWith
+-- createByteString' :: Int -> (Ptr byte -> IO a) -> IO (a, ByteString)
+
+-- NOTE: Was allocBytesQuerying
+-- createByteStringQuerying :: (Ptr byte -> Ptr CSize -> IO CInt) -> IO ByteString
+-- createByteStringQuerying fn = do
+--     alloca $ \ szPtr -> do
+--         -- TODO: Maybe poke szPtr 0 for extra safety in cas its not initially zero
+--         code <- fn nullPtr szPtr
+--         case code of
+--             InsufficientBufferSpace -> do
+--                 sz <- fromIntegral <$> peek szPtr
+--                 allocBytes sz $ \ outPtr -> throwBotanIfNegative_ $ fn outPtr szPtr
+--             _                       -> do
+--                 throwBotanError code
+
+-- NOTE: Was allocBytesQueryingCString
+-- NOTE: Does not check length of taken string, vulnerable to null byte injection
+-- createByteStringQueryingCString :: (Ptr byte -> Ptr CSize -> IO CInt) -> IO ByteString
+-- createByteStringQueryingCString action = do
+--     cstring <- allocBytesQuerying action
+--     return $!! ByteString.takeWhile (/= 0) cstring
+
+--
+
+-- type NewObject      object botan = botan -> IO object 
+-- type WithObject     object botan = (forall a . object -> (botan -> IO a) -> IO a)
+-- type DestroyObject  object botan = object -> IO ()
+-- type CreateObject   object botan = (Ptr botan -> IO CInt) -> IO object
+-- type CreateObjects  object botan = (Ptr botan -> Ptr CSize -> IO CInt) -> IO object
 
 -- Example usage
 {-
@@ -56,11 +102,31 @@ mkBindings mkBotan runBotan mkForeign runForeign destroy = bindings where
     --  We could include the actual C++ botan destructor instead of indirectly omitting it:
     --      objectFinalize obj = new stable foreign ptr ... destroy
     --      objectDestroy obj = withObject obj destroy
-    createObject init = mask_ $ alloca $ \ outPtr -> do
+    createObject = mkCreateObject newObject
+    createObjects = mkCreateObjects newObject
+
+{-
+Create functions
+-}
+
+-- TODO: Rename mkCreate
+mkCreateObject
+    :: (Storable botan)
+    => (botan -> IO object)
+    -> (Ptr botan-> IO CInt)
+    -> IO object
+mkCreateObject newObject init = mask_ $ alloca $ \ outPtr -> do
         throwBotanIfNegative_ $ init outPtr
         out <- peek outPtr
         newObject out
-    createObjects inits = mask_ $ alloca $ \ szPtr -> do
+
+-- TODO: Rename mkCreates
+mkCreateObjects
+    :: (Storable botan)
+    => (botan -> IO object)
+    -> (Ptr botan -> Ptr CSize -> IO CInt)
+    -> IO [object]
+mkCreateObjects newObject inits = mask_ $ alloca $ \ szPtr -> do
         code <- inits nullPtr szPtr
         case code of
             InsufficientBufferSpace -> do
@@ -70,3 +136,66 @@ mkBindings mkBotan runBotan mkForeign runForeign destroy = bindings where
                     outs <- peekArray sz arrPtr
                     forM outs newObject
             _ -> throwBotanError code
+
+-- TODO: Rename mkCreateCString      
+mkCreateObjectCString
+    :: ((Ptr botan -> IO CInt) -> IO object)
+    -> (Ptr botan -> ConstPtr CChar -> IO CInt)
+    -> ByteString
+    -> IO object
+mkCreateObjectCString createObject init cstr = withCString cstr $ \ namePtr -> do
+    createObject $ \ outPtr -> init outPtr (ConstPtr namePtr)
+
+ -- TODO: Rename mkCreateCString1           
+mkCreateObjectCString1
+    :: ((Ptr botan -> IO CInt) -> IO object)
+    -> (Ptr botan -> ConstPtr CChar -> a -> IO CInt)
+    -> ByteString
+    -> a
+    -> IO object
+mkCreateObjectCString1 createObject init str a = withCString str $ \ cstr -> do
+    createObject $ \ outPtr -> init outPtr (ConstPtr cstr) a
+
+{-
+Action
+-}
+ 
+-- TODO: Rename mkAction
+mkWithObjectAction
+    :: (forall a . object -> (botan -> IO a) -> IO a)
+    -> (botan -> IO CInt)
+    -> object
+    -> IO ()
+mkWithObjectAction withObject action obj = withObject obj $ \ cobj -> do
+    throwBotanIfNegative_ $ action cobj
+
+{-
+Getters
+-}
+
+{-
+Setters
+-}
+
+-- TODO: Rename mkSetterCString
+mkWithObjectSetterCString 
+    :: (forall a . object -> (botan -> IO a) -> IO a)
+    -> (botan -> ConstPtr CChar -> IO BotanErrorCode)
+    -> object
+    -> ByteString
+    -> IO ()
+mkWithObjectSetterCString withObject setter obj str = withObject obj $ \ cobj -> do
+    withCString str $ \ cstr -> do
+        throwBotanIfNegative_ $ setter cobj (ConstPtr cstr)
+
+-- Replaces mkSetBytesLen
+-- TODO: Rename mkSetterCBytesLen
+mkWithObjectSetterCBytesLen
+    :: (forall a . object -> (botan -> IO a) -> IO a)
+    -> (botan -> ConstPtr Word8 -> CSize -> IO BotanErrorCode)
+    -> object
+    -> ByteString
+    -> IO ()
+mkWithObjectSetterCBytesLen withObject setter obj bytes = withObject obj $ \ cobj -> do
+    withCBytesLen bytes $ \ (cbytes,len) -> do
+        throwBotanIfNegative_ $ setter cobj (ConstPtr cbytes) (fromIntegral len)

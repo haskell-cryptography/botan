@@ -18,6 +18,7 @@ module Botan.Low.Prelude
 , ConstPtr(..)
 , peekCString
 , withCString
+, withCBytesLen
 -- Old
 , peekCStringText
 , allocBytes
@@ -97,48 +98,35 @@ BETTER VERSIONS
 peekCString :: CString -> IO ByteString
 peekCString = ByteString.packCString
 
+-- Replaces 'asCString'
 withCString :: ByteString -> (CString -> IO a) -> IO a 
 withCString = ByteString.useAsCString
-
-unsafePeekCString :: CString -> IO ByteString
-unsafePeekCString = undefined
-
-unsafeWithCString :: ByteString -> (CString -> IO a) -> IO a 
-unsafeWithCString = undefined
 
 -- type CStringLen = (Ptr CChar, Int)
 
 peekCStringLen :: CStringLen -> IO ByteString
-peekCStringLen = undefined
+peekCStringLen = ByteString.packCStringLen
 
+-- Replaces 'asCStringLen'
 withCStringLen :: ByteString -> (CStringLen -> IO a) -> IO a 
-withCStringLen = undefined
+withCStringLen = ByteString.useAsCStringLen
 
-unsafePeekCStringLen :: CStringLen -> IO ByteString
-unsafePeekCStringLen = undefined
+-- type CBytes     = Ptr Word8
 
-type CBytes     = Ptr Word8
+-- peekCBytes :: CBytes -> Int -> IO ByteString
+-- peekCBytes = undefined
 
-peekCBytes :: CBytes -> IO ByteString
-peekCBytes = undefined
-
-withCBytes :: ByteString -> (CBytes -> IO a) -> IO a 
-withCBytes = undefined
-
-unsafePeekCBytes :: CBytes -> IO ByteString
-unsafePeekCBytes = undefined
+-- withCBytes :: ByteString -> (CBytes -> Int -> IO a) -> IO a 
+-- withCBytes = undefined
 
 type CBytesLen  = (Ptr Word8, Int)
 
 peekCBytesLen :: CBytesLen -> IO ByteString
-peekCBytesLen = undefined
+peekCBytesLen (ptr, len) = ByteString.packCStringLen (castPtr ptr, len)
 
+-- Replaces 'asBytesLen'
 withCBytesLen :: ByteString -> (CBytesLen -> IO a) -> IO a 
-withCBytesLen = undefined
-
-unsafePeekCBytesLen :: CBytesLen -> IO ByteString
-unsafePeekCBytesLen = undefined
-
+withCBytesLen bs act = ByteString.useAsCStringLen bs (\ (ptr,len) -> act (castPtr ptr, len))
 
 -- QUESTION: Is it worth it to have extra types for ConstPtr versions?
 
@@ -149,7 +137,6 @@ type ConstCStringLen    = (ConstPtr CChar, Int)
 type ConstCBytes    = ConstPtr Word8
 type ConstCBytesLen = (ConstPtr Word8, Int)
 -}
-
 
 {-
 OLD
