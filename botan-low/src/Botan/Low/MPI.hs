@@ -17,6 +17,7 @@ import Botan.Bindings.MPI
 import Botan.Low.Error
 import Botan.Low.Make
 import Botan.Low.Prelude
+import Botan.Low.Remake
 import Botan.Low.RNG
 
 -- Yes, the module is named MPI, but the type is MP.
@@ -32,42 +33,45 @@ import Botan.Low.RNG
 -- NOTE: This whole module is not idiomatic - some methods mutate, some have a destination argument
 --  It will need furter wrapping.
 
--- NOTE: Foreign.C.ConstPtr only available in base-4.18
--- NOTE: Using ConstPtr will require differentiating withPtr and withConstPtr
---  Will require rewrite.
--- TODO: type ConstPtr = Ptr
+newtype MP = MkMP { getMPForeignPtr :: ForeignPtr BotanMPStruct }
 
-newtype MP = MkMP { getMPForeignPtr :: ForeignPtr MPStruct }
-
-withMPPtr :: MP -> (MPPtr -> IO a) -> IO a
-withMPPtr = withForeignPtr . getMPForeignPtr
+newMP      :: BotanMP -> IO MP
+withMP     :: MP -> (BotanMP -> IO a) -> IO a
+mpDestroy  :: MP -> IO ()
+createMP   :: (Ptr BotanMP -> IO CInt) -> IO MP
+(newMP, withMP, mpDestroy, createMP, _)
+    = mkBindings
+        MkBotanMP runBotanMP
+        MkMP getMPForeignPtr
+        botan_mp_destroy
 
 mpInit :: IO MP
-mpInit = mkInit MkMP botan_mp_init botan_mp_destroy
+-- mpInit = mkInit MkMP botan_mp_init botan_mp_destroy
+mpInit = createMP botan_mp_init
 
 -- NOTE: The actual botan_mp_to_hex is misleading
 --  The actual buffer size is 2 + (num_bytes * 2) + 1 bytes in length
 --  The leading 2 is `0x` prefix, the trailing 1 is `\0` suffix
 mpToHex :: MP -> IO ByteString
-mpToHex mp = withMPPtr mp $ \ mpPtr -> do
+mpToHex mp = withMP mp $ \ mpPtr -> do
     numBytes <- mpNumBytes mp
     allocaBytes (2 + (numBytes * 2) + 1) $ \ bytesPtr -> do
         throwBotanIfNegative_ $ botan_mp_to_hex mpPtr bytesPtr
         ByteString.packCString bytesPtr
 
 mpToStr :: MP -> Int -> IO ByteString
-mpToStr mp base = withMPPtr mp $ \ mpPtr -> do
+mpToStr mp base = withMP mp $ \ mpPtr -> do
     allocBytesQueryingCString $ \ bytesPtr szPtr -> 
         botan_mp_to_str mpPtr (fromIntegral base) bytesPtr szPtr
 
 mpClear :: MP -> IO ()
-mpClear = mkAction withMPPtr botan_mp_clear
+mpClear = mkAction withMP botan_mp_clear
 
 mpSetFromInt :: MP -> Int -> IO ()
-mpSetFromInt = mkSetCInt withMPPtr botan_mp_set_from_int
+mpSetFromInt = mkSetCInt withMP botan_mp_set_from_int
 
 mpSetFromMP :: MP -> MP -> IO ()
-mpSetFromMP = mkUnaryOp withMPPtr botan_mp_set_from_mp
+mpSetFromMP = mkUnaryOp withMP botan_mp_set_from_mp
 
 -- NOTE: Convenience function
 mpCopy :: MP -> IO MP
@@ -77,20 +81,20 @@ mpCopy mp = do
     return copy
 
 mpSetFromStr :: MP -> ByteString -> IO ()
-mpSetFromStr = mkSetCString withMPPtr botan_mp_set_from_str
+mpSetFromStr = mkSetCString withMP (\ mp cstr -> botan_mp_set_from_str mp (ConstPtr cstr))
 
 -- NOTE: According to unit tests, this function *does not* prepend "0x" to the value
 mpSetFromRadixStr :: MP -> ByteString -> Int -> IO ()
-mpSetFromRadixStr = mkSetCString_csize withMPPtr botan_mp_set_from_radix_str
+mpSetFromRadixStr = mkSetCString_csize withMP (\ mp cstr radix -> botan_mp_set_from_radix_str mp (ConstPtr cstr) radix)
 
 mpNumBits :: MP -> IO Int
-mpNumBits = mkGetSize withMPPtr botan_mp_num_bits
+mpNumBits = mkGetSize withMP botan_mp_num_bits
 
 mpNumBytes :: MP -> IO Int
-mpNumBytes = mkGetSize withMPPtr botan_mp_num_bytes
+mpNumBytes = mkGetSize withMP botan_mp_num_bytes
 
 mpToBin :: MP -> IO ByteString
-mpToBin mp = withMPPtr mp $ \ mpPtr -> do
+mpToBin mp = withMP mp $ \ mpPtr -> do
     numBytes <- mpNumBytes mp
     allocBytes numBytes $ \ bytesPtr -> do
         throwBotanIfNegative_ $ botan_mp_to_bin mpPtr bytesPtr
@@ -98,112 +102,112 @@ mpToBin mp = withMPPtr mp $ \ mpPtr -> do
 -- NOTE: Awkward, more like mpSetFromBin
 --  When we wrap it in higher level, fromBin should be :: ByteString -> IO Integer
 mpFromBin :: MP -> ByteString -> IO ()
-mpFromBin = mkSetBytesLen withMPPtr botan_mp_from_bin
+mpFromBin = mkSetBytesLen withMP (\ mp cbytes len -> botan_mp_from_bin mp (ConstPtr cbytes) len)
 
 mpToWord32 :: MP -> IO Word32
-mpToWord32 mp = withMPPtr mp $ \ mpPtr -> do
+mpToWord32 mp = withMP mp $ \ mpPtr -> do
     alloca $ \ valPtr -> do
         throwBotanIfNegative_ $ botan_mp_to_uint32 mpPtr valPtr
         peek valPtr
 
 mpIsPositive :: MP -> IO Bool
-mpIsPositive = mkGetBoolCode withMPPtr botan_mp_is_positive
+mpIsPositive = mkGetBoolCode withMP botan_mp_is_positive
 
 mpIsNegative :: MP -> IO Bool
-mpIsNegative = mkGetBoolCode withMPPtr botan_mp_is_negative
+mpIsNegative = mkGetBoolCode withMP botan_mp_is_negative
 
 mpFlipSign :: MP -> IO ()
-mpFlipSign = mkAction withMPPtr botan_mp_flip_sign
+mpFlipSign = mkAction withMP botan_mp_flip_sign
 
 mpIsZero :: MP -> IO Bool
-mpIsZero = mkGetBoolCode withMPPtr botan_mp_is_zero
+mpIsZero = mkGetBoolCode withMP botan_mp_is_zero
 
 mpAddWord32 :: MP -> MP -> Word32 -> IO ()
-mpAddWord32 result x y = withMPPtr result $ \ resultPtr -> do
-    withMPPtr x $ \ xPtr -> do
+mpAddWord32 result x y = withMP result $ \ resultPtr -> do
+    withMP x $ \ xPtr -> do
         throwBotanIfNegative_ $ botan_mp_add_u32 resultPtr xPtr y
 
 mpSubWord32 :: MP -> MP -> Word32 -> IO ()
-mpSubWord32 result x y = withMPPtr result $ \ resultPtr -> do
-    withMPPtr x $ \ xPtr -> do
+mpSubWord32 result x y = withMP result $ \ resultPtr -> do
+    withMP x $ \ xPtr -> do
         throwBotanIfNegative_ $ botan_mp_sub_u32 resultPtr xPtr y
 
 mpAdd :: MP -> MP -> MP -> IO ()
-mpAdd = mkBinaryOp withMPPtr botan_mp_add
+mpAdd = mkBinaryOp withMP botan_mp_add
 
 mpSub :: MP -> MP -> MP -> IO ()
-mpSub = mkBinaryOp withMPPtr botan_mp_sub
+mpSub = mkBinaryOp withMP botan_mp_sub
 
 mpMul :: MP -> MP -> MP -> IO ()
-mpMul = mkBinaryOp withMPPtr botan_mp_mul
+mpMul = mkBinaryOp withMP botan_mp_mul
 
 mpDiv :: MP -> MP -> MP -> MP -> IO ()
-mpDiv = mkBinaryDuplexOp withMPPtr botan_mp_div
+mpDiv = mkBinaryDuplexOp withMP botan_mp_div
 
 mpModMul :: MP -> MP -> MP -> MP -> IO ()
-mpModMul = mkTrinaryOp withMPPtr botan_mp_mod_mul
+mpModMul = mkTrinaryOp withMP botan_mp_mod_mul
 
 -- NOTE: Cannot use mkGetBoolCode unless
 mpEqual :: MP -> MP -> IO Bool
-mpEqual a b = withMPPtr a $ \ aPtr -> do
-    withMPPtr b $ \ bPtr -> do
+mpEqual a b = withMP a $ \ aPtr -> do
+    withMP b $ \ bPtr -> do
         throwBotanCatchingBool $ botan_mp_equal aPtr bPtr
 
 -- TODO: Convert Int to Ordering in >1:1 low-level bindings
 mpCmp :: MP -> MP -> IO Int
-mpCmp a b = withMPPtr a $ \ aPtr -> do
-    withMPPtr b $ \ bPtr -> do
+mpCmp a b = withMP a $ \ aPtr -> do
+    withMP b $ \ bPtr -> do
         alloca $ \ resultPtr -> do
             throwBotanIfNegative_ $ botan_mp_cmp resultPtr aPtr bPtr
             fromIntegral <$> peek resultPtr
 
 mpSwap :: MP -> MP -> IO ()
-mpSwap a b = withMPPtr a $ \ aPtr -> do
-    withMPPtr b $ \ bPtr -> do
+mpSwap a b = withMP a $ \ aPtr -> do
+    withMP b $ \ bPtr -> do
         throwBotanIfNegative_ $ botan_mp_swap aPtr bPtr
 
 mpPowMod :: MP -> MP -> MP -> MP -> IO ()
-mpPowMod = mkTrinaryOp withMPPtr botan_mp_powmod
+mpPowMod = mkTrinaryOp withMP botan_mp_powmod
 
 mpLeftShift :: MP -> MP -> Int -> IO ()
-mpLeftShift = mkUnaryOp_csize withMPPtr botan_mp_lshift
+mpLeftShift = mkUnaryOp_csize withMP botan_mp_lshift
 
 mpRightShift :: MP -> MP -> Int -> IO ()
-mpRightShift = mkUnaryOp_csize withMPPtr botan_mp_rshift
+mpRightShift = mkUnaryOp_csize withMP botan_mp_rshift
 
 mpModInverse :: MP -> MP -> MP -> IO ()
-mpModInverse = mkBinaryOp withMPPtr botan_mp_mod_inverse
+mpModInverse = mkBinaryOp withMP botan_mp_mod_inverse
 
 mpRandBits :: MP -> RNG -> Int -> IO ()
-mpRandBits mp rng sz = withMPPtr mp $ \ mpPtr -> do
+mpRandBits mp rng sz = withMP mp $ \ mpPtr -> do
    withRNG rng $ \ botanRNG -> do
         throwBotanIfNegative_ $ botan_mp_rand_bits mpPtr botanRNG (fromIntegral sz)
 
 -- NOTE: Never includes upper bound
 mpRandRange :: MP -> RNG -> MP -> MP -> IO ()
-mpRandRange mp rng lower upper = withMPPtr mp $ \ mpPtr -> do
+mpRandRange mp rng lower upper = withMP mp $ \ mpPtr -> do
    withRNG rng $ \ botanRNG -> do
-        withMPPtr lower $ \ lowerPtr -> do
-            withMPPtr upper $ \ upperPtr -> do
+        withMP lower $ \ lowerPtr -> do
+            withMP upper $ \ upperPtr -> do
                 throwBotanIfNegative_ $ botan_mp_rand_range mpPtr botanRNG lowerPtr upperPtr
 
 mpGCD :: MP -> MP -> MP -> IO ()
-mpGCD = mkBinaryOp withMPPtr botan_mp_gcd
+mpGCD = mkBinaryOp withMP botan_mp_gcd
 
 -- NOTE: Miller–Rabin primality test
 mpIsPrime :: MP -> RNG -> Int -> IO Bool
-mpIsPrime mp rng probability = withMPPtr mp $ \ mpPtr -> do
+mpIsPrime mp rng probability = withMP mp $ \ mpPtr -> do
     withRNG rng $ \ botanRNG -> do
         throwBotanCatchingBool $ botan_mp_is_prime mpPtr botanRNG (fromIntegral probability)
 
 mpGetBit :: MP -> Int -> IO Bool
-mpGetBit = mkGetBoolCode_csize withMPPtr botan_mp_get_bit
+mpGetBit = mkGetBoolCode_csize withMP botan_mp_get_bit
 
 mpSetBit :: MP -> Int -> IO ()
-mpSetBit = mkSetCSize withMPPtr botan_mp_set_bit
+mpSetBit = mkSetCSize withMP botan_mp_set_bit
 
 mpClearBit :: MP -> Int -> IO ()
-mpClearBit = mkSetCSize withMPPtr botan_mp_clear_bit
+mpClearBit = mkSetCSize withMP botan_mp_clear_bit
 
 --
 -- Helpers

@@ -191,14 +191,14 @@ pubKeyFingerprint pk algo = withPubKeyPtr pk $ \ pkPtr -> do
 
 -- NOTE: Sets the MP
 pubKeyGetField :: MP -> PubKey -> ByteString -> IO ()
-pubKeyGetField mp pk field = withMPPtr mp $ \ mpPtr -> do
+pubKeyGetField mp pk field = withMP mp $ \ mpPtr -> do
     withPubKeyPtr pk $ \ pkPtr -> do
         asCString field $ \ fieldPtr -> do
             throwBotanIfNegative_ $ botan_pubkey_get_field mpPtr pkPtr fieldPtr
 
 -- NOTE: Sets the MP
 privKeyGetField :: MP -> PrivKey -> ByteString -> IO ()
-privKeyGetField mp sk field = withMPPtr mp $ \ mpPtr -> do
+privKeyGetField mp sk field = withMP mp $ \ mpPtr -> do
     withPrivKeyPtr sk $ \ skPtr -> do
         asCString field $ \ fieldPtr -> do
             throwBotanIfNegative_ $ botan_privkey_get_field mpPtr skPtr fieldPtr
@@ -209,7 +209,7 @@ mkPrivKeyLoad1_name
     :: (Ptr PrivKeyPtr -> MPPtr -> CString -> IO BotanErrorCode)
     -> MP -> ByteString -> IO PrivKey
 mkPrivKeyLoad1_name load a name = alloca $ \ outPtr -> do
-    withMPPtr a $ \ aPtr -> do
+    withMP a $ \ aPtr -> do
         asCString name $ \ namePtr -> do
             throwBotanIfNegative_ $ load outPtr aPtr namePtr
             out <- peek outPtr
@@ -220,7 +220,7 @@ mkPrivKeyLoad3
     :: (Ptr PrivKeyPtr -> MPPtr -> MPPtr -> MPPtr -> IO BotanErrorCode)
     -> MP -> MP -> MP -> IO PrivKey
 mkPrivKeyLoad3 load a b c = alloca $ \ outPtr -> do
-    withPtrs withMPPtr [a,b,c] $ \ [aPtr,bPtr,cPtr] -> do
+    withPtrs withMP [a,b,c] $ \ [aPtr,bPtr,cPtr] -> do
         throwBotanIfNegative_ $ load outPtr aPtr bPtr cPtr
         out <- peek outPtr
         foreignPtr <- newForeignPtr botan_privkey_destroy out
@@ -230,7 +230,7 @@ mkPrivKeyLoad4
     :: (Ptr PrivKeyPtr-> MPPtr -> MPPtr -> MPPtr -> MPPtr -> IO BotanErrorCode)
     -> MP -> MP -> MP -> MP -> IO PrivKey
 mkPrivKeyLoad4 load a b c d = alloca $ \ outPtr -> do
-    withPtrs withMPPtr [a,b,c,d] $ \ [aPtr,bPtr,cPtr,dPtr] -> do
+    withPtrs withMP [a,b,c,d] $ \ [aPtr,bPtr,cPtr,dPtr] -> do
         throwBotanIfNegative_ $ load outPtr aPtr bPtr cPtr dPtr
         out <- peek outPtr
         foreignPtr <- newForeignPtr botan_privkey_destroy out
@@ -242,7 +242,7 @@ mkPubKeyLoad2
     :: (Ptr PubKeyPtr -> MPPtr -> MPPtr -> IO BotanErrorCode)
     -> MP -> MP -> IO PubKey
 mkPubKeyLoad2 load a b = alloca $ \ outPtr -> do
-    withPtrs withMPPtr [a,b] $ \ [aPtr,bPtr] -> do
+    withPtrs withMP [a,b] $ \ [aPtr,bPtr] -> do
         throwBotanIfNegative_ $ load outPtr aPtr bPtr
         out <- peek outPtr
         foreignPtr <- newForeignPtr botan_pubkey_destroy out
@@ -252,7 +252,7 @@ mkPubKeyLoad2_name
     :: (Ptr PubKeyPtr -> MPPtr -> MPPtr -> CString -> IO BotanErrorCode)
     -> MP -> MP -> ByteString -> IO PubKey
 mkPubKeyLoad2_name load x y name = alloca $ \ outPtr -> do
-    withPtrs withMPPtr [x,y] $ \ [xPtr,yPtr] -> do
+    withPtrs withMP [x,y] $ \ [xPtr,yPtr] -> do
         asCString name $ \ namePtr -> do
             throwBotanIfNegative_ $ load outPtr xPtr yPtr namePtr
             out <- peek outPtr
@@ -263,7 +263,7 @@ mkPubKeyLoad3
     :: (Ptr PubKeyPtr -> MPPtr -> MPPtr -> MPPtr -> IO BotanErrorCode)
     -> MP -> MP -> MP -> IO PubKey
 mkPubKeyLoad3 load a b c = alloca $ \ outPtr -> do
-    withPtrs withMPPtr [a,b,c] $ \ [aPtr,bPtr,cPtr] -> do
+    withPtrs withMP [a,b,c] $ \ [aPtr,bPtr,cPtr] -> do
         throwBotanIfNegative_ $ load outPtr aPtr bPtr cPtr
         out <- peek outPtr
         foreignPtr <- newForeignPtr botan_pubkey_destroy out
@@ -273,7 +273,7 @@ mkPubKeyLoad4
     :: (Ptr PubKeyPtr-> MPPtr -> MPPtr -> MPPtr -> MPPtr -> IO BotanErrorCode)
     -> MP -> MP -> MP -> MP -> IO PubKey
 mkPubKeyLoad4 load a b c d = alloca $ \ outPtr -> do
-    withPtrs withMPPtr [a,b,c,d] $ \ [aPtr,bPtr,cPtr,dPtr] -> do
+    withPtrs withMP [a,b,c,d] $ \ [aPtr,bPtr,cPtr,dPtr] -> do
         throwBotanIfNegative_ $ load outPtr aPtr bPtr cPtr dPtr
         out <- peek outPtr
         foreignPtr <- newForeignPtr botan_pubkey_destroy out

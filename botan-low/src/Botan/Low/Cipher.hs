@@ -53,8 +53,7 @@ type CipherKey = ByteString
 cipherInit :: CipherName -> CipherInitFlags -> IO Cipher
 cipherInit = mkCreateObjectCString1 createCipher botan_cipher_init
 
--- WARNING: withFooInit-style limited lifetime / guaranteed cleanup functions to be
---  moved to high-level botan
+-- WARNING: withFooInit-style limited lifetime functions moved to high-level botan
 withCipherInit :: CipherName -> CipherInitFlags -> (Cipher -> IO a) -> IO a
 withCipherInit = mkWithTemp2 cipherInit cipherDestroy
 

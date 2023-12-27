@@ -45,8 +45,7 @@ blockCipherInit
     -> IO BlockCipher
 blockCipherInit = mkCreateObjectCString createBlockCipher botan_block_cipher_init
 
--- WARNING: withFooInit-style limited lifetime / guaranteed cleanup functions to be
---  moved to high-level botan
+-- WARNING: withFooInit-style limited lifetime functions moved to high-level botan
 withBlockCipherInit :: BlockCipherName -> (BlockCipher -> IO a) -> IO a
 withBlockCipherInit = mkWithTemp1 blockCipherInit blockCipherDestroy
 

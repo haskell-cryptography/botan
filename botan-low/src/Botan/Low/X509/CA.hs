@@ -81,7 +81,7 @@ x509CAMakeCertSerial :: SignCtx -> RNG -> MP -> SignAlgoName -> PubKey -> Word64
 x509CAMakeCertSerial signer rng serial signalgo pubkey not_before not_after subject_dn issuer_dn exts = do
     withSignPtr signer $ \ signerPtr -> do
         withRNG rng $ \ botanRNG -> do
-            withMPPtr serial $ \ serialPtr -> do
+            withMP serial $ \ serialPtr -> do
                 asCString signalgo $ \ signalgoPtr -> do
                     withPubKeyPtr pubkey $ \ pubkeyPtr -> do
                         asBytesLen subject_dn $ \ subject_dn_ptr subject_dn_len -> do

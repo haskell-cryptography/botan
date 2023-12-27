@@ -15,7 +15,7 @@ import qualified Data.ByteString as ByteString
 import Botan.Bindings.RNG
 
 import Botan.Low.Error
--- import Botan.Low.Make
+import Botan.Low.Make
 import Botan.Low.Remake
 import Botan.Low.Prelude
 
@@ -47,6 +47,10 @@ pattern RDRandRNG           = BOTAN_RNG_TYPE_RDRAND
 
 rngInit :: RNGType -> IO RNG
 rngInit = mkCreateObjectCString createRNG botan_rng_init
+
+-- WARNING: withFooInit-style limited lifetime functions moved to high-level botan
+withRNGInit :: RNGType -> (RNG -> IO a) -> IO a
+withRNGInit = mkWithTemp1 rngInit rngDestroy
 
 rngGet :: RNG -> Int -> IO ByteString
 rngGet rng len = withRNG rng $ \ botanRNG -> do

@@ -42,6 +42,7 @@ import Botan.Low.Error
 import Botan.Low.Make
 import Botan.Low.MPI
 import Botan.Low.Prelude
+import Botan.Low.Remake
 
 -- NOTE: This module lacks documentation, and is not mentioned in the FFI bindings.
 --  It is mentioned in the C++ docs, but the construction significantly differs.
@@ -58,63 +59,70 @@ import Botan.Low.Prelude
 -- * Format Preserving Encryption
 -- */
 
--- typedef struct botan_fpe_struct* botan_fpe_t;
+newtype FPE = MkFPE { getFPEForeignPtr :: ForeignPtr BotanFPEStruct }
 
-newtype FPECtx = MkFPECtx { getFPEForeignPtr :: ForeignPtr FPEStruct }
+newFPE      :: BotanFPE -> IO FPE
+withFPE     :: FPE -> (BotanFPE -> IO a) -> IO a
+fpeDestroy  :: FPE -> IO ()
+createFPE   :: (Ptr BotanFPE -> IO CInt) -> IO FPE
+(newFPE, withFPE, fpeDestroy, createFPE, _)
+    = mkBindings
+        MkBotanFPE runBotanFPE
+        MkFPE getFPEForeignPtr
+        botan_fpe_destroy
 
-withFPEPtr :: FPECtx -> (FPEPtr -> IO a) -> IO a
-withFPEPtr = withForeignPtr . getFPEForeignPtr
+type FPEFlags = Word32
 
--- pattern FPENone :: FPEFlags
--- pattern FPENone = BOTAN_FPE_FLAG_NONE
+pattern FPENone
+    ,   FPEFE1CompatMode
+    ::  FPEFlags
+pattern FPENone          = BOTAN_FPE_FLAG_NONE
+pattern FPEFE1CompatMode = BOTAN_FPE_FLAG_FE1_COMPAT_MODE
 
--- pattern FPEFE1CompatMode :: FPEFlags
--- pattern FPEFE1CompatMode = BOTAN_FPE_FLAG_FE1_COMPAT_MODE
-
-fpeInitFE1 :: MP -> ByteString -> Int -> FPEFlags -> IO FPECtx
-fpeInitFE1 n key rounds flags = withMPPtr n $ \ nPtr -> do
+fpeInitFE1 :: MP -> ByteString -> Int -> FPEFlags -> IO FPE
+fpeInitFE1 n key rounds flags = withMP n $ \ nPtr -> do
     asBytesLen key $ \ keyPtr keyLen -> do
-        alloca $ \ outPtr -> do
-            throwBotanIfNegative_ $ botan_fpe_fe1_init outPtr nPtr keyPtr keyLen (fromIntegral rounds) flags
-            out <- peek outPtr
-            foreignPtr <- newForeignPtr botan_fpe_destroy out
-            return $ MkFPECtx foreignPtr
+        createFPE $ \ out -> botan_fpe_fe1_init
+            out
+            nPtr
+            (ConstPtr keyPtr)
+            keyLen
+            (fromIntegral rounds)
+            flags
 
-withFPEInitFE1 :: MP -> ByteString -> Int -> FPEFlags -> (FPECtx -> IO a) -> IO a
+-- WARNING: withFooInit-style limited lifetime functions moved to high-level botan
+withFPEInitFE1 :: MP -> ByteString -> Int -> FPEFlags -> (FPE -> IO a) -> IO a
 withFPEInitFE1 = mkWithTemp4 fpeInitFE1 fpeDestroy
 
-fpeDestroy :: FPECtx -> IO ()
-fpeDestroy fpe = finalizeForeignPtr (getFPEForeignPtr fpe)
-
 -- -- NOTE: Referentially transparent, move to botan
--- fpeEncrypt :: FPECtx -> MP -> ByteString -> IO MP
+-- fpeEncrypt :: FPE -> MP -> ByteString -> IO MP
 -- fpeEncrypt fpe mp tweak = do
 --     mp' <- mpCopy mp
 --     fpeEncrypt fpe mp' tweak
 --     return mp 
 
 -- NOTE: Mutates the MP
-fpeEncrypt :: FPECtx -> MP -> ByteString -> IO ()
+fpeEncrypt :: FPE -> MP -> ByteString -> IO ()
 fpeEncrypt fpe mp tweak = do
-    withFPEPtr fpe $ \ fpePtr -> do
-        withMPPtr mp $ \ mpPtr -> do
+    withFPE fpe $ \ fpePtr -> do
+        withMP mp $ \ mpPtr -> do
             asBytesLen tweak $ \ tweakPtr tweakLen -> do
-                throwBotanIfNegative_ $ botan_fpe_encrypt fpePtr mpPtr tweakPtr tweakLen
+                throwBotanIfNegative_ $ botan_fpe_encrypt fpePtr mpPtr (ConstPtr tweakPtr) tweakLen
 
 -- -- NOTE: Referentially transparent, move to botan
--- fpeDecrypt :: FPECtx -> MP -> ByteString -> IO MP
+-- fpeDecrypt :: FPE -> MP -> ByteString -> IO MP
 -- fpeDecrypt fpe mp tweak = do
 --     mp' <- mpCopy mp
 --     fpeDecrypt fpe mp' tweak
 --     return mp 
 
 -- NOTE: Mutates the MP
-fpeDecrypt :: FPECtx -> MP -> ByteString -> IO ()
+fpeDecrypt :: FPE -> MP -> ByteString -> IO ()
 fpeDecrypt fpe mp tweak = do
-    withFPEPtr fpe $ \ fpePtr -> do
-        withMPPtr mp $ \ mpPtr -> do
+    withFPE fpe $ \ fpePtr -> do
+        withMP mp $ \ mpPtr -> do
             asBytesLen tweak $ \ tweakPtr tweakLen -> do
-                throwBotanIfNegative_ $ botan_fpe_decrypt fpePtr mpPtr tweakPtr tweakLen
+                throwBotanIfNegative_ $ botan_fpe_decrypt fpePtr mpPtr (ConstPtr tweakPtr) tweakLen
 
 data FE1InitFlags
     = FE1None       -- BOTAN_FPE_FLAG_NONE
