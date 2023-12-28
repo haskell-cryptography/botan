@@ -7,15 +7,14 @@ import Test.Prelude
 
 import qualified Data.ByteString as ByteString
 
-import Botan.Bindings.RNG (RNGName(..))
 import Botan.Low.RNG
 
-rngs :: [RNGName]
+rngs :: [RNGType]
 rngs =
-    [ "system"
-    , "user"
-    , "user-threadsafe"
-    , "rdrand" -- NOTES: Not available on all processors
+    [ SystemRNG
+    , UserRNG
+    , UserThreadsafeRNG
+    , RDRandRNG -- NOTES: Not available on all processors
     ]
     
 spec :: Spec
@@ -29,7 +28,7 @@ spec = do
             pass
         it "rngGet" $ do
             ctx <- rngInit rng
-            bs <- rngGet 8 ctx
+            bs <- rngGet ctx 8
             pass
         it "rngReseed" $ do
             ctx <- rngInit rng
@@ -38,7 +37,7 @@ spec = do
         it "rngReseedFromRNGCtx" $ do
             ctx <- rngInit rng
             source <- rngInit rng
-            rngReseedFromRNGCtx ctx source 64
+            rngReseedFromRNG ctx source 64
             pass
         it "rngAddEntropy" $ do
             ctx <- rngInit rng

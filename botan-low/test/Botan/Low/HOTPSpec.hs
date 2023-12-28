@@ -5,7 +5,6 @@ module Botan.Low.HOTPSpec
 import Test.Prelude
 import Botan.Low.Hash (HashName(..))
 
-import Botan.Bindings.HOTP (HOTPCode(..), HOTPCounter(..))
 import Botan.Low.HOTP
 
 key :: ByteString

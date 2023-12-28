@@ -21,7 +21,7 @@ key = "0000DEADBEEF0000"
 rounds :: Int
 rounds = 3
 
-newRng :: IO RNGCtx
+newRng :: IO RNG
 newRng = rngInit "system"
 
 newX :: MP -> IO MP
@@ -35,14 +35,14 @@ newX n = do
     mpRandRange x rng z n
     return x
 
-newFE1Ctx :: IO (MP, FPECtx)
+newFE1Ctx :: IO (MP, FPE)
 newFE1Ctx = do
     n <- mpInit
     mpSetFromStr n nStr
     ctx <- fpeInitFE1 n key rounds BOTAN_FPE_FLAG_NONE
     return (n,ctx)
 
-newFE1CtxCompatMode :: IO (MP, FPECtx)
+newFE1CtxCompatMode :: IO (MP, FPE)
 newFE1CtxCompatMode = do
     n <- mpInit
     mpSetFromStr n nStr

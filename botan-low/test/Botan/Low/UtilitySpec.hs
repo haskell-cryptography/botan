@@ -26,7 +26,7 @@ spec = do
     -- it "scrubMem" $ do
     --     pass
     it "hexEncode" $ do
-        hex <- hexEncode message Upper
+        hex <- hexEncode message HexUpperCase
         hex `shouldBe` hexMessage
         pass
     it "hexDecode" $ do

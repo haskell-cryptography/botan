@@ -5,7 +5,6 @@ module Botan.Low.TOTPSpec
 import Test.Prelude
 import Botan.Low.Hash (HashName(..))
 
-import Botan.Bindings.TOTP (TOTPCode(..), TOTPTimestep(..), TOTPTimestamp(..))
 import Botan.Low.TOTP
 
 key :: ByteString

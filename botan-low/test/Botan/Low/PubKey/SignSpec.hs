@@ -44,13 +44,13 @@ spec = testSuite pks pkTestName $ \ (pk, param, algo) -> do
     it "signCreate" $ do
         rng <- rngInit "system"
         privKey <- privKeyCreate pk param rng
-        ctx <- signCreate privKey algo SigningNoFlags
+        ctx <- signCreate privKey algo SigningPEMFormatSignature
         -- ctxDER <- signCreate privKey algo SigningDERFormatSignature
         pass
     it "signOutputLength" $ do
         rng <- rngInit "system"
         privKey <- privKeyCreate pk param rng
-        ctx <- signCreate privKey algo SigningNoFlags
+        ctx <- signCreate privKey algo SigningPEMFormatSignature
         sigLen <- signOutputLength ctx
         -- ctxDER <- signCreate privKey algo SigningDERFormatSignature
         -- _ <- signOutputLength ctxDER
@@ -58,13 +58,13 @@ spec = testSuite pks pkTestName $ \ (pk, param, algo) -> do
     it "signUpdate" $ do
         rng <- rngInit "system"
         privKey <- privKeyCreate pk param rng
-        ctx <- signCreate privKey algo SigningNoFlags
+        ctx <- signCreate privKey algo SigningPEMFormatSignature
         signUpdate ctx "Fee fi fo fum!"
         pass
     it "signFinish" $ do
         rng <- rngInit "system"
         privKey <- privKeyCreate pk param rng
-        ctx <- signCreate privKey algo SigningNoFlags
+        ctx <- signCreate privKey algo SigningPEMFormatSignature
         signUpdate ctx "Fee fi fo fum!"
         sig <- signFinish ctx rng
         pass

@@ -105,7 +105,7 @@ spec = testSuite pks pkTestName $ \ (pk, param) -> do
     it "privKeyCheckKey" $ do
         rng <- rngInit "system"
         privKey <- privKeyCreate pk param rng
-        privKeyCheckKey privKey rng CheckKeyNone
+        privKeyCheckKey privKey rng CheckKeyNormalTests
         -- privKeyCheckKey privKey rng CheckKeyExpensiveTests
         pass
     it "privKeyExport" $ do
@@ -136,7 +136,7 @@ spec = testSuite pks pkTestName $ \ (pk, param) -> do
         rng <- rngInit "system"
         privKey <- privKeyCreate pk param rng
         pubKey <- privKeyExportPubKey privKey
-        pubKeyCheckKey pubKey rng CheckKeyNone
+        pubKeyCheckKey pubKey rng CheckKeyNormalTests
         -- pubKeyCheckKey pubKey rng CheckKeyExpensiveTests
         pass
     it "pubKeyExport" $ do
