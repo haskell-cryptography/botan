@@ -28,11 +28,11 @@ import Botan.Low.RNG
 
 privKeyCreateElGamal :: RNG -> Int -> Int -> IO PrivKey
 privKeyCreateElGamal rng pbits qbits = withRNG rng $ \ botanRNG -> do
-    alloca $ \ outPtr -> do
-        throwBotanIfNegative_ $ botan_privkey_create_elgamal outPtr botanRNG (fromIntegral pbits) (fromIntegral qbits)
-        out <- peek outPtr
-        foreignPtr <- newForeignPtr botan_privkey_destroy out
-        return $ MkPrivKey foreignPtr
+    createPrivKey $ \ out -> botan_privkey_create_elgamal
+        out
+        botanRNG
+        (fromIntegral pbits)
+        (fromIntegral qbits)
 
 privKeyLoadElGamal :: MP -> MP -> MP -> IO PrivKey
 privKeyLoadElGamal = mkPrivKeyLoad3 botan_privkey_load_elgamal

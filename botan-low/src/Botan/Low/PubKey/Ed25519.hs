@@ -19,6 +19,7 @@ import Botan.Low.Error
 import Botan.Low.Make
 import Botan.Low.Prelude
 import Botan.Low.PubKey
+import Botan.Low.Remake
 
 -- /*
 -- * Algorithm specific key operations: Ed25519
@@ -26,11 +27,11 @@ import Botan.Low.PubKey
 
 -- NOTE: Input must be exactly 32 bytes long
 privKeyLoadEd25519 :: ByteString -> IO PrivKey
-privKeyLoadEd25519 = mkInit_bytes MkPrivKey botan_privkey_load_ed25519 botan_privkey_destroy
+privKeyLoadEd25519 = mkCreateObjectCBytes createPrivKey botan_privkey_load_ed25519
 
 -- NOTE: Input must be exactly 32 bytes long
 pubKeyLoadEd25519 :: ByteString -> IO PubKey
-pubKeyLoadEd25519 = mkInit_bytes MkPubKey botan_pubkey_load_ed25519 botan_pubkey_destroy
+pubKeyLoadEd25519 = mkCreateObjectCBytes createPubKey botan_pubkey_load_ed25519
 
 privKeyEd25519GetPrivKey :: PrivKey -> IO ByteString
 privKeyEd25519GetPrivKey sk = withPrivKey sk $ \ skPtr -> do

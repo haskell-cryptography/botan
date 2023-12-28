@@ -233,11 +233,11 @@ privKeyGetField mp sk field = withMP mp $ \ mpPtr -> do
 -- Helpers
 
 mkPrivKeyLoad1_name
-    :: (Ptr BotanPrivKey -> BotanMP -> CString -> IO BotanErrorCode)
+    :: (Ptr BotanPrivKey -> BotanMP -> ConstPtr CChar -> IO BotanErrorCode)
     -> MP -> ByteString -> IO PrivKey
 mkPrivKeyLoad1_name load a name = withMP a $ \ aPtr -> do
     asCString name $ \ namePtr -> do
-        createPrivKey $ \ out -> load out aPtr namePtr
+        createPrivKey $ \ out -> load out aPtr (ConstPtr namePtr)
 
 mkPrivKeyLoad3
     :: (Ptr BotanPrivKey -> BotanMP -> BotanMP -> BotanMP -> IO BotanErrorCode)
@@ -260,11 +260,11 @@ mkPubKeyLoad2 load a b = withMany withMP [a,b] $ \ [aPtr,bPtr] -> do
     createPubKey $ \ out -> load out aPtr bPtr
 
 mkPubKeyLoad2_name
-    :: (Ptr BotanPubKey -> BotanMP -> BotanMP -> CString -> IO BotanErrorCode)
+    :: (Ptr BotanPubKey -> BotanMP -> BotanMP -> ConstPtr CChar -> IO BotanErrorCode)
     -> MP -> MP -> ByteString -> IO PubKey
 mkPubKeyLoad2_name load x y name = withMany withMP [x,y] $ \ [xPtr,yPtr] -> do
     asCString name $ \ namePtr -> do
-        createPubKey $ \ out -> load out xPtr yPtr namePtr
+        createPubKey $ \ out -> load out xPtr yPtr (ConstPtr namePtr)
 
 mkPubKeyLoad3
     :: (Ptr BotanPubKey -> BotanMP -> BotanMP -> BotanMP -> IO BotanErrorCode)

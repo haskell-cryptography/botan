@@ -17,6 +17,7 @@ module Botan.Low.Remake
 , mkCreateObjectWith
 , mkCreateObjectCString
 , mkCreateObjectCString1
+, mkCreateObjectCBytes
 , mkCreateObjectCBytesLen
 , mkWithObjectAction
 , mkWithObjectSetterCString
@@ -148,7 +149,7 @@ mkCreateObjectWith
 mkCreateObjectWith createObject withArg init arg = withArg arg $ \ carg -> do
     createObject $ \ outPtr -> init outPtr carg
 
--- TODO: Rename mkCreateCString      
+-- TODO: Rename mkCreateCString
 mkCreateObjectCString
     :: ((Ptr botan -> IO CInt) -> IO object)
     -> (Ptr botan -> ConstPtr CChar -> IO CInt)
@@ -158,7 +159,7 @@ mkCreateObjectCString
 --     createObject $ \ outPtr -> init outPtr (ConstPtr namePtr)
 mkCreateObjectCString createObject = mkCreateObjectWith createObject withConstCString
 
- -- TODO: Rename mkCreateCString1           
+-- TODO: Rename mkCreateCString1
 mkCreateObjectCString1
     :: ((Ptr botan -> IO CInt) -> IO object)
     -> (Ptr botan -> ConstPtr CChar -> a -> IO CInt)
@@ -168,7 +169,16 @@ mkCreateObjectCString1
 mkCreateObjectCString1 createObject init str a = withCString str $ \ cstr -> do
     createObject $ \ outPtr -> init outPtr (ConstPtr cstr) a
 
--- TODO: Rename mkCreateCBytes      
+-- TODO: Rename mkCreateCBytes
+mkCreateObjectCBytes
+    :: ((Ptr botan -> IO CInt) -> IO object)
+    -> (Ptr botan -> ConstPtr Word8 -> IO CInt)
+    -> ByteString
+    -> IO object
+mkCreateObjectCBytes createObject init bytes = withCBytes bytes $ \ cbytes -> do
+    createObject $ \ out -> init out (ConstPtr cbytes)
+
+-- TODO: Rename mkCreateCBytesLen
 mkCreateObjectCBytesLen
     :: ((Ptr botan -> IO CInt) -> IO object)
     -> (Ptr botan -> ConstPtr Word8 -> CSize -> IO CInt)

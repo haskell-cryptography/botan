@@ -24,12 +24,12 @@ import Botan.Low.RNG
 
 privKeyCreateDSA :: RNG -> Int -> Int -> IO PrivKey
 privKeyCreateDSA rng pbits qbits = withRNG rng $ \ botanRNG -> do
-    alloca $ \ outPtr -> do
-        throwBotanIfNegative_ $ botan_privkey_create_dsa outPtr botanRNG (fromIntegral pbits) (fromIntegral qbits)
-        out <- peek outPtr
-        foreignPtr <- newForeignPtr botan_privkey_destroy out
-        return $ MkPrivKey foreignPtr
-
+    createPrivKey $ \ out -> botan_privkey_create_dsa
+        out
+        botanRNG
+        (fromIntegral pbits)
+        (fromIntegral qbits)
+        
 privKeyLoadDSA :: MP -> MP -> MP -> MP -> IO PrivKey
 privKeyLoadDSA = mkPrivKeyLoad4 botan_privkey_load_dsa
 

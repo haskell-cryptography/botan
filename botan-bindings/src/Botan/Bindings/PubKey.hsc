@@ -58,22 +58,6 @@ foreign import capi safe "botan/ffi.h botan_privkey_check_key"
         -> Word32          -- ^ flags
         -> IO CInt
 
-foreign import capi safe "botan/ffi.h botan_privkey_create_dsa"
-    botan_privkey_create_dsa
-        :: Ptr BotanPrivKey    -- ^ key
-        -> BotanRNG            -- ^ rng
-        -> CSize               -- ^ pbits
-        -> CSize               -- ^ qbits
-        -> IO CInt
-
-foreign import capi safe "botan/ffi.h botan_privkey_create_elgamal"
-    botan_privkey_create_elgamal
-        :: Ptr BotanPrivKey    -- ^ key
-        -> BotanRNG            -- ^ rng
-        -> CSize               -- ^ pbits
-        -> CSize               -- ^ qbits
-        -> IO CInt
-
 {- |
 Input currently assumed to be PKCS #8 structure;
 Set password to NULL to indicate no encryption expected

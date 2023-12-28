@@ -18,6 +18,7 @@ module Botan.Low.Prelude
 , ConstPtr(..)
 , peekCString
 , withCString
+, withCBytes
 , withCBytesLen
 , withConstCString
 , withMany
@@ -113,15 +114,15 @@ peekCStringLen = ByteString.packCStringLen
 withCStringLen :: ByteString -> (CStringLen -> IO a) -> IO a
 withCStringLen = ByteString.useAsCStringLen
 
--- type CBytes     = Ptr Word8
+type CBytes = Ptr Word8
 
 -- peekCBytes :: CBytes -> Int -> IO ByteString
 -- peekCBytes = undefined
 
--- withCBytes :: ByteString -> (CBytes -> Int -> IO a) -> IO a 
--- withCBytes = undefined
+withCBytes :: ByteString -> (CBytes -> IO a) -> IO a 
+withCBytes bs act = ByteString.useAsCStringLen bs (\ (ptr,_) -> act (castPtr ptr))
 
-type CBytesLen  = (Ptr Word8, Int)
+type CBytesLen = (Ptr Word8, Int)
 
 peekCBytesLen :: CBytesLen -> IO ByteString
 peekCBytesLen (ptr, len) = ByteString.packCStringLen (castPtr ptr, len)
