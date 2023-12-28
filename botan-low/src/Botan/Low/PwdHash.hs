@@ -32,15 +32,15 @@ pwdhash algo p1 p2 p3 outLen passphrase salt = allocBytes outLen $ \ outPtr -> d
         asCStringLen passphrase $ \ passphrasePtr passphraseLen -> do
             asBytesLen salt $ \ saltPtr saltLen -> do
                 throwBotanIfNegative_ $ botan_pwdhash
-                    algoPtr
+                    (ConstPtr algoPtr)
                     (fromIntegral p1)
                     (fromIntegral p2)
                     (fromIntegral p3)
                     outPtr
                     (fromIntegral outLen)
-                    passphrasePtr
+                    (ConstPtr passphrasePtr)
                     passphraseLen
-                    saltPtr
+                    (ConstPtr saltPtr)
                     saltLen
 
 pwdhashTimed :: PBKDFName -> Int -> Int -> ByteString -> ByteString -> IO (Int,Int,Int,ByteString)
@@ -50,16 +50,16 @@ pwdhashTimed algo msec outLen passphrase salt = alloca $ \ p1Ptr -> alloca $ \ p
             asCStringLen passphrase $ \ passphrasePtr passphraseLen -> do
                 asBytesLen salt $ \ saltPtr saltLen -> do
                     throwBotanIfNegative_ $ botan_pwdhash_timed
-                        algoPtr
+                        (ConstPtr algoPtr)
                         (fromIntegral msec)
                         p1Ptr
                         p2Ptr
                         p3Ptr
                         outPtr
                         (fromIntegral outLen)
-                        passphrasePtr
+                        (ConstPtr passphrasePtr)
                         passphraseLen
-                        saltPtr
+                        (ConstPtr saltPtr)
                         saltLen
     p1 <- fromIntegral <$> peek p1Ptr
     p2 <- fromIntegral <$> peek p2Ptr

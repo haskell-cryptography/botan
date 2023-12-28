@@ -140,6 +140,10 @@ type ConstCBytes    = ConstPtr Word8
 type ConstCBytesLen = (ConstPtr Word8, Int)
 -}
 
+-- TODO: Replace
+--      withCString str $ \ cstr -> ... (ConstPtr cstr) ...
+--  with
+--      withConstCString str $ \ cstr -> ... cstr ...
 withConstCString :: ByteString -> (ConstPtr CChar -> IO a) -> IO a
 withConstCString bs act = ByteString.useAsCString bs (act . ConstPtr)
 

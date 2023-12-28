@@ -99,7 +99,7 @@ x509CertStoreFindCertByRawSubjectDNSHA256 store digest = withX509CertStorePtr st
 -- TODO: Use mkInitMaybe
 x509CertStoreFindCRLFor :: X509CertStore -> X509Cert -> IO (Maybe X509CRL)
 x509CertStoreFindCRLFor store cert = withX509CertStorePtr store $ \ store_ptr -> do
-    withX509CertPtr cert $ \ cert_ptr -> do
+    withX509Cert cert $ \ cert_ptr -> do
         alloca $ \ outPtr -> do
             throwBotanIfNegative_ $ botan_x509_cert_store_find_crl_for
                 outPtr
@@ -114,7 +114,7 @@ x509CertStoreFindCRLFor store cert = withX509CertStorePtr store $ \ store_ptr ->
 
 x509CertStoreCertificateKnown :: X509CertStore -> X509Cert -> IO Bool
 x509CertStoreCertificateKnown store cert = withX509CertStorePtr store $ \ store_ptr -> do
-    withX509CertPtr cert $ \ cert_ptr -> do
+    withX509Cert cert $ \ cert_ptr -> do
         throwBotanCatchingSuccess $ botan_x509_cert_store_certificate_known store_ptr cert_ptr
 
 -- {-
@@ -132,7 +132,7 @@ x509CertStoreInMemoryLoadDir path = asCString path $ \ path_ptr -> mkInit
                 botan_x509_cert_store_destroy
 
 x509CertStoreInMemoryLoadCert :: X509Cert -> IO X509CertStore
-x509CertStoreInMemoryLoadCert cert = withX509CertPtr cert $ \ cert_ptr -> mkInit
+x509CertStoreInMemoryLoadCert cert = withX509Cert cert $ \ cert_ptr -> mkInit
                 MkX509CertStore
                 (\ ptr -> botan_x509_cert_store_in_memory_load_cert
                     ptr
@@ -148,14 +148,14 @@ x509CertStoreInMemoryCreate = mkInit
 
 x509CertStoreInMemoryAddCertificate :: X509CertStore -> X509Cert -> IO ()
 x509CertStoreInMemoryAddCertificate store cert = withX509CertStorePtr store $ \ store_ptr -> do
-    withX509CertPtr cert $ \ cert_ptr -> do
+    withX509Cert cert $ \ cert_ptr -> do
         throwBotanIfNegative_ $ botan_x509_cert_store_in_memory_add_certificate
             store_ptr
             cert_ptr
 
 x509CertStoreInMemoryAddCRL :: X509CertStore -> X509CRL -> IO ()
 x509CertStoreInMemoryAddCRL store crl = withX509CertStorePtr store $ \ store_ptr -> do
-    withX509CRLPtr crl $ \ crl_ptr -> do
+    withX509CRL crl $ \ crl_ptr -> do
         throwBotanIfNegative_ $ botan_x509_cert_store_in_memory_add_crl
             store_ptr
             crl_ptr
@@ -180,14 +180,14 @@ SQL cert store
 
 x509CertStoreSQLInsertCert :: X509CertStore -> X509Cert -> IO Bool
 x509CertStoreSQLInsertCert store cert = withX509CertStorePtr store $ \ store_ptr -> do
-    withX509CertPtr cert $ \ cert_ptr -> do
+    withX509Cert cert $ \ cert_ptr -> do
         throwBotanCatchingSuccess $ botan_x509_cert_store_sql_insert_cert
             store_ptr
             cert_ptr
 
 x509CertStoreSQLRemoveCert :: X509CertStore -> X509Cert -> IO Bool
 x509CertStoreSQLRemoveCert store cert = withX509CertStorePtr store $ \ store_ptr -> do
-    withX509CertPtr cert $ \ cert_ptr -> do
+    withX509Cert cert $ \ cert_ptr -> do
         throwBotanCatchingSuccess $ botan_x509_cert_store_sql_remove_cert
             store_ptr
             cert_ptr
@@ -195,7 +195,7 @@ x509CertStoreSQLRemoveCert store cert = withX509CertStorePtr store $ \ store_ptr
 -- TODO: Use mkInitMaybe
 x509CertStoreSQLFindKey :: X509CertStore -> X509Cert -> IO (Maybe PrivKey)
 x509CertStoreSQLFindKey store cert = withX509CertStorePtr store $ \ store_ptr -> do
-    withX509CertPtr cert $ \ cert_ptr -> do
+    withX509Cert cert $ \ cert_ptr -> do
         alloca $ \ outPtr -> do
             throwBotanIfNegative_ $ botan_x509_cert_store_sql_find_key
                 outPtr
@@ -231,7 +231,7 @@ x509CertStoreSQLFindCertsForKey store privkey = withX509CertStorePtr store $ \ s
 
 x509CertStoreSQLInsertKey :: X509CertStore -> X509Cert -> PrivKey -> IO Bool
 x509CertStoreSQLInsertKey store cert privkey = withX509CertStorePtr store $ \ store_ptr -> do
-    withX509CertPtr cert $ \ cert_ptr -> do
+    withX509Cert cert $ \ cert_ptr -> do
         withPrivKey privkey $ \ privkey_ptr -> do
             throwBotanCatchingSuccess $ botan_x509_cert_store_sql_insert_key
                 store_ptr
@@ -247,7 +247,7 @@ x509CertStoreSQLRemoveKey store privkey = withX509CertStorePtr store $ \ store_p
 
 x509CertStoreSQLRevokeCert :: X509CertStore -> X509Cert -> Word32 -> Word64 -> IO ()
 x509CertStoreSQLRevokeCert store cert crl_code time = withX509CertStorePtr store $ \ store_ptr -> do
-    withX509CertPtr cert $ \ cert_ptr -> do
+    withX509Cert cert $ \ cert_ptr -> do
         throwBotanIfNegative_ $ botan_x509_cert_store_sql_revoke_cert
             store_ptr
             cert_ptr
@@ -256,7 +256,7 @@ x509CertStoreSQLRevokeCert store cert crl_code time = withX509CertStorePtr store
 
 x509CertStoreSQLAffirmCert :: X509CertStore -> X509Cert -> IO ()
 x509CertStoreSQLAffirmCert store cert = withX509CertStorePtr store $ \ store_ptr -> do
-    withX509CertPtr cert $ \ cert_ptr -> do
+    withX509Cert cert $ \ cert_ptr -> do
         throwBotanIfNegative_ $ botan_x509_cert_store_sql_affirm_cert
             store_ptr
             cert_ptr

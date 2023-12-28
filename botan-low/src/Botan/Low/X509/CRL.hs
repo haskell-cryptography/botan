@@ -18,12 +18,12 @@ import Botan.Low.X509.CSR (X509IssuerDN)
 --  TODO: Eventually move original / read-only CRL functions here too
 
 x509CRLGetRevoked :: X509CRL -> IO [X509CRLEntry]
-x509CRLGetRevoked crl = withX509CRLPtr crl $ \ crlPtr -> do
+x509CRLGetRevoked crl = withX509CRL crl $ \ crlPtr -> do
     -- TODO: Some sort of allocArrayQuerying
     undefined
 
 x509CRLGetIssuerDN :: X509CRL -> ByteString -> Int -> IO X509IssuerDN
-x509CRLGetIssuerDN crl key index = withX509CRLPtr crl $ \ crlPtr -> do
+x509CRLGetIssuerDN crl key index = withX509CRL crl $ \ crlPtr -> do
     asBytes key $ \ keyPtr -> do
         allocBytesQuerying $ \ outPtr outLen -> botan_x509_crl_get_issuer_dn
             outPtr
@@ -33,37 +33,37 @@ x509CRLGetIssuerDN crl key index = withX509CRLPtr crl $ \ crlPtr -> do
             (fromIntegral index)
 
 x509CRLExtensions :: X509CRL -> IO X509Extensions
-x509CRLExtensions crl = withX509CRLPtr crl $ \ crlPtr -> mkInit
+x509CRLExtensions crl = withX509CRL crl $ \ crlPtr -> mkInit
         MkX509Extensions
         (\ ptr -> botan_x509_crl_extensions ptr crlPtr)
         botan_x509_exts_destroy
 
 x509CRLAuthorityKeyId :: X509CRL -> IO ByteString
-x509CRLAuthorityKeyId crl = withX509CRLPtr crl $ \ crlPtr -> do
+x509CRLAuthorityKeyId crl = withX509CRL crl $ \ crlPtr -> do
     allocBytesQuerying $ \ outPtr outLen -> botan_x509_crl_authority_key_id
         outPtr outLen
         crlPtr
 
 x509CRLSerialNumber :: X509CRL -> IO Word32
-x509CRLSerialNumber crl = withX509CRLPtr crl $ \ crlPtr -> do
+x509CRLSerialNumber crl = withX509CRL crl $ \ crlPtr -> do
     alloca $ \ snPtr -> do
         throwBotanIfNegative_ $ botan_x509_crl_serial_number snPtr crlPtr
         peek snPtr
 
 x509CRLThisUpdate :: X509CRL -> IO Word64
-x509CRLThisUpdate crl = withX509CRLPtr crl $ \ crlPtr -> do
+x509CRLThisUpdate crl = withX509CRL crl $ \ crlPtr -> do
     alloca $ \ timePtr -> do
         throwBotanIfNegative_ $ botan_x509_crl_this_update timePtr crlPtr
         peek timePtr
 
 x509CRLNextUpdate :: X509CRL -> IO Word64
-x509CRLNextUpdate crl = withX509CRLPtr crl $ \ crlPtr -> do
+x509CRLNextUpdate crl = withX509CRL crl $ \ crlPtr -> do
     alloca $ \ timePtr -> do
         throwBotanIfNegative_ $ botan_x509_crl_next_update timePtr crlPtr
         peek timePtr
 
 x509CRLIssuingDistributionPoint :: X509CRL -> IO ByteString
-x509CRLIssuingDistributionPoint crl = withX509CRLPtr crl $ \ crlPtr -> do
+x509CRLIssuingDistributionPoint crl = withX509CRL crl $ \ crlPtr -> do
     allocBytesQuerying $ \ outPtr outLen -> botan_x509_crl_issuing_distribution_point
         outPtr outLen
         crlPtr
@@ -118,7 +118,7 @@ pattern BOTAN_X509_CRL_CODE_AA_COMPROMISE = 10 :: X509CRLCode
 
 x509CRLEntryCreate :: X509Cert -> X509CRLCode -> IO X509CRLEntry
 x509CRLEntryCreate cert crl_code = do
-    withX509CertPtr cert $ \ certPtr -> mkInit
+    withX509Cert cert $ \ certPtr -> mkInit
         MkX509CRLEntry
         (\ptr -> botan_x509_crl_entry_create ptr certPtr crl_code)
         botan_x509_crl_entry_destroy

@@ -47,7 +47,7 @@ x509PathValidationDestroy validation = finalizeForeignPtr (getX509PathValidation
 -- NOTE: OCSPResponse not yet implemented
 x509PathValidate :: X509Cert -> X509PathRestrictions -> X509CertStore -> ByteString -> Word32 -> Word64 -> Word64 -> Ptr () -> IO X509PathValidation
 x509PathValidate cert restrictions store hostname usage validationTime ocspTimeout ocspResponse = do
-    withX509CertPtr cert $ \ certPtr -> do
+    withX509Cert cert $ \ certPtr -> do
         withX509PathRestrictionsPtr restrictions $ \ restrictionsPtr -> do
             withX509CertStorePtr store $ \ storePtr -> do
                 asCString hostname $ \ hostnamePtr -> do

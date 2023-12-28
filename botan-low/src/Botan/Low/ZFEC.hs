@@ -69,7 +69,7 @@ zfecEncode k n input = asBytesLen input $ \ inputPtr inputLen -> do
             throwBotanIfNegative_ $ botan_zfec_encode
                 (fromIntegral k)
                 (fromIntegral n)
-                inputPtr
+                (ConstPtr inputPtr)
                 inputLen
                 sharePtrArrayPtr
             shares <- traverse (ByteString.packCStringLen . (,shareSize) . castPtr) sharePtrs
@@ -107,8 +107,10 @@ zfecDecode k n shares@((_,share0):_) = do
                         throwBotanIfNegative_ $ botan_zfec_decode
                             (fromIntegral k)
                             (fromIntegral n)
-                            indexesPtr
-                            sharePtrArrayPtr
+                            (ConstPtr indexesPtr)
+                            -- NOTE: Use of castPtr here because allocating
+                            --  as a ConstPtr (ConstPtr a) is tedious
+                            (ConstPtr $ castPtr sharePtrArrayPtr)
                             (fromIntegral shareSize)
                             outPtrArrayPtr
     where

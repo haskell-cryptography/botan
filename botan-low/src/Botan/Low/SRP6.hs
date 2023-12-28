@@ -38,6 +38,7 @@ import Botan.Bindings.SRP6
 import Botan.Low.Error
 import Botan.Low.Make
 import Botan.Low.Prelude
+import Botan.Low.Remake
 import Botan.Low.RNG
 import Botan.Low.PubKey
 
@@ -59,42 +60,49 @@ type SRP6BValue = ByteString
 type SRP6AValue = ByteString
 type SRP6SharedSecret = ByteString
 
-newtype SRP6ServerSessionCtx = MkSRP6ServerSessionCtx { getSRP6ForeignPtr :: ForeignPtr SRP6Struct }
+newtype SRP6ServerSession = MkSRP6ServerSession { getSRP6ServerSessionForeignPtr :: ForeignPtr BotanSRP6ServerSessionStruct }
 
-withSRP6Ptr :: SRP6ServerSessionCtx -> (SRP6Ptr -> IO a) -> IO a
-withSRP6Ptr = withForeignPtr . getSRP6ForeignPtr
+newSRP6ServerSession      :: BotanSRP6ServerSession -> IO SRP6ServerSession
+withSRP6ServerSession     :: SRP6ServerSession -> (BotanSRP6ServerSession -> IO a) -> IO a
+-- | Destroy a SRP6 server session object immediately
+srp6ServerSessionDestroy  :: SRP6ServerSession -> IO ()
+createSRP6ServerSession   :: (Ptr BotanSRP6ServerSession -> IO CInt) -> IO SRP6ServerSession
+(newSRP6ServerSession, withSRP6ServerSession, srp6ServerSessionDestroy, createSRP6ServerSession, _)
+    = mkBindings
+        MkBotanSRP6ServerSession runBotanSRP6ServerSession
+        MkSRP6ServerSession getSRP6ServerSessionForeignPtr
+        botan_srp6_server_session_destroy
 
-srp6ServerSessionInit :: IO SRP6ServerSessionCtx
-srp6ServerSessionInit = mkInit MkSRP6ServerSessionCtx botan_srp6_server_session_init botan_srp6_server_session_destroy
 
-withSRP6ServerSessionCtx :: (SRP6ServerSessionCtx -> IO a) -> IO a
-withSRP6ServerSessionCtx = mkWithTemp srp6ServerSessionInit srp6ServerSessionDestroy
+srp6ServerSessionInit :: IO SRP6ServerSession
+srp6ServerSessionInit = createSRP6ServerSession botan_srp6_server_session_init
 
-srp6ServerSessionDestroy :: SRP6ServerSessionCtx -> IO ()
-srp6ServerSessionDestroy srp6 = finalizeForeignPtr (getSRP6ForeignPtr srp6)
+-- WARNING: withFooInit-style limited lifetime functions moved to high-level botan
+withSRP6ServerSessionInit :: (SRP6ServerSession -> IO a) -> IO a
+withSRP6ServerSessionInit = mkWithTemp srp6ServerSessionInit srp6ServerSessionDestroy
 
-srp6ServerSessionStep1 :: SRP6ServerSessionCtx -> SRP6Verifier -> GroupId -> HashId -> RNG -> IO SRP6BValue
-srp6ServerSessionStep1 srp6 verifier groupId hashId rng = withSRP6Ptr srp6 $ \ srp6Ptr -> do
+srp6ServerSessionStep1 :: SRP6ServerSession -> SRP6Verifier -> GroupId -> HashId -> RNG -> IO SRP6BValue
+srp6ServerSessionStep1 srp6 verifier groupId hashId rng = withSRP6ServerSession srp6 $ \ srp6Ptr -> do
     asBytesLen verifier $ \ verifierPtr verifierLen -> do
         asCString groupId $ \ groupIdPtr -> do
             asCString hashId $ \ hashIdPtr -> do
                 withRNG rng $ \ botanRNG -> do
                     allocBytesQuerying $ \ outPtr outLen -> botan_srp6_server_session_step1
                         srp6Ptr
-                        verifierPtr
+                        (ConstPtr verifierPtr)
                         verifierLen
-                        groupIdPtr
-                        hashIdPtr
+                        (ConstPtr groupIdPtr)
+                        (ConstPtr hashIdPtr)
                         botanRNG
                         outPtr
                         outLen
 
-srp6ServerSessionStep2 :: SRP6ServerSessionCtx -> SRP6AValue -> IO SRP6SharedSecret
-srp6ServerSessionStep2 srp6 a = withSRP6Ptr srp6 $ \ srp6Ptr -> do
+srp6ServerSessionStep2 :: SRP6ServerSession -> SRP6AValue -> IO SRP6SharedSecret
+srp6ServerSessionStep2 srp6 a = withSRP6ServerSession srp6 $ \ srp6Ptr -> do
     asBytesLen a $ \ aPtr aLen -> do
         allocBytesQuerying $ \ outPtr outLen -> botan_srp6_server_session_step2
             srp6Ptr
-            aPtr
+            (ConstPtr aPtr)
             aLen
             outPtr
             outLen
@@ -106,12 +114,12 @@ srp6GenerateVerifier identifier password salt groupId hashId = asCString identif
             asCString groupId $ \ groupIdPtr -> do
                 asCString hashId $ \ hashIdPtr -> do
                     allocBytesQuerying $ \ outPtr outLen -> botan_srp6_generate_verifier
-                        identifierPtr
-                        passwordPtr
-                        saltPtr
+                        (ConstPtr identifierPtr)
+                        (ConstPtr passwordPtr)
+                        (ConstPtr saltPtr)
                         saltLen
-                        groupIdPtr
-                        hashIdPtr
+                        (ConstPtr groupIdPtr)
+                        (ConstPtr hashIdPtr)
                         outPtr
                         outLen
 
@@ -131,13 +139,13 @@ srp6ClientAgree identifier password groupId hashId salt b rng = do
                                         -- TODO: Actually ensure expected error (insufficient buffer space)
                                         --  and propagate unexpected errors
                                         _ <- botan_srp6_client_agree
-                                            identifierPtr
-                                            passwordPtr
-                                            groupIdPtr
-                                            hashIdPtr
-                                            saltPtr
+                                            (ConstPtr identifierPtr)
+                                            (ConstPtr passwordPtr)
+                                            (ConstPtr groupIdPtr)
+                                            (ConstPtr hashIdPtr)
+                                            (ConstPtr saltPtr)
                                             saltLen
-                                            bPtr
+                                            (ConstPtr bPtr)
                                             bLen
                                             botanRNG
                                             nullPtr
@@ -149,13 +157,13 @@ srp6ClientAgree identifier password groupId hashId salt b rng = do
                                         allocBytesWith kSz $ \ kPtr -> do
                                             allocBytes aSz $ \ aPtr -> do
                                                 throwBotanIfNegative_ $ botan_srp6_client_agree
-                                                    identifierPtr
-                                                    passwordPtr
-                                                    groupIdPtr
-                                                    hashIdPtr
-                                                    saltPtr
+                                                    (ConstPtr identifierPtr)
+                                                    (ConstPtr passwordPtr)
+                                                    (ConstPtr groupIdPtr)
+                                                    (ConstPtr hashIdPtr)
+                                                    (ConstPtr saltPtr)
                                                     saltLen
-                                                    bPtr
+                                                    (ConstPtr bPtr)
                                                     bLen
                                                     botanRNG
                                                     aPtr
@@ -168,5 +176,5 @@ srp6ClientAgree identifier password groupId hashId salt b rng = do
 srp6GroupSize :: GroupId -> IO Int
 srp6GroupSize groupId = asCString groupId $ \ groupIdPtr -> do
     alloca $ \ szPtr -> do
-        throwBotanIfNegative_ $ botan_srp6_group_size groupIdPtr szPtr
+        throwBotanIfNegative_ $ botan_srp6_group_size (ConstPtr groupIdPtr) szPtr
         fromIntegral <$> peek szPtr
