@@ -156,6 +156,9 @@ test-suite botan-low-tests
     default-extensions:
         NoImplicitPrelude
         OverloadedStrings
+    -- NOTE: hspec-discover fails to respect the XFFI flag, and it tries
+    --  to begin loading modules that should not be built. Eg:
+    --      Could not find module ‘Botan.Low.X509.Store’
     if flag(XFFI)
         other-modules:
             Botan.Low.X509.CASpec

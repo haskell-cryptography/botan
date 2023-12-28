@@ -19,34 +19,36 @@ import Botan.Low.KDF
 import Botan.Low.Make
 import Botan.Low.Prelude
 import Botan.Low.PubKey
+import Botan.Low.Remake
 
 -- /*
 -- * Key Agreement
 -- */
 
-newtype KeyAgreementCtx = MkKeyAgreementCtx { getKeyAgreementForeignPtr :: ForeignPtr KeyAgreementStruct }
+newtype KeyAgreement = MkKeyAgreement { getKeyAgreementForeignPtr :: ForeignPtr BotanPKOpKeyAgreementStruct }
 
-withKeyAgreementPtr :: KeyAgreementCtx -> (KeyAgreementPtr -> IO a) -> IO a
-withKeyAgreementPtr = withForeignPtr . getKeyAgreementForeignPtr
+newKeyAgreement      :: BotanPKOpKeyAgreement -> IO KeyAgreement
+withKeyAgreement     :: KeyAgreement -> (BotanPKOpKeyAgreement -> IO a) -> IO a
+keyAgreementDestroy  :: KeyAgreement -> IO ()
+createKeyAgreement   :: (Ptr BotanPKOpKeyAgreement -> IO CInt) -> IO KeyAgreement
+(newKeyAgreement, withKeyAgreement, keyAgreementDestroy, createKeyAgreement, _)
+    = mkBindings
+        MkBotanPKOpKeyAgreement runBotanPKOpKeyAgreement
+        MkKeyAgreement getKeyAgreementForeignPtr
+        botan_pk_op_key_agreement_destroy
 
 -- NOTE: Silently uses the system RNG
-keyAgreementCreate :: PrivKey -> KDFName -> IO KeyAgreementCtx
-keyAgreementCreate sk algo = alloca $ \ outPtr -> do
-    withPrivKey sk $ \ skPtr -> do
-        asCString algo $ \ algoPtr -> do
-            throwBotanIfNegative_ $ botan_pk_op_key_agreement_create
-                outPtr
-                skPtr
-                algoPtr
-                0
-            out <- peek outPtr
-            foreignPtr <- newForeignPtr botan_pk_op_key_agreement_destroy out
-            return $ MkKeyAgreementCtx foreignPtr
+keyAgreementCreate :: PrivKey -> KDFName -> IO KeyAgreement
+keyAgreementCreate sk algo = withPrivKey sk $ \ skPtr -> do
+    asCString algo $ \ algoPtr -> do
+        createKeyAgreement $ \ out -> botan_pk_op_key_agreement_create
+            out
+            skPtr
+            (ConstPtr algoPtr)
+            0
 
-keyAgreementDestroy :: KeyAgreementCtx -> IO ()
-keyAgreementDestroy ka = finalizeForeignPtr (getKeyAgreementForeignPtr ka)
-
-withKeyAgreementCreate :: PrivKey -> KDFName -> (KeyAgreementCtx -> IO a) -> IO a
+-- WARNING: withFooInit-style limited lifetime functions moved to high-level botan
+withKeyAgreementCreate :: PrivKey -> KDFName -> (KeyAgreement -> IO a) -> IO a
 withKeyAgreementCreate = mkWithTemp2 keyAgreementCreate keyAgreementDestroy
 
 -- NOTE: I do not know if this provides a different functionality than just being
@@ -74,11 +76,11 @@ keyAgreementExportPublic sk = withPrivKey sk $ \ skPtr -> do
         outPtr
         outLen
 
-keyAgreementSize :: KeyAgreementCtx -> IO Int
-keyAgreementSize = mkGetSize withKeyAgreementPtr botan_pk_op_key_agreement_size
+keyAgreementSize :: KeyAgreement -> IO Int
+keyAgreementSize = mkGetSize withKeyAgreement botan_pk_op_key_agreement_size
 
-keyAgreement :: KeyAgreementCtx -> ByteString -> ByteString -> IO ByteString
-keyAgreement ka key salt = withKeyAgreementPtr ka $ \ kaPtr -> do
+keyAgreement :: KeyAgreement -> ByteString -> ByteString -> IO ByteString
+keyAgreement ka key salt = withKeyAgreement ka $ \ kaPtr -> do
     asBytesLen key $ \ keyPtr keyLen -> do
         asBytesLen salt $ \ saltPtr saltLen -> do
             outSz <- keyAgreementSize ka
@@ -88,9 +90,9 @@ keyAgreement ka key salt = withKeyAgreementPtr ka $ \ kaPtr -> do
                         kaPtr
                         outPtr
                         szPtr
-                        keyPtr
+                        (ConstPtr keyPtr)
                         keyLen
-                        saltPtr
+                        (ConstPtr saltPtr)
                         saltLen
                 sz <- fromIntegral <$> peek szPtr
                 return $! ByteString.take sz out

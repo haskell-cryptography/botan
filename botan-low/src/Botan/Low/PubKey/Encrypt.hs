@@ -19,37 +19,39 @@ import Botan.Low.Make
 import Botan.Low.Prelude
 import Botan.Low.RNG
 import Botan.Low.PubKey
+import Botan.Low.Remake
 
 -- /*
 -- * Public Key Encryption
 -- */
 
-newtype EncryptCtx = MkEncryptCtx { getEncryptForeignPtr :: ForeignPtr EncryptStruct }
+newtype Encrypt = MkEncrypt { getEncryptForeignPtr :: ForeignPtr BotanPKOpEncryptStruct }
 
-withEncryptPtr :: EncryptCtx -> (EncryptPtr -> IO a) -> IO a
-withEncryptPtr = withForeignPtr . getEncryptForeignPtr
+newEncrypt      :: BotanPKOpEncrypt -> IO Encrypt
+withEncrypt     :: Encrypt -> (BotanPKOpEncrypt -> IO a) -> IO a
+encryptDestroy  :: Encrypt -> IO ()
+createEncrypt   :: (Ptr BotanPKOpEncrypt -> IO CInt) -> IO Encrypt
+(newEncrypt, withEncrypt, encryptDestroy, createEncrypt, _)
+    = mkBindings
+        MkBotanPKOpEncrypt runBotanPKOpEncrypt
+        MkEncrypt getEncryptForeignPtr
+        botan_pk_op_encrypt_destroy
 
-encryptCreate :: PubKey -> PKPaddingName -> IO EncryptCtx
-encryptCreate pk padding = alloca $ \ outPtr -> do
-    withPubKey pk $ \ pkPtr -> do
-        asCString padding $ \ paddingPtr -> do
-            throwBotanIfNegative_ $ botan_pk_op_encrypt_create
-                outPtr
-                pkPtr
-                paddingPtr
-                0
-            out <- peek outPtr
-            foreignPtr <- newForeignPtr botan_pk_op_encrypt_destroy out
-            return $ MkEncryptCtx foreignPtr
+encryptCreate :: PubKey -> PKPaddingName -> IO Encrypt
+encryptCreate pk padding = withPubKey pk $ \ pkPtr -> do
+    asCString padding $ \ paddingPtr -> do
+        createEncrypt $ \ out -> botan_pk_op_encrypt_create
+            out
+            pkPtr
+            (ConstPtr paddingPtr)
+            0
+            
+-- WARNING: withFooInit-style limited lifetime functions moved to high-level botan
+withEncryptCreate :: PubKey -> PKPaddingName -> (Encrypt -> IO a) -> IO a
+withEncryptCreate = mkWithTemp2 encryptCreate encryptDestroy
 
-withEncryptCtx :: PubKey -> PKPaddingName -> (EncryptCtx -> IO a) -> IO a
-withEncryptCtx = mkWithTemp2 encryptCreate encryptDestroy
-
-encryptDestroy :: EncryptCtx -> IO ()
-encryptDestroy encrypt = finalizeForeignPtr (getEncryptForeignPtr encrypt)
-
-encryptOutputLength :: EncryptCtx -> Int -> IO Int
-encryptOutputLength = mkGetSize_csize withEncryptPtr botan_pk_op_encrypt_output_length
+encryptOutputLength :: Encrypt -> Int -> IO Int
+encryptOutputLength = mkGetSize_csize withEncrypt botan_pk_op_encrypt_output_length
 
 -- NOTE: This properly takes advantage of szPtr, queries the buffer size - do this elsewhere
 -- NOTE: SM2 take a hash instead of a padding, and encrypt fails with InsufficientBufferSpace
@@ -57,8 +59,8 @@ encryptOutputLength = mkGetSize_csize withEncryptPtr botan_pk_op_encrypt_output_
 --  the encryption context do not fail)
 --  This implies that encryptOutputLength may be wrong or hardcoded for SM2 or that we
 --  are not supposed to use curves other than sm2p256v1 - this needs investigating
-encrypt :: EncryptCtx -> RNG -> ByteString -> IO ByteString
-encrypt enc rng ptext = withEncryptPtr enc $ \ encPtr -> do
+encrypt :: Encrypt -> RNG -> ByteString -> IO ByteString
+encrypt enc rng ptext = withEncrypt enc $ \ encPtr -> do
     withRNG rng $ \ botanRNG -> do
         asBytesLen ptext $ \ ptextPtr ptextLen -> do
             allocBytesQuerying $ \ outPtr szPtr -> botan_pk_op_encrypt

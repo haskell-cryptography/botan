@@ -19,47 +19,58 @@ import Botan.Low.Make
 import Botan.Low.Prelude
 import Botan.Low.RNG
 import Botan.Low.PubKey
+import Botan.Low.Remake
 
 -- /*
 -- * Signature Generation
 -- */
 
-newtype SignCtx = MkSignCtx { getSignForeignPtr :: ForeignPtr SignStruct }
+newtype Sign = MkSign { getSignForeignPtr :: ForeignPtr BotanPKOpSignStruct }
 
-withSignPtr :: SignCtx -> (SignPtr -> IO a) -> IO a
-withSignPtr = withForeignPtr . getSignForeignPtr
+newSign      :: BotanPKOpSign -> IO Sign
+withSign     :: Sign -> (BotanPKOpSign -> IO a) -> IO a
+signDestroy  :: Sign -> IO ()
+createSign   :: (Ptr BotanPKOpSign -> IO CInt) -> IO Sign
+(newSign, withSign, signDestroy, createSign, _)
+    = mkBindings
+        MkBotanPKOpSign runBotanPKOpSign
+        MkSign getSignForeignPtr
+        botan_pk_op_sign_destroy
 
 -- TODO: Rename SignAlgoParams / SigningParams
 type SignAlgoName = ByteString
 
-pattern SigningNoFlags :: SigningFlags
-pattern SigningNoFlags = BOTAN_PUBKEY_SIGNING_FLAGS_NONE
+type SigningFlags = Word32
+
+pattern SigningPEMFormatSignature   -- ^ Not an actual flags
+    ,   SigningDERFormatSignature
+    ::  SigningFlags
+pattern SigningPEMFormatSignature = BOTAN_PUBKEY_PEM_FORMAT_SIGNATURE
 pattern SigningDERFormatSignature = BOTAN_PUBKEY_DER_FORMAT_SIGNATURE
 
-signCreate :: PrivKey -> SignAlgoName -> SigningFlags -> IO SignCtx
-signCreate sk algo flags = alloca $ \ outPtr -> do
-    withPrivKey sk $ \ skPtr -> do
-        asCString algo $ \ algoPtr -> do
-            throwBotanIfNegative_ $ botan_pk_op_sign_create outPtr skPtr algoPtr flags
-            out <- peek outPtr
-            foreignPtr <- newForeignPtr botan_pk_op_sign_destroy out
-            return $ MkSignCtx foreignPtr
+signCreate :: PrivKey -> SignAlgoName -> SigningFlags -> IO Sign
+signCreate sk algo flags = withPrivKey sk $ \ skPtr -> do
+    asCString algo $ \ algoPtr -> do
+        createSign $ \ out -> botan_pk_op_sign_create
+            out
+            skPtr
+            (ConstPtr algoPtr)
+            flags
 
-withSignCreate :: PrivKey -> SignAlgoName -> SigningFlags -> (SignCtx -> IO a) -> IO a
+-- WARNING: withFooInit-style limited lifetime functions moved to high-level botan
+withSignCreate :: PrivKey -> SignAlgoName -> SigningFlags -> (Sign -> IO a) -> IO a
 withSignCreate = mkWithTemp3 signCreate signDestroy
 
-signDestroy :: SignCtx -> IO ()
-signDestroy sign = finalizeForeignPtr (getSignForeignPtr sign)
+signOutputLength :: Sign -> IO Int
+signOutputLength = mkGetSize withSign botan_pk_op_sign_output_length
 
-signOutputLength :: SignCtx -> IO Int
-signOutputLength = mkGetSize withSignPtr botan_pk_op_sign_output_length
-
-signUpdate :: SignCtx -> ByteString -> IO ()
-signUpdate = mkSetBytesLen withSignPtr botan_pk_op_sign_update
+signUpdate :: Sign -> ByteString -> IO ()
+-- signUpdate = mkSetBytesLen withSign botan_pk_op_sign_update
+signUpdate = mkWithObjectSetterCBytesLen withSign botan_pk_op_sign_update
 
 -- TODO: Signature type
-signFinish :: SignCtx -> RNG -> IO ByteString
-signFinish sign rng = withSignPtr sign $ \ signPtr -> do
+signFinish :: Sign -> RNG -> IO ByteString
+signFinish sign rng = withSign sign $ \ signPtr -> do
     withRNG rng $ \ botanRNG -> do
         -- NOTE: Investigation into DER format shows lots of trailing nulls that may need to be trimmed
         --  using the output of szPtr if sz is just an upper-bound estimate

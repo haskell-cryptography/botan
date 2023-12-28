@@ -19,45 +19,46 @@ import Botan.Low.Make
 import Botan.Low.Prelude
 import Botan.Low.RNG
 import Botan.Low.PubKey
+import Botan.Low.Remake
 
 -- /*
 -- * Public Key Decryption
 -- */
 
--- TODO: Rename PKDecryptCtx?
-newtype DecryptCtx = MkDecryptCtx { getDecryptForeignPtr :: ForeignPtr DecryptStruct }
+newtype Decrypt = MkDecrypt { getDecryptForeignPtr :: ForeignPtr BotanPKOpDecryptStruct }
 
-withDecryptPtr :: DecryptCtx -> (DecryptPtr -> IO a) -> IO a
-withDecryptPtr = withForeignPtr . getDecryptForeignPtr
+newDecrypt      :: BotanPKOpDecrypt -> IO Decrypt
+withDecrypt     :: Decrypt -> (BotanPKOpDecrypt -> IO a) -> IO a
+decryptDestroy  :: Decrypt -> IO ()
+createDecrypt   :: (Ptr BotanPKOpDecrypt -> IO CInt) -> IO Decrypt
+(newDecrypt, withDecrypt, decryptDestroy, createDecrypt, _)
+    = mkBindings
+        MkBotanPKOpDecrypt runBotanPKOpDecrypt
+        MkDecrypt getDecryptForeignPtr
+        botan_pk_op_decrypt_destroy
 
-decryptCreate :: PrivKey -> PKPaddingName -> IO DecryptCtx
-decryptCreate sk padding = alloca $ \ outPtr -> do
-    withPrivKey sk $ \ skPtr -> do
-        asCString padding $ \ paddingPtr -> do
-            throwBotanIfNegative_ $ botan_pk_op_decrypt_create
-                outPtr
-                skPtr
-                paddingPtr
-                BOTAN_PUBKEY_DECRYPT_FLAGS_NONE
-            out <- peek outPtr
-            foreignPtr <- newForeignPtr botan_pk_op_decrypt_destroy out
-            return $ MkDecryptCtx foreignPtr
+decryptCreate :: PrivKey -> PKPaddingName -> IO Decrypt
+decryptCreate sk padding =  withPrivKey sk $ \ skPtr -> do
+    asCString padding $ \ paddingPtr -> do
+        createDecrypt $ \ out -> botan_pk_op_decrypt_create
+            out
+            skPtr
+            paddingPtr
+            BOTAN_PUBKEY_DECRYPT_FLAGS_NONE
 
-withDecryptCreate :: PrivKey -> PKPaddingName -> (DecryptCtx -> IO a) -> IO a
+-- WARNING: withFooInit-style limited lifetime functions moved to high-level botan
+withDecryptCreate :: PrivKey -> PKPaddingName -> (Decrypt -> IO a) -> IO a
 withDecryptCreate = mkWithTemp2 decryptCreate decryptDestroy
 
-decryptDestroy :: DecryptCtx -> IO ()
-decryptDestroy decrypt = finalizeForeignPtr (getDecryptForeignPtr decrypt)
+decryptOutputLength :: Decrypt -> Int -> IO Int
+decryptOutputLength = mkGetSize_csize withDecrypt botan_pk_op_decrypt_output_length
 
-decryptOutputLength :: DecryptCtx -> Int -> IO Int
-decryptOutputLength = mkGetSize_csize withDecryptPtr botan_pk_op_decrypt_output_length
-
-decrypt :: DecryptCtx -> ByteString -> IO ByteString
-decrypt dec ctext = withDecryptPtr dec $ \ decPtr -> do
+decrypt :: Decrypt -> ByteString -> IO ByteString
+decrypt dec ctext = withDecrypt dec $ \ decPtr -> do
     asBytesLen ctext $ \ ctextPtr ctextLen -> do
         allocBytesQuerying $ \ outPtr szPtr -> botan_pk_op_decrypt
             decPtr
             outPtr
             szPtr
-            ctextPtr
+            (ConstPtr ctextPtr)
             ctextLen
