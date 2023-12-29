@@ -140,3 +140,36 @@ foreign import capi safe "botan/ffi.h botan_thing_init_flags"
 ```
 
 > NOTE: Constants for `0` values are often omitted in Botan; we have opted to define patterns for `0` values for completeness.
+
+> NOTE: Patterns are being used for string constants, in lieu of direct constant pointers a la `MagicHash`:
+>   
+>   ```haskell
+>   BOTAN_FOO :: ConstPtr CChar
+>   BOTAN_FOO = ConstPtr (Ptr "Foo\0"#)
+>   ```
+>
+> A future improvement would be to use both, though care should be taken to ensure
+> that a bunch of extra marshalling does not occur:
+>
+>   ```haskell
+>   -- Bindings
+>   BOTAN_FOO :: ConstPtr CChar
+>   BOTAN_FOO = ConstPtr (Ptr "Foo\0"#)
+>
+>   -- Low
+>   pattern Foo
+>       ::  (Eq a, IsString a) => a
+>   pattern Foo = fromString (unsafeDupablePerformIO (peekCString BOTAN_FOO))
+>   {-# NOINLINE Foo #-}
+>   -- Or (dropping the polymorphic IsString for ByteString and unsafePackAddress)
+>   pattern Foo :: ByteString
+>   pattern Foo = unsafeDupablePerformIO (unsafePackAddress BOTAN_FOO)
+>   {-# NOINLINE Foo #-}
+>
+>   -- High
+>   data Foo
+>       = Foo
+>   instance IsString Foo where
+>       fromString (Low.Foo)
+>   ```
+>

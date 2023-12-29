@@ -35,6 +35,188 @@ foreign import capi safe "botan/ffi.h &botan_privkey_destroy"
     botan_privkey_destroy
         :: FinalizerPtr BotanPrivKeyStruct
 
+pattern BOTAN_PK_RSA
+    ,   BOTAN_PK_SM2
+    ,   BOTAN_PK_ELGAMAL
+    ,   BOTAN_PK_DSA
+    ,   BOTAN_PK_ECDSA
+    ,   BOTAN_PK_ECKCDSA
+    ,   BOTAN_PK_ECGDSA
+    ,   BOTAN_PK_GOST_34_10
+    ,   BOTAN_PK_ED25519
+    ,   BOTAN_PK_XMSS
+    ,   BOTAN_PK_DH
+    ,   BOTAN_PK_ECDH
+    ,   BOTAN_PK_CURVE25519
+    ,   BOTAN_PK_DILITHIUM
+    ,   BOTAN_PK_KYBER
+    -- ,   BOTAN_PK_SPHINCSPLUS
+    ,   BOTAN_PK_MCELIECE
+    ::  (Eq a, IsString a) => a
+
+pattern BOTAN_PK_RSA            = "RSA"
+pattern BOTAN_PK_SM2            = "SM2"
+pattern BOTAN_PK_ELGAMAL        = "ElGamal"
+pattern BOTAN_PK_DSA            = "DSA"
+pattern BOTAN_PK_ECDSA          = "ECDSA"
+pattern BOTAN_PK_ECKCDSA        = "ECKCDSA"
+pattern BOTAN_PK_ECGDSA         = "ECGDSA"
+pattern BOTAN_PK_GOST_34_10     = "GOST-34.10"
+pattern BOTAN_PK_ED25519        = "Ed25519"
+pattern BOTAN_PK_XMSS           = "XMSS"
+pattern BOTAN_PK_DH             = "DH"
+pattern BOTAN_PK_ECDH           = "ECDH"
+pattern BOTAN_PK_CURVE25519     = "Curve25519"
+pattern BOTAN_PK_DILITHIUM      = "Dilithium"
+pattern BOTAN_PK_KYBER          = "Kyber"
+-- pattern BOTAN_PK_SPHINCSPLUS    = "SPHINCS+"
+pattern BOTAN_PK_MCELIECE       = "McEliece"
+
+pattern BOTAN_XMSS_SHA2_10_256
+    ,   BOTAN_XMSS_SHA2_16_256
+    ,   BOTAN_XMSS_SHA2_20_256
+    ,   BOTAN_XMSS_SHA2_10_512
+    ,   BOTAN_XMSS_SHA2_16_512
+    ,   BOTAN_XMSS_SHA2_20_512
+    ,   BOTAN_XMSS_SHAKE_10_256
+    ,   BOTAN_XMSS_SHAKE_16_256
+    ,   BOTAN_XMSS_SHAKE_20_256
+    ,   BOTAN_XMSS_SHAKE_10_512
+    ,   BOTAN_XMSS_SHAKE_16_512
+    ,   BOTAN_XMSS_SHAKE_20_512
+    ::  (Eq a, IsString a) => a
+
+pattern BOTAN_XMSS_SHA2_10_256 = "XMSS-SHA2_10_256"
+pattern BOTAN_XMSS_SHA2_16_256 = "XMSS-SHA2_16_256"
+pattern BOTAN_XMSS_SHA2_20_256 = "XMSS-SHA2_20_256"
+pattern BOTAN_XMSS_SHA2_10_512 = "XMSS-SHA2_10_512"
+pattern BOTAN_XMSS_SHA2_16_512 = "XMSS-SHA2_16_512"
+pattern BOTAN_XMSS_SHA2_20_512 = "XMSS-SHA2_20_512"
+pattern BOTAN_XMSS_SHAKE_10_256 = "XMSS-SHAKE_10_256"
+pattern BOTAN_XMSS_SHAKE_16_256 = "XMSS-SHAKE_16_256"
+pattern BOTAN_XMSS_SHAKE_20_256 = "XMSS-SHAKE_20_256"
+pattern BOTAN_XMSS_SHAKE_10_512 = "XMSS-SHAKE_10_512"
+pattern BOTAN_XMSS_SHAKE_16_512 = "XMSS-SHAKE_16_512"
+pattern BOTAN_XMSS_SHAKE_20_512 = "XMSS-SHAKE_20_512"
+
+pattern BOTAN_ECGROUP_SECP_160_K1
+    ,   BOTAN_ECGROUP_SECP_160_R1
+    ,   BOTAN_ECGROUP_SECP_160_R2
+    ,   BOTAN_ECGROUP_SECP_192_K1
+    ,   BOTAN_ECGROUP_SECP_192_R1
+    ,   BOTAN_ECGROUP_SECP_224_K1
+    ,   BOTAN_ECGROUP_SECP_224_R1
+    ,   BOTAN_ECGROUP_SECP_256_K1
+    ,   BOTAN_ECGROUP_SECP_256_R1
+    ,   BOTAN_ECGROUP_SECP_384_R1
+    ,   BOTAN_ECGROUP_SECP_521_R1
+    ,   BOTAN_ECGROUP_BRAINPOOL_160_R1
+    ,   BOTAN_ECGROUP_BRAINPOOL_192_R1
+    ,   BOTAN_ECGROUP_BRAINPOOL_224_R1
+    ,   BOTAN_ECGROUP_BRAINPOOL_256_R1
+    ,   BOTAN_ECGROUP_BRAINPOOL_320_R1
+    ,   BOTAN_ECGROUP_BRAINPOOL_384_R1
+    ,   BOTAN_ECGROUP_BRAINPOOL_512_R1
+    ,   BOTAN_ECGROUP_X962_P192_V2
+    ,   BOTAN_ECGROUP_X962_P192_V3
+    ,   BOTAN_ECGROUP_X962_P239_V1
+    ,   BOTAN_ECGROUP_X962_P239_V2
+    ,   BOTAN_ECGROUP_X962_P239_V3
+    ,   BOTAN_ECGROUP_GOST_256A
+    ,   BOTAN_ECGROUP_GOST_512A
+    ,   BOTAN_ECGROUP_FRP_256_V1
+    ,   BOTAN_ECGROUP_SM2_P256_V1
+    ::  (Eq a, IsString a) => a
+
+pattern BOTAN_ECGROUP_SECP_160_K1 = "secp160k1"
+pattern BOTAN_ECGROUP_SECP_160_R1 = "secp160r1"
+pattern BOTAN_ECGROUP_SECP_160_R2 = "secp160r2"
+pattern BOTAN_ECGROUP_SECP_192_K1 = "secp192k1"
+pattern BOTAN_ECGROUP_SECP_192_R1 = "secp192r1"
+pattern BOTAN_ECGROUP_SECP_224_K1 = "secp224k1"
+pattern BOTAN_ECGROUP_SECP_224_R1 = "secp224r1"
+pattern BOTAN_ECGROUP_SECP_256_K1 = "secp256k1"
+pattern BOTAN_ECGROUP_SECP_256_R1 = "secp256r1"
+pattern BOTAN_ECGROUP_SECP_384_R1 = "secp384r1"
+pattern BOTAN_ECGROUP_SECP_521_R1 = "secp521r1"
+pattern BOTAN_ECGROUP_BRAINPOOL_160_R1 = "brainpool160r1"
+pattern BOTAN_ECGROUP_BRAINPOOL_192_R1 = "brainpool192r1"
+pattern BOTAN_ECGROUP_BRAINPOOL_224_R1 = "brainpool224r1"
+pattern BOTAN_ECGROUP_BRAINPOOL_256_R1 = "brainpool256r1"
+pattern BOTAN_ECGROUP_BRAINPOOL_320_R1 = "brainpool320r1"
+pattern BOTAN_ECGROUP_BRAINPOOL_384_R1 = "brainpool384r1"
+pattern BOTAN_ECGROUP_BRAINPOOL_512_R1 = "brainpool512r1"
+pattern BOTAN_ECGROUP_X962_P192_V2 = "x962_p192v2"
+pattern BOTAN_ECGROUP_X962_P192_V3 = "x962_p192v3"
+pattern BOTAN_ECGROUP_X962_P239_V1 = "x962_p239v1"
+pattern BOTAN_ECGROUP_X962_P239_V2 = "x962_p239v2"
+pattern BOTAN_ECGROUP_X962_P239_V3 = "x962_p239v3"
+pattern BOTAN_ECGROUP_GOST_256A = "gost_256A"
+pattern BOTAN_ECGROUP_GOST_512A = "gost_512A"
+pattern BOTAN_ECGROUP_FRP_256_V1 = "frp256v1"
+pattern BOTAN_ECGROUP_SM2_P256_V1 = "sm2p256v1"
+
+pattern BOTAN_DLGROUP_FFDHE_IETF_2048
+    ,   BOTAN_DLGROUP_FFDHE_IETF_3072
+    ,   BOTAN_DLGROUP_FFDHE_IETF_4096
+    ,   BOTAN_DLGROUP_FFDHE_IETF_6144
+    ,   BOTAN_DLGROUP_FFDHE_IETF_8192
+    ,   BOTAN_DLGROUP_MODP_IETF_1024
+    ,   BOTAN_DLGROUP_MODP_IETF_1536
+    ,   BOTAN_DLGROUP_MODP_IETF_2048
+    ,   BOTAN_DLGROUP_MODP_IETF_3072
+    ,   BOTAN_DLGROUP_MODP_IETF_4096
+    ,   BOTAN_DLGROUP_MODP_IETF_6144
+    ,   BOTAN_DLGROUP_MODP_IETF_8192
+    ,   BOTAN_DLGROUP_MODP_SRP_1024
+    ,   BOTAN_DLGROUP_MODP_SRP_1536
+    ,   BOTAN_DLGROUP_MODP_SRP_2048
+    ,   BOTAN_DLGROUP_MODP_SRP_3072
+    ,   BOTAN_DLGROUP_MODP_SRP_4096
+    ,   BOTAN_DLGROUP_MODP_SRP_6144
+    ,   BOTAN_DLGROUP_MODP_SRP_8192
+    ,   BOTAN_DLGROUP_DSA_JCE_1024
+    ,   BOTAN_DLGROUP_DSA_BOTAN_2048
+    ,   BOTAN_DLGROUP_DSA_BOTAN_3072
+    ::  (Eq a, IsString a) => a
+
+pattern BOTAN_DLGROUP_FFDHE_IETF_2048   = "ffdhe/ietf/2048"
+pattern BOTAN_DLGROUP_FFDHE_IETF_3072   = "ffdhe/ietf/3072"
+pattern BOTAN_DLGROUP_FFDHE_IETF_4096   = "ffdhe/ietf/4096"
+pattern BOTAN_DLGROUP_FFDHE_IETF_6144   = "ffdhe/ietf/6144"
+pattern BOTAN_DLGROUP_FFDHE_IETF_8192   = "ffdhe/ietf/8192"
+pattern BOTAN_DLGROUP_MODP_IETF_1024    = "modp/ietf/1024"
+pattern BOTAN_DLGROUP_MODP_IETF_1536    = "modp/ietf/1536"
+pattern BOTAN_DLGROUP_MODP_IETF_2048    = "modp/ietf/2048"
+pattern BOTAN_DLGROUP_MODP_IETF_3072    = "modp/ietf/3072"
+pattern BOTAN_DLGROUP_MODP_IETF_4096    = "modp/ietf/4096"
+pattern BOTAN_DLGROUP_MODP_IETF_6144    = "modp/ietf/6144"
+pattern BOTAN_DLGROUP_MODP_IETF_8192    = "modp/ietf/8192"
+pattern BOTAN_DLGROUP_MODP_SRP_1024     = "modp/srp/1024"
+pattern BOTAN_DLGROUP_MODP_SRP_1536     = "modp/srp/1536"
+pattern BOTAN_DLGROUP_MODP_SRP_2048     = "modp/srp/2048"
+pattern BOTAN_DLGROUP_MODP_SRP_3072     = "modp/srp/3072"
+pattern BOTAN_DLGROUP_MODP_SRP_4096     = "modp/srp/4096"
+pattern BOTAN_DLGROUP_MODP_SRP_6144     = "modp/srp/6144"
+pattern BOTAN_DLGROUP_MODP_SRP_8192     = "modp/srp/8192"
+pattern BOTAN_DLGROUP_DSA_JCE_1024      = "dsa/jce/1024"
+pattern BOTAN_DLGROUP_DSA_BOTAN_2048    = "dsa/botan/2048"
+pattern BOTAN_DLGROUP_DSA_BOTAN_3072    = "dsa/botan/3072"
+
+pattern BOTAN_EME_RAW
+    ,   BOTAN_EME_PKCS1_v1_5
+    ,   BOTAN_EME_OAEP
+    :: (Eq a, IsString a) => a
+
+pattern BOTAN_EME_RAW        = "Raw"
+pattern BOTAN_EME_PKCS1_v1_5 = "PKCS1v15"
+pattern BOTAN_EME_OAEP       = "OAEP"
+
+pattern BOTAN_MGF_MGF1
+    :: (Eq a, IsString a) => a
+
+pattern BOTAN_MGF_MGF1 = "MGF1"
+
 -- | Create a new private key
 foreign import capi safe "botan/ffi.h botan_privkey_create"
     botan_privkey_create

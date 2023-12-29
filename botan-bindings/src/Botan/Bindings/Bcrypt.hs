@@ -18,19 +18,19 @@ import Botan.Bindings.Prelude
 import Botan.Bindings.RNG
 
 -- TODO: Maybe move to Botan.Low.Bcrypt
-pattern BOTAN_BCRYPT_WORK_FACTOR_LOW
-    ,   BOTAN_BCRYPT_WORK_FACTOR_MEDIUM
-    ,   BOTAN_BCRYPT_WORK_FACTOR_HIGH
+pattern BOTAN_BCRYPT_WORK_FACTOR_FAST
+    ,   BOTAN_BCRYPT_WORK_FACTOR_GOOD
+    ,   BOTAN_BCRYPT_WORK_FACTOR_STRONG
     ::  (Eq a, Num a) => a
 
 -- | Should not cause noticable CPU usage
-pattern BOTAN_BCRYPT_WORK_FACTOR_LOW      = 12
+pattern BOTAN_BCRYPT_WORK_FACTOR_FAST = 12
 
 -- | May cause noticable CPU usage
-pattern BOTAN_BCRYPT_WORK_FACTOR_MEDIUM   = 14
+pattern BOTAN_BCRYPT_WORK_FACTOR_GOOD = 14
 
 -- | May block for several seconds
-pattern BOTAN_BCRYPT_WORK_FACTOR_HIGH     = 16
+pattern BOTAN_BCRYPT_WORK_FACTOR_STRONG = 16
 
 {- |
 Create a password hash using Bcrypt

@@ -53,6 +53,27 @@ foreign import capi safe "botan/ffi.h &botan_mac_destroy"
     botan_mac_destroy
         :: FinalizerPtr BotanMACStruct
 
+pattern BOTAN_MAC_CMAC
+    ,   BOTAN_MAC_GMAC
+    -- ,   BOTAN_MAC_CBC_MAC
+    ,   BOTAN_MAC_HMAC
+    -- ,   BOTAN_MAC_KMAC_128
+    -- ,   BOTAN_MAC_KMAC_256
+    ,   BOTAN_MAC_Poly1305
+    ,   BOTAN_MAC_SipHash
+    ,   BOTAN_MAC_X9_19_MAC
+    ::  (Eq a, IsString a) => a
+
+pattern BOTAN_MAC_CMAC      = "CMAC"
+pattern BOTAN_MAC_GMAC      = "GMAC"
+-- pattern BOTAN_MAC_CBC_MAC   = "CBC-MAC"
+pattern BOTAN_MAC_HMAC      = "HMAC"
+-- pattern BOTAN_MAC_KMAC_128  = ...
+-- pattern BOTAN_MAC_KMAC_256  = ...
+pattern BOTAN_MAC_Poly1305  = "Poly1305"
+pattern BOTAN_MAC_SipHash   = "SipHash"
+pattern BOTAN_MAC_X9_19_MAC = "X9.19-MAC"
+
 -- | Initialize a message authentication code object
 foreign import capi safe "botan/ffi.h botan_mac_init"
     botan_mac_init

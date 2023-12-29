@@ -11,7 +11,6 @@ Portability : POSIX
 {-# LANGUAGE CApiFFI #-}
 
 module Botan.Bindings.RNG where
-
 import Botan.Bindings.Prelude
 
 -- | Opaque RNG struct

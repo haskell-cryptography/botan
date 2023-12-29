@@ -34,6 +34,48 @@ foreign import capi safe "botan/ffi.h &botan_cipher_destroy"
     botan_cipher_destroy
         :: FinalizerPtr BotanCipherStruct
 
+pattern BOTAN_CIPHER_MODE_CBC
+    ,   BOTAN_CIPHER_MODE_CFB
+    ,   BOTAN_CIPHER_MODE_XTS
+    ::  (Eq a, IsString a) => a
+
+pattern BOTAN_CIPHER_MODE_CBC = "CBC"
+pattern BOTAN_CIPHER_MODE_CFB = "CFB"
+pattern BOTAN_CIPHER_MODE_XTS = "XTS"
+
+pattern BOTAN_CBC_PADDING_PKCS7
+    ,   BOTAN_CBC_PADDING_ONE_AND_ZEROES
+    ,   BOTAN_CBC_PADDING_X9_23
+    ,   BOTAN_CBC_PADDING_ESP
+    ,   BOTAN_CBC_PADDING_CTS
+    ,   BOTAN_CBC_PADDING_NO_PADDING
+    ::  (Eq a, IsString a) => a
+
+pattern BOTAN_CBC_PADDING_PKCS7             = "PKCS7"
+pattern BOTAN_CBC_PADDING_ONE_AND_ZEROES    = "OneAndZeros"
+pattern BOTAN_CBC_PADDING_X9_23             = "X9.23"
+pattern BOTAN_CBC_PADDING_ESP               = "ESP"
+pattern BOTAN_CBC_PADDING_CTS               = "CTS"
+pattern BOTAN_CBC_PADDING_NO_PADDING        = "NoPadding"
+
+pattern BOTAN_AEAD_CHACHA20POLY1305
+    ::  (Eq a, IsString a) => a
+
+pattern BOTAN_AEAD_CHACHA20POLY1305 = "ChaCha20Poly1305"
+
+pattern BOTAN_AEAD_MODE_GCM
+    ,   BOTAN_AEAD_MODE_OCB
+    ,   BOTAN_AEAD_MODE_EAX
+    ,   BOTAN_AEAD_MODE_SIV
+    ,   BOTAN_AEAD_MODE_CCM
+    ::  (Eq a, IsString a) => a
+
+pattern BOTAN_AEAD_MODE_GCM         = "GCM"
+pattern BOTAN_AEAD_MODE_OCB         = "OCB"
+pattern BOTAN_AEAD_MODE_EAX         = "EAX"
+pattern BOTAN_AEAD_MODE_SIV         = "SIV"
+pattern BOTAN_AEAD_MODE_CCM         = "CCM"
+
 pattern BOTAN_CIPHER_INIT_FLAG_MASK_DIRECTION
     ,   BOTAN_CIPHER_INIT_FLAG_ENCRYPT
     ,   BOTAN_CIPHER_INIT_FLAG_DECRYPT
