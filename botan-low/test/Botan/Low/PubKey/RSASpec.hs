@@ -1,6 +1,4 @@
-module Botan.Low.PubKey.RSASpec
-( spec
-) where
+module Main where
 
 import Test.Prelude
 
@@ -25,8 +23,8 @@ pubKeyField pubKey field = do
     pubKeyGetField mp pubKey field
     return mp
 
-spec :: Spec
-spec = testSuite rsaSizes chars $ \ rsaSize -> do
+main :: IO ()
+main = hspec $ testSuite rsaSizes chars $ \ rsaSize -> do
     it "privKeyLoadRSA" $ do
         rng <- rngInit "system"
         privKey <- privKeyCreate "RSA" rsaSize rng

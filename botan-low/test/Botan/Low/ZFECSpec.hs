@@ -1,6 +1,4 @@
-module Botan.Low.ZFECSpec
-( spec
-) where
+module Main where
 
 import Test.Prelude
 
@@ -15,8 +13,8 @@ n = 7
 message :: ByteString
 message = "Fee fi fo fum! I smell the blood of an Englishman!"
 
-spec :: Spec
-spec = do
+main :: IO ()
+main = hspec $ do
     describe "zfecEncode" $ do
         it "encodes a message into shares" $ do
             shares <- zfecEncode k n message

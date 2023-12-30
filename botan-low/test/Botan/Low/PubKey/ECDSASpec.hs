@@ -1,6 +1,4 @@
-module Botan.Low.PubKey.ECDSASpec
-( spec
-) where
+module Main where
 
 import Test.Prelude
 
@@ -56,8 +54,8 @@ pubKeyField pubKey field = do
     return mp
 
 -- TODO: Don't assume just "ECDSA", other elliptic curve DSA might be valid here
-spec :: Spec
-spec = testSuite ecGroups chars $ \ ecGroup -> do
+main :: IO ()
+main = hspec $ testSuite ecGroups chars $ \ ecGroup -> do
     it "privKeyLoadECDSA" $ do
         rng <- rngInit "system"
         privKey <- privKeyCreate "ECDSA" ecGroup rng

@@ -1,6 +1,4 @@
-module Botan.Low.UtilitySpec
-( spec
-) where
+module Main where
 
 import Test.Prelude
 
@@ -16,8 +14,8 @@ base64Message = "RmVlIGZpIGZvIGZ1bSE="
 
 -- hexUpperMessage
 
-spec :: Spec
-spec = do
+main :: IO ()
+main = hspec $ do
     it "constantTimeCompare" $ do
         equal <- constantTimeCompare "compare me" "compare me" (ByteString.length "compare me")
         equal `shouldBe` True

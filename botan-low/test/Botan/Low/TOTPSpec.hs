@@ -1,6 +1,4 @@
-module Botan.Low.TOTPSpec
-( spec
-) where
+module Main where
 
 import Test.Prelude
 import Botan.Low.Hash (HashName(..))
@@ -25,8 +23,8 @@ totpHashes =
     ]
 
 -- TODO: More thorough testing
-spec :: Spec
-spec = testSuite totpHashes chars $ \ h -> do
+main :: IO ()
+main = hspec $ testSuite totpHashes chars $ \ h -> do
     it "totpInit" $ do
         ctx <- totpInit key h 6 timestep
         pass

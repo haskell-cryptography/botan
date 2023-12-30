@@ -1,7 +1,4 @@
-module Botan.Low.MACSpec
-( spec
-, macs
-) where
+module Main where
 
 import Test.Prelude
 import Botan.Low.BlockCipherSpec (allBlockCiphers)
@@ -46,8 +43,8 @@ macsAndNonceSzs =
 message :: ByteString
 message = "Fee fi fo fum! I smell the blood of an Englishman!"
 
-spec :: Spec
-spec = testSuite macsAndNonceSzs (chars . fst) $ \ (h,nonceSz) -> do
+main :: IO ()
+main = hspec $ testSuite macsAndNonceSzs (chars . fst) $ \ (h,nonceSz) -> do
     it "can initialize a mac context" $ do
         ctx <- macInit h
         pass

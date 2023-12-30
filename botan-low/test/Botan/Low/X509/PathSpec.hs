@@ -56,8 +56,8 @@ mkValidation = do
         nullPtr -- OCSP response - not yet implemented
 
 -- All failing because not yet implemented on the C++ side
-spec :: Spec
-spec = do
+main :: IO ()
+main = hspec $ do
     it "x509PathRestrictionsCreate" $ do
         inMem <- x509CertStoreInMemoryCreate
         pr <- x509PathRestrictionsCreate False 80 False 0 inMem

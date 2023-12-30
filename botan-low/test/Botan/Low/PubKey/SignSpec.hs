@@ -1,6 +1,4 @@
-module Botan.Low.PubKey.SignSpec
-( spec
-) where
+module Main where
 
 import Test.Prelude
 
@@ -39,8 +37,8 @@ pkTestName (pk, param, padding) = chars $ pk <> " " <> param <> " " <> padding
 
 -- TODO: Test DER format
 
-spec :: Spec
-spec = testSuite pks pkTestName $ \ (pk, param, algo) -> do
+main :: IO ()
+main = hspec $ testSuite pks pkTestName $ \ (pk, param, algo) -> do
     it "signCreate" $ do
         rng <- rngInit "system"
         privKey <- privKeyCreate pk param rng

@@ -1,9 +1,4 @@
-module Botan.Low.HashSpec
-( spec
-, cryptohashes
-, checksums
-, hashes
-) where
+module Main where
 
 import Test.Prelude
 
@@ -67,8 +62,8 @@ hashes = cryptohashes ++ checksums
 
 message = "Fee fi fo fum! I smell the blood of an Englishman!"
 
-spec :: Spec
-spec = testSuite hashes chars $ \ h -> do
+main :: IO ()
+main = hspec $ testSuite hashes chars $ \ h -> do
     it "can initialize a hash context" $ do
         ctx <- hashInit h
         pass

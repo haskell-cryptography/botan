@@ -69,8 +69,8 @@ mkInMemStore = do
     x509CertStoreInMemoryAddCertificate inMem =<< loadTestCert
     return inMem
 
-spec :: Spec
-spec = do
+main :: IO ()
+main = hspec $ do
     describe "X509CertStore" $ do
         -- Generic cert store functions
         it "x509CertStoreFindCert" $ do

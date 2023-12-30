@@ -1,7 +1,4 @@
-module Botan.Low.KDFSpec
-( spec
-, kdfs
-) where
+module Main where
 
 import Test.Prelude
 
@@ -46,8 +43,8 @@ kdfs = concat
     , [ "SP800-56C(HMAC(" <> h <> "))" | h <- cryptohashes ]
     ]
 
-spec :: Spec
-spec = testSuite kdfs chars $ \ algo -> do
+main :: IO ()
+main = hspec $ testSuite kdfs chars $ \ algo -> do
     describe "kdf" $ do
         it "can derive a key" $ do
             key <- kdf algo 3 "secret" "salt" "label"

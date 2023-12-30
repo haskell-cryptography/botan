@@ -8,6 +8,16 @@ build-type:     Simple
 description:
     Low-level bindings to the Botan cryptography library
 
+-- NOTE: Use data-files instead, if this is inappropriate
+-- NOTE: This causes a soft error:
+--      Ignoring trailing fields after sections: "extra-source-files"
+-- unless placed here above source-repository and flag.
+-- We can still use `extra-source-files` under `if flag(XFFI)` later without
+-- causing problems
+extra-source-files:
+    test-data/*.der
+    test-data/*.pem
+
 source-repository head
   type:     git
   location: https://github.com/apotheca/botan.git
@@ -17,13 +27,10 @@ flag XFFI
     manual: True
     default: False
 
--- NOTE: Use data-files instead, if this is inappropriate
--- NOTE: This causes a soft error:
---  Ignoring trailing fields after sections: "extra-source-files"
--- This error may be incorrect / inappropriate
-extra-source-files:
-    test-data/*.der
-    test-data/*.pem
+flag ExtensiveTests
+    description: Perform extensive unit tests
+    manual: True
+    default: False
 
 library
     hs-source-dirs:   src
@@ -100,77 +107,714 @@ library
             Botan.Low.X509.Store
         cpp-options: -DXFFI 
 
-test-suite botan-low-tests
+-- test-suite botan-low-tests
+--     type:             exitcode-stdio-1.0
+--     main-is:          Spec.hs
+--     hs-source-dirs:   test/
+--     build-depends:
+--         base,
+--         botan-bindings,
+--         botan-low,
+--         bytestring,
+--         directory,
+--         hspec,
+--         QuickCheck,
+--         text
+--     other-modules:
+--         -- Botan.Low.BcryptSpec
+--         Botan.Low.BlockCipherSpec
+--         Botan.Low.CipherSpec
+--         Botan.Low.FPESpec
+--         Botan.Low.HashSpec
+--         Botan.Low.HOTPSpec
+--         Botan.Low.KDFSpec
+--         Botan.Low.KeyWrapSpec
+--         Botan.Low.MACSpec
+--         Botan.Low.MPISpec
+--         -- Botan.Low.PBKDFSpec
+--         Botan.Low.PubKeySpec
+--         Botan.Low.PubKey.DecryptSpec
+--         Botan.Low.PubKey.DHSpec
+--         Botan.Low.PubKey.DSASpec
+--         Botan.Low.PubKey.ECDHSpec
+--         Botan.Low.PubKey.ECDSASpec
+--         Botan.Low.PubKey.Ed25519Spec
+--         Botan.Low.PubKey.ElGamalSpec
+--         Botan.Low.PubKey.EncryptSpec
+--         Botan.Low.PubKey.KeyAgreementSpec
+--         Botan.Low.PubKey.KeyEncapsulationSpec
+--         Botan.Low.PubKey.RSASpec
+--         Botan.Low.PubKey.SignSpec
+--         Botan.Low.PubKey.SM2Spec
+--         Botan.Low.PubKey.VerifySpec
+--         Botan.Low.PubKey.X25519Spec
+--         Botan.Low.PwdHashSpec
+--         Botan.Low.RNGSpec
+--         -- Botan.Low.ScryptSpec
+--         Botan.Low.SRP6Spec
+--         Botan.Low.TOTPSpec
+--         Botan.Low.UtilitySpec
+--         Botan.Low.X509Spec
+--         Botan.Low.ZFECSpec
+--         Test.Prelude
+--         Paths_botan_low
+--     --   ghc-options: 
+--     default-language: Haskell2010
+--     default-extensions:
+--         NoImplicitPrelude
+--         OverloadedStrings
+--     -- NOTE: hspec-discover fails to respect the XFFI flag, and it tries
+--     --  to begin loading modules that should not be built. Eg:
+--     --      Could not find module ‘Botan.Low.X509.Store’
+--     -- if flag(XFFI)
+--     --     other-modules:
+--     --         Botan.Low.X509.CASpec
+--     --         Botan.Low.X509.CSRSpec
+--     --         Botan.Low.X509.CRLSpec
+--     --         Botan.Low.X509.DNSpec
+--     --         Botan.Low.X509.ExtensionsSpec
+--     --         -- Botan.Low.X509.OCSPSpec
+--     --         Botan.Low.X509.OptionsSpec
+--     --         Botan.Low.X509.PathSpec
+--     --         Botan.Low.X509.StoreSpec
+--     --     cpp-options: -DXFFI 
+
+--
+-- Unit tests
+--
+
+test-suite botan-low-bcrypt-tests
     type:             exitcode-stdio-1.0
-    main-is:          Spec.hs
+    main-is:          Botan/Low/BcryptSpec.hs
     hs-source-dirs:   test/
     build-depends:
         base,
         botan-bindings,
         botan-low,
         bytestring,
-        directory,
         hspec,
-        QuickCheck,
-        text
+        QuickCheck
     other-modules:
-        Botan.Low.BcryptSpec
-        Botan.Low.BlockCipherSpec
-        Botan.Low.CipherSpec
-        Botan.Low.FPESpec
-        Botan.Low.HashSpec
-        Botan.Low.HOTPSpec
-        Botan.Low.KDFSpec
-        Botan.Low.KeyWrapSpec
-        Botan.Low.MACSpec
-        Botan.Low.MPISpec
-        -- Botan.Low.PBKDFSpec
-        Botan.Low.PubKeySpec
-        Botan.Low.PubKey.DecryptSpec
-        Botan.Low.PubKey.DHSpec
-        Botan.Low.PubKey.DSASpec
-        Botan.Low.PubKey.ECDHSpec
-        Botan.Low.PubKey.ECDSASpec
-        Botan.Low.PubKey.Ed25519Spec
-        Botan.Low.PubKey.ElGamalSpec
-        Botan.Low.PubKey.EncryptSpec
-        Botan.Low.PubKey.KeyAgreementSpec
-        Botan.Low.PubKey.KeyEncapsulationSpec
-        Botan.Low.PubKey.RSASpec
-        Botan.Low.PubKey.SignSpec
-        Botan.Low.PubKey.SM2Spec
-        Botan.Low.PubKey.VerifySpec
-        Botan.Low.PubKey.X25519Spec
-        Botan.Low.PwdHashSpec
-        Botan.Low.RNGSpec
-        -- Botan.Low.ScryptSpec
-        Botan.Low.SRP6Spec
-        Botan.Low.TOTPSpec
-        Botan.Low.UtilitySpec
-        Botan.Low.X509Spec
-        Botan.Low.ZFECSpec
         Test.Prelude
         Paths_botan_low
-    --   ghc-options: 
     default-language: Haskell2010
     default-extensions:
         NoImplicitPrelude
         OverloadedStrings
-    -- NOTE: hspec-discover fails to respect the XFFI flag, and it tries
-    --  to begin loading modules that should not be built. Eg:
-    --      Could not find module ‘Botan.Low.X509.Store’
-    if flag(XFFI)
-        other-modules:
-            Botan.Low.X509.CASpec
-            Botan.Low.X509.CSRSpec
-            Botan.Low.X509.CRLSpec
-            Botan.Low.X509.DNSpec
-            Botan.Low.X509.ExtensionsSpec
-            -- Botan.Low.X509.OCSPSpec
-            Botan.Low.X509.OptionsSpec
-            Botan.Low.X509.PathSpec
-            Botan.Low.X509.StoreSpec
-        cpp-options: -DXFFI 
+
+test-suite botan-low-block-cipher-tests
+    type:             exitcode-stdio-1.0
+    main-is:          Botan/Low/BlockCipherSpec.hs
+    hs-source-dirs:   test/
+    build-depends:
+        base,
+        botan-bindings,
+        botan-low,
+        bytestring,
+        hspec,
+        QuickCheck
+    other-modules:
+        Test.Prelude
+        Paths_botan_low
+    default-language: Haskell2010
+    default-extensions:
+        NoImplicitPrelude
+        OverloadedStrings
+
+test-suite botan-low-cipher-tests
+    type:             exitcode-stdio-1.0
+    main-is:          Botan/Low/CipherSpec.hs
+    hs-source-dirs:   test/
+    build-depends:
+        base,
+        botan-bindings,
+        botan-low,
+        bytestring,
+        hspec,
+        QuickCheck
+    other-modules:
+        Test.Prelude
+        Paths_botan_low
+    default-language: Haskell2010
+    default-extensions:
+        NoImplicitPrelude
+        OverloadedStrings
+
+test-suite botan-low-fpe-tests
+    type:             exitcode-stdio-1.0
+    main-is:          Botan/Low/FPESpec.hs
+    hs-source-dirs:   test/
+    build-depends:
+        base,
+        botan-bindings,
+        botan-low,
+        bytestring,
+        hspec,
+        QuickCheck
+    other-modules:
+        Test.Prelude
+        Paths_botan_low
+    default-language: Haskell2010
+    default-extensions:
+        NoImplicitPrelude
+        OverloadedStrings
+
+test-suite botan-low-hash-tests
+    type:             exitcode-stdio-1.0
+    main-is:          Botan/Low/HashSpec.hs
+    hs-source-dirs:   test/
+    build-depends:
+        base,
+        botan-bindings,
+        botan-low,
+        bytestring,
+        hspec,
+        QuickCheck
+    other-modules:
+        Test.Prelude
+        Paths_botan_low
+    default-language: Haskell2010
+    default-extensions:
+        NoImplicitPrelude
+        OverloadedStrings
+
+test-suite botan-low-hotp-tests
+    type:             exitcode-stdio-1.0
+    main-is:          Botan/Low/HOTPSpec.hs
+    hs-source-dirs:   test/
+    build-depends:
+        base,
+        botan-bindings,
+        botan-low,
+        bytestring,
+        hspec,
+        QuickCheck
+    other-modules:
+        Test.Prelude
+        Paths_botan_low
+    default-language: Haskell2010
+    default-extensions:
+        NoImplicitPrelude
+        OverloadedStrings
+
+test-suite botan-low-kdf-tests
+    type:             exitcode-stdio-1.0
+    main-is:          Botan/Low/KDFSpec.hs
+    hs-source-dirs:   test/
+    build-depends:
+        base,
+        botan-bindings,
+        botan-low,
+        bytestring,
+        hspec,
+        QuickCheck
+    other-modules:
+        Test.Prelude
+        Paths_botan_low
+    default-language: Haskell2010
+    default-extensions:
+        NoImplicitPrelude
+        OverloadedStrings
+
+test-suite botan-low-keywrap-tests
+    type:             exitcode-stdio-1.0
+    main-is:          Botan/Low/KeyWrapSpec.hs
+    hs-source-dirs:   test/
+    build-depends:
+        base,
+        botan-bindings,
+        botan-low,
+        bytestring,
+        hspec,
+        QuickCheck
+    other-modules:
+        Test.Prelude
+        Paths_botan_low
+    default-language: Haskell2010
+    default-extensions:
+        NoImplicitPrelude
+        OverloadedStrings
+
+test-suite botan-low-mac-tests
+    type:             exitcode-stdio-1.0
+    main-is:          Botan/Low/MACSpec.hs
+    hs-source-dirs:   test/
+    build-depends:
+        base,
+        botan-bindings,
+        botan-low,
+        bytestring,
+        hspec,
+        QuickCheck
+    other-modules:
+        Test.Prelude
+        Paths_botan_low
+    default-language: Haskell2010
+    default-extensions:
+        NoImplicitPrelude
+        OverloadedStrings
+
+test-suite botan-low-mpi-tests
+    type:             exitcode-stdio-1.0
+    main-is:          Botan/Low/MPISpec.hs
+    hs-source-dirs:   test/
+    build-depends:
+        base,
+        botan-bindings,
+        botan-low,
+        bytestring,
+        hspec,
+        QuickCheck
+    other-modules:
+        Test.Prelude
+        Paths_botan_low
+    default-language: Haskell2010
+    default-extensions:
+        NoImplicitPrelude
+        OverloadedStrings
+
+test-suite botan-low-pubkey-tests
+    type:             exitcode-stdio-1.0
+    main-is:          Botan/Low/PubKeySpec.hs
+    hs-source-dirs:   test/
+    build-depends:
+        base,
+        botan-bindings,
+        botan-low,
+        bytestring,
+        hspec,
+        QuickCheck
+    other-modules:
+        Test.Prelude
+        Paths_botan_low
+    default-language: Haskell2010
+    default-extensions:
+        NoImplicitPrelude
+        OverloadedStrings
+
+test-suite botan-low-pubkey-decrypt-tests
+    type:             exitcode-stdio-1.0
+    main-is:          Botan/Low/PubKey/DecryptSpec.hs
+    hs-source-dirs:   test/
+    build-depends:
+        base,
+        botan-bindings,
+        botan-low,
+        bytestring,
+        hspec,
+        QuickCheck
+    other-modules:
+        Test.Prelude
+        Paths_botan_low
+    default-language: Haskell2010
+    default-extensions:
+        NoImplicitPrelude
+        OverloadedStrings
+
+test-suite botan-low-pubkey-dh-tests
+    type:             exitcode-stdio-1.0
+    main-is:          Botan/Low/PubKey/DHSpec.hs
+    hs-source-dirs:   test/
+    build-depends:
+        base,
+        botan-bindings,
+        botan-low,
+        bytestring,
+        hspec,
+        QuickCheck
+    other-modules:
+        Test.Prelude
+        Paths_botan_low
+    default-language: Haskell2010
+    default-extensions:
+        NoImplicitPrelude
+        OverloadedStrings
+
+test-suite botan-low-pubkey-dsa-tests
+    type:             exitcode-stdio-1.0
+    main-is:          Botan/Low/PubKey/DSASpec.hs
+    hs-source-dirs:   test/
+    build-depends:
+        base,
+        botan-bindings,
+        botan-low,
+        bytestring,
+        hspec,
+        QuickCheck
+    other-modules:
+        Test.Prelude
+        Paths_botan_low
+    default-language: Haskell2010
+    default-extensions:
+        NoImplicitPrelude
+        OverloadedStrings
+
+test-suite botan-low-pubkey-ecdh-tests
+    type:             exitcode-stdio-1.0
+    main-is:          Botan/Low/PubKey/ECDHSpec.hs
+    hs-source-dirs:   test/
+    build-depends:
+        base,
+        botan-bindings,
+        botan-low,
+        bytestring,
+        hspec,
+        QuickCheck
+    other-modules:
+        Test.Prelude
+        Paths_botan_low
+    default-language: Haskell2010
+    default-extensions:
+        NoImplicitPrelude
+        OverloadedStrings
+
+test-suite botan-low-pubkey-ecdsa-tests
+    type:             exitcode-stdio-1.0
+    main-is:          Botan/Low/PubKey/ECDSASpec.hs
+    hs-source-dirs:   test/
+    build-depends:
+        base,
+        botan-bindings,
+        botan-low,
+        bytestring,
+        hspec,
+        QuickCheck
+    other-modules:
+        Test.Prelude
+        Paths_botan_low
+    default-language: Haskell2010
+    default-extensions:
+        NoImplicitPrelude
+        OverloadedStrings
+
+test-suite botan-low-pubkey-ed25519-tests
+    type:             exitcode-stdio-1.0
+    main-is:          Botan/Low/PubKey/Ed25519Spec.hs
+    hs-source-dirs:   test/
+    build-depends:
+        base,
+        botan-bindings,
+        botan-low,
+        bytestring,
+        hspec,
+        QuickCheck
+    other-modules:
+        Test.Prelude
+        Paths_botan_low
+    default-language: Haskell2010
+    default-extensions:
+        NoImplicitPrelude
+        OverloadedStrings
+
+test-suite botan-low-pubkey-elgamal-tests
+    type:             exitcode-stdio-1.0
+    main-is:          Botan/Low/PubKey/ElGamalSpec.hs
+    hs-source-dirs:   test/
+    build-depends:
+        base,
+        botan-bindings,
+        botan-low,
+        bytestring,
+        hspec,
+        QuickCheck
+    other-modules:
+        Test.Prelude
+        Paths_botan_low
+    default-language: Haskell2010
+    default-extensions:
+        NoImplicitPrelude
+        OverloadedStrings
+
+test-suite botan-low-pubkey-encrypt-tests
+    type:             exitcode-stdio-1.0
+    main-is:          Botan/Low/PubKey/EncryptSpec.hs
+    hs-source-dirs:   test/
+    build-depends:
+        base,
+        botan-bindings,
+        botan-low,
+        bytestring,
+        hspec,
+        QuickCheck
+    other-modules:
+        Test.Prelude
+        Paths_botan_low
+    default-language: Haskell2010
+    default-extensions:
+        NoImplicitPrelude
+        OverloadedStrings
+
+test-suite botan-low-pubkey-keyagreement-tests
+    type:             exitcode-stdio-1.0
+    main-is:          Botan/Low/PubKey/KeyAgreementSpec.hs
+    hs-source-dirs:   test/
+    build-depends:
+        base,
+        botan-bindings,
+        botan-low,
+        bytestring,
+        hspec,
+        QuickCheck
+    other-modules:
+        Test.Prelude
+        Paths_botan_low
+    default-language: Haskell2010
+    default-extensions:
+        NoImplicitPrelude
+        OverloadedStrings
+
+test-suite botan-low-pubkey-keyencapsulation-tests
+    type:             exitcode-stdio-1.0
+    main-is:          Botan/Low/PubKey/KeyEncapsulationSpec.hs
+    hs-source-dirs:   test/
+    build-depends:
+        base,
+        botan-bindings,
+        botan-low,
+        bytestring,
+        hspec,
+        QuickCheck
+    other-modules:
+        Test.Prelude
+        Paths_botan_low
+    default-language: Haskell2010
+    default-extensions:
+        NoImplicitPrelude
+        OverloadedStrings
+
+test-suite botan-low-pubkey-rsa-tests
+    type:             exitcode-stdio-1.0
+    main-is:          Botan/Low/PubKey/RSASpec.hs
+    hs-source-dirs:   test/
+    build-depends:
+        base,
+        botan-bindings,
+        botan-low,
+        bytestring,
+        hspec,
+        QuickCheck
+    other-modules:
+        Test.Prelude
+        Paths_botan_low
+    default-language: Haskell2010
+    default-extensions:
+        NoImplicitPrelude
+        OverloadedStrings
+
+test-suite botan-low-pubkey-sign-tests
+    type:             exitcode-stdio-1.0
+    main-is:          Botan/Low/PubKey/SignSpec.hs
+    hs-source-dirs:   test/
+    build-depends:
+        base,
+        botan-bindings,
+        botan-low,
+        bytestring,
+        hspec,
+        QuickCheck
+    other-modules:
+        Test.Prelude
+        Paths_botan_low
+    default-language: Haskell2010
+    default-extensions:
+        NoImplicitPrelude
+        OverloadedStrings
+
+test-suite botan-low-pubkey-sm2-tests
+    type:             exitcode-stdio-1.0
+    main-is:          Botan/Low/PubKey/SM2Spec.hs
+    hs-source-dirs:   test/
+    build-depends:
+        base,
+        botan-bindings,
+        botan-low,
+        bytestring,
+        hspec,
+        QuickCheck
+    other-modules:
+        Test.Prelude
+        Paths_botan_low
+    default-language: Haskell2010
+    default-extensions:
+        NoImplicitPrelude
+        OverloadedStrings
+
+test-suite botan-low-pubkey-verify-tests
+    type:             exitcode-stdio-1.0
+    main-is:          Botan/Low/PubKey/VerifySpec.hs
+    hs-source-dirs:   test/
+    build-depends:
+        base,
+        botan-bindings,
+        botan-low,
+        bytestring,
+        hspec,
+        QuickCheck
+    other-modules:
+        Test.Prelude
+        Paths_botan_low
+    default-language: Haskell2010
+    default-extensions:
+        NoImplicitPrelude
+        OverloadedStrings
+
+test-suite botan-low-pubkey-x25519-tests
+    type:             exitcode-stdio-1.0
+    main-is:          Botan/Low/PubKey/X25519Spec.hs
+    hs-source-dirs:   test/
+    build-depends:
+        base,
+        botan-bindings,
+        botan-low,
+        bytestring,
+        hspec,
+        QuickCheck
+    other-modules:
+        Test.Prelude
+        Paths_botan_low
+    default-language: Haskell2010
+    default-extensions:
+        NoImplicitPrelude
+        OverloadedStrings
+
+-- TODO: Pubkey folder tests
+
+test-suite botan-low-pwdhash-tests
+    type:             exitcode-stdio-1.0
+    main-is:          Botan/Low/PwdHashSpec.hs
+    hs-source-dirs:   test/
+    build-depends:
+        base,
+        botan-bindings,
+        botan-low,
+        bytestring,
+        hspec,
+        QuickCheck
+    other-modules:
+        Test.Prelude
+        Paths_botan_low
+    default-language: Haskell2010
+    default-extensions:
+        NoImplicitPrelude
+        OverloadedStrings
+
+test-suite botan-low-rng-tests
+    type:             exitcode-stdio-1.0
+    main-is:          Botan/Low/RNGSpec.hs
+    hs-source-dirs:   test/
+    build-depends:
+        base,
+        botan-bindings,
+        botan-low,
+        bytestring,
+        hspec,
+        QuickCheck
+    other-modules:
+        Test.Prelude
+        Paths_botan_low
+    default-language: Haskell2010
+    default-extensions:
+        NoImplicitPrelude
+        OverloadedStrings
+
+test-suite botan-low-srp6-tests
+    type:             exitcode-stdio-1.0
+    main-is:          Botan/Low/SRP6Spec.hs
+    hs-source-dirs:   test/
+    build-depends:
+        base,
+        botan-bindings,
+        botan-low,
+        bytestring,
+        hspec,
+        QuickCheck
+    other-modules:
+        Test.Prelude
+        Paths_botan_low
+    default-language: Haskell2010
+    default-extensions:
+        NoImplicitPrelude
+        OverloadedStrings
+
+test-suite botan-low-totp-tests
+    type:             exitcode-stdio-1.0
+    main-is:          Botan/Low/TOTPSpec.hs
+    hs-source-dirs:   test/
+    build-depends:
+        base,
+        botan-bindings,
+        botan-low,
+        bytestring,
+        hspec,
+        QuickCheck
+    other-modules:
+        Test.Prelude
+        Paths_botan_low
+    default-language: Haskell2010
+    default-extensions:
+        NoImplicitPrelude
+        OverloadedStrings
+
+test-suite botan-low-utility-tests
+    type:             exitcode-stdio-1.0
+    main-is:          Botan/Low/UtilitySpec.hs
+    hs-source-dirs:   test/
+    build-depends:
+        base,
+        botan-bindings,
+        botan-low,
+        bytestring,
+        hspec,
+        QuickCheck
+    other-modules:
+        Test.Prelude
+        Paths_botan_low
+    default-language: Haskell2010
+    default-extensions:
+        NoImplicitPrelude
+        OverloadedStrings
+
+test-suite botan-low-x509-tests
+    type:             exitcode-stdio-1.0
+    main-is:          Botan/Low/X509Spec.hs
+    hs-source-dirs:   test/
+    build-depends:
+        base,
+        botan-bindings,
+        botan-low,
+        bytestring,
+        hspec,
+        QuickCheck
+    other-modules:
+        Test.Prelude
+        Paths_botan_low
+    default-language: Haskell2010
+    default-extensions:
+        NoImplicitPrelude
+        OverloadedStrings
+
+test-suite botan-low-zfec-tests
+    type:             exitcode-stdio-1.0
+    main-is:          Botan/Low/ZFECSpec.hs
+    hs-source-dirs:   test/
+    build-depends:
+        base,
+        botan-bindings,
+        botan-low,
+        bytestring,
+        hspec,
+        QuickCheck
+    other-modules:
+        Test.Prelude
+        Paths_botan_low
+    default-language: Haskell2010
+    default-extensions:
+        NoImplicitPrelude
+        OverloadedStrings
+
+--
+-- Benchmarks
+--
 
 benchmark botan-low-bench
     hs-source-dirs: bench
@@ -190,4 +834,3 @@ benchmark botan-low-bench
     ghc-options:    "-with-rtsopts=-A32m"
     if impl(ghc >= 8.6)
         ghc-options: -fproc-alignment=64
-        

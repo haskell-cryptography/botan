@@ -1,9 +1,4 @@
-module Botan.Low.BlockCipherSpec
-( spec
-, blockCipher128s
-, blockCiphers
-, allBlockCiphers
-) where
+module Main where
 
 import Test.Prelude
 
@@ -45,8 +40,8 @@ allBlockCiphers = blockCipher128s ++ blockCiphers
 
 message = "Fee fi fo fum! I smell the blood of an Englishman!"
 
-spec :: Spec
-spec = testSuite allBlockCiphers chars $ \ bc -> do
+main :: IO ()
+main = hspec $ testSuite allBlockCiphers chars $ \ bc -> do
     it "can initialize a block cipher context" $ do
         ctx <- blockCipherInit bc
         pass

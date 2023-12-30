@@ -9,8 +9,8 @@ import Data.Bits
 import Botan.Low.X509
 import Botan.Low.X509.Options
 
-spec :: Spec
-spec = do
+main :: IO ()
+main = hspec $ do
     describe "X509CertOptions" $ do
         it "x509CertOptionsCreate" $ do
             opts <- x509CertOptionsCreate

@@ -43,8 +43,8 @@ mkSelfSignedOptions = do
     --                 ]
     return opts
 
-spec :: Spec
-spec = do
+main :: IO ()
+main = hspec $ do
     describe "X509CSR" $ do
         it "x509CreateCertReq" $ do
             rng <- rngInit "system"

@@ -1,6 +1,4 @@
-module Botan.Low.PubKey.SM2Spec
-( spec
-) where
+module Main where
 
 import Test.Prelude
 
@@ -55,8 +53,8 @@ pubKeyField pubKey field = do
     pubKeyGetField mp pubKey field
     return mp
 
-spec :: Spec
-spec = testSuite ecGroups chars $ \ ecGroup -> do
+main :: IO ()
+main = hspec $ testSuite ecGroups chars $ \ ecGroup -> do
     it "privKeyLoadSM2" $ do
         rng <- rngInit "system"
         privKey <- privKeyCreate "SM2" ecGroup rng

@@ -1,6 +1,4 @@
-module Botan.Low.HOTPSpec
-( spec
-) where
+module Main where
 
 import Test.Prelude
 import Botan.Low.Hash (HashName(..))
@@ -21,8 +19,8 @@ hotpHashes =
     , "SHA-512"
     ]
 
-spec :: Spec
-spec = testSuite hotpHashes chars $ \ h -> do
+main :: IO ()
+main = hspec $ testSuite hotpHashes chars $ \ h -> do
     it "hotpInit" $ do
         ctx <- hotpInit key h 6
         pass

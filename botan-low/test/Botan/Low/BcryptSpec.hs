@@ -1,6 +1,4 @@
-module Botan.Low.BcryptSpec
-( spec
-) where
+module Main where
 
 import Test.Prelude
 
@@ -12,8 +10,8 @@ password = "Fee fi fo fum!"
 
 factor = 12
 
-spec :: Spec
-spec = do
+main :: IO ()
+main = hspec $ do
     describe "bcryptGenerate" $ do
         it "generates a bcrypt hash" $ do
             rng <- rngInit "user-threadsafe"

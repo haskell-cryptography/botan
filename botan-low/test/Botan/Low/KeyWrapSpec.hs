@@ -1,6 +1,4 @@
-module Botan.Low.KeyWrapSpec
-( spec
-) where
+module Main where
 
 import Test.Prelude
 
@@ -17,8 +15,8 @@ kwKey = "This key *must* be a multiple of 8 bytes"
 kwpKey :: ByteString
 kwpKey = "Fee fi fo fum! I smell the blood of an Englishman!"
 
-spec :: Spec
-spec = testSuite blockCipher128s chars $ \ algo -> do
+main :: IO ()
+main = hspec $ testSuite blockCipher128s chars $ \ algo -> do
     it "nistKeyWrapEncode" $ do
         (_,keklen,_) <- blockCipherGetKeyspec =<< blockCipherInit algo
         kek <- systemRNGGet keklen

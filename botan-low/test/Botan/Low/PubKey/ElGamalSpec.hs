@@ -1,6 +1,4 @@
-module Botan.Low.PubKey.ElGamalSpec
-( spec
-) where
+module Main where
 
 import Test.Prelude
 
@@ -50,8 +48,8 @@ pubKeyField pubKey field = do
     pubKeyGetField mp pubKey field
     return mp
 
-spec :: Spec
-spec = testSuite dlGroups chars $ \ dlGroup -> do
+main :: IO ()
+main = hspec $ testSuite dlGroups chars $ \ dlGroup -> do
     it "privKeyLoadELGamal" $ do
         rng <- rngInit "system"
         privKey <- privKeyCreate "DH" dlGroup rng

@@ -53,8 +53,8 @@ loadTestCRL =  do
 
 
 -- NOTE: Failing because not properly implemented on C++ side
-spec :: Spec
-spec = do
+main :: IO ()
+main = hspec $ do
     describe "CRL" $ do
         it "x509CRLCreateDER" $ do
             crl <- x509CRLCreateDER derEncodedCRL

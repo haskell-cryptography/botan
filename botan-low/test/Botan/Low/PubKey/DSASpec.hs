@@ -1,6 +1,4 @@
-module Botan.Low.PubKey.DSASpec
-( spec
-) where
+module Main where
 
 import Test.Prelude
 
@@ -54,8 +52,8 @@ pubKeyField pubKey field = do
 --  DLGroup PubKey: p, q, g, y
 --  DLGroup PrivKey: p, q, g, x, y
 
-spec :: Spec
-spec = testSuite dlGroups chars $ \ dlGroup -> do
+main :: IO ()
+main = hspec $ testSuite dlGroups chars $ \ dlGroup -> do
     it "privKeyLoadDSA" $ do
         rng <- rngInit "system"
         privKey <- privKeyCreate "DH" dlGroup rng

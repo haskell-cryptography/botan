@@ -1,6 +1,4 @@
-module Botan.Low.PwdHashSpec
-( spec
-) where
+module Main where
 
 import Data.ByteString (isPrefixOf)
 
@@ -48,8 +46,8 @@ passphrase = "Fee fi fo fum!"
 salt :: ByteString
 salt = "salt"
 
-spec :: Spec
-spec = testSuite pbkdfs (\(n,_,_,_) -> chars n) $ \ (pbkdf, i, j, k) -> do
+main :: IO ()
+main = hspec $ testSuite pbkdfs (\(n,_,_,_) -> chars n) $ \ (pbkdf, i, j, k) -> do
     it "pwdhash" $ do
         _ <- pwdhash pbkdf i j k 64 passphrase salt
         pass

@@ -1,9 +1,4 @@
-module Botan.Low.CipherSpec
-( spec
-, paddings
-, blockCipherModes
-, aeads
-) where
+module Main where
 
 import Test.Prelude
 import Botan.Low.BlockCipherSpec (blockCipher128s, blockCiphers, allBlockCiphers)
@@ -42,8 +37,8 @@ aeads =  concat
 showBytes :: (Show a) => a -> ByteString
 showBytes = Char8.pack . show
 
-spec :: Spec
-spec = testSuite (blockCipherModes ++ aeads) chars $ \ cipher -> do
+main :: IO ()
+main = hspec $ testSuite (blockCipherModes ++ aeads) chars $ \ cipher -> do
     it "can initialize a cipher encryption context" $ do
         ctx <- cipherInit cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
         pass

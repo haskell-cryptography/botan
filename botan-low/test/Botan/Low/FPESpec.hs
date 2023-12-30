@@ -1,6 +1,4 @@
-module Botan.Low.FPESpec
-( spec
-) where
+module Main where
 
 import Test.Prelude
 
@@ -49,8 +47,8 @@ newFE1CtxCompatMode = do
     ctx <- fpeInitFE1 n key rounds BOTAN_FPE_FLAG_FE1_COMPAT_MODE
     return (n,ctx)
 
-spec :: Spec
-spec = do
+main :: IO ()
+main = hspec $ do
     describe "fpeInitFE1" $ do
         it "initializes an FE1 FPE context" $ do
             newFE1Ctx

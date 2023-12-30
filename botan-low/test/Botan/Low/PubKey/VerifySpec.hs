@@ -1,6 +1,4 @@
-module Botan.Low.PubKey.VerifySpec
-( spec
-) where
+module Main where
 
 import Test.Prelude
 
@@ -50,8 +48,8 @@ pkTestName (pk, param, padding) = chars $ pk <> " " <> param <> " " <> padding
 --  it is coincidence that the EMSA4 / empty params are the ones that are failing.
 --  Yet, it works for standard format.
 
-spec :: Spec
-spec = testSuite pks pkTestName $ \ (pk, param, algo) -> do
+main :: IO ()
+main = hspec $ testSuite pks pkTestName $ \ (pk, param, algo) -> do
     it "verifyCreate" $ do
         rng <- rngInit "system"
         privKey <- privKeyCreate pk param rng

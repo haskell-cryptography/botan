@@ -1,6 +1,4 @@
-module Botan.Low.PubKey.KeyEncapsulationSpec
-( spec
-) where
+module Main where
 
 import Test.Prelude
 
@@ -17,8 +15,8 @@ pks =
 pkTestName :: (ByteString, ByteString, ByteString) -> String
 pkTestName (pk, param, kdf) = chars $ pk <> " " <> param <> " " <> kdf
 
-spec :: Spec
-spec = testSuite pks pkTestName $ \ (pk, param, kdf) -> do
+main :: IO ()
+main = hspec $ testSuite pks pkTestName $ \ (pk, param, kdf) -> do
     it "kemEncryptCreate" $ do
         rng <- rngInit "system"
         privKey <- privKeyCreate pk param rng

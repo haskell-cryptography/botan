@@ -1,8 +1,4 @@
-module Botan.Low.PubKeySpec
-( spec
-, pks
-, pkTestName
-) where
+module Main where
 
 import Test.Prelude
 
@@ -96,8 +92,8 @@ pubKeyFields "Kyber"       = [] -- TODO
 pubKeyFields "McEliece"    = [] -- TODO
 
 -- NOTE: These tests are going to be very slow if we create new keys every time
-spec :: Spec
-spec = testSuite pks pkTestName $ \ (pk, param) -> do
+main :: IO ()
+main = hspec $ testSuite pks pkTestName $ \ (pk, param) -> do
     it "privKeyCreate" $ do
         rng <- rngInit "system"
         privKey <- privKeyCreate pk param rng

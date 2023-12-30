@@ -1,6 +1,4 @@
-module Botan.Low.PubKey.KeyAgreementSpec
-( spec
-) where
+module Main where
 
 import Test.Prelude
 
@@ -19,8 +17,8 @@ pks =
 pkTestName :: (ByteString, ByteString) -> String
 pkTestName (pk, param) = chars $ pk <> " " <> param
 
-spec :: Spec
-spec = testSuite pks pkTestName $ \ (pk, param) -> do
+main :: IO ()
+main = hspec $ testSuite pks pkTestName $ \ (pk, param) -> do
     it "keyAgreementCreate" $ do
         rng <- rngInit "system"
         privKey <- privKeyCreate pk param rng

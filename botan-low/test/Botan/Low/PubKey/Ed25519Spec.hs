@@ -1,6 +1,4 @@
-module Botan.Low.PubKey.Ed25519Spec
-( spec
-) where
+module Main where
 
 import Test.Prelude
 
@@ -8,8 +6,8 @@ import Botan.Low.RNG
 import Botan.Low.PubKey
 import Botan.Low.PubKey.Ed25519
 
-spec :: Spec
-spec = do
+main :: IO ()
+main = hspec $ do
     it "privKeyEd25519GetPrivKey" $ do
         rng <- rngInit "system"
         privKey <- privKeyCreate "Ed25519" "" rng

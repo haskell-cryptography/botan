@@ -1,6 +1,4 @@
-module Botan.Low.MPISpec
-( spec
-) where
+module Main where
 
 import Test.Prelude
 
@@ -11,8 +9,8 @@ import Botan.Low.RNG
 --  These are kind of crappy and repetative, but that also exposes what needs to be done
 --  in the higher libraries to make things ergonomic.
 
-spec :: Spec
-spec = do
+main :: IO ()
+main = hspec $ do
     it "can initialize a mutable MPI reference" $ do
         mp <- mpInit
         pass

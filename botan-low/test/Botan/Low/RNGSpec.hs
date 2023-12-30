@@ -1,7 +1,4 @@
-module Botan.Low.RNGSpec
-( spec
-, rngs
-) where
+module Main where
 
 import Test.Prelude
 
@@ -17,8 +14,8 @@ rngs =
     , RDRandRNG -- NOTES: Not available on all processors
     ]
     
-spec :: Spec
-spec = do
+main :: IO ()
+main = hspec $ do
     it "systemRNGGet" $ do
         bs <- systemRNGGet 8
         ByteString.length bs `shouldBe` 8

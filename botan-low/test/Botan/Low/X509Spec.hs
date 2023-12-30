@@ -1,6 +1,4 @@
-module Botan.Low.X509Spec
-( spec
-) where
+module Main where
 
 import Test.Prelude
 
@@ -73,8 +71,8 @@ testCertHostname = "www.example.com"
 
 testCertValidTimestamp = 1420092000
 
-spec :: Spec
-spec = do
+main :: IO ()
+main = hspec $ do
     it "x509CertLoad" $ do
         cert <- x509CertLoad testCert
         pass

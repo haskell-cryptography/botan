@@ -1,6 +1,4 @@
-module Botan.Low.SRP6Spec
-( spec
-) where
+module Main where
 
 import Test.Prelude
 
@@ -50,8 +48,8 @@ groupId = head groupIds
 hashId :: HashId
 hashId = "SHA-256"
 
-spec :: Spec
-spec = testSuite groupIds chars $ \ groupId -> do
+main :: IO ()
+main = hspec $ testSuite groupIds chars $ \ groupId -> do
     it "can negotiate a shared secret" $ do
         rng <- rngInit "system"
         verifier <- srp6GenerateVerifier username password salt groupId hashId
