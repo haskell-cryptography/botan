@@ -26,13 +26,24 @@ import Data.ByteString.Internal as ByteString
 -- NOTE: botan bcrypt does not take the salt as an input
 --  Instead it uses a random generator to choose a random salt every time
 
+type BcryptWorkFactor = Int
+
+pattern Fast
+    ,   Good
+    ,   Strong
+    ::  BcryptWorkFactor
+
+pattern Fast    = BOTAN_BCRYPT_WORK_FACTOR_FAST
+pattern Good    = BOTAN_BCRYPT_WORK_FACTOR_GOOD
+pattern Strong  = BOTAN_BCRYPT_WORK_FACTOR_STRONG
+
 -- |Create a password hash using Bcrypt
 --
 --  Output is formatted bcrypt $2a$...
 bcryptGenerate
-    :: ByteString   -- ^ The password
-    -> RNG          -- ^ A random number generator
-    -> Int          -- ^ A work factor to slow down guessing attacks (a value of 12 to 16 is probably fine).
+    :: ByteString       -- ^ The password
+    -> RNG              -- ^ A random number generator
+    -> BcryptWorkFactor -- ^ A work factor to slow down guessing attacks (a value of 12 to 16 is probably fine).
     -> IO ByteString
 bcryptGenerate password rng factor = asCString password $ \ passwordPtr -> do
    withRNG rng $ \ botanRNG -> do

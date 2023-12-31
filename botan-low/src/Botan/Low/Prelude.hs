@@ -4,6 +4,7 @@ module Botan.Low.Prelude
 , module Control.Exception
 , module Control.DeepSeq
 , module Data.ByteString
+, module Data.String
 , module Data.Text
 , module Data.Word
 , module System.IO
@@ -32,6 +33,10 @@ module Botan.Low.Prelude
 , unsafeAsBytes
 , asBytesLen
 , unsafeAsBytesLen
+-- Helpers
+, (//)
+, (/$)
+, showBytes
 ) where
 
 -- Re-exported modules
@@ -43,6 +48,7 @@ import Control.Exception
 import Control.DeepSeq
 
 import Data.ByteString (ByteString)
+import Data.String (IsString(..))
 import Data.Text (Text)
 
 import Data.Word
@@ -226,6 +232,16 @@ asBytesLen bs f = ByteString.useAsCStringLen bs (\ (ptr,len) -> f (castPtr ptr) 
 
 unsafeAsBytesLen :: ByteString -> (Ptr byte -> CSize -> IO a) -> IO a
 unsafeAsBytesLen bs f = ByteString.unsafeUseAsCStringLen bs (\ (ptr,len) -> f (castPtr ptr) (fromIntegral len))
+
+-- Helpers used in a few name constructors
+
+infixr 6 //
+(//) :: (IsString a, Semigroup a) => a -> a -> a
+a // b = a <> "/" <> b
+
+infixr 0 /$
+(/$) :: (IsString a, Semigroup a) => a -> a -> a
+a /$ b = a <> "(" <> b <> ")"
 
 showBytes :: (Show a) => a -> ByteString
 showBytes = Char8.pack . show

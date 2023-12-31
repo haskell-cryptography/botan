@@ -36,8 +36,91 @@ createBlockCipher   :: (Ptr BotanBlockCipher -> IO CInt) -> IO BlockCipher
         MkBlockCipher getBlockCipherForeignPtr
         botan_block_cipher_destroy
 
+-- | 128-bit block cipher name type
+type BlockCipher128Name = BlockCipherName
+
+pattern AES128
+    ,   AES192
+    ,   AES256
+    ,   ARIA128
+    ,   ARIA192
+    ,   ARIA256
+    ,   Camellia128
+    ,   Camellia192
+    ,   Camellia256
+    ,   Noekeon
+    ,   SEED
+    ,   SM4
+    ,   Serpent
+    ,   Twofish
+    :: BlockCipher128Name
+
+pattern AES128          = BOTAN_BLOCK_CIPHER_128_AES_128
+pattern AES192          = BOTAN_BLOCK_CIPHER_128_AES_192
+pattern AES256          = BOTAN_BLOCK_CIPHER_128_AES_256
+pattern ARIA128         = BOTAN_BLOCK_CIPHER_128_ARIA_128
+pattern ARIA192         = BOTAN_BLOCK_CIPHER_128_ARIA_192
+pattern ARIA256         = BOTAN_BLOCK_CIPHER_128_ARIA_256
+pattern Camellia128     = BOTAN_BLOCK_CIPHER_128_CAMELLIA_128
+pattern Camellia192     = BOTAN_BLOCK_CIPHER_128_CAMELLIA_192
+pattern Camellia256     = BOTAN_BLOCK_CIPHER_128_CAMELLIA_256
+pattern Noekeon         = BOTAN_BLOCK_CIPHER_128_NOEKEON
+pattern SEED            = BOTAN_BLOCK_CIPHER_128_SEED
+pattern SM4             = BOTAN_BLOCK_CIPHER_128_SM4
+pattern Serpent         = BOTAN_BLOCK_CIPHER_128_SERPENT
+pattern Twofish         = BOTAN_BLOCK_CIPHER_128_TWOFISH
+
+blockCipher128s =
+    [ AES128
+    , AES192
+    , AES256
+    , ARIA128
+    , ARIA192
+    , ARIA256
+    , Camellia128
+    , Camellia192
+    , Camellia256
+    , Noekeon
+    , SEED
+    , SM4
+    , Serpent
+    , Twofish
+    ]
+
 -- | Block cipher name type
 type BlockCipherName = ByteString
+
+pattern Blowfish
+    ,   CAST_128
+    ,   DES
+    ,   TripleDES
+    ,   GOST_28147_89
+    ,   IDEA
+    ,   SHACAL2
+    ,   Threefish_512
+    :: BlockCipherName
+
+pattern Blowfish        = BOTAN_BLOCK_CIPHER_BLOWFISH
+pattern CAST_128        = BOTAN_BLOCK_CIPHER_CAST_128
+pattern DES             = BOTAN_BLOCK_CIPHER_DES
+pattern TripleDES       = BOTAN_BLOCK_CIPHER_TRIPLEDES
+pattern GOST_28147_89   = BOTAN_BLOCK_CIPHER_GOST_28147_89
+pattern IDEA            = BOTAN_BLOCK_CIPHER_IDEA
+pattern SHACAL2         = BOTAN_BLOCK_CIPHER_SHACAL2
+pattern Threefish_512   = BOTAN_BLOCK_CIPHER_THREEFISH_512
+
+blockCiphers =
+    [ Blowfish
+    , CAST_128
+    , DES
+    , TripleDES
+    , GOST_28147_89
+    , IDEA
+    , SHACAL2
+    , Threefish_512
+    ]
+
+allBlockCiphers = blockCipher128s ++ blockCiphers
     
 -- | Initialize a block cipher object
 blockCipherInit

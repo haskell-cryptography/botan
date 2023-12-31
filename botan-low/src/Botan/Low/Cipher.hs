@@ -45,9 +45,112 @@ createCipher   :: (Ptr BotanCipher -> IO CInt) -> IO Cipher
 
 type CipherInitFlags = Word32
 type CipherUpdateFlags = Int
-type CipherName = ByteString
 type CipherNonce = ByteString
 type CipherKey = ByteString
+
+type CipherName = ByteString
+
+type CipherMode = ByteString
+
+type CBCPaddingName = ByteString
+
+pattern PKCS7
+    ,   OnesAndZeroes
+    ,   X9_23
+    ,   ESP
+    ,   CTS
+    ,   NoPadding
+    ::  CBCPaddingName
+
+pattern PKCS7           = BOTAN_CBC_PADDING_PKCS7
+pattern OnesAndZeroes   = BOTAN_CBC_PADDING_ONE_AND_ZEROES
+pattern X9_23           = BOTAN_CBC_PADDING_X9_23
+pattern ESP             = BOTAN_CBC_PADDING_ESP
+pattern CTS             = BOTAN_CBC_PADDING_CTS
+pattern NoPadding       = BOTAN_CBC_PADDING_NO_PADDING
+
+cbcMode :: BlockCipherName -> CBCPaddingName -> CipherName 
+cbcMode bc padding = bc // BOTAN_CIPHER_MODE_CBC // padding
+
+cfbMode :: BlockCipherName -> CipherName 
+cfbMode bc = bc // BOTAN_CIPHER_MODE_CFB
+
+cfbMode' :: BlockCipherName -> Int -> CipherName 
+cfbMode' bc feedbackSz = cfbMode bc /$ showBytes feedbackSz
+
+xtsMode :: BlockCipherName -> CipherName
+xtsMode bc = bc // BOTAN_CIPHER_MODE_XTS
+
+type AEADName = CipherName
+
+chaCha20Poly1305 :: AEADName
+chaCha20Poly1305 = BOTAN_AEAD_CHACHA20POLY1305
+
+type AEADMode = ByteString
+
+gcmMode :: BlockCipher128Name -> AEADName
+gcmMode bc = bc // BOTAN_AEAD_MODE_GCM
+
+gcmMode' :: BlockCipher128Name -> Int -> AEADName
+gcmMode' bc tagSz = gcmMode bc /$ showBytes tagSz
+
+ocbMode :: BlockCipher128Name -> AEADName
+ocbMode bc = bc // BOTAN_AEAD_MODE_OCB
+
+ocbMode' :: BlockCipher128Name -> Int -> AEADName
+ocbMode' bc tagSz = ocbMode bc /$ showBytes tagSz
+
+eaxMode :: BlockCipherName -> AEADName
+eaxMode bc = bc // BOTAN_AEAD_MODE_EAX
+
+eaxMode' :: BlockCipherName -> Int -> AEADName
+eaxMode' bc tagSz = eaxMode bc /$ showBytes tagSz
+
+sivMode :: BlockCipher128Name -> AEADName
+sivMode bc = bc // BOTAN_AEAD_MODE_SIV
+
+ccmMode :: BlockCipher128Name -> AEADName
+ccmMode bc = bc // BOTAN_AEAD_MODE_CCM
+
+ccmMode' :: BlockCipher128Name -> Int -> Int -> AEADName
+ccmMode' bc tagSz l = ccmMode bc /$ showBytes tagSz <> "," <> showBytes l
+
+cbcPaddings =
+    [ PKCS7
+    , OnesAndZeroes
+    , X9_23
+    , ESP
+    , CTS
+    , NoPadding
+    ]
+
+cipherModes = concat
+    [ [ cbcMode bc pd | bc <- allBlockCiphers, pd <- cbcPaddings ]
+    , [ cfbMode bc    | bc <- allBlockCiphers ]
+    , [ xtsMode bc    | bc <- allBlockCiphers ]
+    ]
+
+aeads = concat
+    [ [ chaCha20Poly1305 ]
+    , [ gcmMode bc | bc <- blockCipher128s ]
+    , [ ocbMode bc | bc <- blockCipher128s ]
+    , [ eaxMode bc | bc <- blockCiphers ]
+    , [ sivMode bc | bc <- blockCipher128s ]
+    , [ ccmMode bc | bc <- blockCipher128s ]
+    ]
+
+allCiphers = cipherModes ++ aeads
+
+type CipherInitFlag = Word32
+
+pattern MaskDirection
+    ,   Encrypt         -- ^ May be renamed Encipher to avoid confusion with PKEncrypt
+    ,   Decrypt         -- ^ May be renamed Decipher to avoid confusion with PKDecrypt
+    ::  CipherInitFlag
+
+pattern MaskDirection = BOTAN_CIPHER_INIT_FLAG_MASK_DIRECTION
+pattern Encrypt = BOTAN_CIPHER_INIT_FLAG_ENCRYPT
+pattern Decrypt = BOTAN_CIPHER_INIT_FLAG_DECRYPT
 
 -- |Initialize a cipher object
 cipherInit :: CipherName -> CipherInitFlags -> IO Cipher

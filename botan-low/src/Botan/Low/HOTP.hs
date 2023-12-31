@@ -40,7 +40,7 @@ module Botan.Low.HOTP where
 import qualified Data.ByteString as ByteString
 
 import Botan.Bindings.HOTP
-import Botan.Low.Hash (HashName(..))
+import Botan.Low.Hash
 
 import Botan.Low.Error
 import Botan.Low.Make
@@ -66,6 +66,24 @@ createHOTP   :: (Ptr BotanHOTP -> IO CInt) -> IO HOTP
         MkBotanHOTP runBotanHOTP
         MkHOTP getHOTPForeignPtr
         botan_hotp_destroy
+
+type HOTPHashName = HashName
+
+pattern HOTP_SHA_1 
+    ,   HOTP_SHA_256
+    ,   HOTP_SHA_512
+    ::  HOTPHashName
+
+pattern HOTP_SHA_1   = SHA_1
+pattern HOTP_SHA_256 = SHA_256
+pattern HOTP_SHA_512 = SHA_512
+
+-- TODO: Do any other hashes work?
+hotpHashes =
+    [ HOTP_SHA_1
+    , HOTP_SHA_256
+    , HOTP_SHA_512
+    ]
 
 type HOTPCounter = Word64
 type HOTPCode = Word32

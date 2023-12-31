@@ -29,6 +29,34 @@ module Botan.Low.Hash
 ( Hash(..)
 , HashName(..)
 , HashDigest(..)
+, pattern BLAKE2b
+, pattern Keccak_1600
+, pattern GOST_34_11
+, pattern MD4
+, pattern MD5
+, pattern RIPEMD_160
+, pattern SHA_1
+, pattern SHA_224
+, pattern SHA_256
+, pattern SHA_384
+, pattern SHA_512
+, pattern SHA_512_256
+, pattern SHA_3
+, pattern SHAKE_128
+, pattern SHAKE_256
+, pattern SM3
+, pattern Skein_512
+, pattern Streebog_256
+, pattern Streebog_512
+, pattern Whirlpool
+, pattern Parallel
+, pattern Comb4P
+, pattern Adler32
+, pattern CRC24
+, pattern CRC32
+, cryptohashes
+, checksums
+, allHashes
 , withHash
 , hashInit
 , withHashInit
@@ -70,6 +98,145 @@ createHash   :: (Ptr BotanHash -> IO CInt) -> IO Hash
         botan_hash_destroy
 
 type HashName = ByteString
+
+pattern BLAKE2b
+    ,   Keccak_1600
+    ,   GOST_34_11
+    ,   MD4
+    ,   MD5
+    ,   RIPEMD_160
+    ,   SHA_1
+    ,   SHA_224
+    ,   SHA_256
+    ,   SHA_384
+    ,   SHA_512
+    ,   SHA_512_256
+    ,   SHA_3
+    ,   SHAKE_128
+    ,   SHAKE_256
+    ,   SM3
+    ,   Skein_512
+    ,   Streebog_256
+    ,   Streebog_512
+    ,   Whirlpool
+    ,   Parallel
+    ,   Comb4P
+    ,   Adler32
+    ,   CRC24
+    ,   CRC32
+    :: HashName
+
+pattern BLAKE2b         = BOTAN_HASH_BLAKE2B
+-- TODO: function
+-- sz is digest size in bits, must be 1-64 bytes, eg: 8-512 in multiples of 8
+-- blake2b' sz | sz <= 512 = BLAKE2b /$ showBytes sz
+-- blake2b' _ = error "..."
+pattern Keccak_1600     = BOTAN_HASH_KECCAK_1600
+-- TODO: function or pattern
+-- keccak_1600' n | n `elem` [224, 256, 384, 512] = Keccak_1600 /$ showBytes n
+-- keccak_1600' _ = error "..."
+-- pattern Keccak_1600_224 = "Keccak-1600(224)"
+-- pattern Keccak_1600_256 = "Keccak-1600(256)"
+-- pattern Keccak_1600_384 = "Keccak-1600(384)"
+-- pattern Keccak_1600_512 = "Keccak-1600(512)"
+pattern GOST_34_11      = BOTAN_HASH_GOST_34_11
+pattern MD4             = BOTAN_HASH_MD4
+pattern MD5             = BOTAN_HASH_MD5
+pattern RIPEMD_160      = BOTAN_HASH_RIPEMD_160
+pattern SHA_1           = BOTAN_HASH_SHA1
+pattern SHA_224         = BOTAN_HASH_SHA_224
+pattern SHA_256         = BOTAN_HASH_SHA_256
+pattern SHA_384         = BOTAN_HASH_SHA_384
+pattern SHA_512         = BOTAN_HASH_SHA_512
+pattern SHA_512_256     = BOTAN_HASH_SHA_512_256
+pattern SHA_3           = BOTAN_HASH_SHA_3
+-- TODO: function or pattern
+-- sha_3' n | n `elem` [224, 256, 384, 512] = SHA_3 /$ showBytes n
+-- sha_3' _ = error "..."
+-- pattern SHA_3_224 = "SHA-3(224)"
+-- pattern SHA_3_256 = "SHA-3(256)"
+-- pattern SHA_3_384 = "SHA-3(384)"
+-- pattern SHA_3_512 = "SHA-3(512)"
+pattern SHAKE_128       = BOTAN_HASH_SHAKE_128
+-- TODO: function
+shake_128' sz = SHAKE_128 /$ showBytes sz
+pattern SHAKE_256       = BOTAN_HASH_SHAKE_256
+-- TODO: function
+shake_256' sz = SHAKE_256 /$ showBytes sz
+pattern SM3             = BOTAN_HASH_SM3
+pattern Skein_512       = BOTAN_HASH_SKEIN_512
+-- TODO: function
+-- skein_512' sz salt = Skein_512 /$ showBytes sz <> "," <> salt
+pattern Streebog_256    = BOTAN_HASH_STREEBOG_256
+pattern Streebog_512    = BOTAN_HASH_STREEBOG_512
+pattern Whirlpool       = BOTAN_HASH_WHIRLPOOL
+pattern Parallel        = BOTAN_HASH_STRAT_PARALLEL
+-- TODO: function
+-- parallel a b =  Parallel /$ a <> "," <> b
+-- TODO: function
+-- comb4P a b =  Comb4P /$ a <> "," <> b
+pattern Comb4P          = BOTAN_HASH_STRAT_COMB4P
+pattern Adler32         = BOTAN_CHECKSUM_ADLER32
+pattern CRC24           = BOTAN_CHECKSUM_CRC24
+pattern CRC32           = BOTAN_CHECKSUM_CRC32
+
+cryptohashes = 
+    [ BLAKE2b
+    -- , "BLAKE2b(128)"
+    -- , "BLAKE2b(256)"
+    -- , "BLAKE2b(512)"
+    , GOST_34_11
+    , Keccak_1600
+    -- , "Keccak-1600(224)"
+    -- , "Keccak-1600(256)"
+    -- , "Keccak-1600(384)"
+    -- , "Keccak-1600(512)"
+    , MD4
+    , MD5
+    , RIPEMD_160
+    , SHA_1
+    , SHA_224
+    , SHA_256
+    , SHA_384
+    , SHA_512
+    , SHA_512_256
+    , SHA_3
+    -- , "SHA-3(224)"
+    -- , "SHA-3(256)"
+    -- , "SHA-3(384)"
+    -- , "SHA-3(512)"
+    -- NOTE: SHAKE-128 has no default value, a parameter *MUST* be supplied
+    , shake_128' 128
+    -- , "SHAKE-128(128)"
+    -- , "SHAKE-128(256)"
+    -- , "SHAKE-128(512)"
+    -- NOTE: SHAKE-256 has no default value, a parameter *MUST* be supplied
+    , shake_256' 128
+    -- , "SHAKE-256(128)"
+    -- , "SHAKE-256(256)"
+    -- , "SHAKE-256(512)"
+    , SM3
+    , Skein_512
+    -- , "Skein-512(128)"
+    -- , "Skein-512(256)"
+    -- , "Skein-512(512)"
+    , Streebog_256
+    , Streebog_512
+    , Whirlpool
+    ]
+
+-- TODO:
+-- hashStrategies :: [HashName]
+-- hashStrategies = undefined
+
+checksums = 
+    [ Adler32
+    , CRC24
+    , CRC32
+    ]
+
+allHashes = cryptohashes ++ checksums
+
 type HashDigest = ByteString
 
 -- TODO: hashInit :: HashName -> -> HashFlags -> IO Hash?

@@ -381,3 +381,10 @@ throwBotanErrorWithCallstack e cs =  case e of
     BOTAN_FFI_ERROR_NOT_IMPLEMENTED             -> throwIO $ NotImplementedException e cs
     BOTAN_FFI_ERROR_INVALID_OBJECT              -> throwIO $ InvalidObjectException e cs
     _                                           -> throwIO $ UnknownException e cs
+
+-- TODO: catchingBotan
+-- r0 <- botan_foo
+-- if r0 < 0
+--   then pure r0
+--   else do
+--     r1 <- botan_bar
