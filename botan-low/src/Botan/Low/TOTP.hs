@@ -45,6 +45,7 @@ import qualified Data.ByteString as ByteString
 import Botan.Bindings.TOTP
 
 import Botan.Low.Error
+import Botan.Low.Hash
 import Botan.Low.Make
 import Botan.Low.Prelude
 import Botan.Low.Remake
@@ -67,12 +68,30 @@ createTOTP   :: (Ptr BotanTOTP -> IO CInt) -> IO TOTP
         MkTOTP getTOTPForeignPtr
         botan_totp_destroy
 
+type TOTPHashName = HashName
+
+pattern TOTP_SHA_1 
+    ,   TOTP_SHA_256
+    ,   TOTP_SHA_512
+    ::  TOTPHashName
+
+pattern TOTP_SHA_1   = SHA_1
+pattern TOTP_SHA_256 = SHA_256
+pattern TOTP_SHA_512 = SHA_512
+
+-- TODO: Do any other hashes work?
+totpHashes =
+    [ TOTP_SHA_1
+    , TOTP_SHA_256
+    , TOTP_SHA_512
+    ]
+
 type TOTPTimestep = Word64
 type TOTPTimestamp = Word64
 type TOTPCode = Word32
 
 -- NOTE: Digits should be 6-8
-totpInit :: ByteString -> ByteString -> Int -> TOTPTimestep -> IO TOTP
+totpInit :: ByteString -> TOTPHashName -> Int -> TOTPTimestep -> IO TOTP
 totpInit key algo digits timestep = asBytesLen key $ \ keyPtr keyLen -> do
     asCString algo $ \ algoPtr -> do
         createTOTP $ \ out -> botan_totp_init

@@ -40,6 +40,66 @@ import Botan.Low.Prelude
 
 type KDFName = ByteString
 
+pattern HKDF
+    ,   HKDF_Extract
+    ,   HKDF_Expand
+    ,   KDF2
+    ,   KDF1_18033
+    ,   KDF1
+    ,   TLS_12_PRF
+    ,   X9_42_PRF
+    ,   SP800_108_Counter
+    ,   SP800_108_Feedback
+    ,   SP800_108_Pipeline
+    ,   SP800_56A
+    ,   SP800_56C
+    :: KDFName
+
+pattern HKDF                = BOTAN_KDF_HKDF
+pattern HKDF_Extract        = BOTAN_KDF_HKDF_EXTRACT
+pattern HKDF_Expand         = BOTAN_KDF_HKDF_EXPAND
+pattern KDF2                = BOTAN_KDF_KDF2
+pattern KDF1_18033          = BOTAN_KDF_KDF1_18033
+pattern KDF1                = BOTAN_KDF_KDF1
+pattern TLS_12_PRF          = BOTAN_KDF_TLS_12_PRF
+pattern X9_42_PRF           = BOTAN_KDF_X9_42_PRF
+pattern SP800_108_Counter   = BOTAN_KDF_SP800_108_COUNTER
+pattern SP800_108_Feedback  = BOTAN_KDF_SP800_108_FEEDBACK
+pattern SP800_108_Pipeline  = BOTAN_KDF_SP800_108_PIPELINE
+pattern SP800_56A           = BOTAN_KDF_SP800_56A
+pattern SP800_56C           = BOTAN_KDF_SP800_56C
+
+hkdf' :: HashName -> KDFName
+hkdf' h = HKDF /$ h
+hkdf_extract' h = HKDF_Extract /$ h
+hkdf_expand' h = HKDF_Expand /$ h
+kdf2' h = KDF2 /$ h
+kdf1_18033' h = KDF1_18033 /$ h
+kdf1' h = KDF1 /$ h
+tls_12_prf' h = TLS_12_PRF /$ h
+x9_42_prf' h = X9_42_PRF /$ h
+sp800_108_counter' h = SP800_108_Counter /$ HMAC /$ h
+sp800_108_feedback' h = SP800_108_Feedback /$ HMAC /$ h
+sp800_108_pipeline' h = SP800_108_Pipeline /$ HMAC /$ h
+sp800_56A' h = SP800_56A /$ HMAC /$ h
+sp800_56C' h = SP800_56C /$ HMAC /$ h
+
+kdfs = concat
+    [ [ hkdf' h | h <- cryptohashes ]
+    , [ hkdf_extract' h | h <- cryptohashes ]
+    , [ hkdf_expand' h | h <- cryptohashes ]
+    , [ kdf2' h | h <- allHashes ]
+    , [ kdf1_18033' h | h <- allHashes ]
+    , [ kdf1' h | h <- allHashes ]
+    , [ tls_12_prf' h | h <- cryptohashes ]
+    , [ x9_42_prf' SHA_1 ]
+    , [ sp800_108_counter' h | h <- cryptohashes ]
+    , [ sp800_108_feedback' h | h <- cryptohashes ]
+    , [ sp800_108_pipeline' h | h <- cryptohashes ]
+    , [ sp800_56A' h | h <- cryptohashes ]
+    , [ sp800_56C' h | h <- cryptohashes ]
+    ]
+
 -- SEE: Algos here: https://botan.randombit.net/doxygen/classBotan_1_1KDF.html
 kdf :: KDFName -> Int -> ByteString -> ByteString -> ByteString -> IO ByteString
 kdf algo outLen secret salt label = allocBytes outLen $ \ outPtr -> do

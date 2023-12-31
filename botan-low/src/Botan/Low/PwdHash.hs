@@ -24,6 +24,30 @@ import Botan.Low.Prelude
 
 type PBKDFName = ByteString
 
+pattern PBKDF2
+    ,   Scrypt
+    ,   Argon2d
+    ,   Argon2i
+    ,   Argon2id
+    ,   Bcrypt_PBKDF
+    ,   OpenPGP_S2K
+    :: PBKDFName
+
+pattern PBKDF2 = BOTAN_PBKDF_PBKDF2
+pattern Scrypt = BOTAN_PBKDF_SCRYPT
+pattern Argon2d = BOTAN_PBKDF_ARGON2D
+pattern Argon2i = BOTAN_PBKDF_ARGON2I
+pattern Argon2id = BOTAN_PBKDF_ARGON2ID
+pattern Bcrypt_PBKDF = BOTAN_PBKDF_BCRYPT_PBKDF
+pattern OpenPGP_S2K = BOTAN_PBKDF_OPENPGP_S2K
+
+-- NOTE: May require HMAC
+pbkdf2' :: MACName -> PBKDFName
+pbkdf2' m = PBKDF2 /$ m
+
+openPGP_S2K':: HashName -> PBKDFName
+openPGP_S2K' h = OpenPGP_S2K /$ h
+
 -- NOTE: Should passphrase be Text or ByteString? Text is implied by use of const char*
 --  as well as the non-null context implied by passphrase_len == 0. ByteString for now.
 pwdhash :: PBKDFName -> Int -> Int -> Int -> Int -> ByteString -> ByteString -> IO ByteString

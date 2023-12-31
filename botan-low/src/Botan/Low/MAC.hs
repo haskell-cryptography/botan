@@ -64,6 +64,49 @@ createMAC   :: (Ptr BotanMAC -> IO CInt) -> IO MAC
         botan_mac_destroy
 
 type MACName = ByteString
+
+pattern CMAC
+    ,   GMAC
+    -- ,   CBC_MAC
+    ,   HMAC
+    -- ,   KMAC_128
+    -- ,   KMAC_256
+    ,   Poly1305
+    ,   SipHash
+    ,   X9_19_MAC
+    :: MACName
+
+pattern CMAC      = BOTAN_MAC_CMAC
+pattern GMAC      = BOTAN_MAC_GMAC
+-- pattern CBC_MAC   = BOTAN_MAC_CBC_MAC
+pattern HMAC      = BOTAN_MAC_HMAC
+-- pattern KMAC_128  = BOTAN_MAC_KMAC_128
+-- pattern KMAC_256  = BOTAN_MAC_KMAC_256
+pattern Poly1305  = BOTAN_MAC_Poly1305
+pattern SipHash   = BOTAN_MAC_SipHash
+pattern X9_19_MAC = BOTAN_MAC_X9_19_MAC
+
+cmac' :: BlockCipherName -> MACName
+cmac' bc = CMAC /$ bc
+
+gmac' :: BlockCipherName -> MACName
+gmac' bc = GMAC /$ bc
+
+-- cbc_mac' :: BlockCipherName -> MACName
+-- cbc_mac' bc = CBC_MAC /$ bc
+
+hmac' :: BlockCipherName -> MACName
+hmac' h = HMAC /$ h
+
+-- kmac_128' :: BlockCipherName -> MACName
+-- kmac_128' = ...
+
+-- kmac_256' :: BlockCipherName -> MACName
+-- kmac_256' = ...
+
+sipHash' :: Int -> Int -> MACName
+sipHash' ir fr = SipHash /$ showBytes ir <> "," <> showBytes fr
+
 -- TODO: Rename MACTag?
 type MACDigest = ByteString
 
