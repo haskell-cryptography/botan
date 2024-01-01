@@ -11,14 +11,6 @@ key = "Fee fi fo fum"
 counter :: HOTPCounter
 counter = 12345
 
--- TODO: Do any other hashes work?
-hotpHashes :: [ HashName ]
-hotpHashes =
-    [ "SHA-1"
-    , "SHA-256"
-    , "SHA-512"
-    ]
-
 main :: IO ()
 main = hspec $ testSuite hotpHashes chars $ \ h -> do
     it "hotpInit" $ do

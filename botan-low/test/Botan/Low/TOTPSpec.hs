@@ -14,14 +14,6 @@ timestep = 60
 timestamp :: TOTPTimestamp
 timestamp = 1698109812
 
--- TODO: Do any other hashes work?
-totpHashes :: [ HashName ]
-totpHashes =
-    [ "SHA-1"
-    , "SHA-256"
-    , "SHA-512"
-    ]
-
 -- TODO: More thorough testing
 main :: IO ()
 main = hspec $ testSuite totpHashes chars $ \ h -> do

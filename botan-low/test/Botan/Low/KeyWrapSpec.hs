@@ -2,7 +2,6 @@ module Main where
 
 import Test.Prelude
 
-import Botan.Low.BlockCipherSpec (blockCipher128s)
 import Botan.Low.BlockCipher
 
 import Botan.Low.RNG

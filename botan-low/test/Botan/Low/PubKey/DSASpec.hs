@@ -52,6 +52,7 @@ pubKeyField pubKey field = do
 --  DLGroup PubKey: p, q, g, y
 --  DLGroup PrivKey: p, q, g, x, y
 
+-- NOTE: Fails on pubKeyLoadDSA for srp curves (but not privKeyLoadDSA?)
 main :: IO ()
 main = hspec $ testSuite dlGroups chars $ \ dlGroup -> do
     it "privKeyLoadDSA" $ do

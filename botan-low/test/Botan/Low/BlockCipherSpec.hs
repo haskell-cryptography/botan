@@ -8,36 +8,6 @@ import qualified Data.ByteString as ByteString
 import Botan.Low.BlockCipher
 import Botan.Low.RNG
 
-blockCipher128s =
-    [ "AES-128"
-    , "AES-192"
-    , "AES-256"
-    , "ARIA-128"
-    , "ARIA-192"
-    , "ARIA-256"
-    , "Camellia-128"
-    , "Camellia-192"
-    , "Camellia-256"
-    , "Noekeon"
-    , "SEED"
-    , "SM4"
-    , "Serpent"
-    , "Twofish"
-    ]
-
-blockCiphers =
-    [ "Blowfish"
-    , "CAST-128"
-    , "DES"
-    , "TripleDES"
-    , "GOST-28147-89"
-    , "IDEA"
-    , "SHACAL2"
-    , "Threefish-512"
-    ]
-
-allBlockCiphers = blockCipher128s ++ blockCiphers
-
 message = "Fee fi fo fum! I smell the blood of an Englishman!"
 
 main :: IO ()

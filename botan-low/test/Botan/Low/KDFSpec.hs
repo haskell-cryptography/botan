@@ -4,9 +4,7 @@ import Test.Prelude
 
 import qualified Data.ByteString as ByteString
 
-import Botan.Low.HashSpec (cryptohashes, hashes)
-import Botan.Low.MACSpec (macs)
-
+-- import Botan.Low.Hash
 import Botan.Low.KDF
 
 --  NOTE: Many of these tests fail because different kdfs / macs / hashes have different requirements
@@ -26,22 +24,6 @@ import Botan.Low.KDF
 --  SP800 KDFs fail with InvalidKeyLengthException for X9.19-MAC, Poly1305, SipHash(2,4) 
 --  except for SP800-56A which fails with NotImplementedException
 --  TODO: Exhaustive algorithm testing (see Botan.KDF notes)
-
-kdfs = concat
-    [ [ "HKDF(" <> h <> ")" | h <-cryptohashes ]
-    , [ "HKDF-Extract(" <> h <> ")" | h <- cryptohashes ]
-    , [ "HKDF-Expand(" <> h <> ")" | h <- cryptohashes ]
-    , [ "KDF2(" <> h <> ")" | h <- hashes ]
-    , [ "KDF1-18033(" <> h <> ")" | h <- hashes ]
-    , [ "KDF1(" <> h <> ")" | h <- hashes ]
-    , [ "TLS-12-PRF(" <> h <> ")" | h <- cryptohashes ]
-    , [ "X9.42-PRF(SHA-1)" ]
-    , [ "SP800-108-Counter(HMAC(" <>  h <> "))" | h <- cryptohashes ]
-    , [ "SP800-108-Feedback(HMAC(" <> h <> "))" | h <- cryptohashes ]
-    , [ "SP800-108-Pipeline(HMAC(" <> h <> "))" | h <- cryptohashes ]
-    , [ "SP800-56A(HMAC(" <> h <> "))" | h <- cryptohashes ]
-    , [ "SP800-56C(HMAC(" <> h <> "))" | h <- cryptohashes ]
-    ]
 
 main :: IO ()
 main = hspec $ testSuite kdfs chars $ \ algo -> do

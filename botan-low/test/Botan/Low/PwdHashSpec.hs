@@ -2,9 +2,6 @@ module Main where
 
 import Data.ByteString (isPrefixOf)
 
-import Botan.Low.HashSpec (hashes)
-import Botan.Low.MACSpec (macs)
-
 import Botan.Low.Hash
 import Botan.Low.MAC
 import Botan.Low.PwdHash

@@ -1,8 +1,6 @@
 module Main where
 
 import Test.Prelude
-import Botan.Low.BlockCipherSpec (allBlockCiphers)
-import Botan.Low.HashSpec (hashes)
 
 import Botan.Bindings.MAC
 import Botan.Low.MAC

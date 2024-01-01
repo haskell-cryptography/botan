@@ -8,62 +8,10 @@ import qualified Data.ByteString as ByteString
 import Botan.Bindings.Hash
 import Botan.Low.Hash
 
-cryptohashes :: [HashName]
-cryptohashes = 
-    -- [ "BLAKE2b(128)"
-    -- , "BLAKE2b(256)"
-    -- , "BLAKE2b(512)"
-    [ "BLAKE2b"
-    , "GOST-34.11"
-    -- , "Keccak-1600(224)"
-    -- , "Keccak-1600(256)"
-    -- , "Keccak-1600(384)"
-    -- , "Keccak-1600(512)"
-    , "Keccak-1600"
-    , "MD4"
-    , "MD5"
-    , "RIPEMD-160"
-    , "SHA-1"
-    , "SHA-224"
-    , "SHA-256"
-    , "SHA-512"
-    , "SHA-384"
-    -- , "SHA-512-256"
-    -- , "SHA-3(224)"
-    -- , "SHA-3(256)"
-    -- , "SHA-3(384)"
-    -- , "SHA-3(512)"
-    , "SHA-3"
-    , "SHAKE-128(128)" -- NOTE: SHAKE-128 has no default value, a parameter *MUST* be supplied
-    -- , "SHAKE-128(256)"
-    -- , "SHAKE-128(512)"
-    -- , "SHAKE-256(128)"
-    , "SHAKE-256(256)" -- NOTE: SHAKE-128 has no default value, a parameter *MUST* be supplied
-    -- , "SHAKE-256(512)"
-    , "SM3"
-    -- , "Skein-512(128)"
-    -- , "Skein-512(256)"
-    -- , "Skein-512(512)"
-    , "Skein-512"
-    , "Streebog-256"
-    , "Streebog-512"
-    , "Whirlpool"
-    ]
-
-checksums :: [HashName]
-checksums = 
-    [ "Adler32"
-    , "CRC24"
-    , "CRC32"
-    ]
-
-hashes :: [HashName]
-hashes = cryptohashes ++ checksums
-
 message = "Fee fi fo fum! I smell the blood of an Englishman!"
 
 main :: IO ()
-main = hspec $ testSuite hashes chars $ \ h -> do
+main = hspec $ testSuite allHashes chars $ \ h -> do
     it "can initialize a hash context" $ do
         ctx <- hashInit h
         pass

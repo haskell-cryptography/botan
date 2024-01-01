@@ -1,44 +1,20 @@
 module Main where
 
 import Test.Prelude
-import Botan.Low.BlockCipherSpec (blockCipher128s, blockCiphers, allBlockCiphers)
 
 import qualified Data.ByteString as ByteString
 import qualified Data.ByteString.Char8 as Char8
 
 import Botan.Bindings.Cipher
+import Botan.Low.BlockCipher
 import Botan.Low.Cipher
 import Botan.Low.RNG
-
-paddings =
-    [ "PKCS7"
-    , "OneAndZeros"
-    , "X9.23"
-    , "ESP"
-    , "CTS"
-    , "NoPadding"
-    ]
-
-blockCipherModes = concat
-    [ [ bc <> "/CBC/" <> pd     | bc <- allBlockCiphers, pd <- paddings ]
-    , [ bc <> "/CFB"            | bc <- allBlockCiphers ]
-    , [ bc <> "/XTS"            | bc <- allBlockCiphers ]
-    ]
-
-aeads =  concat
-    [ [ "ChaCha20Poly1305" ]
-    , [ bc <> "/GCM"   | bc <- blockCipher128s ]
-    , [ bc <> "/OCB"   | bc <- blockCipher128s ]
-    , [ bc <> "/EAX"   | bc <- blockCiphers ]
-    , [ bc <> "/SIV"   | bc <- blockCipher128s ]
-    , [ bc <> "/CCM"   | bc <- blockCipher128s ]
-    ]
 
 showBytes :: (Show a) => a -> ByteString
 showBytes = Char8.pack . show
 
 main :: IO ()
-main = hspec $ testSuite (blockCipherModes ++ aeads) chars $ \ cipher -> do
+main = hspec $ testSuite (cipherModes ++ aeads) chars $ \ cipher -> do
     it "can initialize a cipher encryption context" $ do
         ctx <- cipherInit cipher BOTAN_CIPHER_INIT_FLAG_ENCRYPT
         pass
