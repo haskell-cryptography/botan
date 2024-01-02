@@ -1,6 +1,5 @@
 module Botan.BlockCipher where
 
-import Botan.Low.BlockCipher (BlockCipherCtx(..), BlockCipherName(..))
 import qualified Botan.Low.BlockCipher as Low
 
 import Botan.Prelude
@@ -20,43 +19,43 @@ data BlockCipherKeySpec
 
 --
 
-blockCipherCtxInit :: BlockCipher -> BlockCipherCtx
+blockCipherCtxInit :: BlockCipher -> Low.BlockCipher
 blockCipherCtxInit = blockCipherCtxInitName . blockCipherName
 
-blockCipherCtxInitName :: BlockCipherName -> BlockCipherCtx
+blockCipherCtxInitName :: Low.BlockCipherName -> Low.BlockCipher
 blockCipherCtxInitName = unsafePerformIO1 Low.blockCipherInit
 
 -- TODO:
 -- blockCipherCtxBlockCipher
---     :: BlockCipherCtx  -- ^ The cipher object
+--     :: Low.BlockCipher  -- ^ The cipher object
 --     -> BlockCipher
 -- blockCipherCtxName = undefined
 
 blockCipherCtxName
-    :: BlockCipherCtx  -- ^ The cipher object
-    -> BlockCipherName
+    :: Low.BlockCipher  -- ^ The cipher object
+    -> Low.BlockCipherName
 blockCipherCtxName = unsafePerformIO1 Low.blockCipherName
 
 blockCipherCtxBlockSize
-    :: BlockCipherCtx  -- ^ The cipher object
+    :: Low.BlockCipher  -- ^ The cipher object
     -> Int
 blockCipherCtxBlockSize = unsafePerformIO1 Low.blockCipherBlockSize
 
 blockCipherCtxGetKeyspec
-    :: BlockCipherCtx  -- ^ The cipher object
+    :: Low.BlockCipher  -- ^ The cipher object
     -> BlockCipherKeySpec
 blockCipherCtxGetKeyspec ctx = unsafePerformIO $ do
     (mn,mx,md) <- Low.blockCipherGetKeyspec ctx
     return $ BlockCipherKeySpec mn mx md
 
-blockCipherCtxEncrypt :: BlockCipherCtx -> BlockCipherKey -> Plaintext -> Ciphertext
+blockCipherCtxEncrypt :: Low.BlockCipher -> BlockCipherKey -> Plaintext -> Ciphertext
 blockCipherCtxEncrypt ctx key pt = unsafePerformIO $ do
     Low.blockCipherSetKey ctx key
     ct <- Low.blockCipherEncryptBlocks ctx pt
     Low.blockCipherClear ctx
     return ct
 
-blockCipherCtxDecrypt :: BlockCipherCtx -> BlockCipherKey -> Ciphertext -> Plaintext
+blockCipherCtxDecrypt :: Low.BlockCipher -> BlockCipherKey -> Ciphertext -> Plaintext
 blockCipherCtxDecrypt ctx key ct = unsafePerformIO $ do
     Low.blockCipherSetKey ctx key
     pt <- Low.blockCipherDecryptBlocks ctx ct
@@ -148,7 +147,7 @@ data BlockCipher
     | Threefish512
     deriving (Show, Eq)
 
-blockCipherName :: BlockCipher -> BlockCipherName
+blockCipherName :: BlockCipher -> Low.BlockCipherName
 blockCipherName spec = case spec of
     BlockCipher128 bc128    -> blockCipher128Name bc128
     Blowfish                -> "Blowfish"

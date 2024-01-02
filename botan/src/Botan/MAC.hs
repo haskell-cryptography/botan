@@ -3,7 +3,7 @@ module Botan.MAC
 , macName
 , MACKey(..)
 , MACNonce(..)
-, MACDigest(..)
+, Low.MACDigest(..)
 , macCtxInitIO
 , macCtxInit
 , macCtxOutputLength
@@ -27,7 +27,6 @@ module Botan.MAC
 
 import Data.Foldable
 
-import Botan.Low.MAC (MACCtx(..), MACName(..), MACDigest(..))
 import qualified Botan.Low.MAC as Low
 
 import Botan.BlockCipher
@@ -102,16 +101,16 @@ data MACKeySpec
     }
     deriving  (Show, Eq)
 
-macCtxInitIO :: MAC -> IO MACCtx
+macCtxInitIO :: MAC -> IO Low.MAC
 macCtxInitIO  mac = Low.macInit (macName mac)
 
-macCtxInit :: MAC -> MACCtx
+macCtxInit :: MAC -> Low.MAC
 macCtxInit = unsafePerformIO1 macCtxInitIO
 
-macCtxOutputLength :: MACCtx -> Int
+macCtxOutputLength :: Low.MAC -> Int
 macCtxOutputLength = unsafePerformIO1 Low.macOutputLength
 
-macCtxSetKey :: MACCtx -> MACKey -> MACCtx
+macCtxSetKey :: Low.MAC -> MACKey -> Low.MAC
 macCtxSetKey ctx key = unsafePerformIO $ do
     Low.macSetKey ctx key
     return ctx
@@ -119,46 +118,46 @@ macCtxSetKey ctx key = unsafePerformIO $ do
 -- NOTE: Not all MACs require a nonce
 --  Eg, GMAC requires a nonce
 --  Other MACs do not require a nonce, and will cause a BadParameterException (-32)
-macCtxSetNonce :: MACCtx -> MACNonce -> MACCtx
+macCtxSetNonce :: Low.MAC -> MACNonce -> Low.MAC
 macCtxSetNonce ctx nonce = unsafePerformIO $ do
     Low.macSetNonce ctx nonce
     return ctx
 
-macCtxUpdate :: MACCtx -> ByteString -> MACCtx
+macCtxUpdate :: Low.MAC -> ByteString -> Low.MAC
 macCtxUpdate ctx bytes = unsafePerformIO $ do
     Low.macUpdate ctx bytes
     return ctx
 
-macCtxUpdates :: MACCtx -> [ByteString] -> MACCtx
+macCtxUpdates :: Low.MAC -> [ByteString] -> Low.MAC
 macCtxUpdates ctx chunks = unsafePerformIO $ do
     traverse_ (Low.macUpdate ctx) chunks
     return ctx
 
-macCtxFinalize :: MACCtx -> MACDigest
+macCtxFinalize :: Low.MAC -> Low.MACDigest
 macCtxFinalize = unsafePerformIO1 Low.macFinal
 
 -- NOTE: Not sure if this should be exposed
-macCtxClear :: MACCtx -> MACCtx
+macCtxClear :: Low.MAC -> Low.MAC
 macCtxClear ctx = unsafePerformIO $ do
     Low.macClear ctx
     return ctx
 
-macCtxName :: MACCtx -> MACName
+macCtxName :: Low.MAC -> Low.MACName
 macCtxName = unsafePerformIO1 Low.macName
 
-macCtxGetKeyspec :: MACCtx -> MACKeySpec
+macCtxGetKeyspec :: Low.MAC -> MACKeySpec
 macCtxGetKeyspec ctx = unsafePerformIO $ do
     (mn,mx,md) <- Low.macGetKeyspec ctx
     return $ MACKeySpec mn mx md
 
 -- Convenience
 
-macCtxUpdateFinalizeIO :: MACCtx -> Message -> IO MACDigest
+macCtxUpdateFinalizeIO :: Low.MAC -> Message -> IO Low.MACDigest
 macCtxUpdateFinalizeIO ctx bytes = do
     Low.macUpdate ctx bytes
     Low.macFinal ctx
 
-macCtxUpdateFinalizeClearIO :: MACCtx -> Message -> IO MACDigest
+macCtxUpdateFinalizeClearIO :: Low.MAC -> Message -> IO Low.MACDigest
 macCtxUpdateFinalizeClearIO ctx bytes = do
     dg <- macCtxUpdateFinalizeIO ctx bytes
     Low.macClear ctx
@@ -166,7 +165,7 @@ macCtxUpdateFinalizeClearIO ctx bytes = do
 
 --
 
-macWithMACCtxIO :: MACCtx -> MACKey -> Maybe MACNonce -> Message -> IO MACDigest
+macWithMACCtxIO :: Low.MAC -> MACKey -> Maybe MACNonce -> Message -> IO Low.MACDigest
 macWithMACCtxIO ctx key nonce message = do
     Low.macSetKey ctx key
     case nonce of
@@ -174,21 +173,21 @@ macWithMACCtxIO ctx key nonce message = do
         Just n  -> Low.macSetNonce ctx n
     macCtxUpdateFinalizeClearIO ctx message
 
-macWithMACCtx :: MACCtx -> MACKey -> Maybe MACNonce -> Message -> MACDigest
+macWithMACCtx :: Low.MAC -> MACKey -> Maybe MACNonce -> Message -> Low.MACDigest
 macWithMACCtx = unsafePerformIO4 macWithMACCtxIO
 
-macWithNameIO :: MACName -> MACKey -> Maybe MACNonce -> Message -> IO MACDigest
+macWithNameIO :: Low.MACName -> MACKey -> Maybe MACNonce -> Message -> IO Low.MACDigest
 macWithNameIO name key nonce message = do
     ctx <- Low.macInit name
     macWithMACCtxIO ctx key nonce message
 
-macWithName :: MACName -> MACKey -> Maybe MACNonce -> Message -> MACDigest
+macWithName :: Low.MACName -> MACKey -> Maybe MACNonce -> Message -> Low.MACDigest
 macWithName = unsafePerformIO4 macWithNameIO
 
-macIO :: MAC -> MACKey -> Maybe MACNonce -> Message -> IO MACDigest
+macIO :: MAC -> MACKey -> Maybe MACNonce -> Message -> IO Low.MACDigest
 macIO = macWithNameIO . macName
 
-mac :: MAC -> MACKey -> Maybe MACNonce -> Message -> MACDigest
+mac :: MAC -> MACKey -> Maybe MACNonce -> Message -> Low.MACDigest
 mac = unsafePerformIO4 macIO
 
 -- TODO: stuff like newMACKey newMACNonce

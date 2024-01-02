@@ -2,7 +2,7 @@ module Botan.PubKey where
 
 import Botan.Low.PubKey (PubKey(..), PubKeyName(..), PrivKey(..), PrivKeyName(..), PKPaddingName(..))
 import qualified Botan.Low.PubKey as Low
-import Botan.Low.RNG -- TEMP
+import qualified Botan.Low.RNG as Low
 
 import Botan.Hash
 import Botan.Prelude
@@ -219,7 +219,7 @@ dlGroupName DSA_JCE_1024 = "dsa/jce/1024"
 dlGroupName DSA_BOTAN_2048 = "dsa/botan/2048"
 dlGroupName DSA_BOTAN_3072 = "dsa/botan/3072"
 
-privKeyCreatePKIO :: PK -> RNGCtx -> IO PrivKey
+privKeyCreatePKIO :: PK -> Low.RNG -> IO PrivKey
 privKeyCreatePKIO pk = Low.privKeyCreate (pkName pk) (pkParams pk)
 
 data PKExportFlags

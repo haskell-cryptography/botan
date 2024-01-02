@@ -2,8 +2,8 @@ module Botan.Utility
 ( constantTimeCompare
 -- , scrubMem
 , HexEncodingFlags
-, pattern Upper
-, pattern Lower
+, pattern HexUpperCase
+, pattern HexLowerCase
 , hexEncode
 , hexDecode
 , base64Encode
@@ -12,7 +12,7 @@ module Botan.Utility
 
 import System.IO.Unsafe
 
-import Botan.Low.Utility (HexEncodingFlags(..), pattern Upper, pattern Lower)
+import Botan.Low.Utility (HexEncodingFlags(..), pattern HexUpperCase, pattern HexLowerCase)
 import qualified Botan.Low.Utility as Low
 
 import Botan.Error
@@ -33,6 +33,9 @@ constantTimeCompare = unsafePerformIO3 Low.constantTimeCompare
 -- Maybe:
 -- scrubMemWith :: WithPtr typ ptr -> typ -> Int -> IO ()
 -- scrubMemWith withPtr typ sz = withPtr typ $ \ ptr -> Low.scrubMem ptr sz
+
+-- TODO:
+-- data HexCase = Upper | Lower
 
 -- TODO: Discuss ergonomics of flipping argument order
 hexEncode :: ByteString -> HexEncodingFlags -> Text

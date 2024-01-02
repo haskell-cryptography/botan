@@ -143,6 +143,8 @@ allCiphers = cipherModes ++ aeads
 
 type CipherInitFlag = Word32
 
+-- TODO: Rename CipherMaskDirection, CipherEncrypt, CipherDecrypt;
+--  Leave slim terminology for botan
 pattern MaskDirection
     ,   Encrypt         -- ^ May be renamed Encipher to avoid confusion with PKEncrypt
     ,   Decrypt         -- ^ May be renamed Decipher to avoid confusion with PKDecrypt
@@ -151,6 +153,15 @@ pattern MaskDirection
 pattern MaskDirection = BOTAN_CIPHER_INIT_FLAG_MASK_DIRECTION
 pattern Encrypt = BOTAN_CIPHER_INIT_FLAG_ENCRYPT
 pattern Decrypt = BOTAN_CIPHER_INIT_FLAG_DECRYPT
+
+type CipherUpdateFlag = Word32
+
+pattern CipherUpdate
+    ,   CipherFinal
+    ::  (Eq a, Num a) => a
+
+pattern CipherUpdate    = BOTAN_CIPHER_UPDATE_FLAG_NONE
+pattern CipherFinal     = BOTAN_CIPHER_UPDATE_FLAG_FINAL
 
 -- |Initialize a cipher object
 cipherInit :: CipherName -> CipherInitFlags -> IO Cipher

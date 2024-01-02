@@ -84,6 +84,12 @@ pattern BOTAN_CIPHER_INIT_FLAG_MASK_DIRECTION = #const BOTAN_CIPHER_INIT_FLAG_MA
 pattern BOTAN_CIPHER_INIT_FLAG_ENCRYPT        = #const BOTAN_CIPHER_INIT_FLAG_ENCRYPT
 pattern BOTAN_CIPHER_INIT_FLAG_DECRYPT        = #const BOTAN_CIPHER_INIT_FLAG_DECRYPT
 
+pattern BOTAN_CIPHER_UPDATE_FLAG_NONE
+    ,   BOTAN_CIPHER_UPDATE_FLAG_FINAL
+    ::  (Eq a, Num a) => a
+pattern BOTAN_CIPHER_UPDATE_FLAG_NONE   = #const BOTAN_CIPHER_UPDATE_FLAG_NONE
+pattern BOTAN_CIPHER_UPDATE_FLAG_FINAL  = #const BOTAN_CIPHER_UPDATE_FLAG_FINAL
+
 -- | Initialize a cipher object
 foreign import capi safe "botan/ffi.h botan_cipher_init"
     botan_cipher_init

@@ -1,7 +1,7 @@
 module Botan.Hash
-( HashCtx(..)
-, HashName(..)
-, HashDigest(..)
+( MutableHash(..)
+, Low.HashName(..)
+, Low.HashDigest(..)
 , hashCtxInitName
 , hashCtxUpdate
 , hashCtxUpdates
@@ -38,7 +38,6 @@ import qualified Data.ByteString as ByteString
 
 import Data.Foldable
 
-import Botan.Low.Hash (HashCtx(..), HashName(..), HashDigest(..))
 import qualified Botan.Low.Hash as Low
 
 import Botan.Error ()
@@ -48,42 +47,44 @@ import Botan.Utility
 -- NOTE: In comparison to botan-low functions which explicitly mutate context state,
 --  these functions attempt to be referentially transparent by copying state.
 
+type MutableHash = Low.Hash
+
 -- cryptonite-like interface
 
-hashCtxInitName :: HashName -> HashCtx
+hashCtxInitName :: Low.HashName -> Low.Hash
 hashCtxInitName = unsafePerformIO1 Low.hashInit
 
-hashCtxUpdate :: HashCtx -> ByteString -> HashCtx
+hashCtxUpdate :: Low.Hash -> ByteString -> Low.Hash
 hashCtxUpdate ctx bytes = hashCtxUpdates ctx [bytes]
 
-hashCtxUpdates :: HashCtx -> [ByteString] -> HashCtx
+hashCtxUpdates :: Low.Hash -> [ByteString] -> Low.Hash
 hashCtxUpdates ctx chunks = unsafePerformIO $ do
     ctx' <- Low.hashCopyState ctx
     traverse_ (Low.hashUpdate ctx') chunks
     return ctx'
 
 -- NOTE hashFinalize vs hashFinal
-hashCtxFinalize :: HashCtx -> HashDigest
+hashCtxFinalize :: Low.Hash -> Low.HashDigest
 hashCtxFinalize ctx = unsafePerformIO $ do
     ctx' <- Low.hashCopyState ctx -- Determine whether this is necessary. Does finalize ever mutate the context?
     Low.hashFinal ctx'
 
-hashCtxName :: HashCtx -> ByteString
+hashCtxName :: Low.Hash -> ByteString
 hashCtxName = unsafePerformIO1 Low.hashName
 
-hashCtxBlockSize :: HashCtx -> Int
+hashCtxBlockSize :: Low.Hash -> Int
 hashCtxBlockSize = unsafePerformIO1 Low.hashBlockSize
 
 -- NOTE: hashDigestSize vs hashOutputLength
-hashCtxDigestSize :: HashCtx -> Int
+hashCtxDigestSize :: Low.Hash -> Int
 hashCtxDigestSize = unsafePerformIO1 Low.hashOutputLength
 
 -- Convenience
 
-hashWithHashCtx :: HashCtx -> ByteString -> HashDigest
-hashWithHashCtx = unsafePerformIO2 Low.hashWithHashCtx
+hashWithHashCtx :: Low.Hash -> ByteString -> Low.HashDigest
+hashWithHashCtx = unsafePerformIO2 Low.hashWithHash
 
-hashWithName :: HashName -> ByteString -> HashDigest
+hashWithName :: Low.HashName -> ByteString -> Low.HashDigest
 hashWithName = unsafePerformIO2 Low.hashWithName
 
 -- Hash spec
@@ -99,7 +100,7 @@ data Keccak1600
     | Keccak1600_512
     deriving (Show, Eq)
 
-keccak1600Name :: Keccak1600 -> HashName
+keccak1600Name :: Keccak1600 -> Low.HashName
 keccak1600Name Keccak1600_224 = "Keccak-1600(224)"
 keccak1600Name Keccak1600_256 = "Keccak-1600(256)"
 keccak1600Name Keccak1600_384 = "Keccak-1600(384)"
@@ -113,7 +114,7 @@ data SHA2
     | SHA512_256
     deriving (Show, Eq)
 
-sha2Name :: SHA2 -> HashName
+sha2Name :: SHA2 -> Low.HashName
 sha2Name SHA224     = "SHA-224"
 sha2Name SHA256     = "SHA-256"
 sha2Name SHA512     = "SHA-512"
@@ -128,7 +129,7 @@ data SHA3
     | SHA3_512
     deriving (Show, Eq)
 
-sha3Name :: SHA3 -> HashName
+sha3Name :: SHA3 -> Low.HashName
 sha3Name SHA3_224 = "SHA-3(224)"
 sha3Name SHA3_256 = "SHA-3(256)"
 sha3Name SHA3_384 = "SHA-3(384)"
@@ -190,7 +191,8 @@ data Hash
 --     | CRC32
 
 -- TODO: Proper parser-builder
-hashName :: Hash -> HashName
+-- TODO: Take advantage of functions in botan-low
+hashName :: Hash -> Low.HashName
 hashName spec = case spec of
     -- Cryptographic hashes
     BLAKE2b sz      -> "BLAKE2b(" <> showBytes sz <> ")"
@@ -225,16 +227,16 @@ hashName spec = case spec of
     CRC24           -> "CRC24"
     CRC32           -> "CRC32"
 
-hashCtxInitIO :: Hash -> IO HashCtx
+hashCtxInitIO :: Hash -> IO Low.Hash
 hashCtxInitIO = Low.hashInit . hashName
 
-hashWithHashIO :: Hash -> ByteString -> IO HashDigest
+hashWithHashIO :: Hash -> ByteString -> IO Low.HashDigest
 hashWithHashIO spec bytes = do
     ctx <- hashCtxInitIO spec
-    Low.hashWithHashCtx ctx bytes
+    Low.hashWithHash ctx bytes
 
-hashCtxInit :: Hash -> HashCtx
+hashCtxInit :: Hash -> Low.Hash
 hashCtxInit = unsafePerformIO1 hashCtxInitIO
 
-hashWithHash :: Hash -> ByteString -> HashDigest
+hashWithHash :: Hash -> ByteString -> Low.HashDigest
 hashWithHash = unsafePerformIO2 hashWithHashIO

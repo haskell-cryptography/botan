@@ -4,8 +4,7 @@ import qualified Data.ByteString as ByteString
 
 import Data.Bool
 
-import Botan.Bindings.PubKey.Sign
-import Botan.Low.PubKey.Sign
+import qualified Botan.Low.PubKey.Sign as Low
 
 import Botan.Error
 import Botan.Hash
@@ -28,7 +27,7 @@ data SignAlgo
     | XMSSEmptyParam
     deriving (Show, Eq)
 
-signAlgoName :: SignAlgo -> SignAlgoName
+signAlgoName :: SignAlgo -> Low.SignAlgoName
 signAlgoName (EMSA emsa)            = emsaName emsa
 signAlgoName Ed25519Pure            = "Pure"
 signAlgoName Ed25519ph              = "Ed25519ph"
@@ -56,7 +55,7 @@ mkNameArgs name args = name <> "(" <> ByteString.intercalate "," args <> ")"
 
 -- NOTE: Raw mode assumes the plaintext is already processed and just signs the plaintext
 -- TODO: Split out Raw mode?
-emsaName :: EMSA -> SignAlgoName
+emsaName :: EMSA -> Low.SignAlgoName
 emsaName EMSA_Raw                   = "Raw"
 emsaName (EMSA1 h)                  = mkNameArgs "EMSA1" [ hashName h ]
 emsaName (EMSA2 h)                  = mkNameArgs "EMSA2" [ hashName h ]
@@ -80,6 +79,6 @@ data SignatureFormat
     | DERSequence
     deriving (Show, Eq)
 
-signatureFormatFlag :: SignatureFormat -> SigningFlags
-signatureFormatFlag Standard    = BOTAN_PUBKEY_SIGNING_FLAGS_NONE
-signatureFormatFlag DERSequence = BOTAN_PUBKEY_DER_FORMAT_SIGNATURE
+signatureFormatFlag :: SignatureFormat -> Low.SigningFlags
+signatureFormatFlag Standard    = Low.SigningPEMFormatSignature -- BOTAN_PUBKEY_SIGNING_FLAGS_NONE
+signatureFormatFlag DERSequence = Low.SigningDERFormatSignature -- BOTAN_PUBKEY_DER_FORMAT_SIGNATURE

@@ -28,10 +28,12 @@ data Security
     | Strong
 
 -- |Convert a bcrypt security level to an integer factor
-bcryptFactor :: Security -> Int
-bcryptFactor Fast   = 12
-bcryptFactor Good   = 14
-bcryptFactor Strong = 16
+--
+--  TODO: Maybe rename to bcryptWorkFactor
+bcryptFactor :: Security -> Low.BcryptWorkFactor
+bcryptFactor Fast   = Low.Fast
+bcryptFactor Good   = Low.Good
+bcryptFactor Strong = Low.Strong
 
 type Password = ByteString -- NOTE: Should actualy be Text
 type BcryptDigest = ByteString

@@ -4,11 +4,9 @@ import qualified Data.ByteString as ByteString
 
 import Data.Bool
 
-import Botan.Low.PubKey.KeyAgreement (KeyAgreementCtx(..))
-import qualified Botan.Low.PubKey.KeyAgreement as Low
-
 import Botan.Low.PubKey (PubKey(..), PrivKey(..))
-import Botan.Low.RNG
+import qualified Botan.Low.PubKey.KeyAgreement as Low
+import qualified Botan.Low.RNG as Low
 
 import Botan.Error
 import Botan.Hash
@@ -44,10 +42,10 @@ newKeyAgreementKeyPair ka = do
     pk <- exportKeyAgreementPublicKey sk
     return (sk,pk)
 
-newKeyAgreement :: PrivKey -> KDF -> IO KeyAgreementCtx
+newKeyAgreement :: PrivKey -> KDF -> IO Low.KeyAgreement
 newKeyAgreement sk kdf = Low.keyAgreementCreate sk (kdfName kdf)
 
-deriveKeyAgreementSharedSecret :: KeyAgreementCtx -> KAPublicKey -> ByteString -> IO KASharedSecret
+deriveKeyAgreementSharedSecret :: Low.KeyAgreement -> KAPublicKey -> ByteString -> IO KASharedSecret
 deriveKeyAgreementSharedSecret = Low.keyAgreement
 
 keyAgreement :: PrivKey -> KAPublicKey -> KDF -> ByteString -> IO KASharedSecret
@@ -65,18 +63,18 @@ keyAgreement sk pk kdf salt = do
 
 --
 
-newRNGCtx :: IO RNGCtx
+newRNGCtx :: IO Low.RNG
 newRNGCtx = rngCtxInitIO System
 
 type ECDHPub = ByteString
 
-newKeyPair :: PK -> RNGCtx -> IO (ECDHPub, PrivKey)
+newKeyPair :: PK -> Low.RNG -> IO (ECDHPub, PrivKey)
 newKeyPair pk rng = do
     sk <- privKeyCreatePKIO pk rng
     pk <- Low.keyAgreementExportPublic sk
     return (pk,sk)
 
-newECDHKeyPair :: RNGCtx -> IO (ECDHPub, PrivKey)
+newECDHKeyPair :: Low.RNG -> IO (ECDHPub, PrivKey)
 newECDHKeyPair = newKeyPair (ECDH Secp256k1)
 
 testECDH :: IO Bool

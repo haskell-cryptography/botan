@@ -12,6 +12,8 @@ import System.IO.Unsafe
 
 import qualified Botan.Low.Version as Low
 
+import qualified Data.Text.Encoding as Text
+
 import Botan.Prelude
 
 -- https://botan.randombit.net/handbook/api_ref/ffi.html#versioning
@@ -26,7 +28,7 @@ botanFFISupportsAPI version = unsafeDupablePerformIO $ Low.botanFFISupportsAPI v
 
 -- | Returns a free-form string describing the version. The return value is a statically allocated string.
 botanVersionText :: Text
-botanVersionText = unsafeDupablePerformIO Low.botanVersionText
+botanVersionText = unsafeDupablePerformIO $ fmap Text.decodeUtf8Lenient Low.botanVersionString
 
 -- | Returns the major version of the library
 botanVersionMajor :: Int

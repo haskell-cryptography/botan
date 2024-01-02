@@ -2,8 +2,6 @@ module Botan.HOTP where
 
 import qualified Data.ByteString as ByteString
 
-import Botan.Bindings.HOTP (HOTPCode(..), HOTPCounter(..))
-import Botan.Low.HOTP hiding (HOTPCtx(..))
 import qualified Botan.Low.HOTP as Low
 
 import Botan.Hash
@@ -13,6 +11,8 @@ import Botan.Prelude
 -- TODO: Package the ctx with counter?
 -- Low HOTPCtx does not mutate, so it should
 --  be copyable.
+
+type MutableHOTP = Low.HOTP
 
 data HOTP
     = HOTP_SHA1
@@ -24,7 +24,7 @@ hotpHash HOTP_SHA1 = SHA1
 hotpHash HOTP_SHA256 = SHA2 SHA256
 hotpHash HOTP_SHA512 = SHA2 SHA512
 
-hotpAlgo :: HOTP -> HashName
+hotpAlgo :: HOTP -> Low.HOTPHashName
 hotpAlgo = hashName . hotpHash
 
 type HOTPKey = ByteString
@@ -32,8 +32,8 @@ type HOTPKey = ByteString
 -- TODO: Bring in MVar to capture everything
 data HOTPCtx
     = HOTPCtx
-    { hotpCtx       :: Low.HOTPCtx
-    , hotpCounter   :: HOTPCounter
+    { hotpCtx       :: Low.HOTP
+    , hotpCounter   :: Low.HOTPCounter
     , hotpResync    :: Int
     }
 
@@ -54,10 +54,10 @@ newHOTP hotp len resync key = do
         , hotpResync = resync
         }
 
-hotpGenerate :: HOTPCtx -> IO HOTPCode
+hotpGenerate :: HOTPCtx -> IO Low.HOTPCode
 hotpGenerate = undefined
 
-hotpCheck :: HOTPCtx -> HOTPCode -> IO Bool
+hotpCheck :: HOTPCtx -> Low.HOTPCode -> IO Bool
 hotpCheck = undefined
 
 
@@ -65,7 +65,7 @@ hotpCheck = undefined
 hotpCtxInit :: ByteString -> ByteString -> Int -> IO HOTPCtx
 hotpCtxInit key algo digits = undefined
 
-hotpCtxGenerate :: HOTPCtx -> HOTPCounter -> (HOTPCode, HOTPCtx)
+hotpCtxGenerate :: HOTPCtx -> Low.HOTPCounter -> (Low.HOTPCode, HOTPCtx)
 hotpCtxGenerate hotp counter = undefined
 
 -- NOTE:
@@ -73,5 +73,5 @@ hotpCtxGenerate hotp counter = undefined
 --      invalid then always returns (false,starting_counter), since the
 --      last successful authentication counter has not changed. "
 -- NOTE: "Depending on the environment a resync_range of 3 to 10 might be appropriate."
-hotpCtxCheck :: HOTPCtx -> HOTPCode -> HOTPCounter -> Int -> (Bool, HOTPCounter)
+hotpCtxCheck :: HOTPCtx -> Low.HOTPCode -> Low.HOTPCounter -> Int -> (Bool, Low.HOTPCounter)
 hotpCtxCheck hotp code counter resync = undefined
