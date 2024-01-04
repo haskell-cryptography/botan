@@ -30,7 +30,6 @@ jobs:
         run: |
           MATRIX='${{ toJSON(matrix) }}'
           echo "matrix='$MATRIX'"
-          # COMPRESSED_MATRIX=$(echo '${{ toJSON(matrix) }}' | jq -c .)
           COMPRESSED_MATRIX=$(echo "$MATRIX" | jq -c .)
           echo "compressed_matrix='$COMPRESSED_MATRIX'"
       - id: set-matrix
