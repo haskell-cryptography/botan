@@ -27,6 +27,7 @@ jobs:
     steps:
       - id: echo-matrix
         name: Echo matrix
+        run: |
           MATRIX='${{ toJSON(matrix) }}'
           echo '$(MATRIX)'
       - id: set-matrix
