@@ -29,15 +29,11 @@ jobs:
         name: Echo matrix
         run: |
           MATRIX='${{ toJSON(matrix) }}'
-          # echo $MATRIX
-          # This one
           echo "matrix='$MATRIX'"
-          # echo "matrix='${{ toJSON(matrix) }}'"
       - id: set-matrix
         name: Set Matrix
         run: |
           MATRIX='${{ toJSON(matrix) }}'
-          # echo ::set-output name=matrix::$MATRIX
           echo "matrix='$MATRIX'" >> $GITHUB_OUTPUT # Or $GITHUB_ENV 
 
   say-hello:
