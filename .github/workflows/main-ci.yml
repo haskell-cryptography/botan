@@ -37,7 +37,7 @@ jobs:
         run: |
           MATRIX='${{ toJSON(matrix) }}'
           COMPRESSED_MATRIX=$(echo "$MATRIX" | jq -c .)
-          echo "matrix='$COMPRESSED_MATRIX'" >> $GITHUB_OUTPUT
+          echo "matrix='{ "include": [ $COMPRESSED_MATRIX ] }'" >> $GITHUB_OUTPUT
 
   say-hello:
     name: Say Hello on OS ${{ matrix.os }} / GHC ${{ matrix.ghc }}
