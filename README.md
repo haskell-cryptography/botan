@@ -1,6 +1,8 @@
 # Welcome to botan
 
-<!-- TODO: Badges (hackage, Haskell-CI)  -->
+<!-- TODO: Badges: hackage)  -->
+
+![CI](https://github.com/apotheca/botan/actions/workflows/CI.yml/badge.svg)
 
 `botan` is a set of Haskell bindings for the [Botan](https://botan.randombit.net/) cryptography library.
 
