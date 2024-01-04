@@ -33,7 +33,7 @@ jobs:
 
   say-hello:
     name: Say Hello on OS ${{ matrix.os }} / GHC ${{ matrix.ghc }}
-    needs: say-hello
+    needs: set-matrix
     strategy:
       matrix: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
     runs-on: ${{ matrix.os }}
