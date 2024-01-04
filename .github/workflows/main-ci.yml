@@ -29,12 +29,12 @@ jobs:
         name: Echo matrix
         run: |
           MATRIX='${{ toJSON(matrix) }}'
-          echo '$(MATRIX)'
+          echo $MATRIX
       - id: set-matrix
         name: Set Matrix
         run: |
           MATRIX='${{ toJSON(matrix) }}'
-          echo ::set-output name=matrix::${MATRIX}
+          echo ::set-output name=matrix::$MATRIX
           # echo "matrix=yellow" >> "$GITHUB_ENV"
 
   say-hello:
