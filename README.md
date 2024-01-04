@@ -286,8 +286,8 @@ After you have added `botan` as a dependency, you can begin importing modules an
 import Botan.Low.Hash
 
 main = do
-    hashCtx <- hashInit "SHA-256"
-    digest <- hashUpdateFinalize ctx "Fee fi fo fum!"
+    hash <- hashInit "SHA-256"
+    digest <- hashUpdateFinalize hash "Fee fi fo fum!"
     print digest
 ```
 
