@@ -1,0 +1,52 @@
+# This is the CI for the main branch
+name: Main CI
+
+# Trigger the workflow on push or pull request, but only for the main branch
+on:
+  pull_request:
+    branches: ["main"]
+  push:
+    branches: ["main"]
+
+jobs:
+  generate-matrix:
+    strategy:
+      matrix:
+        # TODO: windows-latest
+        os: [ ubuntu-latest, macos-latest, windows-latest ]
+        ghc: [ "9.0.2", "9.2.8", "9.4.7", "9.6.3", "9.8.1" ]
+        exclude:
+          # NOTE: Fails on 9.0.2 macos m1 arm
+          - os: macos-latest
+            version: "9.0.2"
+  say-hello:
+    name: Say Hello on ${{ matrix.os }}
+    needs: generate-matrix
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Echo hello
+        run: |
+          echo "Hello ${{ matrix.os }}"
+  # TODO: Install system dependencies (eg, brew)
+  # install-dependencies:
+  #   name: Install system dependencies
+  #   needs: generate-matrix
+  # TODO: install haskell
+  # TODO: Install botan per-OS
+  # install-botan:
+  #   name: Install Botan on ${{ matrix.os }}
+  #   needs: generate-matrix
+  #   runs-on: ${{ matrix.os }}
+  #   steps:
+  #     - id: install-botan-apt-get
+  #       name: Install Botan on ${{ matrix.os }} using apt-get
+  #       if: ${{ matrix.os == 'ubuntu-latest' }}
+  #       run: |
+  #         apt-get update
+  #         apt-get -y install botan
+  #     - id: install-botan-brew
+  #       name: Install Botan on ${{ matrix.os }} using homebrew
+  #       if: ${{ matrix.os == 'macos-latest' }}
+  #       run: |
+  #         brew update
+  #         brew install botan
