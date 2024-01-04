@@ -30,10 +30,13 @@ jobs:
         run: |
           MATRIX='${{ toJSON(matrix) }}'
           echo "matrix='$MATRIX'"
+          COMPRESSED_MATRIX=$(echo '${{ toJSON(matrix) }}' | jq -c .)
+          echo "compressed_matrix='$COMPRESSED_MATRIX'"
       - id: set-matrix
         name: Set Matrix
         run: |
-          MATRIX='${{ toJSON(matrix) }}'
+          # MATRIX='${{ toJSON(matrix) }}'
+          MATRIX=$(echo '${{ toJSON(matrix) }}' | jq -c .)
           echo "matrix='$MATRIX'" >> $GITHUB_OUTPUT # Or $GITHUB_ENV 
 
   say-hello:
