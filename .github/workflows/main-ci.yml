@@ -47,8 +47,8 @@ jobs:
       - name: Install Botan for Linux
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
-          apt-get update
-          apt-get -y install botan
+          sudo apt-get update
+          sudo apt-get -y install botan
       - name: Install Botan for MacOS
         if: ${{ matrix.os == 'macos-latest' }}
         run: |
