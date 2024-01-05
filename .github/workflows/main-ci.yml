@@ -9,18 +9,27 @@ on:
     branches: ["main"]
 
 jobs:
+  
+  # NOTE: Matrixes are not reusable at this time.
+  # SEE: https://github.com/actions/runner/issues/2424
 
-  # NOTE: The generate-matrix saves the matrix as JSON successfully.
-  # However, reading back out has apparently recently been broken, and
-  #   strategy:
-  #     matrix: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
-  # no longer works. Instead, we get an error:
-  #   Error when evaluating 'strategy' for job 'say-hello'. .github/workflows/main-ci.yml (Line: 46, Col: 15): Unexpected value '{"os":"ubuntu-latest","ghc":"9.6.3"}'
-  # Which indicates that we definitely have the right values, but something
-  # is getting crossed wires due to both the bash and workflow yaml having splices.
+  # TODO: More proper build plan to cache and restore in separate jobs:
+  # Matrix: os
+  #   Install system deps
+  #   Install botan
+  #   Checkout repo
+  #   Cache
+  # Matrix: os, ghc
+  #   Restore
+  #   Setup haskell
+  #   Cache
+  # Matrix: os, ghc, target
+  #   Restore
+  #   Build target
+  #   Test target
 
-  generate-matrix:
-    name: Generate matrix
+  configure:
+    name: Configure dependencies and cache
     strategy:
       matrix:
         # TODO: windows-latest
@@ -31,57 +40,38 @@ jobs:
           # NOTE: Fails on 9.0.2 macos m1 arm
           - os: macos-latest
             ghc: "9.0.2"
-    runs-on: ubuntu-latest
-    outputs:
-       matrix: ${{ steps.set-matrix.outputs.matrix }}
-    steps:
-      - id: echo-matrix
-        name: Echo matrix
-        run: |
-          MATRIX='${{ toJSON(matrix) }}'
-          echo "matrix='$MATRIX'"
-          COMPRESSED_MATRIX=$(echo "$MATRIX" | jq -c .)
-          echo "compressed_matrix='$COMPRESSED_MATRIX'"
-      - id: set-matrix
-        name: Set Matrix
-        run: |
-          MATRIX='${{ toJSON(matrix) }}'
-          COMPRESSED_MATRIX=$(echo "$MATRIX" | jq -c .)
-          echo "matrix='$COMPRESSED_MATRIX'" >> $GITHUB_OUTPUT
-
-  say-hello:
-    name: Say Hello on OS ${{ matrix.os }} / GHC ${{ matrix.ghc }}
-    needs: generate-matrix
-    strategy:
-      matrix: ${{ fromJSON(needs.generate-matrix.outputs.matrix) }}
     runs-on: ${{ matrix.os }}
     steps:
-      - name: Echo hello
+      - name: Checkout base repo
+        uses: actions/checkout@v4
+      - name: Install Botan for Linux
+        if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
-          echo "Hello OS ${{ matrix.os }} / GHC ${{ matrix.ghc }}"
-
-  # TODO: Install system dependencies (eg, brew)
-  # install-dependencies:
-  #   name: Install system dependencies
-  #   needs: generate-matrix
-
-  # TODO: install haskell
-
-  # TODO: Install botan per-OS
-  # install-botan:
-  #   name: Install Botan on ${{ matrix.os }}
-  #   needs: generate-matrix
-  #   runs-on: ${{ matrix.os }}
-  #   steps:
-  #     - id: install-botan-apt-get
-  #       name: Install Botan on ${{ matrix.os }} using apt-get
-  #       if: ${{ matrix.os == 'ubuntu-latest' }}
-  #       run: |
-  #         apt-get update
-  #         apt-get -y install botan
-  #     - id: install-botan-brew
-  #       name: Install Botan on ${{ matrix.os }} using homebrew
-  #       if: ${{ matrix.os == 'macos-latest' }}
-  #       run: |
-  #         brew update
-  #         brew install botan
+          apt-get update
+          apt-get -y install botan
+      - name: Install Botan for MacOS
+        if: ${{ matrix.os == 'macos-latest' }}
+        run: |
+          brew update
+          brew install botan
+      - name: Set up Haskell
+        id: setup-haskell
+        uses: haskell/actions/setup@v2
+        with:
+          ghc-version: ${{ matrix.ghc }}
+          cabal-version: 'latest'
+      - name: Build botan-bindings with ${{ matrix.ghc }} on ${{ matrix.os }}
+        run: |
+          cabal new-build botan-bindings
+      - id: build-botan-low
+        name: Build botan-low with ${{ matrix.ghc }} on ${{ matrix.os }}
+        run: |
+          cabal new-build botan-low
+      - id: build-botan
+        name: Build botan with ${{ matrix.ghc }} on ${{ matrix.os }}
+        run: |
+          cabal new-build botan
+      # - id: test-botan-low
+      #   name: Test botan-low with ${{ matrix.ghc }} on ${{ matrix.os }}
+      #   run: |
+      #     cabal new-test botan-low
