@@ -10,6 +10,15 @@ on:
 
 jobs:
 
+  # NOTE: The generate-matrix saves the matrix as JSON successfully.
+  # However, reading back out has apparently recently been broken, and
+  #   strategy:
+  #     matrix: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
+  # no longer works. Instead, we get an error:
+  #   Error when evaluating 'strategy' for job 'say-hello'. .github/workflows/main-ci.yml (Line: 46, Col: 15): Unexpected value '{"os":"ubuntu-latest","ghc":"9.6.3"}'
+  # Which indicates that we definitely have the right values, but something
+  # is getting crossed wires due to both the bash and workflow yaml having splices.
+
   generate-matrix:
     name: Generate matrix
     strategy:
@@ -17,6 +26,7 @@ jobs:
         # TODO: windows-latest
         os: [ ubuntu-latest, macos-latest ]
         ghc: [ "9.0.2", "9.2.8", "9.4.7", "9.6.3", "9.8.1" ]
+        # target: [ "botan-bindings", "botan-low", "botan" ]
         exclude:
           # NOTE: Fails on 9.0.2 macos m1 arm
           - os: macos-latest
@@ -37,13 +47,13 @@ jobs:
         run: |
           MATRIX='${{ toJSON(matrix) }}'
           COMPRESSED_MATRIX=$(echo "$MATRIX" | jq -c .)
-          echo "matrix='{ "include": [ $COMPRESSED_MATRIX ] }'" >> $GITHUB_OUTPUT
+          echo "matrix='$COMPRESSED_MATRIX'" >> $GITHUB_OUTPUT
 
   say-hello:
     name: Say Hello on OS ${{ matrix.os }} / GHC ${{ matrix.ghc }}
     needs: generate-matrix
     strategy:
-      matrix: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
+      matrix: ${{ fromJSON(needs.generate-matrix.outputs.matrix) }}
     runs-on: ${{ matrix.os }}
     steps:
       - name: Echo hello
