@@ -29,8 +29,9 @@ jobs:
   #   Test target
 
   configure:
-    name: Configure dependencies and cache
+    name: Configure and build
     strategy:
+      fail-fast: false
       matrix:
         # TODO: windows-latest
         os: [ ubuntu-latest, macos-latest ]
