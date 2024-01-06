@@ -18,13 +18,13 @@ jobs:
   #   Install system deps
   #   Install botan
   #   Checkout repo
-  #   Cache
+  #   Cache deps, botan
   # Matrix: os, ghc
-  #   Restore
+  #   Restore deps, botan
   #   Setup haskell
-  #   Cache
+  #   Cache haskell
   # Matrix: os, ghc, target
-  #   Restore
+  #   Restore deps, botan, haskell
   #   Build target
   #   Test target
 
@@ -48,7 +48,8 @@ jobs:
       - name: Install Botan for Linux
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
-          sudo apt-get update
+          sudo apt-get -y update
+          sudo apt-get -y install clang build-essential curl libffi-dev libffi8ubuntu1 libgmp-dev libgmp10 libncurses-dev
           sudo apt-get -y install pkg-config botan
       - name: Install Botan for MacOS
         if: ${{ matrix.os == 'macos-latest' }}
