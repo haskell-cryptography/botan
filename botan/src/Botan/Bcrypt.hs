@@ -57,12 +57,12 @@ bcryptGenerate
 bcryptGenerate = bcryptGenerateWith System
 
 bcryptGenerateWith
-    :: RNG              -- ^ A random number generator
+    :: RNGType          -- ^ A random number generator
     -> Password         -- ^ The password to check against
     -> Security         -- ^ A work factor to slow down guessing attack
     -> IO BcryptDigest
 bcryptGenerateWith rng pass security = do
-    r <- Low.rngInit (rngName rng)
+    r <- newRNG rng
     Low.rngReseed r 32
     Low.bcryptGenerate pass r (bcryptFactor security)
 

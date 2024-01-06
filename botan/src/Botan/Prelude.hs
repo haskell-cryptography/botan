@@ -2,8 +2,10 @@ module Botan.Prelude
 ( module Prelude
 , module Control.Applicative
 , module Control.Monad
+, module Control.Monad.IO.Class
 , module Control.Exception
 , module Control.DeepSeq
+, module Data.Bits
 , module Data.ByteString
 , module Data.Text
 , module Data.Foldable
@@ -39,8 +41,12 @@ import Prelude
 
 import Control.Applicative
 import Control.Monad
+import Control.Monad.IO.Class
 import Control.Exception
 import Control.DeepSeq
+
+
+import Data.Bits
 
 import Data.ByteString (ByteString)
 import Data.Text (Text)

@@ -8,6 +8,16 @@ build-type:     Simple
 description:
     Bindings to the Botan cryptography library
 
+flag no-random
+    description: Disable 'random' package dependency
+    manual: True
+    default: False
+
+flag no-mtl
+    description: Disable 'mtl' package dependency
+    manual: True
+    default: False
+
 source-repository head
   type:     git
   location: https://github.com/apotheca/botan.git
@@ -54,4 +64,12 @@ library
         deepseq,
         text
     -- cc-options:     -Wall
-    -- ghc-options:    -Wall -funbox-strict-fields     
+    -- ghc-options:    -Wall -funbox-strict-fields    
+    if !flag(no-mtl)
+        build-depends:
+            mtl
+        cpp-options: -DHS_BOTAN_HAS_MTL 
+    if !flag(no-random) 
+        build-depends:
+            random
+        cpp-options: -DHS_BOTAN_HAS_RANDOM

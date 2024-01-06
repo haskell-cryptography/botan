@@ -8,7 +8,22 @@ Stability   : experimental
 Portability : POSIX
 -}
 
-module Botan.Low.RNG where
+module Botan.Low.RNG
+( RNG(..)
+, withRNG
+, rngDestroy
+, RNGType(..)
+, pattern SystemRNG
+, pattern UserRNG
+, pattern UserThreadsafeRNG
+, pattern RDRandRNG
+, rngInit
+, rngGet
+, systemRNGGet
+, rngReseed
+, rngReseedFromRNG
+, rngAddEntropy
+) where
 
 import qualified Data.ByteString as ByteString
 

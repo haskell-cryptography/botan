@@ -30,7 +30,7 @@ type KASharedSecret = ByteString
 
 newKeyAgreementKey :: KeyAgreement -> IO PrivKey
 newKeyAgreementKey ka = do
-    rng <- rngCtxInitIO System
+    rng <- newRNG System
     privKeyCreatePKIO (keyAgreementToPK ka) rng
 
 exportKeyAgreementPublicKey :: PrivKey -> IO KAPublicKey
@@ -64,7 +64,7 @@ keyAgreement sk pk kdf salt = do
 --
 
 newRNGCtx :: IO Low.RNG
-newRNGCtx = rngCtxInitIO System
+newRNGCtx = newRNG System
 
 type ECDHPub = ByteString
 
