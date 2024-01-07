@@ -282,6 +282,7 @@ Non-standard functions
 
 -- NOTE: out + ug + tag is safe overestimate for encryption
 -- NOTE: out + ug - tag may not be a safe overestimate for decryption
+{-# DEPRECATED cipherEstimateOutputLength "This will be moved from botan-low to botan" #-}
 cipherEstimateOutputLength :: Cipher -> CipherInitFlags -> Int -> IO Int
 cipherEstimateOutputLength ctx flags input = do
     o <- cipherOutputLength ctx input  -- NOTE: Flawed but usable
@@ -296,6 +297,7 @@ cipherEstimateOutputLength ctx flags input = do
 --  we can just use cipherEstimateOutputLength instead of this
 --  However, this may not be completely true due to block alignment requirements
 --  For the moment this function exists for clarity.
+{-# DEPRECATED cipherEstimateFinalOutputLength "Moving from botan-low to botan" #-}
 cipherEstimateFinalOutputLength :: Cipher -> CipherInitFlags -> Int -> Int -> IO Int
 cipherEstimateFinalOutputLength ctx flags offset input = do
     len <- cipherEstimateOutputLength ctx flags (offset + input)
@@ -308,6 +310,7 @@ cipherEstimateFinalOutputLength ctx flags offset input = do
 --  https://hackage.haskell.org/package/bytestring-0.12.0.2/docs/Data-ByteString-Builder.html
 -- NOTE: There still is (an efficiency) use for a version that reports only consumed length
 --  and defers the computation of the 'remaining' bytestring
+{-# DEPRECATED cipherProcess "Moving from botan-low to botan" #-}
 cipherProcess :: Cipher -> CipherUpdateFlags -> Int -> ByteString -> IO (ByteString,ByteString)
 cipherProcess ctx flags outputSz input = do
     (consumed,processed) <- cipherUpdate ctx flags outputSz input
@@ -315,15 +318,18 @@ cipherProcess ctx flags outputSz input = do
     let remaining = ByteString.drop consumed input
         in processed `seq` remaining `seq` return (processed,remaining)
 
+{-# DEPRECATED cipherProcessOffline "Moving from botan-low to botan" #-}
 cipherProcessOffline :: Cipher -> CipherInitFlags -> ByteString -> IO ByteString
 cipherProcessOffline ctx flags msg = do
     o <- cipherEstimateOutputLength ctx flags (ByteString.length msg)
     -- snd <$> cipherUpdate ctx BOTAN_CIPHER_UPDATE_FLAG_FINAL o msg
     fst <$> cipherProcess ctx BOTAN_CIPHER_UPDATE_FLAG_FINAL o msg
 
+{-# DEPRECATED cipherEncryptOffline "Moving from botan-low to botan" #-}
 cipherEncryptOffline :: Cipher -> ByteString -> IO ByteString
 cipherEncryptOffline ctx = cipherProcessOffline ctx BOTAN_CIPHER_INIT_FLAG_ENCRYPT
 
+{-# DEPRECATED cipherDecryptOffline "Moving from botan-low to botan" #-}
 cipherDecryptOffline :: Cipher -> ByteString -> IO ByteString
 cipherDecryptOffline ctx = cipherProcessOffline ctx BOTAN_CIPHER_INIT_FLAG_DECRYPT
 
@@ -350,6 +356,7 @@ Experiments with online processing
 
 --  NOTE: Some ciphers (SIV, CCM) are not online-capable algorithms, but Botan does not throw
 --  an error even though it should.
+{-# DEPRECATED cipherProcessOnline "Moving from botan-low to botan" #-}
 cipherProcessOnline :: Cipher -> CipherInitFlags -> ByteString -> IO ByteString
 cipherProcessOnline ctx flags = if flags == BOTAN_CIPHER_INIT_FLAG_ENCRYPT
     then cipherEncryptOnline ctx
@@ -358,6 +365,7 @@ cipherProcessOnline ctx flags = if flags == BOTAN_CIPHER_INIT_FLAG_ENCRYPT
 -- TODO: Consolidate online encipher / decipher
 -- TODO: Use Builder to do this
 --  https://hackage.haskell.org/package/bytestring-0.12.0.2/docs/Data-ByteString-Builder.html
+{-# DEPRECATED cipherEncryptOnline "Moving from botan-low to botan" #-}
 cipherEncryptOnline :: Cipher -> ByteString -> IO ByteString
 cipherEncryptOnline ctx msg = do
     g <- cipherGetIdealUpdateGranularity ctx
@@ -377,6 +385,7 @@ cipherEncryptOnline ctx msg = do
                 -- (processed :) <$> go (i + g) g (ByteString.drop consumed bs)
 
 -- TODO: Consolidate online encipher / decipher
+{-# DEPRECATED cipherDecryptOnline "Moving from botan-low to botan" #-}
 cipherDecryptOnline :: Cipher -> ByteString -> IO ByteString
 cipherDecryptOnline ctx msg = do
     g <- cipherGetIdealUpdateGranularity ctx

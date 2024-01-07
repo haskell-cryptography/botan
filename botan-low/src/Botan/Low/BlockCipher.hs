@@ -39,15 +39,15 @@ createBlockCipher   :: (Ptr BotanBlockCipher -> IO CInt) -> IO BlockCipher
 -- | 128-bit block cipher name type
 type BlockCipher128Name = BlockCipherName
 
-pattern AES128
-    ,   AES192
-    ,   AES256
-    ,   ARIA128
-    ,   ARIA192
-    ,   ARIA256
-    ,   Camellia128
-    ,   Camellia192
-    ,   Camellia256
+pattern AES_128
+    ,   AES_192
+    ,   AES_256
+    ,   ARIA_128
+    ,   ARIA_192
+    ,   ARIA_256
+    ,   Camellia_128
+    ,   Camellia_192
+    ,   Camellia_256
     ,   Noekeon
     ,   SEED
     ,   SM4
@@ -55,15 +55,15 @@ pattern AES128
     ,   Twofish
     :: BlockCipher128Name
 
-pattern AES128          = BOTAN_BLOCK_CIPHER_128_AES_128
-pattern AES192          = BOTAN_BLOCK_CIPHER_128_AES_192
-pattern AES256          = BOTAN_BLOCK_CIPHER_128_AES_256
-pattern ARIA128         = BOTAN_BLOCK_CIPHER_128_ARIA_128
-pattern ARIA192         = BOTAN_BLOCK_CIPHER_128_ARIA_192
-pattern ARIA256         = BOTAN_BLOCK_CIPHER_128_ARIA_256
-pattern Camellia128     = BOTAN_BLOCK_CIPHER_128_CAMELLIA_128
-pattern Camellia192     = BOTAN_BLOCK_CIPHER_128_CAMELLIA_192
-pattern Camellia256     = BOTAN_BLOCK_CIPHER_128_CAMELLIA_256
+pattern AES_128         = BOTAN_BLOCK_CIPHER_128_AES_128
+pattern AES_192         = BOTAN_BLOCK_CIPHER_128_AES_192
+pattern AES_256         = BOTAN_BLOCK_CIPHER_128_AES_256
+pattern ARIA_128        = BOTAN_BLOCK_CIPHER_128_ARIA_128
+pattern ARIA_192        = BOTAN_BLOCK_CIPHER_128_ARIA_192
+pattern ARIA_256        = BOTAN_BLOCK_CIPHER_128_ARIA_256
+pattern Camellia_128    = BOTAN_BLOCK_CIPHER_128_CAMELLIA_128
+pattern Camellia_192    = BOTAN_BLOCK_CIPHER_128_CAMELLIA_192
+pattern Camellia_256    = BOTAN_BLOCK_CIPHER_128_CAMELLIA_256
 pattern Noekeon         = BOTAN_BLOCK_CIPHER_128_NOEKEON
 pattern SEED            = BOTAN_BLOCK_CIPHER_128_SEED
 pattern SM4             = BOTAN_BLOCK_CIPHER_128_SM4
@@ -71,15 +71,15 @@ pattern Serpent         = BOTAN_BLOCK_CIPHER_128_SERPENT
 pattern Twofish         = BOTAN_BLOCK_CIPHER_128_TWOFISH
 
 blockCipher128s =
-    [ AES128
-    , AES192
-    , AES256
-    , ARIA128
-    , ARIA192
-    , ARIA256
-    , Camellia128
-    , Camellia192
-    , Camellia256
+    [ AES_128
+    , AES_192
+    , AES_256
+    , ARIA_128
+    , ARIA_192
+    , ARIA_256
+    , Camellia_128
+    , Camellia_192
+    , Camellia_256
     , Noekeon
     , SEED
     , SM4
