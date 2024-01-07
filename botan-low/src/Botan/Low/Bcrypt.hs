@@ -28,14 +28,14 @@ import Data.ByteString.Internal as ByteString
 
 type BcryptWorkFactor = Int
 
-pattern Fast
-    ,   Good
-    ,   Strong
+pattern BcryptFast
+    ,   BcryptGood
+    ,   BcryptStrong
     ::  BcryptWorkFactor
 
-pattern Fast    = BOTAN_BCRYPT_WORK_FACTOR_FAST
-pattern Good    = BOTAN_BCRYPT_WORK_FACTOR_GOOD
-pattern Strong  = BOTAN_BCRYPT_WORK_FACTOR_STRONG
+pattern BcryptFast    = BOTAN_BCRYPT_WORK_FACTOR_FAST
+pattern BcryptGood    = BOTAN_BCRYPT_WORK_FACTOR_GOOD
+pattern BcryptStrong  = BOTAN_BCRYPT_WORK_FACTOR_STRONG
 
 -- |Create a password hash using Bcrypt
 --
