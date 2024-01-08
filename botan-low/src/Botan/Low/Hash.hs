@@ -30,7 +30,9 @@ module Botan.Low.Hash
 , HashName(..)
 , HashDigest(..)
 , pattern BLAKE2b
+, blake2b'
 , pattern Keccak_1600
+, keccak_1600'
 , pattern GOST_34_11
 , pattern MD4
 , pattern MD5
@@ -42,10 +44,14 @@ module Botan.Low.Hash
 , pattern SHA_512
 , pattern SHA_512_256
 , pattern SHA_3
+, sha_3'
 , pattern SHAKE_128
+, shake_128'
 , pattern SHAKE_256
+, shake_256'
 , pattern SM3
 , pattern Skein_512
+, skein_512'
 , pattern Streebog_256
 , pattern Streebog_512
 , pattern Whirlpool
@@ -129,12 +135,12 @@ pattern BLAKE2b
 pattern BLAKE2b         = BOTAN_HASH_BLAKE2B
 -- TODO: function
 -- sz is digest size in bits, must be 1-64 bytes, eg: 8-512 in multiples of 8
--- blake2b' sz | sz <= 512 = BLAKE2b /$ showBytes sz
--- blake2b' _ = error "..."
+blake2b' sz | sz <= 512 = BLAKE2b /$ showBytes sz
+blake2b' _ = error "Invalid BLAKE2b variant"
 pattern Keccak_1600     = BOTAN_HASH_KECCAK_1600
 -- TODO: function or pattern
--- keccak_1600' n | n `elem` [224, 256, 384, 512] = Keccak_1600 /$ showBytes n
--- keccak_1600' _ = error "..."
+keccak_1600' n | n `elem` [224, 256, 384, 512] = Keccak_1600 /$ showBytes n
+keccak_1600' _ = error "Invalid Keccak-1600 variant"
 -- pattern Keccak_1600_224 = "Keccak-1600(224)"
 -- pattern Keccak_1600_256 = "Keccak-1600(256)"
 -- pattern Keccak_1600_384 = "Keccak-1600(384)"
@@ -151,8 +157,8 @@ pattern SHA_512         = BOTAN_HASH_SHA_512
 pattern SHA_512_256     = BOTAN_HASH_SHA_512_256
 pattern SHA_3           = BOTAN_HASH_SHA_3
 -- TODO: function or pattern
--- sha_3' n | n `elem` [224, 256, 384, 512] = SHA_3 /$ showBytes n
--- sha_3' _ = error "..."
+sha_3' n | n `elem` [224, 256, 384, 512] = SHA_3 /$ showBytes n
+sha_3' _ = error "Invalid SHA-3 variant"
 -- pattern SHA_3_224 = "SHA-3(224)"
 -- pattern SHA_3_256 = "SHA-3(256)"
 -- pattern SHA_3_384 = "SHA-3(384)"
@@ -166,7 +172,7 @@ shake_256' sz = SHAKE_256 /$ showBytes sz
 pattern SM3             = BOTAN_HASH_SM3
 pattern Skein_512       = BOTAN_HASH_SKEIN_512
 -- TODO: function
--- skein_512' sz salt = Skein_512 /$ showBytes sz <> "," <> salt
+skein_512' sz salt = Skein_512 /$ showBytes sz <> "," <> salt
 pattern Streebog_256    = BOTAN_HASH_STREEBOG_256
 pattern Streebog_512    = BOTAN_HASH_STREEBOG_512
 pattern Whirlpool       = BOTAN_HASH_WHIRLPOOL

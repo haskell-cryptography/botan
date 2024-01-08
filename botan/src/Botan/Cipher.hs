@@ -85,9 +85,9 @@ data CipherMode
     | XTS BlockCipher
 
 cipherModeName :: CipherMode -> Low.CipherName
-cipherModeName (CBC bc padding)    = blockCipherName bc <> "/CBC/" <> cbcPaddingName padding
-cipherModeName (CFB bc fsz)        = blockCipherName bc <> "/CFB(" <> showBytes fsz <> ")"
-cipherModeName (XTS bc)            = blockCipherName bc <> "/XTS"
+cipherModeName (CBC bc padding)    = Low.cbcMode (blockCipherName bc) (cbcPaddingName padding)
+cipherModeName (CFB bc fsz)        = Low.cfbMode' (blockCipherName bc) fsz
+cipherModeName (XTS bc)            = Low.xtsMode (blockCipherName bc)
 
 cipherCtxInitMode :: CipherMode -> CipherDirection -> Low.Cipher
 cipherCtxInitMode = unsafePerformIO2 cipherCtxInitModeIO
@@ -98,19 +98,19 @@ cipherCtxInitModeIO mode = cipherCtxInitIO (CipherMode mode)
 -- CBC Padding - does this have use elsewhere?
 data CBCPadding
     = PKCS7
-    | OneAndZeros
+    | OnesAndZeroes
     | X9_23
     | ESP   -- NOTE: RFC 4304
     | CTS   -- NOTE: Ciphertext stealing
     | NoPadding
 
 cbcPaddingName :: CBCPadding -> ByteString
-cbcPaddingName PKCS7       = "PKCS7"
-cbcPaddingName OneAndZeros = "OneAndZeros"
-cbcPaddingName X9_23       = "X9.23"
-cbcPaddingName ESP         = "ESP"
-cbcPaddingName CTS         = "CTS"
-cbcPaddingName NoPadding   = "NoPadding"
+cbcPaddingName PKCS7         = Low.PKCS7
+cbcPaddingName OnesAndZeroes = Low.OnesAndZeroes
+cbcPaddingName X9_23         = Low.X9_23
+cbcPaddingName ESP           = Low.ESP
+cbcPaddingName CTS           = Low.CTS
+cbcPaddingName NoPadding     = Low.NoPadding
 
 -- NOTE: "GCM is defined for the tag sizes 4, 8, 12 - 16 bytes" but may actually accept any 1-16
 -- NOTE: Wiki: "Both GCM and GMAC can accept initialization vectors of arbitrary length." - untested
@@ -135,12 +135,12 @@ data AEAD
     | CCM BlockCipher Int Int -- Tag size and L, default tag size is 16 and L is 3
 
 aeadName :: AEAD -> Low.CipherName
-aeadName ChaCha20Poly1305   = "ChaCha20Poly1305"
-aeadName (GCM bc tsz)       = blockCipherName bc <> "/GCM(" <> showBytes tsz <> ")"
-aeadName (OCB bc tsz)       = blockCipherName bc <> "/OCB(" <> showBytes tsz <> ")"
-aeadName (EAX bc tsz)       = blockCipherName bc <> "/EAX(" <> showBytes tsz <> ")"
-aeadName (SIV bc)           = blockCipherName bc <> "/SIV"
-aeadName (CCM bc tsz l)     = blockCipherName bc <> "/CCM(" <> showBytes tsz <> "," <> showBytes l <> ")"
+aeadName ChaCha20Poly1305   = Low.chaCha20Poly1305
+aeadName (GCM bc tsz)       = Low.gcmMode' (blockCipherName bc) tsz
+aeadName (OCB bc tsz)       = Low.ocbMode' (blockCipherName bc) tsz
+aeadName (EAX bc tsz)       = Low.eaxMode' (blockCipherName bc) tsz
+aeadName (SIV bc)           = Low.sivMode (blockCipherName bc)
+aeadName (CCM bc tsz l)     = Low.ccmMode' (blockCipherName bc) tsz l
 
 cipherCtxInitAEAD :: AEAD -> CipherDirection -> Low.Cipher
 cipherCtxInitAEAD = unsafePerformIO2 cipherCtxInitAEADIO

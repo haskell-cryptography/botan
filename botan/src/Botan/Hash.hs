@@ -101,10 +101,10 @@ data Keccak1600
     deriving (Show, Eq)
 
 keccak1600Name :: Keccak1600 -> Low.HashName
-keccak1600Name Keccak1600_224 = "Keccak-1600(224)"
-keccak1600Name Keccak1600_256 = "Keccak-1600(256)"
-keccak1600Name Keccak1600_384 = "Keccak-1600(384)"
-keccak1600Name Keccak1600_512 = "Keccak-1600(512)"
+keccak1600Name Keccak1600_224 = Low.keccak_1600' 224 -- "Keccak-1600(224)"
+keccak1600Name Keccak1600_256 = Low.keccak_1600' 256 -- "Keccak-1600(256)"
+keccak1600Name Keccak1600_384 = Low.keccak_1600' 384 -- "Keccak-1600(384)"
+keccak1600Name Keccak1600_512 = Low.keccak_1600' 512 -- "Keccak-1600(512)"
 
 data SHA2
     = SHA224
@@ -115,11 +115,11 @@ data SHA2
     deriving (Show, Eq)
 
 sha2Name :: SHA2 -> Low.HashName
-sha2Name SHA224     = "SHA-224"
-sha2Name SHA256     = "SHA-256"
-sha2Name SHA512     = "SHA-512"
-sha2Name SHA384     = "SHA-384"
-sha2Name SHA512_256 = "SHA-512-256"
+sha2Name SHA224     = Low.SHA_224       -- "SHA-224"
+sha2Name SHA256     = Low.SHA_256       -- "SHA-256"
+sha2Name SHA512     = Low.SHA_512       -- "SHA-512"
+sha2Name SHA384     = Low.SHA_384       -- "SHA-384"
+sha2Name SHA512_256 = Low.SHA_512_256   -- "SHA-512-256"
 
 -- type SHA3Size = Int
 data SHA3
@@ -130,10 +130,10 @@ data SHA3
     deriving (Show, Eq)
 
 sha3Name :: SHA3 -> Low.HashName
-sha3Name SHA3_224 = "SHA-3(224)"
-sha3Name SHA3_256 = "SHA-3(256)"
-sha3Name SHA3_384 = "SHA-3(384)"
-sha3Name SHA3_512 = "SHA-3(512)"
+sha3Name SHA3_224 = Low.sha_3' 224 -- "SHA-3(224)"
+sha3Name SHA3_256 = Low.sha_3' 256 -- "SHA-3(256)"
+sha3Name SHA3_384 = Low.sha_3' 384 -- "SHA-3(384)"
+sha3Name SHA3_512 = Low.sha_3' 512 -- "SHA-3(512)"
 
 type SHAKE128Size = Int
 -- data SHAKE128Spec = SHAKE128 SHAKE128Size
@@ -173,8 +173,8 @@ data Hash
     | Streebog512
     | Whirlpool
     -- Combination strategies
-    | Parallel Hash Hash
-    | Comb4P Hash Hash
+    -- | Parallel Hash Hash
+    -- | Comb4P Hash Hash
     -- Checksums -- TODO: Split off checksums from cryptohashes
     | Adler32
     | CRC24
@@ -195,15 +195,14 @@ data Hash
 hashName :: Hash -> Low.HashName
 hashName spec = case spec of
     -- Cryptographic hashes
-    BLAKE2b sz      -> "BLAKE2b(" <> showBytes sz <> ")"
-    GOST_34_11      -> "GOST-34.11"
+    BLAKE2b sz      -> Low.blake2b' sz      -- "BLAKE2b(" <> showBytes sz <> ")"
+    GOST_34_11      -> Low.GOST_34_11       -- "GOST-34.11"
     -- Keccak1600 sz   -> "Keccak-1600(" <> showBytes sz <> ")"
     Keccak1600 v    -> keccak1600Name v
-    MD4             -> "MD4"
-    MD5             -> "MD5"
-    RIPEMD160       -> "RIPEMD-160"
-    -- SHA160          -> "SHA-1"      -- SHA1
-    SHA1            -> "SHA-1"
+    MD4             -> Low.MD4              -- "MD4"
+    MD5             -> Low.MD5              -- "MD5"
+    RIPEMD160       -> Low.RIPEMD_160       -- "RIPEMD-160"
+    SHA1            -> Low.SHA_1            -- "SHA-1"
     -- SHA224          -> "SHA-224"    -- SHA2
     -- SHA256          -> "SHA-256"
     -- SHA512          -> "SHA-512"
@@ -212,20 +211,20 @@ hashName spec = case spec of
     SHA2 v          -> sha2Name v
     -- SHA3 sz         -> "SHA-3(" <> showBytes sz <> ")"
     SHA3 v          -> sha3Name v
-    SHAKE128 sz     -> "SHAKE-128(" <> showBytes sz <> ")"
-    SHAKE256 sz     -> "SHAKE-256(" <> showBytes sz <> ")"
-    SM3             -> "SM3"
-    Skein512 sz b   -> "Skein-512(" <> showBytes sz <> "," <> b <> ")"
-    Streebog256     -> "Streebog-256"
-    Streebog512     -> "Streebog-512"
-    Whirlpool       -> "Whirlpool"
+    SHAKE128 sz     -> Low.shake_128' sz    -- "SHAKE-128(" <> showBytes sz <> ")"
+    SHAKE256 sz     -> Low.shake_256' sz    -- "SHAKE-256(" <> showBytes sz <> ")"
+    SM3             -> Low.SM3              -- "SM3"
+    Skein512 sz b   -> Low.skein_512' sz b  -- "Skein-512(" <> showBytes sz <> "," <> b <> ")"
+    Streebog256     -> Low.Streebog_256     -- "Streebog-256"
+    Streebog512     -> Low.Streebog_512     -- "Streebog-512"
+    Whirlpool       -> Low.Whirlpool        -- "Whirlpool"
     -- Combination strategies
-    Parallel ha hb  -> "Parallel(" <> hashName ha <> "," <> hashName hb <> ")"
-    Comb4P ha hb    -> "Comb4P(" <> hashName ha <> "," <> hashName hb <> ")"
+    -- Parallel ha hb  -> "Parallel(" <> hashName ha <> "," <> hashName hb <> ")"
+    -- Comb4P ha hb    -> "Comb4P(" <> hashName ha <> "," <> hashName hb <> ")"
     -- Checksums
-    Adler32         -> "Adler32"
-    CRC24           -> "CRC24"
-    CRC32           -> "CRC32"
+    Adler32         -> Low.Adler32          -- "Adler32"
+    CRC24           -> Low.CRC24            -- "CRC24"
+    CRC32           -> Low.CRC32            -- "CRC32"
 
 hashCtxInitIO :: Hash -> IO Low.Hash
 hashCtxInitIO = Low.hashInit . hashName

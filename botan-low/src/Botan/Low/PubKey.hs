@@ -230,12 +230,12 @@ pattern DSA_BOTAN_3072  = BOTAN_DLGROUP_DSA_BOTAN_3072
 type EMEName = ByteString
 
 pattern RAW
-    ,   PKCS1
+    ,   PKCS1_v1_5
     ,   OAEP
     :: EMEName
 
 pattern RAW = BOTAN_EME_RAW
-pattern PKCS1 = BOTAN_EME_PKCS1_v1_5
+pattern PKCS1_v1_5 = BOTAN_EME_PKCS1_v1_5
 pattern OAEP = BOTAN_EME_OAEP
 
 oaep' :: HashName -> EMEName

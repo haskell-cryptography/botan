@@ -59,13 +59,13 @@ data MAC
 -- NOTE: Wiki: "Both GCM and GMAC can accept initialization vectors of arbitrary length." - untested
 
 macName :: MAC -> ByteString
-macName (CMAC bc)       = "CMAC(" <> blockCipherName bc <> ")"
-macName (GMAC bc)       = "GMAC(" <> blockCipherName bc <> ")"
--- macName (CBC_MAC bc)    = "CBC-MAC(" <> blockCipherName bc <> ")"
-macName (HMAC h)        = "HMAC(" <> hashName h <> ")"
-macName Poly1305        = "Poly1305"
-macName (SipHash ir fr) = "SipHash(" <> showBytes ir <> "," <> showBytes fr <> ")"
-macName X9_19_MAC       = "X9.19-MAC"
+macName (CMAC bc)       = Low.cmac' (blockCipherName bc)    -- "CMAC(" <> blockCipherName bc <> ")"
+macName (GMAC bc)       = Low.gmac' (blockCipherName bc)    -- "GMAC(" <> blockCipherName bc <> ")"
+-- macName (CBC_MAC bc)    = Low.cbc_mac' (blockCipherName bc) -- "CBC-MAC(" <> blockCipherName bc <> ")"
+macName (HMAC h)        = Low.hmac' (hashName h)            -- "HMAC(" <> hashName h <> ")"
+macName Poly1305        = Low.Poly1305                      -- "Poly1305"
+macName (SipHash ir fr) = Low.sipHash' ir fr                -- "SipHash(" <> showBytes ir <> "," <> showBytes fr <> ")"
+macName X9_19_MAC       = Low.X9_19_MAC                     -- "X9.19-MAC"
 
 -- NOTE: NOT CHECKED FOR CORRECTNESS YET
 macNonceLength :: MAC -> Int

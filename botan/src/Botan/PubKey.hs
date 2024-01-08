@@ -37,24 +37,24 @@ type PKName = ByteString
 type PKParams = ByteString
 
 pkName :: PK -> PKName
-pkName (RSA _)          = "RSA"
-pkName (SM2 _)          = "SM2"
-pkName (ElGamal _)      = "ElGamal"
-pkName (DSA _)          = "DSA"
-pkName (ECDSA _)        = "ECDSA"
-pkName (ECKCDSA _)      = "ECKCDSA"
-pkName (ECGDSA _)       = "ECGDSA"
-pkName (GOST_34_10 _)   = "GOST-34.10"
-pkName Ed25519          = "Ed25519"
-pkName (XMSS _)         = "XMSS"
-pkName (DH _)           = "DH"
-pkName (ECDH _)         = "ECDH"
-pkName Curve25519       = "Curve25519"
+pkName (RSA _)          = Low.RSA           -- "RSA"
+pkName (SM2 _)          = Low.SM2           -- "SM2"
+pkName (ElGamal _)      = Low.ElGamal       -- "ElGamal"
+pkName (DSA _)          = Low.DSA           -- "DSA"
+pkName (ECDSA _)        = Low.ECDSA         -- "ECDSA"
+pkName (ECKCDSA _)      = Low.ECKCDSA       -- "ECKCDSA"
+pkName (ECGDSA _)       = Low.ECGDSA        -- "ECGDSA"
+pkName (GOST_34_10 _)   = Low.GOST_34_10    -- "GOST-34.10"
+pkName Ed25519          = Low.Ed25519       -- "Ed25519"
+pkName (XMSS _)         = Low.XMSS          -- "XMSS"
+pkName (DH _)           = Low.DH            -- "DH"
+pkName (ECDH _)         = Low.ECDH          -- "ECDH"
+pkName Curve25519       = Low.Curve25519    -- "Curve25519"
 -- New in 3.x?
-pkName Dilithium        = "Dilithium"   -- "Dilithium-6x5-r3"   -- TODO: Find full listing in doxygen 
-pkName Kyber            = "Kyber"       -- "Kyber-1024-r3"      -- TODO: Find full listing in doxygen 
+pkName Dilithium        = Low.Dilithium   -- "Dilithium-6x5-r3"   -- TODO: Find full listing in doxygen 
+pkName Kyber            = Low.Kyber       -- "Kyber-1024-r3"      -- TODO: Find full listing in doxygen 
 -- pkName SPHINCSPlus      = "SPHINCS+"  -- Doesn't work :/      -- TODO: Find full listing in doxygen 
-pkName McEliece         = "McEliece"
+pkName McEliece         = Low.McEliece
 
 pkParams :: PK -> PKParams
 pkParams (RSA bits)       = showBytes bits
@@ -93,18 +93,18 @@ data XMSS
 type XMSSName = ByteString
 
 xmssName :: XMSS -> XMSSName
-xmssName XMSS_SHA2_10_256 = "XMSS-SHA2_10_256"
-xmssName XMSS_SHA2_16_256 = "XMSS-SHA2_16_256"
-xmssName XMSS_SHA2_20_256 = "XMSS-SHA2_20_256"
-xmssName XMSS_SHA2_10_512 = "XMSS-SHA2_10_512"
-xmssName XMSS_SHA2_16_512 = "XMSS-SHA2_16_512"
-xmssName XMSS_SHA2_20_512 = "XMSS-SHA2_20_512"
-xmssName XMSS_SHAKE_10_256 = "XMSS-SHAKE_10_256"
-xmssName XMSS_SHAKE_16_256 = "XMSS-SHAKE_16_256"
-xmssName XMSS_SHAKE_20_256 = "XMSS-SHAKE_20_256"
-xmssName XMSS_SHAKE_10_512 = "XMSS-SHAKE_10_512"
-xmssName XMSS_SHAKE_16_512 = "XMSS-SHAKE_16_512"
-xmssName XMSS_SHAKE_20_512 = "XMSS-SHAKE_20_512"
+xmssName XMSS_SHA2_10_256   = Low.XMSS_SHA2_10_256
+xmssName XMSS_SHA2_16_256   = Low.XMSS_SHA2_16_256
+xmssName XMSS_SHA2_20_256   = Low.XMSS_SHA2_20_256
+xmssName XMSS_SHA2_10_512   = Low.XMSS_SHA2_10_512
+xmssName XMSS_SHA2_16_512   = Low.XMSS_SHA2_16_512
+xmssName XMSS_SHA2_20_512   = Low.XMSS_SHA2_20_512
+xmssName XMSS_SHAKE_10_256  = Low.XMSS_SHAKE_10_256
+xmssName XMSS_SHAKE_16_256  = Low.XMSS_SHAKE_16_256
+xmssName XMSS_SHAKE_20_256  = Low.XMSS_SHAKE_20_256
+xmssName XMSS_SHAKE_10_512  = Low.XMSS_SHAKE_10_512
+xmssName XMSS_SHAKE_16_512  = Low.XMSS_SHAKE_16_512
+xmssName XMSS_SHAKE_20_512  = Low.XMSS_SHAKE_20_512
 
 data ECGroup
     = Secp160k1
@@ -138,33 +138,33 @@ data ECGroup
 type ECGroupName = ByteString
 
 ecGroupName :: ECGroup -> ECGroupName
-ecGroupName Secp160k1 = "secp160k1"
-ecGroupName Secp160r1 = "secp160r1"
-ecGroupName Secp160r2 = "secp160r2"
-ecGroupName Secp192k1 = "secp192k1"
-ecGroupName Secp192r1 = "secp192r1"
-ecGroupName Secp224k1 = "secp224k1"
-ecGroupName Secp224r1 = "secp224r1"
-ecGroupName Secp256k1 = "secp256k1"
-ecGroupName Secp256r1 = "secp256r1"
-ecGroupName Secp384r1 = "secp384r1"
-ecGroupName Secp521r1 = "secp521r1"
-ecGroupName Brainpool160r1 = "brainpool160r1"
-ecGroupName Brainpool192r1 = "brainpool192r1"
-ecGroupName Brainpool224r1 = "brainpool224r1"
-ecGroupName Brainpool256r1 = "brainpool256r1"
-ecGroupName Brainpool320r1 = "brainpool320r1"
-ecGroupName Brainpool384r1 = "brainpool384r1"
-ecGroupName Brainpool512r1 = "brainpool512r1"
-ecGroupName X962_p192v2 = "x962_p192v2"
-ecGroupName X962_p192v3 = "x962_p192v3"
-ecGroupName X962_p239v1 = "x962_p239v1"
-ecGroupName X962_p239v2 = "x962_p239v2"
-ecGroupName X962_p239v3 = "x962_p239v3"
-ecGroupName Gost_256A = "gost_256A"
-ecGroupName Gost_512A = "gost_512A"
-ecGroupName Frp256v1 = "frp256v1"
-ecGroupName Sm2p256v1 = "sm2p256v1"
+ecGroupName Secp160k1       = Low.Secp160k1
+ecGroupName Secp160r1       = Low.Secp160r1
+ecGroupName Secp160r2       = Low.Secp160r2
+ecGroupName Secp192k1       = Low.Secp192k1
+ecGroupName Secp192r1       = Low.Secp192r1
+ecGroupName Secp224k1       = Low.Secp224k1
+ecGroupName Secp224r1       = Low.Secp224r1
+ecGroupName Secp256k1       = Low.Secp256k1
+ecGroupName Secp256r1       = Low.Secp256r1
+ecGroupName Secp384r1       = Low.Secp384r1
+ecGroupName Secp521r1       = Low.Secp521r1
+ecGroupName Brainpool160r1  = Low.Brainpool160r1
+ecGroupName Brainpool192r1  = Low.Brainpool192r1
+ecGroupName Brainpool224r1  = Low.Brainpool224r1
+ecGroupName Brainpool256r1  = Low.Brainpool256r1
+ecGroupName Brainpool320r1  = Low.Brainpool320r1
+ecGroupName Brainpool384r1  = Low.Brainpool384r1
+ecGroupName Brainpool512r1  = Low.Brainpool512r1
+ecGroupName X962_p192v2     = Low.X962_p192v2
+ecGroupName X962_p192v3     = Low.X962_p192v3
+ecGroupName X962_p239v1     = Low.X962_p239v1
+ecGroupName X962_p239v2     = Low.X962_p239v2
+ecGroupName X962_p239v3     = Low.X962_p239v3
+ecGroupName Gost_256A       = Low.Gost_256A
+ecGroupName Gost_512A       = Low.Gost_512A
+ecGroupName Frp256v1        = Low.Frp256v1
+ecGroupName Sm2p256v1       = Low.Sm2p256v1
 
 data DLGroup
     -- = FFDHE FFDHE
@@ -196,28 +196,28 @@ data DLGroup
 type DLGroupName = ByteString
 
 dlGroupName :: DLGroup -> DLGroupName
-dlGroupName FFDHE_IETF_2048 = "ffdhe/ietf/2048"
-dlGroupName FFDHE_IETF_3072 = "ffdhe/ietf/3072"
-dlGroupName FFDHE_IETF_4096 = "ffdhe/ietf/4096"
-dlGroupName FFDHE_IETF_6144 = "ffdhe/ietf/6144"
-dlGroupName FFDHE_IETF_8192 = "ffdhe/ietf/8192"
-dlGroupName MODP_IETF_1024 = "modp/ietf/1024"
-dlGroupName MODP_IETF_1536 = "modp/ietf/1536"
-dlGroupName MODP_IETF_2048 = "modp/ietf/2048"
-dlGroupName MODP_IETF_3072 = "modp/ietf/3072"
-dlGroupName MODP_IETF_4096 = "modp/ietf/4096"
-dlGroupName MODP_IETF_6144 = "modp/ietf/6144"
-dlGroupName MODP_IETF_8192 = "modp/ietf/8192"
-dlGroupName MODP_SRP_1024 = "modp/srp/1024"
-dlGroupName MODP_SRP_1536 = "modp/srp/1536"
-dlGroupName MODP_SRP_2048 = "modp/srp/2048"
-dlGroupName MODP_SRP_3072 = "modp/srp/3072"
-dlGroupName MODP_SRP_4096 = "modp/srp/4096"
-dlGroupName MODP_SRP_6144 = "modp/srp/6144"
-dlGroupName MODP_SRP_8192 = "modp/srp/8192"
-dlGroupName DSA_JCE_1024 = "dsa/jce/1024"
-dlGroupName DSA_BOTAN_2048 = "dsa/botan/2048"
-dlGroupName DSA_BOTAN_3072 = "dsa/botan/3072"
+dlGroupName FFDHE_IETF_2048 = Low.FFDHE_IETF_2048
+dlGroupName FFDHE_IETF_3072 = Low.FFDHE_IETF_3072
+dlGroupName FFDHE_IETF_4096 = Low.FFDHE_IETF_4096
+dlGroupName FFDHE_IETF_6144 = Low.FFDHE_IETF_6144
+dlGroupName FFDHE_IETF_8192 = Low.FFDHE_IETF_8192
+dlGroupName MODP_IETF_1024  = Low.MODP_IETF_1024
+dlGroupName MODP_IETF_1536  = Low.MODP_IETF_1536
+dlGroupName MODP_IETF_2048  = Low.MODP_IETF_2048
+dlGroupName MODP_IETF_3072  = Low.MODP_IETF_3072
+dlGroupName MODP_IETF_4096  = Low.MODP_IETF_4096
+dlGroupName MODP_IETF_6144  = Low.MODP_IETF_6144
+dlGroupName MODP_IETF_8192  = Low.MODP_IETF_8192
+dlGroupName MODP_SRP_1024   = Low.MODP_SRP_1024
+dlGroupName MODP_SRP_1536   = Low.MODP_SRP_1536
+dlGroupName MODP_SRP_2048   = Low.MODP_SRP_2048
+dlGroupName MODP_SRP_3072   = Low.MODP_SRP_3072
+dlGroupName MODP_SRP_4096   = Low.MODP_SRP_4096
+dlGroupName MODP_SRP_6144   = Low.MODP_SRP_6144
+dlGroupName MODP_SRP_8192   = Low.MODP_SRP_8192
+dlGroupName DSA_JCE_1024    = Low.DSA_JCE_1024
+dlGroupName DSA_BOTAN_2048  = Low.DSA_BOTAN_2048
+dlGroupName DSA_BOTAN_3072  = Low.DSA_BOTAN_3072
 
 privKeyCreatePKIO :: PK -> Low.RNG -> IO PrivKey
 privKeyCreatePKIO pk = Low.privKeyCreate (pkName pk) (pkParams pk)
@@ -233,13 +233,13 @@ data PKCheckKeyFlags
 -- NOTE: Need to confirm  that this is all EME (encryption) padding
 data PKPadding
     = EME_RAW
-    | EME_PKCS1_v1_5
+    | EME_PKCS1
     | EME_OAEP Hash (Maybe Hash) (Maybe ByteString)    -- Hash, mask gen hash, label
     | SM2EncParam Hash  -- NOTE: Why SM2 specific? Why not just PKPaddingHash Hash?
 
 pkPaddingName :: PKPadding -> PKPaddingName
-pkPaddingName EME_RAW          = "Raw"
-pkPaddingName EME_PKCS1_v1_5   = "PKCS1v15"    -- Why not "EME-PKCS1-v1_5"? See C++ docs
+pkPaddingName EME_RAW     = Low.RAW
+pkPaddingName EME_PKCS1   = Low.PKCS1_v1_5  -- "PKCS1v15" -- Why not "EME-PKCS1-v1_5"? See C++ docs
 pkPaddingName (EME_OAEP h m l) = case (m,l) of
     (Nothing, Nothing) -> "OAEP(" <> hashName h <> ",MGF1)"
     (Nothing, Just l') -> "OAEP(" <> hashName h <> ",MGF1," <> l' <> ")"
