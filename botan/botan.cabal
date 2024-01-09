@@ -40,6 +40,7 @@ library
         Botan.Hash
         Botan.HOTP
         Botan.KDF
+        Botan.KeySpec
         Botan.KeyWrap
         Botan.MAC
         -- NOTE: Botan does not directly expose padding
