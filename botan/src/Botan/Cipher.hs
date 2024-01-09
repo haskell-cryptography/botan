@@ -465,3 +465,145 @@ newCipherKey' = newKey . cipherKeySpec
 newCipherKeyMaybe :: (MonadRandomIO m) => Int -> Cipher -> m (Maybe CipherKey)
 newCipherKeyMaybe sz bc = newKeyMaybe sz (cipherKeySpec bc) 
 
+cipherDefaultNonceLength :: Cipher -> Int
+cipherDefaultNonceLength (CipherMode (CBC bc _)) = blockCipherBlockSize bc
+cipherDefaultNonceLength (CipherMode (CFB bc _)) = blockCipherBlockSize bc
+cipherDefaultNonceLength (CipherMode (XTS bc))   = blockCipherBlockSize bc
+-- NOTE: This is the value at current, and matches the default in botan,
+-- presumably because 12 is valid for all AEAD nonces 
+cipherDefaultNonceLength (AEAD _)                = 12
+-- NOTE: Extracted from inspecting:
+{-
+generateCipherDefaultNonceLengths :: IO ()
+generateCipherDefaultNonceLengths = do
+    each <- forM ciphers  $ \ c -> do
+        ctx <- Low.cipherInit (cipherName c) Low.Encrypt
+        nlen <- Low.cipherGetDefaultNonceLength ctx
+        return $ concat $
+            [ "cipherDefaultNonceLength "
+            , showsPrec 11 c ""
+            , " = "
+            , show nlen
+            ]
+    putStrLn $ unlines $
+        "cipherDefaultNonceLength :: Cipher -> Int"
+        : each
+-}
+
+-- TODO: Make NonceSpec? generalize to RangeSpec?
+
+cipherNonceLengthIsValid :: Int -> Cipher -> Bool
+-- cipherNonceLengthIsValid n cipher = unsafePerformIO $ do
+--     ctx <- Low.cipherInit (cipherName cipher) Low.Encrypt
+--     Low.cipherValidNonceLength ctx n
+-- {-# NOINLINE cipherNonceLengthIsValid #-}
+-- NOTE: Just piping through unsafely with a temp context for now
+-- This manual implementation should be efficient, but need to confirm maxBound:
+cipherNonceLengthIsValid n (CipherMode (CBC bc _)) = n == blockCipherBlockSize bc
+cipherNonceLengthIsValid n (CipherMode (CFB bc _)) = n == blockCipherBlockSize bc
+cipherNonceLengthIsValid n (CipherMode (XTS bc))   = 1 <= n && n <= blockCipherBlockSize bc -- Always [ 1 .. 16 ]
+cipherNonceLengthIsValid n (AEAD ChaCha20Poly1305) = n `elem` [ 8, 12, 24 ]
+cipherNonceLengthIsValid n (AEAD (GCM _ _))        = 1 <= n && n <= 512 -- True if unbounded
+cipherNonceLengthIsValid n (AEAD (OCB bc128 _))    = 1 <= n && n <= blockCipherBlockSize bc128 - 1 -- Always [ 1 .. 15 ]
+cipherNonceLengthIsValid n (AEAD (EAX _ _))        = 1 <= n && n <= 512 -- True if unbounded
+cipherNonceLengthIsValid n (AEAD (SIV _))          = 1 <= n && n <= 512 -- True if unbounded
+cipherNonceLengthIsValid n (AEAD (CCM _ _ _))      = n == 12
+-- NOTE: Cases inferred from cipherValidNonceLengths and generateCipherNonceLengths
+
+-- NOTE: We've capped the length at 512, but they could be potentially unbounded
+-- Also this is inefficient compared to cipherNonceLengthIsValid, as it actually
+-- calculates the list of valid lengths, which may be large or unbounded
+cipherValidNonceLengths :: Cipher -> [ Int ]
+cipherValidNonceLengths (CipherMode (CBC bc _)) = [ blockCipherBlockSize bc ]
+cipherValidNonceLengths (CipherMode (CFB bc _)) = [ blockCipherBlockSize bc ]
+cipherValidNonceLengths (CipherMode (XTS bc))   = [ 1 .. blockCipherBlockSize bc ] -- Always [ 1 .. 16 ]
+cipherValidNonceLengths (AEAD ChaCha20Poly1305) = [ 8, 12, 24 ]
+cipherValidNonceLengths (AEAD (GCM _ _))        = [ 1 .. 512 ] -- maxBound if unbounded
+cipherValidNonceLengths (AEAD (OCB bc128 _))    = [ 1 .. blockCipherBlockSize bc128 - 1 ] -- Always [ 1 .. 15 ]
+cipherValidNonceLengths (AEAD (EAX _ _))        = [ 1 .. 512 ] -- maxBound if unbounded
+cipherValidNonceLengths (AEAD (SIV _))          = [ 1 .. 512 ] -- maxBound if unbounded
+cipherValidNonceLengths (AEAD (CCM _ _ _))      = [12]
+-- NOTE: Extracted from inspecting:
+{-
+generateCipherNonceLengths :: IO ()
+generateCipherNonceLengths = do
+    each <- forM ciphers  $ \ c -> do
+        ctx <- Low.cipherInit (cipherName c) Low.Encrypt
+        validLengths <- filterM (Low.cipherValidNonceLength ctx) [1..512]
+        return $ concat $
+            [ "cipherValidNonceLengths "
+            , showsPrec 11 c ""
+            , " = "
+            , show validLengths
+            ]
+    putStrLn $ unlines $
+        "cipherValidNonceLengths :: Cipher -> [ Int ]"
+        : each
+-}
+
+cipherTagLength :: Cipher -> Maybe Int
+cipherTagLength (CipherMode _) = Nothing
+cipherTagLength (AEAD aead) = Just $ aeadTagLength aead
+
+aeadTagLength :: AEAD -> Int
+aeadTagLength ChaCha20Poly1305  = 16
+aeadTagLength (GCM _ tsz)       = tsz
+aeadTagLength (OCB _ tsz)       = tsz
+aeadTagLength (EAX _ tsz)       = tsz
+aeadTagLength (SIV bc)          = 16
+aeadTagLength (CCM _ tsz l)     = tsz
+-- NOTE: Extracted / confirmed from inspecting:
+{-
+generateCipherTagLength :: IO ()
+generateCipherTagLength = do
+    each <- forM ciphers  $ \ c -> do
+        ctx <- Low.cipherInit (cipherName c) Low.Encrypt
+        tag <- Low.cipherGetTagLength ctx
+        return $ concat $
+            [ "cipherTagLength "
+            , showsPrec 11 c ""
+            , " = "
+            , show tag
+            ]
+    putStrLn $ unlines $
+        "cipherTagLength :: Cipher -> Int"
+        : each
+-}
+
+cipherUpdateGranularity :: Cipher -> Int
+cipherUpdateGranularity (CipherMode (CBC bc CTS))   = 2 * blockCipherBlockSize bc
+cipherUpdateGranularity (CipherMode (CBC bc _))     = blockCipherBlockSize bc
+cipherUpdateGranularity (CipherMode (CFB bc _))     = blockCipherBlockSize bc
+cipherUpdateGranularity (CipherMode (XTS bc))       = 2 * blockCipherBlockSize bc
+cipherUpdateGranularity (AEAD ChaCha20Poly1305)     = 1
+cipherUpdateGranularity (AEAD (GCM bc128 _))        = blockCipherBlockSize bc128 -- always 16
+cipherUpdateGranularity (AEAD (OCB bc128 _))        = blockCipherBlockSize bc128 -- always 16
+cipherUpdateGranularity (AEAD (EAX _ _))            = 1
+cipherUpdateGranularity (AEAD (SIV _))              = 1
+cipherUpdateGranularity (AEAD (CCM _ _ _))          = 1
+-- NOTE: Extracted / confirmed from inspecting:
+{-
+generateCipherUpdateGranularity :: IO ()
+generateCipherUpdateGranularity = do
+    each <- forM ciphers  $ \ c -> do
+        ctx <- Low.cipherInit (cipherName c) Low.Encrypt
+        ug <- Low.cipherGetUpdateGranularity ctx
+        return $ concat $
+            [ "cipherUpdateGranularity "
+            , showsPrec 11 c ""
+            , " = "
+            , show ug
+            ]
+    putStrLn $ unlines $
+        "cipherUpdateGranularity :: Cipher -> Int"
+        : each
+-}
+
+cipherIdealUpdateGranularity :: Cipher -> Int
+cipherIdealUpdateGranularity cipher = unsafePerformIO $ do
+    ctx <- Low.cipherInit (cipherName cipher) Low.Encrypt
+    Low.cipherGetIdealUpdateGranularity ctx
+{-# NOINLINE cipherIdealUpdateGranularity #-}
+-- NOTE: This is machine-dependent, but should stay consistent per-machine
+-- so we do this instead of inlining the values  
+
