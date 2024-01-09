@@ -11,7 +11,7 @@ module Botan.Cipher where
 -- import Botan.Low.Cipher (Low.Cipher(..), CipherName(..), CipherKey(..), CipherNonce(..))
 import qualified Botan.Low.Cipher as Low
 
-import Botan.BlockCipher ( blockCipherName, BlockCipher )
+import Botan.BlockCipher
 import Botan.Error
 import Botan.KeySpec
 import Botan.Prelude
