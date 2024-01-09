@@ -44,7 +44,7 @@ pattern BOTAN_CIPHER_MODE_CFB = "CFB"
 pattern BOTAN_CIPHER_MODE_XTS = "XTS"
 
 pattern BOTAN_CBC_PADDING_PKCS7
-    ,   BOTAN_CBC_PADDING_ONE_AND_ZEROES
+    ,   BOTAN_CBC_PADDING_ONE_AND_ZEROS
     ,   BOTAN_CBC_PADDING_X9_23
     ,   BOTAN_CBC_PADDING_ESP
     ,   BOTAN_CBC_PADDING_CTS
@@ -52,7 +52,7 @@ pattern BOTAN_CBC_PADDING_PKCS7
     ::  (Eq a, IsString a) => a
 
 pattern BOTAN_CBC_PADDING_PKCS7             = "PKCS7"
-pattern BOTAN_CBC_PADDING_ONE_AND_ZEROES    = "OneAndZeros"
+pattern BOTAN_CBC_PADDING_ONE_AND_ZEROS    = "OneAndZeros"
 pattern BOTAN_CBC_PADDING_X9_23             = "X9.23"
 pattern BOTAN_CBC_PADDING_ESP               = "ESP"
 pattern BOTAN_CBC_PADDING_CTS               = "CTS"

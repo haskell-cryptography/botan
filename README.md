@@ -71,7 +71,9 @@ This library requires Botan 3 to be installed in order to work. See [Building th
 
 ## Unix package
 
-Botan is available already in nearly all [packaging systems](https://repology.org/project/botan/versions) so you can probably install it through your distribution / system package manager.
+~~Botan is available already in nearly all [packaging systems](https://repology.org/project/botan/versions) so you can probably install it through your distribution / system package manager.~~
+
+At current, Botan **2** is readily available, but Botan **3** is not yet available as a prebuilt linux package. Please see 'Building from source'.
 
 <details><summary>Arch</summary>
 
@@ -135,6 +137,12 @@ brew install botan
 Botan can be built from source, for additional configuration options and customization.
 
 <details><summary>Build from source</summary>
+
+First, clone the Botan C++ repository:
+
+```shell
+git clone https://github.com/randombit/botan
+```
 
 Botan’s build configuration is controlled by `configure.py`, and requires Python 3.x or later.
 

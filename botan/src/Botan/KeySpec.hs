@@ -24,6 +24,11 @@ keySpec mn mx md = KeyRange mn mx md
 toKeySpec :: (Int, Int, Int) -> KeySpec
 toKeySpec (mn, mx, md) = keySpec mn mx md
 
+monoMapKeySpec :: (Int -> Int) -> KeySpec -> KeySpec
+monoMapKeySpec f (KeyRange mn mx md) = KeyRange (f mn) (f mx) (f md)
+monoMapKeySpec f (KeySizes sizes)    = KeySizes $ fmap f sizes
+monoMapKeySpec f (KeySize size)      = KeySize (f size)
+
 minKeySize :: KeySpec -> Int
 minKeySize (KeyRange mn _ _) = mn
 minKeySize (KeySizes sizes)  = foldr min maxBound sizes

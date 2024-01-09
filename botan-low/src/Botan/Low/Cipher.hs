@@ -55,19 +55,19 @@ type CipherMode = ByteString
 type CBCPaddingName = ByteString
 
 pattern PKCS7
-    ,   OnesAndZeroes
+    ,   OneAndZeros
     ,   X9_23
     ,   ESP
     ,   CTS
     ,   NoPadding
     ::  CBCPaddingName
 
-pattern PKCS7           = BOTAN_CBC_PADDING_PKCS7
-pattern OnesAndZeroes   = BOTAN_CBC_PADDING_ONE_AND_ZEROES
-pattern X9_23           = BOTAN_CBC_PADDING_X9_23
-pattern ESP             = BOTAN_CBC_PADDING_ESP
-pattern CTS             = BOTAN_CBC_PADDING_CTS
-pattern NoPadding       = BOTAN_CBC_PADDING_NO_PADDING
+pattern PKCS7       = BOTAN_CBC_PADDING_PKCS7
+pattern OneAndZeros = BOTAN_CBC_PADDING_ONE_AND_ZEROS
+pattern X9_23       = BOTAN_CBC_PADDING_X9_23
+pattern ESP         = BOTAN_CBC_PADDING_ESP
+pattern CTS         = BOTAN_CBC_PADDING_CTS
+pattern NoPadding   = BOTAN_CBC_PADDING_NO_PADDING
 
 cbcMode :: BlockCipherName -> CBCPaddingName -> CipherName 
 cbcMode bc padding = bc // BOTAN_CIPHER_MODE_CBC // padding
@@ -117,7 +117,7 @@ ccmMode' bc tagSz l = ccmMode bc /$ showBytes tagSz <> "," <> showBytes l
 
 cbcPaddings =
     [ PKCS7
-    , OnesAndZeroes
+    , OneAndZeros
     , X9_23
     , ESP
     , CTS
