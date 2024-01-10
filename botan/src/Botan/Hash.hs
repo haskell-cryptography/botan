@@ -32,6 +32,17 @@ module Botan.Hash
 , hashWithHashIO
 , hashCtxInit
 , hashWithHash
+
+--
+
+, hashes
+, checksums
+, allHashes
+, hashBlockSize
+, generateHashBlockSize
+, hashDigestSize
+, generateHashDigestSize
+
 ) where
 
 import qualified Data.ByteString as ByteString
@@ -239,3 +250,137 @@ hashCtxInit = unsafePerformIO1 hashCtxInitIO
 
 hashWithHash :: Hash -> ByteString -> Low.HashDigest
 hashWithHash = unsafePerformIO2 hashWithHashIO
+
+--
+
+-- TODO CHECK w/ 64
+variableHashLength = 64
+
+hashes =
+    [ BLAKE2b variableHashLength
+    , GOST_34_11
+    , Keccak1600 Keccak1600_224
+    , Keccak1600 Keccak1600_256
+    , Keccak1600 Keccak1600_384
+    , Keccak1600 Keccak1600_512
+    , MD4
+    , MD5
+    , RIPEMD160
+    , SHA1
+    , SHA2 SHA224
+    , SHA2 SHA256
+    , SHA2 SHA384
+    , SHA2 SHA512
+    , SHA2 SHA512_256
+    , SHA3 SHA3_224
+    , SHA3 SHA3_256
+    , SHA3 SHA3_384
+    , SHA3 SHA3_512
+    , SHAKE128 variableHashLength
+    , SHAKE256 variableHashLength
+    , SM3
+    , Skein512 variableHashLength ""
+    , Streebog256
+    , Streebog512
+    , Whirlpool
+    ]
+
+checksums =
+    [ Adler32
+    , CRC24
+    , CRC32
+    ]
+
+allHashes = hashes ++ checksums
+
+-- NOTE: SIZE IN BITS
+hashBlockSize :: Hash -> Int
+hashBlockSize (BLAKE2b _) = 128
+hashBlockSize GOST_34_11 = 32
+hashBlockSize (Keccak1600 Keccak1600_224) = 144
+hashBlockSize (Keccak1600 Keccak1600_256) = 136
+hashBlockSize (Keccak1600 Keccak1600_384) = 104
+hashBlockSize (Keccak1600 Keccak1600_512) = 72
+hashBlockSize MD4 = 64
+hashBlockSize MD5 = 64
+hashBlockSize RIPEMD160 = 64
+hashBlockSize SHA1 = 64
+hashBlockSize (SHA2 SHA224) = 64
+hashBlockSize (SHA2 SHA256) = 64
+hashBlockSize (SHA2 SHA384) = 128
+hashBlockSize (SHA2 SHA512) = 128
+hashBlockSize (SHA2 SHA512_256) = 128
+hashBlockSize (SHA3 SHA3_224) = 144
+hashBlockSize (SHA3 SHA3_256) = 136
+hashBlockSize (SHA3 SHA3_384) = 104
+hashBlockSize (SHA3 SHA3_512) = 72
+hashBlockSize (SHAKE128 _) = 168
+hashBlockSize (SHAKE256 _) = 136
+hashBlockSize SM3 = 64
+hashBlockSize (Skein512 _ "") = 64
+hashBlockSize Streebog256 = 64
+hashBlockSize Streebog512 = 64
+hashBlockSize Whirlpool = 64
+-- NOTE: Extracted / confirmed from inspecting:
+{-
+generateHashBlockSize :: IO ()
+generateHashBlockSize = do
+    each <- forM hashes  $ \ h -> do
+        ctx <- Low.hashInit (hashName h)
+        bsz <- Low.hashBlockSize ctx
+        return $ concat $
+            [ "hashBlockSize "
+            , showsPrec 11 h ""
+            , " = "
+            , show bsz
+            ]
+    putStrLn $ unlines $
+        "hashBlockSize :: Hash -> Int"
+        : each
+-}
+
+-- NOTE: SIZE IN BYTES
+hashDigestSize :: Hash -> Int
+hashDigestSize (BLAKE2b n) = div n 8
+hashDigestSize GOST_34_11 = 32
+hashDigestSize (Keccak1600 Keccak1600_224) = 28
+hashDigestSize (Keccak1600 Keccak1600_256) = 32
+hashDigestSize (Keccak1600 Keccak1600_384) = 48
+hashDigestSize (Keccak1600 Keccak1600_512) = 64
+hashDigestSize MD4 = 16
+hashDigestSize MD5 = 16
+hashDigestSize RIPEMD160 = 20
+hashDigestSize SHA1 = 20
+hashDigestSize (SHA2 SHA224) = 28
+hashDigestSize (SHA2 SHA256) = 32
+hashDigestSize (SHA2 SHA384) = 48
+hashDigestSize (SHA2 SHA512) = 64
+hashDigestSize (SHA2 SHA512_256) = 32
+hashDigestSize (SHA3 SHA3_224) = 28
+hashDigestSize (SHA3 SHA3_256) = 32
+hashDigestSize (SHA3 SHA3_384) = 48
+hashDigestSize (SHA3 SHA3_512) = 64
+hashDigestSize (SHAKE128 n) = div n 8
+hashDigestSize (SHAKE256 n) = div n 8
+hashDigestSize SM3 = 32
+hashDigestSize (Skein512 n "") = div n 8
+hashDigestSize Streebog256 = 32
+hashDigestSize Streebog512 = 64
+hashDigestSize Whirlpool = 64
+-- NOTE: Extracted / confirmed from inspecting:
+{-
+generateHashDigestSize :: IO ()
+generateHashDigestSize = do
+    each <- forM hashes  $ \ h -> do
+        ctx <- Low.hashInit (hashName h)
+        dsz <- Low.hashOutputLength ctx
+        return $ concat $
+            [ "hashDigestSize "
+            , showsPrec 11 h ""
+            , " = "
+            , show dsz
+            ]
+    putStrLn $ unlines $
+        "hashDigestSize :: Hash -> Int"
+        : each
+-}
