@@ -39,9 +39,7 @@ module Botan.Hash
 , checksums
 , allHashes
 , hashBlockSize
-, generateHashBlockSize
 , hashDigestSize
-, generateHashDigestSize
 
 ) where
 
@@ -253,8 +251,9 @@ hashWithHash = unsafePerformIO2 hashWithHashIO
 
 --
 
--- TODO CHECK w/ 64
-variableHashLength = 64
+-- TODO: CHECK w/ 64
+-- NOTE: MAC max key sizes imply that the max digest should be 4096
+variableHashLength = 128
 
 hashes =
     [ BLAKE2b variableHashLength
