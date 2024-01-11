@@ -15,54 +15,80 @@ This API exists as an escape hatch for applications which need to implement cust
 module Botan.BlockCipher -- where
 (
 
--- * BlockCipher
+-- * Block ciphers
 -- $introduction
 
 -- * Usage
 -- $usage
 
--- * Block ciphers
+-- * Idiomatic interface
 
-
+-- ** Data type
   BlockCipher(..)
--- , newBlockCipher
-, blockCipherName
-, blockCipherBlockSize
--- , blockCipherValidKeyLength
--- , blockCipherValidateKeyLength
-
 , BlockCipher128(..)
--- , newBlockCipher128
+
+-- TODO: BlockCipher128-specific variants of functions
+, BlockCipher128Key(..)
 , blockCipher128Name
 
--- * Keys
+-- ** Enumerations
+
+, allBlockCiphers
+, blockCipher128s
+, blockCiphers
+
+-- ** Associated types
 , BlockCipherKeySpec(..)
-, blockCipherKeySpec
--- , blockCipherKeySpecValidLength
--- , blockCipherKeySpecValidateLength
 , BlockCipherKey(..)
 , newBlockCipherKey
 , newBlockCipherKeyMaybe
-, BlockCipher128Key(..)
--- , newBlockCipher128Key
+, BlockCipherText(..)
 
--- * Easy API
+-- ** Accessors
 
+, blockCipherName
+, blockCipherBlockSize
+, blockCipherKeySpec
+
+-- ** Idiomatic algorithm
 , encryptBlocks
-, encryptBlocksGeneratingKey
 , decryptBlocks
 
-, blockCipher128s
-, blockCiphers
-, allBlockCiphers
+-- * Mutable interface
 
--- * Mutable API
+-- ** Tagged mutable context
+, MutableBlockCipher(..)
+
+-- ** Destructor
+, destroyBlockCipher
+
+-- ** Initializers
+, newBlockCipher
+-- , newBlockCipher128
+
+-- ** Accessors
+, getBlockCipherName
+, getBlockCipherBlockSize
+, getBlockCipherKeySpec
+, setBlockCipherKey
+
+-- ** Accessory functions
+, clearBlockCipher
+
+-- ** Mutable algorithm
+, encryptBlockCipherBlocks
+, decryptBlockCipherBlocks
+, autoEncryptBlockCipherBlocks
+-- , autoEncryptBlockCipherBlocksGeneratingkey
+, autoDecryptBlockCipherBlocks
 
 ) where
 
 import qualified Botan.Low.BlockCipher as Low
 
 import Botan.Prelude
+
+import qualified Data.ByteString as ByteString
 
 import Data.Maybe
 
@@ -80,35 +106,11 @@ import Botan.RNG
 
 -}
 
-blockCipher128s =
-    [ BlockCipher128 $ AES_128
-    , BlockCipher128 $ AES_192
-    , BlockCipher128 $ AES_256
-    , BlockCipher128 $ ARIA_128
-    , BlockCipher128 $ ARIA_192
-    , BlockCipher128 $ ARIA_256
-    , BlockCipher128 $ Camellia_128
-    , BlockCipher128 $ Camellia_192
-    , BlockCipher128 $ Camellia_256
-    , BlockCipher128 $ Noekeon
-    , BlockCipher128 $ SEED
-    , BlockCipher128 $ Serpent
-    , BlockCipher128 $ SM4
-    , BlockCipher128 $ Twofish
-    ]
+--
+-- Idiomatic interface
+--
 
-blockCiphers =
-    [ Blowfish
-    , CAST_128
-    , DES
-    , TripleDES
-    , GOST_28147_89
-    , IDEA
-    , SHACAL2
-    , Threefish_512
-    ]
-
-allBlockCiphers = blockCipher128s ++ blockCiphers
+-- Data type
 
 data BlockCipher
     = BlockCipher128 BlockCipher128
@@ -123,20 +125,6 @@ data BlockCipher
     | SHACAL2
     | Threefish_512
     deriving (Show, Eq)
-
-blockCipherName :: BlockCipher -> Low.BlockCipherName
-blockCipherName spec = case spec of
-    BlockCipher128 bc128    -> blockCipher128Name bc128
-    Blowfish                -> Low.Blowfish
-    -- Cascade bca bcb -> "Cascade(" <> blockCipherName bca <> "," <> blockCipherName bcb <> ")"
-    CAST_128                -> Low.CAST_128
-    DES                     -> Low.DES
-    TripleDES               -> Low.TripleDES
-    GOST_28147_89           -> Low.GOST_28147_89
-    -- Lion h sc sz    -> "Lion(" <> hashSpecName h <> "," <> streamCipherName sc <> "," <> showBytes sz <> ")"
-    IDEA                    -> Low.IDEA
-    SHACAL2                 -> Low.SHACAL2
-    Threefish_512           -> Low.Threefish_512
 
 data BlockCipher128
     = AES_128
@@ -155,9 +143,79 @@ data BlockCipher128
     | Twofish
     deriving (Show, Eq)
 
-type BlockCipher128Name = ByteString
+-- Enumerations
 
-blockCipher128Name :: BlockCipher128 -> BlockCipher128Name
+
+allBlockCiphers :: [ BlockCipher ]
+allBlockCiphers = fmap BlockCipher128 blockCipher128s ++ blockCiphers
+
+blockCipher128s :: [ BlockCipher128 ]
+blockCipher128s =
+    [ AES_128
+    , AES_192
+    , AES_256
+    , ARIA_128
+    , ARIA_192
+    , ARIA_256
+    , Camellia_128
+    , Camellia_192
+    , Camellia_256
+    , Noekeon
+    , SEED
+    , Serpent
+    , SM4
+    , Twofish
+    ]
+
+blockCiphers :: [ BlockCipher ]
+blockCiphers =
+    [ Blowfish
+    , CAST_128
+    , DES
+    , TripleDES
+    , GOST_28147_89
+    , IDEA
+    , SHACAL2
+    , Threefish_512
+    ]
+
+-- Associated types
+
+type BlockCipherKeySpec = KeySpec
+
+type BlockCipherKey = ByteString
+type BlockCipher128Key = BlockCipherKey
+
+newBlockCipherKey :: (MonadRandomIO m) => BlockCipher -> m BlockCipherKey
+newBlockCipherKey = newKey . blockCipherKeySpec
+
+newBlockCipherKeyMaybe :: (MonadRandomIO m) => Int -> BlockCipher -> m (Maybe BlockCipherKey)
+newBlockCipherKeyMaybe sz bc = newKeyMaybe sz (blockCipherKeySpec bc) 
+
+type BlockCipherText = ByteString
+-- TODO:
+-- data BlockCipherText = MkBlockCipherText
+--     { blockCipherTextType :: BlockCipher
+--     , blockCipherTextText :: ByteString
+--     }
+
+-- Accessors
+
+blockCipherName :: BlockCipher -> Low.BlockCipherName
+blockCipherName spec = case spec of
+    BlockCipher128 bc128    -> blockCipher128Name bc128
+    Blowfish                -> Low.Blowfish
+    -- Cascade bca bcb -> "Cascade(" <> blockCipherName bca <> "," <> blockCipherName bcb <> ")"
+    CAST_128                -> Low.CAST_128
+    DES                     -> Low.DES
+    TripleDES               -> Low.TripleDES
+    GOST_28147_89           -> Low.GOST_28147_89
+    -- Lion h sc sz    -> "Lion(" <> hashSpecName h <> "," <> streamCipherName sc <> "," <> showBytes sz <> ")"
+    IDEA                    -> Low.IDEA
+    SHACAL2                 -> Low.SHACAL2
+    Threefish_512           -> Low.Threefish_512
+
+blockCipher128Name :: BlockCipher128 -> Low.BlockCipherName
 blockCipher128Name spec = case spec of
     AES_128         -> Low.AES_128
     AES_192         -> Low.AES_192
@@ -174,31 +232,47 @@ blockCipher128Name spec = case spec of
     SM4             -> Low.SM4
     Twofish         -> Low.Twofish
 
--- Keys
+blockCipherBlockSize :: BlockCipher -> Int
+blockCipherBlockSize (BlockCipher128 AES_128)       = 16
+blockCipherBlockSize (BlockCipher128 AES_192)       = 16
+blockCipherBlockSize (BlockCipher128 AES_256)       = 16
+blockCipherBlockSize (BlockCipher128 ARIA_128)      = 16
+blockCipherBlockSize (BlockCipher128 ARIA_192)      = 16
+blockCipherBlockSize (BlockCipher128 ARIA_256)      = 16
+blockCipherBlockSize (BlockCipher128 Camellia_128)  = 16
+blockCipherBlockSize (BlockCipher128 Camellia_192)  = 16
+blockCipherBlockSize (BlockCipher128 Camellia_256)  = 16
+blockCipherBlockSize (BlockCipher128 Noekeon)       = 16
+blockCipherBlockSize (BlockCipher128 SEED)          = 16
+blockCipherBlockSize (BlockCipher128 Serpent)       = 16
+blockCipherBlockSize (BlockCipher128 SM4)           = 16
+blockCipherBlockSize (BlockCipher128 Twofish)       = 16
+blockCipherBlockSize Blowfish                       = 8
+blockCipherBlockSize CAST_128                       = 8
+blockCipherBlockSize DES                            = 8
+blockCipherBlockSize TripleDES                      = 8
+blockCipherBlockSize GOST_28147_89                  = 8
+blockCipherBlockSize IDEA                           = 8
+blockCipherBlockSize SHACAL2                        = 32
+blockCipherBlockSize Threefish_512                  = 64
+-- NOTE: Statically generatated:
+{-
+generateBlockCipherBlockSizes :: IO ()
+generateBlockCipherBlockSizes = do
+    each <- forM blockCiphers  $ \ bc -> do
+        mbc <- Low.blockCipherInit (blockCipherName bc)
+        bsz <- Low.blockCipherBlockSize mbc
+        return $ concat $
+            [ "blockCipherBlockSize "
+            , showsPrec 11 bc ""
+            , " = "
+            , show bsz
+            ]
+    putStrLn $ unlines $
+        "blockCipherBlockSize :: BlockCipher -> Int"
+        : each
+-}
 
-type BlockCipherKeySpec = KeySpec
-
--- TODO: Generalize keyspec?
--- data BlockCipherKeySpec
---     = BlockCipherKeySpec
---     { blockCipherKeyMinimum :: Int
---     , blockCipherKeyMaximum :: Int
---     , blockCipherKeyModulo  :: Int
---     }
-
--- blockCipherKeySpecValidLength :: BlockCipherKeySpec -> Int
--- blockCipherKeySpecValidLength (BlockCipherKeySpec mn mx md) = mx
-
--- blockCipherKeySpecValidateLength :: Int -> BlockCipherKeySpec -> Bool 
--- blockCipherKeySpecValidateLength len (BlockCipherKeySpec mn mx md) = mn <= len && len <= mx && mod len md == 0
-
--- blockCipherValidKeyLength :: BlockCipher -> Int
--- blockCipherValidKeyLength bc = blockCipherKeySpecValidLength (blockCipherKeySpec bc)
-
--- blockCipherValidateKeyLength :: Int -> BlockCipher -> Bool
--- blockCipherValidateKeyLength len bc = blockCipherKeySpecValidateLength len (blockCipherKeySpec bc)
-
--- NOTE: May be obviated by key-len == blockSize
 blockCipherKeySpec :: BlockCipher -> BlockCipherKeySpec
 blockCipherKeySpec (BlockCipher128 AES_128)        = keySpec 16 16 1
 blockCipherKeySpec (BlockCipher128 AES_192)        = keySpec 24 24 1
@@ -245,134 +319,144 @@ generateBlockCipherKeySpecs = do
 -}
 -- TODO: generateStatic fnName fnType init get print...
 
-blockCipherBlockSize :: BlockCipher -> Int
-blockCipherBlockSize (BlockCipher128 AES_128)       = 16
-blockCipherBlockSize (BlockCipher128 AES_192)       = 16
-blockCipherBlockSize (BlockCipher128 AES_256)       = 16
-blockCipherBlockSize (BlockCipher128 ARIA_128)      = 16
-blockCipherBlockSize (BlockCipher128 ARIA_192)      = 16
-blockCipherBlockSize (BlockCipher128 ARIA_256)      = 16
-blockCipherBlockSize (BlockCipher128 Camellia_128)  = 16
-blockCipherBlockSize (BlockCipher128 Camellia_192)  = 16
-blockCipherBlockSize (BlockCipher128 Camellia_256)  = 16
-blockCipherBlockSize (BlockCipher128 Noekeon)       = 16
-blockCipherBlockSize (BlockCipher128 SEED)          = 16
-blockCipherBlockSize (BlockCipher128 Serpent)       = 16
-blockCipherBlockSize (BlockCipher128 SM4)           = 16
-blockCipherBlockSize (BlockCipher128 Twofish)       = 16
-blockCipherBlockSize Blowfish                       = 8
-blockCipherBlockSize CAST_128                       = 8
-blockCipherBlockSize DES                            = 8
-blockCipherBlockSize TripleDES                      = 8
-blockCipherBlockSize GOST_28147_89                  = 8
-blockCipherBlockSize IDEA                           = 8
-blockCipherBlockSize SHACAL2                        = 32
-blockCipherBlockSize Threefish_512                  = 64
--- NOTE: Statically generatated:
-{-
-generateBlockCipherBlockSizes :: IO ()
-generateBlockCipherBlockSizes = do
-    each <- forM blockCiphers  $ \ bc -> do
-        mbc <- Low.blockCipherInit (blockCipherName bc)
-        bsz <- Low.blockCipherBlockSize mbc
-        return $ concat $
-            [ "blockCipherBlockSize "
-            , showsPrec 11 bc ""
-            , " = "
-            , show bsz
-            ]
-    putStrLn $ unlines $
-        "blockCipherBlockSize :: BlockCipher -> Int"
-        : each
--}
-
-
-type BlockCipherKey = ByteString
-
-newBlockCipherKey :: (MonadRandomIO m) => BlockCipher -> m BlockCipherKey
--- newBlockCipherKey bc = fromJust <$> newBlockCipherKeyLen (blockCipherKeyMaximum (blockCipherKeySpec bc)) bc
-newBlockCipherKey = newKey . blockCipherKeySpec
-
--- newBlockCipherKeyLen :: (MonadRandomIO m) => Int -> BlockCipher -> m (Maybe BlockCipherKey)
--- newBlockCipherKeyLen len bc = if blockCipherValidateKeyLength len bc
---     then Just <$> getRandomBytes len
---     else return Nothing
-
-newBlockCipherKeyMaybe :: (MonadRandomIO m) => Int -> BlockCipher -> m (Maybe BlockCipherKey)
-newBlockCipherKeyMaybe sz bc = newKeyMaybe sz (blockCipherKeySpec bc) 
-
-type BlockCipher128Key = BlockCipherKey
-
--- Easy API
+-- Idiomatic algorithm
 
 encryptBlocks
     :: BlockCipher
     -> BlockCipherKey
     -> ByteString
-    -> Maybe ByteString 
-encryptBlocks = undefined
+    -> Maybe BlockCipherText
+encryptBlocks bc k pt = unsafePerformIO $ do
+    mc <- newBlockCipher bc
+    autoEncryptBlockCipherBlocks mc k pt
 
-encryptBlocksGeneratingKey
-    :: (MonadRandomIO m)
-    => BlockCipher
-    -> ByteString
-    -> m (Maybe (ByteString, BlockCipherKey))
-encryptBlocksGeneratingKey = undefined
+-- TODO:
+-- encryptBlocksGeneratingKey
+--     :: (MonadRandomIO m)
+--     => BlockCipher
+--     -> ByteString
+--     -> m (Maybe (ByteString, BlockCipherKey))
+-- encryptBlocksGeneratingKey = undefined
 
 decryptBlocks
     :: BlockCipher
     -> BlockCipherKey
-    -> ByteString
-    -> Maybe ByteString 
-decryptBlocks = undefined
+    -> BlockCipherText
+    -> Maybe ByteString
+decryptBlocks bc k ct = unsafePerformIO $ do
+    mc <- newBlockCipher bc
+    autoDecryptBlockCipherBlocks mc k ct
 
--- ORIGINAL
+--
+-- Mutable interface
+--
 
-blockCipherCtxInit :: BlockCipher -> Low.BlockCipher
-blockCipherCtxInit = blockCipherCtxInitName . blockCipherName
+-- Tagged mutable context
 
-blockCipherCtxInitName :: Low.BlockCipherName -> Low.BlockCipher
-blockCipherCtxInitName = unsafePerformIO1 Low.blockCipherInit
+data MutableBlockCipher = MkMutableBlockCipher
+    { mutableBlockCipherType    :: BlockCipher
+    , mutableBlockCipherCtx     :: Low.BlockCipher
+    }
 
--- TODO:
--- blockCipherCtxBlockCipher
---     :: Low.BlockCipher  -- ^ The cipher object
---     -> BlockCipher
--- blockCipherCtxName = undefined
+-- Destructor
 
-blockCipherCtxName
-    :: Low.BlockCipher  -- ^ The cipher object
-    -> Low.BlockCipherName
-blockCipherCtxName = unsafePerformIO1 Low.blockCipherName
+destroyBlockCipher :: (MonadIO m) => MutableBlockCipher -> m ()
+destroyBlockCipher = liftIO . Low.blockCipherDestroy . mutableBlockCipherCtx
 
-blockCipherCtxBlockSize
-    :: Low.BlockCipher  -- ^ The cipher object
-    -> Int
-blockCipherCtxBlockSize = unsafePerformIO1 Low.blockCipherBlockSize
+-- Initializers
 
-blockCipherCtxGetKeyspec
-    :: Low.BlockCipher  -- ^ The cipher object
-    -> BlockCipherKeySpec
-blockCipherCtxGetKeyspec ctx = unsafePerformIO $ do
-    (mn,mx,md) <- Low.blockCipherGetKeyspec ctx
+newBlockCipher :: (MonadIO m) => BlockCipher -> m MutableBlockCipher
+newBlockCipher c = do
+    ctx <- liftIO $ Low.blockCipherInit $ blockCipherName c
+    return $ MkMutableBlockCipher c ctx
+
+-- newBlockCipher128 = undefined
+
+-- Accessors
+
+-- NOTE: Because of synonyms, `blockCipherName (mutableBlockCipherType mc) == getBlockCipherName` may not be `True`.
+getBlockCipherName
+    :: (MonadIO m)
+    => MutableBlockCipher   -- ^ The cipher object
+    -> m (Low.BlockCipherName)  -- ^ The cipher name
+getBlockCipherName = liftIO . Low.blockCipherName . mutableBlockCipherCtx
+
+getBlockCipherBlockSize
+    :: (MonadIO m)
+    => MutableBlockCipher  -- ^ The cipher object
+    -> m Int
+getBlockCipherBlockSize = liftIO . Low.blockCipherBlockSize . mutableBlockCipherCtx
+
+getBlockCipherKeySpec
+    :: (MonadIO m)
+    => MutableBlockCipher  -- ^ The cipher object
+    -> m BlockCipherKeySpec
+getBlockCipherKeySpec mc = do
+    (mn,mx,md) <- liftIO $ Low.blockCipherGetKeyspec (mutableBlockCipherCtx mc)
     return $ keySpec mn mx md
 
-blockCipherCtxEncrypt :: Low.BlockCipher -> BlockCipherKey -> Plaintext -> Ciphertext
-blockCipherCtxEncrypt ctx key pt = unsafePerformIO $ do
-    Low.blockCipherSetKey ctx key
-    ct <- Low.blockCipherEncryptBlocks ctx pt
-    Low.blockCipherClear ctx
-    return ct
+-- WARNING: Does not
+setBlockCipherKey
+    :: (MonadIO m)
+    => BlockCipherKey
+    -> MutableBlockCipher
+    -> m Bool
+setBlockCipherKey k mc = do
+    valid <- keySizeIsValid (ByteString.length k) <$> getBlockCipherKeySpec mc
+    if valid
+    then do
+        liftIO $ Low.blockCipherSetKey (mutableBlockCipherCtx mc) k
+        return True
+    else return False
 
-blockCipherCtxDecrypt :: Low.BlockCipher -> BlockCipherKey -> Ciphertext -> Plaintext
-blockCipherCtxDecrypt ctx key ct = unsafePerformIO $ do
-    Low.blockCipherSetKey ctx key
-    pt <- Low.blockCipherDecryptBlocks ctx ct
-    Low.blockCipherClear ctx
-    return pt
+-- Accessory functions
 
-blockCipherEncrypt :: BlockCipher -> BlockCipherKey -> Plaintext -> Ciphertext
-blockCipherEncrypt = blockCipherCtxEncrypt . blockCipherCtxInit
+clearBlockCipher :: (MonadIO m) => MutableBlockCipher -> m ()
+clearBlockCipher = liftIO . Low.blockCipherClear . mutableBlockCipherCtx
 
-blockCipherDecrypt :: BlockCipher -> BlockCipherKey -> Ciphertext -> Plaintext
-blockCipherDecrypt = blockCipherCtxDecrypt . blockCipherCtxInit
+-- Mutable algorithm
+
+encryptBlockCipherBlocks
+    :: (MonadIO m)
+    => MutableBlockCipher
+    -> ByteString
+    -> m BlockCipherText
+encryptBlockCipherBlocks mc pt = liftIO $ Low.blockCipherEncryptBlocks (mutableBlockCipherCtx mc) pt
+
+-- NOTE: Not maybe because it should never fail in a proper context (ie, having set the key successfully)
+decryptBlockCipherBlocks
+    :: (MonadIO m)
+    => MutableBlockCipher
+    -> BlockCipherText
+    -> m ByteString
+decryptBlockCipherBlocks mc ct = liftIO $ Low.blockCipherDecryptBlocks (mutableBlockCipherCtx mc) ct
+
+autoEncryptBlockCipherBlocks
+    :: (MonadIO m)
+    => MutableBlockCipher
+    -> BlockCipherKey
+    -> ByteString
+    -> m (Maybe BlockCipherText)
+autoEncryptBlockCipherBlocks mc k pt = do
+    wasSet <- setBlockCipherKey k mc
+    if wasSet
+    then do
+        bct <- encryptBlockCipherBlocks mc pt
+        clearBlockCipher mc
+        return $ Just bct
+    else return Nothing
+
+autoDecryptBlockCipherBlocks
+    :: (MonadIO m)
+    => MutableBlockCipher
+    -> BlockCipherKey
+    -> BlockCipherText
+    -> m (Maybe ByteString)
+autoDecryptBlockCipherBlocks mc k ct = do
+    wasSet <- setBlockCipherKey k mc
+    if wasSet
+    then do
+        pt <- decryptBlockCipherBlocks mc ct
+        clearBlockCipher mc
+        return $ Just pt
+    else return Nothing

@@ -134,7 +134,7 @@ aeads = concat
     [ [ chaCha20Poly1305 ]
     , [ gcmMode bc | bc <- blockCipher128s ]
     , [ ocbMode bc | bc <- blockCipher128s ]
-    , [ eaxMode bc | bc <- blockCiphers ]
+    , [ eaxMode bc | bc <- blockCiphers ] -- WARNING: Why just blockCiphers, why not allBlockCiphers?
     , [ sivMode bc | bc <- blockCipher128s ]
     , [ ccmMode bc | bc <- blockCipher128s ]
     ]

@@ -61,6 +61,9 @@ module Botan.Low.Error
 , throwBotanCatchingBool
 , throwBotanCatchingInt
 , throwBotanErrorWithCallstack
+, tryBotan
+, catchBotan
+, handleBotan
 ) where
 
 import Data.Typeable
@@ -388,3 +391,12 @@ throwBotanErrorWithCallstack e cs =  case e of
 --   then pure r0
 --   else do
 --     r1 <- botan_bar
+
+tryBotan :: IO a -> IO (Either SomeBotanException a)
+tryBotan = try
+
+catchBotan :: IO a -> (SomeBotanException -> IO a) -> IO a
+catchBotan = catch
+
+handleBotan :: (SomeBotanException -> IO a) -> IO a -> IO a
+handleBotan = flip catch

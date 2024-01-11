@@ -56,11 +56,11 @@ cipherModes = concat
 
 aeads = concat
     [ [ AEAD $ ChaCha20Poly1305 ]
-    , [ AEAD $ (GCM bc 16)                        | bc <- blockCipher128s ]
-    , [ AEAD $ (OCB bc 16)                        | bc <- blockCipher128s ]
-    , [ AEAD $ (EAX bc (blockCipherBlockSize bc)) | bc <- blockCiphers ]
-    , [ AEAD $ (SIV bc)                           | bc <- blockCipher128s ]
-    , [ AEAD $ (CCM bc 16 3)                      | bc <- blockCipher128s ]
+    , [ AEAD $ (GCM bc 16)                        | bc <- fmap BlockCipher128 blockCipher128s ]
+    , [ AEAD $ (OCB bc 16)                        | bc <- fmap BlockCipher128 blockCipher128s ]
+    , [ AEAD $ (EAX bc (blockCipherBlockSize bc)) | bc <- blockCiphers ] -- WARNING: Why just blockCiphers, why not allBlockCiphers? INHERITED - see Botan.Low.Cipher.aeads
+    , [ AEAD $ (SIV bc)                           | bc <- fmap BlockCipher128 blockCipher128s ]
+    , [ AEAD $ (CCM bc 16 3)                      | bc <- fmap BlockCipher128 blockCipher128s ]
     ]
 
 ciphers = cipherModes ++ aeads

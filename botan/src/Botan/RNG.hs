@@ -275,6 +275,10 @@ addEntropyRNG entropy gen = liftIO $ Low.rngAddEntropy gen entropy
 
 -- newtype Random a = Random { unRandom :: RNG -> (# RNG, a #) }
 
+-- NOTE: MonadRandom and RandomT might be ill-advised terminology.
+-- What about MonadSample and SampleT for values that sample random distributions
+-- that may or may not be uniform
+
 -- | A typeclass for any monad that has access to a hidden `RNG` context
 class MonadIO m => MonadRandomIO m where
 
