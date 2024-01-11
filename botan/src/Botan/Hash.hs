@@ -1,18 +1,55 @@
+{-|
+Module      : Botan.Hash
+Description : Hash Functions and Checksums
+Copyright   : (c) Leo D, 2023
+License     : BSD-3-Clause
+Maintainer  : leo@apotheca.io
+Stability   : experimental
+Portability : POSIX
+
+Hash functions are one-way functions, which map data of arbitrary size
+to a fixed output length. Most of the hash functions in Botan are designed
+to be cryptographically secure, which means that it is computationally
+infeasible to create a collision (finding two inputs with the same hash)
+or preimages (given a hash output, generating an arbitrary input with the
+same hash). But note that not all such hash functions meet their goals,
+in particular MD4 and MD5 are trivially broken. However they are still
+included due to their wide adoption in various protocols.
+
+Using a hash function is typically split into three stages: initialization,
+update, and finalization (often referred to as a IUF interface). The
+initialization stage is implicit: after creating a hash function object,
+it is ready to process data. Then update is called one or more times.
+Calling update several times is equivalent to calling it once with all of
+the arguments concatenated. After completing a hash computation (eg using
+hashFinal), the internal state is reset to begin hashing a new message.
+-}
+
 module Botan.Hash
-( MutableHash(..)
-, Low.HashName(..)
-, Low.HashDigest(..)
-, hashCtxInitName
-, hashCtxUpdate
-, hashCtxUpdates
-, hashCtxFinalize
-, hashCtxName
-, hashCtxBlockSize
-, hashCtxDigestSize
-, hashWithName
-, hashWithHashCtx
--- , hash
--- , hashLazy
+(
+
+-- * Hashes
+-- $introduction
+
+-- * Usage
+-- $usage
+
+-- * Idiomatic interface
+
+-- ** Data type
+  Hash(..)
+, Cryptohash(..)
+, Checksum(..)
+
+-- ** Enumerations
+
+, allHashes
+, cryptohashes
+-- , hashStrategies
+, checksums
+
+-- ** Associated types
+, HashDigest(..)
 , BLAKE2bSize(..)
 -- , Keccak1600Size(..)
 -- , SHA3Size(..)
@@ -26,20 +63,51 @@ module Botan.Hash
 , SHAKE256Size(..)
 , Skein512Size(..)
 , Skein512Salt(..)
-, Hash(..)
+
+-- ** Accessors
+
 , hashName
-, hashCtxInitIO
-, hashWithHashIO
-, hashCtxInit
-, hashWithHash
-
---
-
-, hashes
-, checksums
-, allHashes
 , hashBlockSize
 , hashDigestSize
+
+, cryptohashName
+, cryptohashBlockSize
+, cryptohashDigestSize
+
+-- ** Idiomatic algorithm
+, hash
+-- , hashLazy
+
+-- * Mutable interface
+
+-- ** Tagged mutable context
+, MutableHash(..)
+
+-- ** Destructor
+, destroyHash
+
+-- ** Initializers
+, newHash
+
+-- ** Accessors
+, getHashName
+, getHashBlockSize
+, getHashDigestSize
+
+-- ** Accessory functions
+, copyHashState
+, clearHash
+
+-- ** Mutable algorithm
+, updateHash
+, updateHashChunks
+, finalizeHash
+, updateFinalizeHash
+, updateFinalizeClearHash
+
+-- TODO: Distinguish between nonCopying and autoCopying variants
+
+--
 
 ) where
 
@@ -53,118 +121,39 @@ import Botan.Error ()
 import Botan.Prelude
 import Botan.Utility
 
--- NOTE: In comparison to botan-low functions which explicitly mutate context state,
---  these functions attempt to be referentially transparent by copying state.
+{- $introduction
 
-type MutableHash = Low.Hash
+-}
 
--- cryptonite-like interface
+{- $usage
 
-hashCtxInitName :: Low.HashName -> Low.Hash
-hashCtxInitName = unsafePerformIO1 Low.hashInit
+-}
 
-hashCtxUpdate :: Low.Hash -> ByteString -> Low.Hash
-hashCtxUpdate ctx bytes = hashCtxUpdates ctx [bytes]
+--
+-- Idiomatic interface
+--
 
-hashCtxUpdates :: Low.Hash -> [ByteString] -> Low.Hash
-hashCtxUpdates ctx chunks = unsafePerformIO $ do
-    ctx' <- Low.hashCopyState ctx
-    traverse_ (Low.hashUpdate ctx') chunks
-    return ctx'
+-- Data type
 
--- NOTE hashFinalize vs hashFinal
-hashCtxFinalize :: Low.Hash -> Low.HashDigest
-hashCtxFinalize ctx = unsafePerformIO $ do
-    ctx' <- Low.hashCopyState ctx -- Determine whether this is necessary. Does finalize ever mutate the context?
-    Low.hashFinal ctx'
-
-hashCtxName :: Low.Hash -> ByteString
-hashCtxName = unsafePerformIO1 Low.hashName
-
-hashCtxBlockSize :: Low.Hash -> Int
-hashCtxBlockSize = unsafePerformIO1 Low.hashBlockSize
-
--- NOTE: hashDigestSize vs hashOutputLength
-hashCtxDigestSize :: Low.Hash -> Int
-hashCtxDigestSize = unsafePerformIO1 Low.hashOutputLength
-
--- Convenience
-
-hashWithHashCtx :: Low.Hash -> ByteString -> Low.HashDigest
-hashWithHashCtx = unsafePerformIO2 Low.hashWithHash
-
-hashWithName :: Low.HashName -> ByteString -> Low.HashDigest
-hashWithName = unsafePerformIO2 Low.hashWithName
-
--- Hash spec
-
-type BLAKE2bSize = Int      -- 1-64 bytes, eg: 8-512 in multiples of 8
--- data BLAKE2bSpec = BLAKE2b BLAKE2bSize
-
--- type Keccak1600Size = Int
-data Keccak1600
-    = Keccak1600_224
-    | Keccak1600_256
-    | Keccak1600_384
-    | Keccak1600_512
-    deriving (Show, Eq)
-
-keccak1600Name :: Keccak1600 -> Low.HashName
-keccak1600Name Keccak1600_224 = Low.keccak_1600' 224 -- "Keccak-1600(224)"
-keccak1600Name Keccak1600_256 = Low.keccak_1600' 256 -- "Keccak-1600(256)"
-keccak1600Name Keccak1600_384 = Low.keccak_1600' 384 -- "Keccak-1600(384)"
-keccak1600Name Keccak1600_512 = Low.keccak_1600' 512 -- "Keccak-1600(512)"
-
-data SHA2
-    = SHA224
-    | SHA256
-    | SHA384
-    | SHA512
-    | SHA512_256
-    deriving (Show, Eq)
-
-sha2Name :: SHA2 -> Low.HashName
-sha2Name SHA224     = Low.SHA_224       -- "SHA-224"
-sha2Name SHA256     = Low.SHA_256       -- "SHA-256"
-sha2Name SHA512     = Low.SHA_512       -- "SHA-512"
-sha2Name SHA384     = Low.SHA_384       -- "SHA-384"
-sha2Name SHA512_256 = Low.SHA_512_256   -- "SHA-512-256"
-
--- type SHA3Size = Int
-data SHA3
-    = SHA3_224
-    | SHA3_256
-    | SHA3_384
-    | SHA3_512
-    deriving (Show, Eq)
-
-sha3Name :: SHA3 -> Low.HashName
-sha3Name SHA3_224 = Low.sha_3' 224 -- "SHA-3(224)"
-sha3Name SHA3_256 = Low.sha_3' 256 -- "SHA-3(256)"
-sha3Name SHA3_384 = Low.sha_3' 384 -- "SHA-3(384)"
-sha3Name SHA3_512 = Low.sha_3' 512 -- "SHA-3(512)"
-
-type SHAKE128Size = Int
--- data SHAKE128Spec = SHAKE128 SHAKE128Size
-
-type SHAKE256Size = Int
--- data SHAKE256Spec = SHAKE256 SHAKE256Size
-
-type Skein512Size = Int
-type Skein512Salt = ByteString  -- Must not contain ")", can contain "," if escaped, best use ASCII text
--- data Skein512Spec = Skein512 Skein512Size Skein512Salt
-
--- SomeHash
 data Hash
+    = Cryptohash Cryptohash
+    -- | HashStrategy HashStrategy
+    | Checksum Checksum
+    deriving (Show, Eq)
+
+-- data HashStrategy
+--     = Parallel Hash Hash -- Or Parallel Cryptohash Cryptohash if necessary
+--     | Comb4P Hash Hash   -- Or Comb4P Cryptohash Cryptohash if necessary
+
+data Cryptohash
     -- Cryptographic hashes
     = BLAKE2b BLAKE2bSize
     | GOST_34_11
     -- | Keccak1600 Keccak1600Size
     | Keccak1600 Keccak1600
-    | MD4
-    | MD5
+    | MD4   -- NOTE: TODO: unsafeMD4 instead of md4
+    | MD5   -- NOTE: TODO: unsafeMD5 instead of md5
     | RIPEMD160
-    -- | SHA160    -- SHA1
     | SHA1
     -- | SHA224    -- SHA2
     -- | SHA256
@@ -181,81 +170,51 @@ data Hash
     | Streebog256
     | Streebog512
     | Whirlpool
-    -- Combination strategies
-    -- | Parallel Hash Hash
-    -- | Comb4P Hash Hash
-    -- Checksums -- TODO: Split off checksums from cryptohashes
-    | Adler32
+    deriving (Show, Eq)
+
+type BLAKE2bSize = Int      -- 1-64 bytes, eg: 8-512 in multiples of 8
+
+data Keccak1600
+    = Keccak1600_224
+    | Keccak1600_256
+    | Keccak1600_384
+    | Keccak1600_512
+    deriving (Show, Eq)
+
+data SHA2
+    = SHA224
+    | SHA256
+    | SHA384
+    | SHA512
+    | SHA512_256
+    deriving (Show, Eq)
+
+data SHA3
+    = SHA3_224
+    | SHA3_256
+    | SHA3_384
+    | SHA3_512
+    deriving (Show, Eq)
+
+type SHAKE128Size = Int
+type SHAKE256Size = Int
+type Skein512Size = Int
+type Skein512Salt = ByteString  -- Must not contain ")", can contain "," if escaped, best use ASCII text
+-- data Skein512Spec = Skein512 Skein512Size Skein512Salt
+
+data Checksum
+    = Adler32
     | CRC24
     | CRC32
     deriving (Show, Eq)
 
--- data Hash
---     = Cryptohash Cryptohash
---     | Checksum Checksum
+-- Enumerations
 
--- data Checksum
---     = Adler32
---     | CRC24
---     | CRC32
-
--- TODO: Proper parser-builder
--- TODO: Take advantage of functions in botan-low
-hashName :: Hash -> Low.HashName
-hashName spec = case spec of
-    -- Cryptographic hashes
-    BLAKE2b sz      -> Low.blake2b' sz      -- "BLAKE2b(" <> showBytes sz <> ")"
-    GOST_34_11      -> Low.GOST_34_11       -- "GOST-34.11"
-    -- Keccak1600 sz   -> "Keccak-1600(" <> showBytes sz <> ")"
-    Keccak1600 v    -> keccak1600Name v
-    MD4             -> Low.MD4              -- "MD4"
-    MD5             -> Low.MD5              -- "MD5"
-    RIPEMD160       -> Low.RIPEMD_160       -- "RIPEMD-160"
-    SHA1            -> Low.SHA_1            -- "SHA-1"
-    -- SHA224          -> "SHA-224"    -- SHA2
-    -- SHA256          -> "SHA-256"
-    -- SHA512          -> "SHA-512"
-    -- SHA384          -> "SHA-384"
-    -- SHA512_256      -> "SHA-512-256"
-    SHA2 v          -> sha2Name v
-    -- SHA3 sz         -> "SHA-3(" <> showBytes sz <> ")"
-    SHA3 v          -> sha3Name v
-    SHAKE128 sz     -> Low.shake_128' sz    -- "SHAKE-128(" <> showBytes sz <> ")"
-    SHAKE256 sz     -> Low.shake_256' sz    -- "SHAKE-256(" <> showBytes sz <> ")"
-    SM3             -> Low.SM3              -- "SM3"
-    Skein512 sz b   -> Low.skein_512' sz b  -- "Skein-512(" <> showBytes sz <> "," <> b <> ")"
-    Streebog256     -> Low.Streebog_256     -- "Streebog-256"
-    Streebog512     -> Low.Streebog_512     -- "Streebog-512"
-    Whirlpool       -> Low.Whirlpool        -- "Whirlpool"
-    -- Combination strategies
-    -- Parallel ha hb  -> "Parallel(" <> hashName ha <> "," <> hashName hb <> ")"
-    -- Comb4P ha hb    -> "Comb4P(" <> hashName ha <> "," <> hashName hb <> ")"
-    -- Checksums
-    Adler32         -> Low.Adler32          -- "Adler32"
-    CRC24           -> Low.CRC24            -- "CRC24"
-    CRC32           -> Low.CRC32            -- "CRC32"
-
-hashCtxInitIO :: Hash -> IO Low.Hash
-hashCtxInitIO = Low.hashInit . hashName
-
-hashWithHashIO :: Hash -> ByteString -> IO Low.HashDigest
-hashWithHashIO spec bytes = do
-    ctx <- hashCtxInitIO spec
-    Low.hashWithHash ctx bytes
-
-hashCtxInit :: Hash -> Low.Hash
-hashCtxInit = unsafePerformIO1 hashCtxInitIO
-
-hashWithHash :: Hash -> ByteString -> Low.HashDigest
-hashWithHash = unsafePerformIO2 hashWithHashIO
-
---
-
--- TODO: CHECK w/ 64
 -- NOTE: MAC max key sizes imply that the max digest should be 4096
 variableHashLength = 128
 
-hashes =
+cryptohashes :: [Cryptohash]
+cryptohashes =
     [ BLAKE2b variableHashLength
     , GOST_34_11
     , Keccak1600 Keccak1600_224
@@ -284,42 +243,178 @@ hashes =
     , Whirlpool
     ]
 
+-- hashStrategies :: [HashStrategy]
+-- hashStrategies = []
+
+checksums :: [ Checksum ]
 checksums =
     [ Adler32
     , CRC24
     , CRC32
     ]
 
-allHashes = hashes ++ checksums
+allHashes :: [ Hash ]
+allHashes = fmap Cryptohash cryptohashes ++ fmap Checksum checksums
+-- allHashes = fmap Cryptohash cryptohashes ++ hashStrategies ++ fmap Checksum checksums
+
+-- Associated types
+
+type HashDigest = ByteString
+
+-- Accessors
+
+hashName :: Hash -> Low.HashName
+hashName (Cryptohash cs) = cryptohashName cs
+hashName (Checksum cs)   = checksumName cs
+
+cryptohashName :: Cryptohash -> Low.HashName
+cryptohashName spec = case spec of
+    -- Cryptographic hashes
+    BLAKE2b sz      -> Low.blake2b' sz      -- "BLAKE2b(" <> showBytes sz <> ")"
+    GOST_34_11      -> Low.GOST_34_11       -- "GOST-34.11"
+    -- Keccak1600 sz   -> "Keccak-1600(" <> showBytes sz <> ")"
+    Keccak1600 v    -> keccak1600Name v
+    MD4             -> Low.MD4              -- "MD4"
+    MD5             -> Low.MD5              -- "MD5"
+    RIPEMD160       -> Low.RIPEMD_160       -- "RIPEMD-160"
+    SHA1            -> Low.SHA_1            -- "SHA-1"
+    -- SHA224          -> "SHA-224"    -- SHA2
+    -- SHA256          -> "SHA-256"
+    -- SHA512          -> "SHA-512"
+    -- SHA384          -> "SHA-384"
+    -- SHA512_256      -> "SHA-512-256"
+    SHA2 v          -> sha2Name v
+    -- SHA3 sz         -> "SHA-3(" <> showBytes sz <> ")"
+    SHA3 v          -> sha3Name v
+    SHAKE128 sz     -> Low.shake_128' sz    -- "SHAKE-128(" <> showBytes sz <> ")"
+    SHAKE256 sz     -> Low.shake_256' sz    -- "SHAKE-256(" <> showBytes sz <> ")"
+    SM3             -> Low.SM3              -- "SM3"
+    Skein512 sz b   -> Low.skein_512' sz b  -- "Skein-512(" <> showBytes sz <> "," <> b <> ")"
+    Streebog256     -> Low.Streebog_256     -- "Streebog-256"
+    Streebog512     -> Low.Streebog_512     -- "Streebog-512"
+    Whirlpool       -> Low.Whirlpool        -- "Whirlpool"
+
+keccak1600Name :: Keccak1600 -> Low.HashName
+keccak1600Name Keccak1600_224 = Low.keccak_1600' 224 -- "Keccak-1600(224)"
+keccak1600Name Keccak1600_256 = Low.keccak_1600' 256 -- "Keccak-1600(256)"
+keccak1600Name Keccak1600_384 = Low.keccak_1600' 384 -- "Keccak-1600(384)"
+keccak1600Name Keccak1600_512 = Low.keccak_1600' 512 -- "Keccak-1600(512)"
+
+sha2Name :: SHA2 -> Low.HashName
+sha2Name SHA224     = Low.SHA_224       -- "SHA-224"
+sha2Name SHA256     = Low.SHA_256       -- "SHA-256"
+sha2Name SHA512     = Low.SHA_512       -- "SHA-512"
+sha2Name SHA384     = Low.SHA_384       -- "SHA-384"
+sha2Name SHA512_256 = Low.SHA_512_256   -- "SHA-512-256"
+
+sha3Name :: SHA3 -> Low.HashName
+sha3Name SHA3_224 = Low.sha_3' 224 -- "SHA-3(224)"
+sha3Name SHA3_256 = Low.sha_3' 256 -- "SHA-3(256)"
+sha3Name SHA3_384 = Low.sha_3' 384 -- "SHA-3(384)"
+sha3Name SHA3_512 = Low.sha_3' 512 -- "SHA-3(512)"
+
+-- hashStrategyName :: HashStrategy -> Low.HashName
+-- hashStrategyName hs = case hs of
+--     Parallel ha hb  -> "Parallel(" <> hashName ha <> "," <> hashName hb <> ")"
+--     Comb4P ha hb    -> "Comb4P(" <> hashName ha <> "," <> hashName hb <> ")"
+    
+checksumName :: Checksum -> Low.HashName
+checksumName cs = case cs of
+    Adler32         -> Low.Adler32          -- "Adler32"
+    CRC24           -> Low.CRC24            -- "CRC24"
+    CRC32           -> Low.CRC32            -- "CRC32"
+
+hashDigestSize :: Hash -> Int
+hashDigestSize (Cryptohash cs) = cryptohashDigestSize cs
+hashDigestSize (Checksum cs) = checksumDigestSize cs
+
+-- NOTE: SIZE IN BYTES
+cryptohashDigestSize :: Cryptohash -> Int
+cryptohashDigestSize (BLAKE2b n) = div n 8
+cryptohashDigestSize GOST_34_11 = 32
+cryptohashDigestSize (Keccak1600 Keccak1600_224) = 28
+cryptohashDigestSize (Keccak1600 Keccak1600_256) = 32
+cryptohashDigestSize (Keccak1600 Keccak1600_384) = 48
+cryptohashDigestSize (Keccak1600 Keccak1600_512) = 64
+cryptohashDigestSize MD4 = 16
+cryptohashDigestSize MD5 = 16
+cryptohashDigestSize RIPEMD160 = 20
+cryptohashDigestSize SHA1 = 20
+cryptohashDigestSize (SHA2 SHA224) = 28
+cryptohashDigestSize (SHA2 SHA256) = 32
+cryptohashDigestSize (SHA2 SHA384) = 48
+cryptohashDigestSize (SHA2 SHA512) = 64
+cryptohashDigestSize (SHA2 SHA512_256) = 32
+cryptohashDigestSize (SHA3 SHA3_224) = 28
+cryptohashDigestSize (SHA3 SHA3_256) = 32
+cryptohashDigestSize (SHA3 SHA3_384) = 48
+cryptohashDigestSize (SHA3 SHA3_512) = 64
+cryptohashDigestSize (SHAKE128 n) = div n 8
+cryptohashDigestSize (SHAKE256 n) = div n 8
+cryptohashDigestSize SM3 = 32
+cryptohashDigestSize (Skein512 n "") = div n 8
+cryptohashDigestSize Streebog256 = 32
+cryptohashDigestSize Streebog512 = 64
+cryptohashDigestSize Whirlpool = 64
+-- NOTE: Extracted / confirmed from inspecting:
+{-
+generateHashDigestSize :: IO ()
+generateHashDigestSize = do
+    each <- forM hashes  $ \ h -> do
+        ctx <- Low.hashInit (hashName h)
+        dsz <- Low.hashOutputLength ctx
+        return $ concat $
+            [ "hashDigestSize "
+            , showsPrec 11 h ""
+            , " = "
+            , show dsz
+            ]
+    putStrLn $ unlines $
+        "hashDigestSize :: Hash -> Int"
+        : each
+-}
+
+checksumDigestSize :: Checksum -> Int
+checksumDigestSize cs = case cs of
+    Adler32         -> 4
+    CRC24           -> 3
+    CRC32           -> 4
+
+
 
 -- NOTE: SIZE IN BITS
 hashBlockSize :: Hash -> Int
-hashBlockSize (BLAKE2b _) = 128
-hashBlockSize GOST_34_11 = 32
-hashBlockSize (Keccak1600 Keccak1600_224) = 144
-hashBlockSize (Keccak1600 Keccak1600_256) = 136
-hashBlockSize (Keccak1600 Keccak1600_384) = 104
-hashBlockSize (Keccak1600 Keccak1600_512) = 72
-hashBlockSize MD4 = 64
-hashBlockSize MD5 = 64
-hashBlockSize RIPEMD160 = 64
-hashBlockSize SHA1 = 64
-hashBlockSize (SHA2 SHA224) = 64
-hashBlockSize (SHA2 SHA256) = 64
-hashBlockSize (SHA2 SHA384) = 128
-hashBlockSize (SHA2 SHA512) = 128
-hashBlockSize (SHA2 SHA512_256) = 128
-hashBlockSize (SHA3 SHA3_224) = 144
-hashBlockSize (SHA3 SHA3_256) = 136
-hashBlockSize (SHA3 SHA3_384) = 104
-hashBlockSize (SHA3 SHA3_512) = 72
-hashBlockSize (SHAKE128 _) = 168
-hashBlockSize (SHAKE256 _) = 136
-hashBlockSize SM3 = 64
-hashBlockSize (Skein512 _ "") = 64
-hashBlockSize Streebog256 = 64
-hashBlockSize Streebog512 = 64
-hashBlockSize Whirlpool = 64
+hashBlockSize (Cryptohash cs) = cryptohashBlockSize cs
+hashBlockSize (Checksum cs) = checksumBlockSize cs
+
+-- NOTE: SIZE IN BITS
+cryptohashBlockSize :: Cryptohash -> Int
+cryptohashBlockSize (BLAKE2b _) = 128
+cryptohashBlockSize GOST_34_11 = 32
+cryptohashBlockSize (Keccak1600 Keccak1600_224) = 144
+cryptohashBlockSize (Keccak1600 Keccak1600_256) = 136
+cryptohashBlockSize (Keccak1600 Keccak1600_384) = 104
+cryptohashBlockSize (Keccak1600 Keccak1600_512) = 72
+cryptohashBlockSize MD4 = 64
+cryptohashBlockSize MD5 = 64
+cryptohashBlockSize RIPEMD160 = 64
+cryptohashBlockSize SHA1 = 64
+cryptohashBlockSize (SHA2 SHA224) = 64
+cryptohashBlockSize (SHA2 SHA256) = 64
+cryptohashBlockSize (SHA2 SHA384) = 128
+cryptohashBlockSize (SHA2 SHA512) = 128
+cryptohashBlockSize (SHA2 SHA512_256) = 128
+cryptohashBlockSize (SHA3 SHA3_224) = 144
+cryptohashBlockSize (SHA3 SHA3_256) = 136
+cryptohashBlockSize (SHA3 SHA3_384) = 104
+cryptohashBlockSize (SHA3 SHA3_512) = 72
+cryptohashBlockSize (SHAKE128 _) = 168
+cryptohashBlockSize (SHAKE256 _) = 136
+cryptohashBlockSize SM3 = 64
+cryptohashBlockSize (Skein512 _ "") = 64
+cryptohashBlockSize Streebog256 = 64
+cryptohashBlockSize Streebog512 = 64
+cryptohashBlockSize Whirlpool = 64
 -- NOTE: Extracted / confirmed from inspecting:
 {-
 generateHashBlockSize :: IO ()
@@ -338,48 +433,124 @@ generateHashBlockSize = do
         : each
 -}
 
--- NOTE: SIZE IN BYTES
-hashDigestSize :: Hash -> Int
-hashDigestSize (BLAKE2b n) = div n 8
-hashDigestSize GOST_34_11 = 32
-hashDigestSize (Keccak1600 Keccak1600_224) = 28
-hashDigestSize (Keccak1600 Keccak1600_256) = 32
-hashDigestSize (Keccak1600 Keccak1600_384) = 48
-hashDigestSize (Keccak1600 Keccak1600_512) = 64
-hashDigestSize MD4 = 16
-hashDigestSize MD5 = 16
-hashDigestSize RIPEMD160 = 20
-hashDigestSize SHA1 = 20
-hashDigestSize (SHA2 SHA224) = 28
-hashDigestSize (SHA2 SHA256) = 32
-hashDigestSize (SHA2 SHA384) = 48
-hashDigestSize (SHA2 SHA512) = 64
-hashDigestSize (SHA2 SHA512_256) = 32
-hashDigestSize (SHA3 SHA3_224) = 28
-hashDigestSize (SHA3 SHA3_256) = 32
-hashDigestSize (SHA3 SHA3_384) = 48
-hashDigestSize (SHA3 SHA3_512) = 64
-hashDigestSize (SHAKE128 n) = div n 8
-hashDigestSize (SHAKE256 n) = div n 8
-hashDigestSize SM3 = 32
-hashDigestSize (Skein512 n "") = div n 8
-hashDigestSize Streebog256 = 32
-hashDigestSize Streebog512 = 64
-hashDigestSize Whirlpool = 64
--- NOTE: Extracted / confirmed from inspecting:
-{-
-generateHashDigestSize :: IO ()
-generateHashDigestSize = do
-    each <- forM hashes  $ \ h -> do
-        ctx <- Low.hashInit (hashName h)
-        dsz <- Low.hashOutputLength ctx
-        return $ concat $
-            [ "hashDigestSize "
-            , showsPrec 11 h ""
-            , " = "
-            , show dsz
-            ]
-    putStrLn $ unlines $
-        "hashDigestSize :: Hash -> Int"
-        : each
--}
+checksumBlockSize :: Checksum -> Int
+checksumBlockSize cs = case cs of
+    Adler32         -> error "Unimplemented: checksumBlockSize"
+    CRC24           -> error "Unimplemented: checksumBlockSize"
+    CRC32           -> error "Unimplemented: checksumBlockSize"
+{-# WARNING checksumBlockSize "Unimplemented" #-}
+
+-- Idiomatic algorithm
+
+hash :: Hash -> ByteString -> HashDigest
+hash h bs = unsafePerformIO $ do
+    ctx <- newHash h
+    updateFinalizeHash ctx bs
+{-# NOINLINE hash #-}
+
+-- hashLazy = undefined
+
+--
+-- Mutable interface
+--
+
+-- Tagged mutable context
+
+data MutableHash = MkMutableHash
+    { mutableHashType    :: Hash
+    , mutableHashCtx     :: Low.Hash
+    }
+
+-- Destructor
+
+destroyHash
+    :: (MonadIO m)
+    => MutableHash
+    -> m ()
+destroyHash = liftIO . Low.hashDestroy . mutableHashCtx
+
+-- Initializers
+
+newHash
+    :: (MonadIO m)
+    => Hash
+    -> m MutableHash
+newHash h = do
+    ctx <- liftIO $ Low.hashInit $ hashName h
+    return $ MkMutableHash h ctx
+
+-- Accessors
+
+getHashName
+    :: (MonadIO m)
+    => MutableHash
+    -> m Low.HashName
+getHashName = liftIO . Low.hashName . mutableHashCtx
+
+getHashBlockSize
+    :: (MonadIO m)
+    => MutableHash
+    -> m Int
+getHashBlockSize = liftIO . Low.hashBlockSize . mutableHashCtx
+
+getHashDigestSize
+    :: (MonadIO m)
+    => MutableHash
+    -> m Int
+getHashDigestSize = liftIO . Low.hashOutputLength . mutableHashCtx
+
+-- Accessory functions
+
+copyHashState
+    :: (MonadIO m)
+    => MutableHash
+    -> m MutableHash
+copyHashState mh = do
+    ctx <- liftIO $ Low.hashCopyState $ mutableHashCtx mh
+    return $ MkMutableHash (mutableHashType mh) ctx
+
+clearHash
+    :: (MonadIO m)
+    => MutableHash
+    -> m ()
+clearHash = liftIO . Low.hashClear . mutableHashCtx
+
+-- Mutable algorithm
+-- TODO: Flip?
+updateHash
+    :: (MonadIO m)
+    => MutableHash
+    -> ByteString
+    -> m ()
+updateHash h bs = updateHashChunks h [bs]
+
+-- TODO: Flip?
+updateHashChunks
+    :: (MonadIO m)
+    => MutableHash
+    -> [ByteString]
+    -> m ()
+updateHashChunks mh chunks = let ctx = mutableHashCtx mh in
+    liftIO $ traverse_ (Low.hashUpdate ctx) chunks
+
+finalizeHash
+    :: (MonadIO m)
+    => MutableHash
+    -> m HashDigest
+finalizeHash = liftIO . Low.hashFinal . mutableHashCtx
+
+updateFinalizeHash
+    :: (MonadIO m)
+    => MutableHash
+    -> ByteString
+    -> m HashDigest
+updateFinalizeHash h bs = liftIO $ do
+    updateHash h bs
+    finalizeHash h
+
+updateFinalizeClearHash
+    :: (MonadIO m)
+    => MutableHash
+    -> ByteString
+    -> m HashDigest
+updateFinalizeClearHash h bs = updateFinalizeHash h bs <* clearHash h

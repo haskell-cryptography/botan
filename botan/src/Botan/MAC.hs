@@ -202,7 +202,7 @@ mac = unsafePerformIO4 macIO
 macs = concat
     [ [ CMAC bc | bc <- allBlockCiphers ]
     , [ GMAC bc | bc <- allBlockCiphers ] -- Requires a nonce
-    , [ HMAC h  | h  <- hashes ]
+    , [ HMAC h  | h  <- allHashes ]
     , [ Poly1305
       , SipHash 2 4
       , X9_19_MAC

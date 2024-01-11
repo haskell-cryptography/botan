@@ -20,9 +20,9 @@ data HOTP
     | HOTP_SHA512
 
 hotpHash :: HOTP -> Hash
-hotpHash HOTP_SHA1 = SHA1
-hotpHash HOTP_SHA256 = SHA2 SHA256
-hotpHash HOTP_SHA512 = SHA2 SHA512
+hotpHash HOTP_SHA1 = Cryptohash $ SHA1
+hotpHash HOTP_SHA256 = Cryptohash $ SHA2 SHA256
+hotpHash HOTP_SHA512 = Cryptohash $ SHA2 SHA512
 
 hotpAlgo :: HOTP -> Low.HOTPHashName
 hotpAlgo = hashName . hotpHash
