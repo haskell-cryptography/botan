@@ -395,7 +395,6 @@ getBlockCipherKeySpec mc = do
     (mn,mx,md) <- liftIO $ Low.blockCipherGetKeyspec (mutableBlockCipherCtx mc)
     return $ keySpec mn mx md
 
--- WARNING: Does not
 setBlockCipherKey
     :: (MonadIO m)
     => BlockCipherKey

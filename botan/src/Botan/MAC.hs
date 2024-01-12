@@ -1,42 +1,110 @@
+{-|
+Module      : Botan.MAC
+Description : Message Authentication Codes (MAC)
+Copyright   : (c) Leo D, 2023
+License     : BSD-3-Clause
+Maintainer  : leo@apotheca.io
+Stability   : experimental
+Portability : POSIX
+
+A Message Authentication Code algorithm computes a tag over a
+message utilizing a shared secret key. Thus a valid tag confirms
+the authenticity and integrity of the message. Only entities in
+possession of the shared secret key are able to verify the tag.
+
+Note
+
+When combining a MAC with unauthenticated encryption mode, prefer
+to first encrypt the message and then MAC the ciphertext. The
+alternative is to MAC the plaintext, which depending on exact usage
+can suffer serious security issues. For a detailed discussion of
+this issue see the paper “The Order of Encryption and Authentication
+for Protecting Communications” by Hugo Krawczyk
+
+The Botan MAC computation is split into five stages.
+
+- Instantiate the MAC algorithm.
+
+- Set the secret key.
+
+- Process IV.
+
+- Process data.
+
+- Finalize the MAC computation.
+
+-}
+
 module Botan.MAC
-( MAC(..)
-, macName
+(
+
+-- * Message Authentication Codes
+-- $introduction
+
+-- * Usage
+-- $usage
+
+-- * Idiomatic interface
+
+-- ** Data type
+  MAC(..)
+
+-- ** Enumerations
+
+, allMACs
+
+-- ** Associated types
+, MACKeySpec
 , MACKey(..)
-, MACNonce(..)
-, Low.MACDigest(..)
-, macCtxInitIO
-, macCtxInit
-, macCtxOutputLength
-, macCtxSetKey
-, macCtxSetNonce
-, macCtxUpdate
-, macCtxUpdates
-, macCtxFinalize
-, macCtxClear
-, macCtxName
-, macCtxGetKeyspec
-, macCtxUpdateFinalizeIO
-, macCtxUpdateFinalizeClearIO
-, macWithMACCtxIO
-, macWithMACCtx
-, macWithNameIO
-, macWithName
-, macIO
-, mac
+, newMACKey
+, newMACKeyMaybe
+, MACDigest(..)
 
---
+-- ** Accessors
 
-, macs
-
+, macName
 , macKeySpec
--- , generateMACKeySpec
+, macDigestLength
 
-, macNonceSize
+-- ** Idiomatic algorithm
+, mac
+, gmac
 
-, macDigestSize
+-- * Mutable interface
+
+-- ** Tagged mutable context
+, MutableMAC(..)
+
+-- ** Destructor
+, destroyMAC
+
+-- ** Initializers
+, newMAC
+
+-- ** Accessors
+, getMACName
+, getMACKeySpec
+, getMACDigestLength
+, setMACKey
+
+-- ** GMAC-specific functions
+, GMACNonce(..)
+, setGMACNonce
+
+-- ** Accessory functions
+, clearMAC
+
+-- ** Mutable algorithm
+, updateMAC
+, finalizeMAC
+, updateFinalizeMAC
+, updateFinalizeClearMAC
+
 ) where
 
 import Data.Foldable
+
+import qualified Data.ByteString as ByteString
 
 import qualified Botan.Low.MAC as Low
 
@@ -45,173 +113,83 @@ import Botan.KeySpec
 import Botan.Hash
 import Botan.RNG
 import Botan.Prelude
+import Botan.Error (SomeBotanException(SomeBotanException))
+import qualified Botan.Bindings.MAC as Low
 
 -- NOTE: MAC has no state copy unlike Hash
 
--- NOTE: Botan MAC FFI is missing query for nonce sizes.
+-- TODO: Maybe separate out GMAC entirely
 
--- NOTE: Poly1305 does not appear to require a nonce, despite documentation:
---  > Due to the nonce requirement, Poly1305 is exceptionally fragile. Avoid it unless absolutely required.
--- I believe this is a nomenclature mixup, as there are MACs that require both key and nonce
--- However, this is Poly1305-Wegman-Carter which should only require a key - but the
--- key must not be reused, like a nonce.
+-- NOTE: Poly1305 is Poly1305 One-Time-Authenticator, and it has a 16 byte key r
+-- and a 16 byte nonce s that must not be re-used together. Botan implements this
+-- by combining the two into a single 32-byte key that must never be reused.
+
+{- $introduction
+
+-}
+
+{- $usage
+
+-}
+
+--
+-- Idiomatic interface
+--
+
+-- Data type
 
 data MAC
     = CMAC BlockCipher  -- NOTE: This is actually OMAC a CMAC variant
-    | GMAC BlockCipher      -- Requires a nonce
     -- | CBC_MAC BlockCipher  -- No longer supported (possibly due to security issues) 
+    | GMAC BlockCipher      -- Requires a nonce "GMAC can accept initialization vectors of arbitrary length"
     | HMAC Hash -- Must be a (CS)Hash, and not a Checksum
     -- New in 3.2
     -- | KMAC_128 Int -- Output length
     -- | KMAC_256 Int -- Output length
-    | Poly1305              -- Requires a unique key per message
+    | Poly1305              -- Requires a unique key per message (key r and nonce s have been combined)
     | SipHash Int Int       -- Number of input and finalization rounds
     | X9_19_MAC
-    deriving (Show, Eq)
--- NOTE: Wiki: "Both GCM and GMAC can accept initialization vectors of arbitrary length." - untested
+    deriving (Eq, Show)
+    
+-- Enumerations
 
-macName :: MAC -> ByteString
-macName (CMAC bc)       = Low.cmac' (blockCipherName bc)    -- "CMAC(" <> blockCipherName bc <> ")"
-macName (GMAC bc)       = Low.gmac' (blockCipherName bc)    -- "GMAC(" <> blockCipherName bc <> ")"
--- macName (CBC_MAC bc)    = Low.cbc_mac' (blockCipherName bc) -- "CBC-MAC(" <> blockCipherName bc <> ")"
-macName (HMAC h)        = Low.hmac' (hashName h)            -- "HMAC(" <> hashName h <> ")"
-macName Poly1305        = Low.Poly1305                      -- "Poly1305"
-macName (SipHash ir fr) = Low.sipHash' ir fr                -- "SipHash(" <> showBytes ir <> "," <> showBytes fr <> ")"
-macName X9_19_MAC       = Low.X9_19_MAC                     -- "X9.19-MAC"
-
--- NOTE: NOT CHECKED FOR CORRECTNESS YET
-macNonceLength :: MAC -> Int
-macNonceLength (CMAC _)      = 0
-macNonceLength (GMAC _)      = 12 -- Probably incorrect for some ciphers - TODO: use cipherCtxGetDefaultNonceLength
--- macNonceLength (CBC_MAC _)   = 0
-macNonceLength (HMAC _)      = 0
-macNonceLength Poly1305      = 16   -- Is this Poly1305, or Poly1305-WC?
-macNonceLength (SipHash _ _) = 0
-macNonceLength X9_19_MAC     = 0
--- NOTE: Poly1305 takes a 32-byte key? But its supposed to take a 16-byte key.
---  Need to figure out specifics - what variant of Poly1305
-{-
-ghci> import Botan.MAC
-ghci> import Botan.Utility 
-ghci> import Botan.Low.RNG 
-ghci> k <- systemRNGGetIO 16
-ghci> mac Poly1305 k Nothing "Fee fi fo fum!"
-"*** Exception: InvalidKeyLengthException (-34) [("throwBotanIfNegative_",SrcLoc {srcLocPackage = "botan-low-0.0.1-inplace", srcLocModule = "Botan.Low.Make", srcLocFile = "src/Botan/Low/Make.hs", srcLocStartLine = 346, srcLocStartCol = 9, srcLocEndLine = 346, srcLocEndCol = 30})]
-ghci> k <- systemRNGGetIO 32
-ghci> mac Poly1305 k Nothing "Fee fi fo fum!"
-"\234\SO\211\187%\156\220o\134\&4\169\248\rr\134H"
--}
-
-type MACKey = ByteString
-type MACNonce = ByteString
-
-macCtxInitIO :: MAC -> IO Low.MAC
-macCtxInitIO  mac = Low.macInit (macName mac)
-
-macCtxInit :: MAC -> Low.MAC
-macCtxInit = unsafePerformIO1 macCtxInitIO
-
-macCtxOutputLength :: Low.MAC -> Int
-macCtxOutputLength = unsafePerformIO1 Low.macOutputLength
-
-macCtxSetKey :: Low.MAC -> MACKey -> Low.MAC
-macCtxSetKey ctx key = unsafePerformIO $ do
-    Low.macSetKey ctx key
-    return ctx
-
--- NOTE: Not all MACs require a nonce
---  Eg, GMAC requires a nonce
---  Other MACs do not require a nonce, and will cause a BadParameterException (-32)
-macCtxSetNonce :: Low.MAC -> MACNonce -> Low.MAC
-macCtxSetNonce ctx nonce = unsafePerformIO $ do
-    Low.macSetNonce ctx nonce
-    return ctx
-
-macCtxUpdate :: Low.MAC -> ByteString -> Low.MAC
-macCtxUpdate ctx bytes = unsafePerformIO $ do
-    Low.macUpdate ctx bytes
-    return ctx
-
-macCtxUpdates :: Low.MAC -> [ByteString] -> Low.MAC
-macCtxUpdates ctx chunks = unsafePerformIO $ do
-    traverse_ (Low.macUpdate ctx) chunks
-    return ctx
-
-macCtxFinalize :: Low.MAC -> Low.MACDigest
-macCtxFinalize = unsafePerformIO1 Low.macFinal
-
--- NOTE: Not sure if this should be exposed
-macCtxClear :: Low.MAC -> Low.MAC
-macCtxClear ctx = unsafePerformIO $ do
-    Low.macClear ctx
-    return ctx
-
-macCtxName :: Low.MAC -> Low.MACName
-macCtxName = unsafePerformIO1 Low.macName
-
-macCtxGetKeyspec :: Low.MAC -> MACKeySpec
-macCtxGetKeyspec ctx = unsafePerformIO $ do
-    (mn,mx,md) <- Low.macGetKeyspec ctx
-    return $ keySpec mn mx md
-
--- Convenience
-
-macCtxUpdateFinalizeIO :: Low.MAC -> Message -> IO Low.MACDigest
-macCtxUpdateFinalizeIO ctx bytes = do
-    Low.macUpdate ctx bytes
-    Low.macFinal ctx
-
-macCtxUpdateFinalizeClearIO :: Low.MAC -> Message -> IO Low.MACDigest
-macCtxUpdateFinalizeClearIO ctx bytes = do
-    dg <- macCtxUpdateFinalizeIO ctx bytes
-    Low.macClear ctx
-    return dg
-
---
-
-macWithMACCtxIO :: Low.MAC -> MACKey -> Maybe MACNonce -> Message -> IO Low.MACDigest
-macWithMACCtxIO ctx key nonce message = do
-    Low.macSetKey ctx key
-    case nonce of
-        Nothing -> Low.macSetNonce ctx ""
-        Just n  -> Low.macSetNonce ctx n
-    macCtxUpdateFinalizeClearIO ctx message
-
-macWithMACCtx :: Low.MAC -> MACKey -> Maybe MACNonce -> Message -> Low.MACDigest
-macWithMACCtx = unsafePerformIO4 macWithMACCtxIO
-
-macWithNameIO :: Low.MACName -> MACKey -> Maybe MACNonce -> Message -> IO Low.MACDigest
-macWithNameIO name key nonce message = do
-    ctx <- Low.macInit name
-    macWithMACCtxIO ctx key nonce message
-
-macWithName :: Low.MACName -> MACKey -> Maybe MACNonce -> Message -> Low.MACDigest
-macWithName = unsafePerformIO4 macWithNameIO
-
-macIO :: MAC -> MACKey -> Maybe MACNonce -> Message -> IO Low.MACDigest
-macIO = macWithNameIO . macName
-
-mac :: MAC -> MACKey -> Maybe MACNonce -> Message -> Low.MACDigest
-mac = unsafePerformIO4 macIO
-
--- TODO: stuff like newMACKey newMACNonce
-
-
---
-
-macs = concat
+allMACs = concat
     [ [ CMAC bc | bc <- allBlockCiphers ]
     , [ GMAC bc | bc <- allBlockCiphers ] -- Requires a nonce
-    , [ HMAC h  | h  <- allHashes ]
+    , [ HMAC h  | h  <- Cryptohash <$> cryptohashes ]
     , [ Poly1305
       , SipHash 2 4
       , X9_19_MAC
       ]
     ]
 
+
+-- Associated types
+
 type MACKeySpec = KeySpec
 
--- NOTE: Some or all of these may allow 0 as a key size.
+type MACKey = ByteString
+
+newMACKey :: (MonadRandomIO m) => MAC -> m MACKey
+newMACKey = newKey . macKeySpec
+
+newMACKeyMaybe :: (MonadRandomIO m) => Int -> MAC -> m (Maybe MACKey)
+newMACKeyMaybe sz bc = newKeyMaybe sz (macKeySpec bc) 
+
+type MACNonce = ByteString
+
+type MACDigest = ByteString
+
+-- Accessors
+
+macName :: MAC -> ByteString
+macName (CMAC bc)       = Low.cmac' (blockCipherName bc)
+macName (GMAC bc)       = Low.gmac' (blockCipherName bc)
+macName (HMAC h)        = Low.hmac' (hashName h)
+macName Poly1305        = Low.Poly1305
+macName (SipHash ir fr) = Low.sipHash' ir fr
+macName X9_19_MAC       = Low.X9_19_MAC
+
 macKeySpec :: MAC -> KeySpec
 macKeySpec (CMAC bc)        = blockCipherKeySpec bc
 macKeySpec (GMAC bc)        = blockCipherKeySpec bc
@@ -241,20 +219,15 @@ generateMACKeySpec = do
         : each
 -}
 
--- NOTE: Only GMAC requires a nonce! Though Poly may have an *internal* nonce generated by an internal RNG, so...
-macNonceSize :: MAC -> Maybe Int
-macNonceSize (GMAC _) = Just 16 -- Assumed to be always 16, not proven
-macNonceSize _        = Nothing
-
 -- NOTE: Size in bytes
-macDigestSize :: MAC -> Int
-macDigestSize (CMAC bc)     = blockCipherBlockSize bc
-macDigestSize (GMAC _)      = 16    -- Always 16
-macDigestSize (HMAC h)      = hashDigestSize h
-macDigestSize Poly1305      = 16
+macDigestLength :: MAC -> Int
+macDigestLength (CMAC bc)     = blockCipherBlockSize bc
+macDigestLength (GMAC _)      = 16    -- Always 16
+macDigestLength (HMAC h)      = hashDigestSize h
+macDigestLength Poly1305      = 16
 -- TODO: Check more variants
-macDigestSize (SipHash 2 4) = 8
-macDigestSize X9_19_MAC     = 8
+macDigestLength (SipHash 2 4) = 8
+macDigestLength X9_19_MAC     = 8
 -- NOTE: Extracted / confirmed from inspecting:
 {-
 generateMACDigestSize :: IO ()
@@ -272,3 +245,157 @@ generateMACDigestSize = do
         "macDigestSize :: MAC -> Int"
         : each
 -}
+
+-- Idiomatic algorithm
+
+mac :: MAC -> MACKey -> ByteString -> Maybe MACDigest
+mac m k msg = unsafePerformIO $ do
+    mm <- newMAC m
+    wasSet <- setMACKey k mm
+    if wasSet
+    then Just <$> updateFinalizeClearMAC mm msg
+    else return Nothing
+{-# NOINLINE mac #-}
+
+-- NOTE: Or just take a BlockCipher as an argument?
+gmac :: MAC -> MACKey -> GMACNonce -> ByteString -> Maybe MACDigest
+gmac m@(GMAC _) k n msg = unsafePerformIO $  do
+    mm <- newMAC m
+    wasSet <- setMACKey k mm
+    if wasSet
+    then do
+        setGMACNonce n mm
+        Just <$> updateFinalizeClearMAC mm msg
+    else return Nothing
+gmac _ _ _ _ = error "Expected GMAC"
+{-# NOINLINE gmac #-}
+
+--
+-- Mutable interface
+--
+
+-- Tagged mutable context
+
+data MutableMAC = MkMutableMAC
+    { mutableMACType    :: MAC
+    , mutableMACCtx     :: Low.MAC
+    }
+
+-- Destructor
+
+destroyMAC
+    :: (MonadIO m)
+    => MutableMAC
+    -> m ()
+destroyMAC = liftIO . Low.macDestroy . mutableMACCtx
+
+-- Initializers
+
+newMAC
+    :: (MonadIO m)
+    => MAC
+    -> m MutableMAC
+newMAC h = do
+    ctx <- liftIO $ Low.macInit $ macName h
+    return $ MkMutableMAC h ctx
+
+-- Accessors
+
+getMACName
+    :: (MonadIO m)
+    => MutableMAC
+    -> m Low.MACName
+getMACName = liftIO . Low.macName . mutableMACCtx
+
+getMACKeySpec
+    :: (MonadIO m)
+    => MutableMAC
+    -> m MACKeySpec
+getMACKeySpec mm = do
+    (mn,mx,md) <- liftIO $ Low.macGetKeyspec (mutableMACCtx mm)
+    return $ keySpec mn mx md
+
+getMACDigestLength
+    :: (MonadIO m)
+    => MutableMAC
+    -> m Int
+getMACDigestLength = liftIO . Low.macOutputLength . mutableMACCtx
+
+setMACKey
+    :: (MonadIO m)
+    => MACKey
+    -> MutableMAC
+    -> m Bool
+setMACKey k mm = do
+    valid <- keySizeIsValid (ByteString.length k) <$> getMACKeySpec mm
+    if valid
+    then do
+        liftIO $ Low.macSetKey (mutableMACCtx mm) k
+        return True
+    else return False
+
+-- GMAC-specific functions
+
+-- NOTE: At time of writing, the only MAC with a nonce is GMAC,
+-- which accepts a nonce of arbitrary length.
+-- This nonce must not be re-used.
+type GMACNonce = ByteString
+
+-- NOTE: Must occur *AFTER* setting the key
+setGMACNonce
+    :: (MonadIO m)
+    => MACNonce
+    -> MutableMAC
+    -> m ()
+setGMACNonce n mm@(MkMutableMAC (GMAC _) ctx) = liftIO $ Low.macSetNonce ctx n
+setGMACNonce _ _                              = return ()
+
+-- Accessory functions
+
+clearMAC
+    :: (MonadIO m)
+    => MutableMAC
+    -> m ()
+clearMAC = liftIO . Low.macClear . mutableMACCtx
+
+-- Mutable algorithm
+
+-- Mutable algorithm
+-- TODO: Flip?
+updateMAC
+    :: (MonadIO m)
+    => MutableMAC
+    -> ByteString
+    -> m ()
+updateMAC m bs = updateMACChunks m [bs]
+
+-- TODO: Flip?
+updateMACChunks
+    :: (MonadIO m)
+    => MutableMAC
+    -> [ByteString]
+    -> m ()
+updateMACChunks mm chunks = let ctx = mutableMACCtx mm in
+    liftIO $ traverse_ (Low.macUpdate ctx) chunks
+
+finalizeMAC
+    :: (MonadIO m)
+    => MutableMAC
+    -> m MACDigest
+finalizeMAC = liftIO . Low.macFinal . mutableMACCtx
+
+updateFinalizeMAC
+    :: (MonadIO m)
+    => MutableMAC
+    -> ByteString
+    -> m MACDigest
+updateFinalizeMAC mm bs = liftIO $ do
+    updateMAC mm bs
+    finalizeMAC mm
+
+updateFinalizeClearMAC
+    :: (MonadIO m)
+    => MutableMAC
+    -> ByteString
+    -> m MACDigest
+updateFinalizeClearMAC mm bs = updateFinalizeMAC mm bs <* clearMAC mm
