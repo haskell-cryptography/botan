@@ -174,9 +174,7 @@ newMACKey :: (MonadRandomIO m) => MAC -> m MACKey
 newMACKey = newKey . macKeySpec
 
 newMACKeyMaybe :: (MonadRandomIO m) => Int -> MAC -> m (Maybe MACKey)
-newMACKeyMaybe sz bc = newKeyMaybe sz (macKeySpec bc) 
-
-type MACNonce = ByteString
+newMACKeyMaybe sz bc = newKeyMaybe sz (macKeySpec bc)
 
 type MACDigest = ByteString
 
@@ -344,7 +342,7 @@ type GMACNonce = ByteString
 -- NOTE: Must occur *AFTER* setting the key
 setGMACNonce
     :: (MonadIO m)
-    => MACNonce
+    => GMACNonce
     -> MutableMAC
     -> m ()
 setGMACNonce n mm@(MkMutableMAC (GMAC _) ctx) = liftIO $ Low.macSetNonce ctx n

@@ -1,0 +1,32 @@
+module Botan.StreamCipher where
+
+-- Stream ciphers
+
+-- NOTE: Need to patch botan stream cipher like Z-Botan
+-- Stream ciphers operate at the bit level by XORing the plaintext
+--  against a stream of pseudorandom bits, and as such do not exhibit
+--  the avalanche effect seen in hashing and block ciphers
+
+type StreamCipherName = ByteString
+
+data StreamCipher
+    = CTR_BE BlockCipher
+    | OFB BlockCipher
+    | ChaCha8
+    | ChaCha12
+    | ChaCha20
+    | Salsa20
+    | SHAKE128XOF
+    | RC4
+  deriving (Show, Eq)
+
+streamCipherName :: StreamCipher -> StreamCipherName
+streamCipherName s = case s of
+    CTR_BE b    -> "CTR-BE(" <> blockCipherName b <> ")"
+    OFB b       -> "OFB(" <> blockCipherName b <> ")"
+    ChaCha8     -> "ChaCha(8)"
+    ChaCha12    -> "ChaCha(12)"
+    ChaCha20    -> "ChaCha(20)"
+    Salsa20     -> "Salsa20"
+    SHAKE128XOF -> "SHAKE-128"
+    RC4         -> "RC4"

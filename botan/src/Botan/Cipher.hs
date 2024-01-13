@@ -1,14 +1,115 @@
-module Botan.Cipher where
+{-|
+Module      : Botan.Low.Cipher
+Description : Symmetric cipher modes
+Copyright   : (c) Leo D, 2023
+License     : BSD-3-Clause
+Maintainer  : leo@apotheca.io
+Stability   : experimental
+Portability : POSIX
 
--- import Botan.Bindings.Cipher
---     ( CipherInitFlags(..)
---     , pattern BOTAN_CIPHER_INIT_FLAG_ENCRYPT
---     , pattern BOTAN_CIPHER_INIT_FLAG_DECRYPT
---     , CipherUpdateFlags(..)
---     , pattern BOTAN_CIPHER_UPDATE_FLAG_NONE
---     , pattern BOTAN_CIPHER_UPDATE_FLAG_FINAL
---     )
--- import Botan.Low.Cipher (Low.Cipher(..), CipherName(..), CipherKey(..), CipherNonce(..))
+A block cipher by itself, is only able to securely encrypt a single
+data block. To be able to securely encrypt data of arbitrary length,
+a mode of operation applies the block cipher’s single block operation
+repeatedly to encrypt an entire message.
+-}
+
+module Botan.Cipher
+(
+
+-- * Thing
+-- $introduction
+
+-- * Usage
+-- $usage
+
+-- * Idiomatic interface
+
+-- ** Data type
+  Cipher(..)
+, CipherMode(..)
+, CBCPadding(..)
+, AEAD(..)
+-- , AEADMode(..)
+
+-- ** Enumerations
+
+, allCiphers
+, cipherModes
+, aeads
+
+-- ** Associated types
+-- TODO: Leave CipherDirection only for mutable?
+, CipherDirection(..)
+, CipherKey(..)
+, CipherNonce(..)
+
+-- ** Accessors
+
+, cipherName
+, cipherKeySpec
+, cipherDefaultNonceSize
+, cipherNonceSizeIsValid
+, cipherTagLength
+, cipherUpdateGranularity
+, cipherIdealUpdateGranularity
+-- NOTE: This is our custom function
+, cipherEstimateOutputLength
+-- TODO: Determine if this function is state-dependent
+-- NOTE: Really returns an upper bound but is not accurate? Can't remember, notes are old.
+, cipherOutputLength
+
+-- ** Idiomatic algorithm
+, encrypt   -- NOTE: Offline
+, decrypt
+-- , encryptGeneratingKeys
+-- , autoEncrypt
+
+, aeadEncrypt
+, aeadDecrypt
+
+-- encryptLazy -- NOTE: Online, SIV and CCM are not available
+-- , decryptLazy
+
+-- * Mutable interface
+
+-- ** Tagged mutable context
+-- TODO: Split MutableCipher into MutableEncipher and MutableDecipher?
+-- Would be separate like pk ops
+, MutableCipher(..)
+
+-- ** Destructor
+, destroyCipher
+
+-- ** Initializers
+, newCipher
+
+-- ** Accessors
+, getCipherName
+, getCipherKeySpec
+, getCipherDefaultNonceSize
+, getCipherNonceSizeIsValid
+, getCipherTagLength
+, getCipherUpdateGranularity
+, getCipherIdealUpdateGranularity
+, getCipherEstimateOutputLength
+, getCipherOutputLength
+, setCipherKey
+-- , setCipherNonce
+, setAEADAssociatedData
+
+-- ** Accessory functions
+, clearCipher
+, resetCipher
+
+-- ** Mutable algorithm
+, startCipher
+, updateCipher
+, finalizeCipher
+, updateFinalizeCipher
+, updateFinalizeClearCipher
+
+) where
+
 import qualified Botan.Low.Cipher as Low
 
 import Botan.BlockCipher
@@ -18,70 +119,21 @@ import Botan.Prelude
 import qualified Data.ByteString as ByteString
 import Botan.RNG
 
--- Cipher spec
+-- WARNING: Some notes are incorrect or out of date. Proceed with caution
 
--- NOTE: For classes, we have:
---  Cipher / Encryption
---  AE / Authenticated encryption
---  AEAD / Authenticated encryption with associated data (not all AE has AD)
+{- $introduction
 
--- NOTE: Botan does not directly support AE without AD, though we can just supply "" for AD.
---  This botan documentation note makes reference to performing AE manually, ie Encrypt-then-MAC:
---      Warning
---      Using an unauthenticted cipher mode without combining it with a Message
---      Authentication Codes (MAC) is insecure. Prefer using an AEAD Mode.
+-}
 
--- NOTE: According to good practice, we should not use any of the plaintext if the tag is invalid
---  which can only happen at the end of processing. Therefore online cipher processing may be
---  of lesser value than initially thought. See usage note for Cipher.finish https://botan.randombit.net/handbook/api_ref/cipher_modes.html
--- \* This is due to botan's obscuration which attaches the tag. A datum could be pre-verified,
---  and thus not need the tag any more, *if* the schema is Encrypt-then-MAC
+{- $usage
 
--- TODO: type aliases for CipherModeCtx / AEADCtx for safety later 
+-}
 
-cbcPaddings =
-    [ PKCS7
-    , OneAndZeros
-    , X9_23
-    , ESP
-    , CTS
-    , NoPadding
-    ]
+--
+-- Idiomatic interface
+--
 
-cipherModes = concat
-    [ [ CipherMode $ (CBC bc pd)                            | bc <- allBlockCiphers, pd <- cbcPaddings ]
-    , [ CipherMode $ (CFB bc (8 * blockCipherBlockSize bc)) | bc <- allBlockCiphers ]
-    , [ CipherMode $ (XTS bc)                               | bc <- allBlockCiphers ]
-    ]
-
-aeads = concat
-    [ [ AEAD $ ChaCha20Poly1305 ]
-    , [ AEAD $ (GCM bc 16)                        | bc <- fmap BlockCipher128 blockCipher128s ]
-    , [ AEAD $ (OCB bc 16)                        | bc <- fmap BlockCipher128 blockCipher128s ]
-    , [ AEAD $ (EAX bc (blockCipherBlockSize bc)) | bc <- blockCiphers ] -- WARNING: Why just blockCiphers, why not allBlockCiphers? INHERITED - see Botan.Low.Cipher.aeads
-    , [ AEAD $ (SIV bc)                           | bc <- fmap BlockCipher128 blockCipher128s ]
-    , [ AEAD $ (CCM bc 16 3)                      | bc <- fmap BlockCipher128 blockCipher128s ]
-    ]
-
-ciphers = cipherModes ++ aeads
-
--- TODO: Direction = Encrypt | Decrypt, leave CipherFoo- terminology for Low
-data CipherDirection
-    = CipherEncrypt
-    | CipherDecrypt
-    
-cipherDirectionFlags :: CipherDirection -> Low.CipherInitFlags
-cipherDirectionFlags CipherEncrypt = Low.Encrypt
-cipherDirectionFlags CipherDecrypt = Low.Decrypt
-
--- TODO: data UpdateFlags = Update | Final, leave CipherFoo- terminology for Low
-data CipherUpdate
-    = CipherUpdate
-    | CipherFinal
-
-cipherUpdateFlags :: CipherUpdate -> Low.CipherUpdateFlags
-cipherUpdateFlags CipherUpdate = Low.CipherUpdate
-cipherUpdateFlags CipherFinal = Low.CipherFinal
+-- Data type
 
 -- NOTE: For EAX and GCM, any length nonces are allowed. OCB allows any value between 8 and 15 bytes.
 data Cipher
@@ -90,32 +142,11 @@ data Cipher
     | AEAD AEAD
     deriving (Eq, Show)
 
-cipherName :: Cipher -> Low.CipherName
-cipherName (CipherMode mode) = cipherModeName mode
-cipherName (AEAD aead) = aeadName aead
-
-cipherCtxInit :: Cipher -> CipherDirection -> Low.Cipher
-cipherCtxInit = unsafePerformIO2 cipherCtxInitIO
-
-cipherCtxInitIO :: Cipher -> CipherDirection -> IO Low.Cipher
-cipherCtxInitIO mode dir = Low.cipherInit (cipherName mode) (cipherDirectionFlags dir)
-
 data CipherMode
     = CBC BlockCipher CBCPadding
     | CFB BlockCipher Int -- Feedback bits size, default is 8 * block size
     | XTS BlockCipher
     deriving (Eq, Show)
-
-cipherModeName :: CipherMode -> Low.CipherName
-cipherModeName (CBC bc padding)    = Low.cbcMode (blockCipherName bc) (cbcPaddingName padding)
-cipherModeName (CFB bc fsz)        = Low.cfbMode' (blockCipherName bc) fsz
-cipherModeName (XTS bc)            = Low.xtsMode (blockCipherName bc)
-
-cipherCtxInitMode :: CipherMode -> CipherDirection -> Low.Cipher
-cipherCtxInitMode = unsafePerformIO2 cipherCtxInitModeIO
-
-cipherCtxInitModeIO :: CipherMode -> CipherDirection -> IO Low.Cipher
-cipherCtxInitModeIO mode = cipherCtxInitIO (CipherMode mode)
 
 -- CBC Padding - does this have use elsewhere?
 data CBCPadding
@@ -126,14 +157,6 @@ data CBCPadding
     | CTS   -- NOTE: Ciphertext stealing
     | NoPadding
     deriving (Eq, Show)
-
-cbcPaddingName :: CBCPadding -> ByteString
-cbcPaddingName PKCS7        = Low.PKCS7
-cbcPaddingName OneAndZeros  = Low.OneAndZeros
-cbcPaddingName X9_23        = Low.X9_23
-cbcPaddingName ESP          = Low.ESP
-cbcPaddingName CTS          = Low.CTS
-cbcPaddingName NoPadding    = Low.NoPadding
 
 -- NOTE: "GCM is defined for the tag sizes 4, 8, 12 - 16 bytes" but may actually accept any 1-16
 -- NOTE: Wiki: "Both GCM and GMAC can accept initialization vectors of arbitrary length." - untested
@@ -158,6 +181,62 @@ data AEAD
     | CCM BlockCipher {- TODO: BlockCipher128 -} Int Int -- Tag size and L, default tag size is 16 and L is 3
     deriving (Eq, Show)
 
+-- Enumerations
+
+cipherModes = concat
+    [ [ CBC bc pd                            | bc <- allBlockCiphers, pd <- cbcPaddings ]
+    , [ CFB bc (8 * blockCipherBlockSize bc) | bc <- allBlockCiphers ]
+    , [ XTS bc                               | bc <- allBlockCiphers ]
+    ]
+
+cbcPaddings =
+    [ PKCS7
+    , OneAndZeros
+    , X9_23
+    , ESP
+    , CTS
+    , NoPadding
+    ]
+
+aeads = concat
+    [ [ ChaCha20Poly1305 ]
+    , [ GCM bc 16                        | bc <- fmap BlockCipher128 blockCipher128s ]
+    , [ OCB bc 16                        | bc <- fmap BlockCipher128 blockCipher128s ]
+    , [ EAX bc (blockCipherBlockSize bc) | bc <- blockCiphers ] -- WARNING: Why just blockCiphers, why not allBlockCiphers? INHERITED - see Botan.Low.Cipher.aeads
+    , [ SIV bc                           | bc <- fmap BlockCipher128 blockCipher128s ]
+    , [ CCM bc 16 3                      | bc <- fmap BlockCipher128 blockCipher128s ]
+    ]
+
+allCiphers = fmap CipherMode cipherModes ++ fmap AEAD aeads
+
+-- Associated types
+
+
+type CipherKeySpec = KeySpec
+
+-- TODO: Leave CipherDirection only for mutable?
+-- CipherDirection(..)
+-- CipherKey(..)
+-- CipherNonce(..)
+
+-- Accessors
+cipherName :: Cipher -> Low.CipherName
+cipherName (CipherMode mode) = cipherModeName mode
+cipherName (AEAD aead) = aeadName aead
+
+cipherModeName :: CipherMode -> Low.CipherName
+cipherModeName (CBC bc padding)    = Low.cbcMode (blockCipherName bc) (cbcPaddingName padding)
+cipherModeName (CFB bc fsz)        = Low.cfbMode' (blockCipherName bc) fsz
+cipherModeName (XTS bc)            = Low.xtsMode (blockCipherName bc)
+
+cbcPaddingName :: CBCPadding -> ByteString
+cbcPaddingName PKCS7        = Low.PKCS7
+cbcPaddingName OneAndZeros  = Low.OneAndZeros
+cbcPaddingName X9_23        = Low.X9_23
+cbcPaddingName ESP          = Low.ESP
+cbcPaddingName CTS          = Low.CTS
+cbcPaddingName NoPadding    = Low.NoPadding
+
 aeadName :: AEAD -> Low.CipherName
 aeadName ChaCha20Poly1305   = Low.chaCha20Poly1305
 aeadName (GCM bc tsz)       = Low.gcmMode' (blockCipherName bc) tsz
@@ -166,43 +245,134 @@ aeadName (EAX bc tsz)       = Low.eaxMode' (blockCipherName bc) tsz
 aeadName (SIV bc)           = Low.sivMode (blockCipherName bc)
 aeadName (CCM bc tsz l)     = Low.ccmMode' (blockCipherName bc) tsz l
 
+cipherKeySpec :: Cipher -> CipherKeySpec
+cipherKeySpec (CipherMode (CBC bc _)) = blockCipherKeySpec bc
+cipherKeySpec (CipherMode (CFB bc _)) = blockCipherKeySpec bc
+cipherKeySpec (CipherMode (XTS bc))   = monoMapKeySpec (*2) $ blockCipherKeySpec bc
+cipherKeySpec (AEAD ChaCha20Poly1305) = keySpec 32 32 1
+cipherKeySpec (AEAD (GCM bc128 _))    = blockCipherKeySpec bc128
+cipherKeySpec (AEAD (OCB bc128 _))    = blockCipherKeySpec bc128
+cipherKeySpec (AEAD (EAX bc _))       = blockCipherKeySpec bc
+cipherKeySpec (AEAD (SIV bc128))      = monoMapKeySpec (*2) $ blockCipherKeySpec bc128
+cipherKeySpec (AEAD (CCM bc128 _ _))  = blockCipherKeySpec bc128
+-- NOTE: Extracted from inspecting:
+{-
+generateCipherKeySpecs :: IO ()
+generateCipherKeySpecs = do
+    each <- forM ciphers  $ \ c -> do
+        ctx <- Low.cipherInit (cipherName c) Low.Encrypt
+        (mn,mx,md) <- Low.cipherGetKeyspec ctx
+        return $ concat $
+            [ "cipherKeySpec "
+            , showsPrec 11 c ""
+            , " = CipherKeySpec "
+            , show mn
+            , " "
+            , show mx
+            , " "
+            , show md
+            ]
+    putStrLn $ unlines $
+        "cipherKeySpec :: Cipher -> CipherKeySpec"
+        : each
+-}
+
+
+cipherDefaultNonceSize = undefined 
+
+cipherNonceSizeIsValid = undefined 
+
+cipherTagLength = undefined 
+
+cipherUpdateGranularity = undefined 
+
+cipherIdealUpdateGranularity = undefined 
+
+-- NOTE: This is our custom function
+cipherEstimateOutputLength = undefined
+-- TODO: Determine if this function is state-dependent
+-- NOTE: Really returns an upper bound but is not accurate? Can't remember, notes are old.
+cipherOutputLength = undefined
+
+-- Idiomatic algorithm
+
+encrypt = undefined   -- NOTE: Offline
+decrypt = undefined
+aeadEncrypt = undefined
+aeadDecrypt = undefined
+
+--
+-- Mutable interface
+--
+
+-- Tagged mutable context
+-- Destructor
+-- Initializers
+-- Accessors
+-- Accessory functions
+-- Mutable algorithm
+
+
+
+
+
+
+-- Cipher spec
+
+-- NOTE: For classes, we have:
+--  Cipher / Encryption
+--  AE / Authenticated encryption
+--  AEAD / Authenticated encryption with associated data (not all AE has AD)
+
+-- NOTE: Botan does not directly support AE without AD, though we can just supply "" for AD.
+--  This botan documentation note makes reference to performing AE manually, ie Encrypt-then-MAC:
+--      Warning
+--      Using an unauthenticted cipher mode without combining it with a Message
+--      Authentication Codes (MAC) is insecure. Prefer using an AEAD Mode.
+
+-- NOTE: According to good practice, we should not use any of the plaintext if the tag is invalid
+--  which can only happen at the end of processing. Therefore online cipher processing may be
+--  of lesser value than initially thought. See usage note for Cipher.finish https://botan.randombit.net/handbook/api_ref/cipher_modes.html
+-- \* This is due to botan's obscuration which attaches the tag. A datum could be pre-verified,
+--  and thus not need the tag any more, *if* the schema is Encrypt-then-MAC
+
+-- TODO: type aliases for CipherModeCtx / AEADCtx for safety later 
+
+-- TODO: Direction = Encrypt | Decrypt, leave CipherFoo- terminology for Low
+data CipherDirection
+    = CipherEncrypt
+    | CipherDecrypt
+    
+cipherDirectionFlags :: CipherDirection -> Low.CipherInitFlags
+cipherDirectionFlags CipherEncrypt = Low.Encrypt
+cipherDirectionFlags CipherDecrypt = Low.Decrypt
+
+-- TODO: data UpdateFlags = Update | Final, leave CipherFoo- terminology for Low
+data CipherUpdate
+    = CipherUpdate
+    | CipherFinal
+
+cipherUpdateFlags :: CipherUpdate -> Low.CipherUpdateFlags
+cipherUpdateFlags CipherUpdate = Low.CipherUpdate
+cipherUpdateFlags CipherFinal = Low.CipherFinal
+
+cipherCtxInit :: Cipher -> CipherDirection -> Low.Cipher
+cipherCtxInit = unsafePerformIO2 cipherCtxInitIO
+
+cipherCtxInitIO :: Cipher -> CipherDirection -> IO Low.Cipher
+cipherCtxInitIO mode dir = Low.cipherInit (cipherName mode) (cipherDirectionFlags dir)
+
+cipherCtxInitMode :: CipherMode -> CipherDirection -> Low.Cipher
+cipherCtxInitMode = unsafePerformIO2 cipherCtxInitModeIO
+
+cipherCtxInitModeIO :: CipherMode -> CipherDirection -> IO Low.Cipher
+cipherCtxInitModeIO mode = cipherCtxInitIO (CipherMode mode)
+
 cipherCtxInitAEAD :: AEAD -> CipherDirection -> Low.Cipher
 cipherCtxInitAEAD = unsafePerformIO2 cipherCtxInitAEADIO
 
 cipherCtxInitAEADIO :: AEAD -> CipherDirection -> IO Low.Cipher
 cipherCtxInitAEADIO aead = cipherCtxInitIO (AEAD aead)
-
--- Stream ciphers
-
--- NOTE: Need to patch botan stream cipher like Z-Botan
--- Stream ciphers operate at the bit level by XORing the plaintext
---  against a stream of pseudorandom bits, and as such do not exhibit
---  the avalanche effect seen in hashing and block ciphers
-{-
-type StreamCipherName = ByteString
-
-data StreamCipher
-    = CTR_BE BlockCipher
-    | OFB BlockCipher
-    | ChaCha8
-    | ChaCha12
-    | ChaCha20
-    | Salsa20
-    | SHAKE128XOF
-    | RC4
-  deriving (Show, Eq)
-
-streamCipherName :: StreamCipher -> StreamCipherName
-streamCipherName s = case s of
-    CTR_BE b    -> "CTR-BE(" <> blockCipherName b <> ")"
-    OFB b       -> "OFB(" <> blockCipherName b <> ")"
-    ChaCha8     -> "ChaCha(8)"
-    ChaCha12    -> "ChaCha(12)"
-    ChaCha20    -> "ChaCha(20)"
-    Salsa20     -> "Salsa20"
-    SHAKE128XOF ->  "SHAKE-128"
-    RC4         -> "RC4"
--}
 
 --
 
@@ -416,46 +586,6 @@ aeadDecipherDetached = undefined
 --
 
 
--- data CipherKeySpec
---     = CipherKeySpec
---     { cipherKeyMinimum :: Int
---     , cipherKeyMaximum :: Int
---     , cipherKeyModulo  :: Int
---     }
---     deriving (Show)
-type CipherKeySpec = KeySpec
-
-cipherKeySpec :: Cipher -> CipherKeySpec
-cipherKeySpec (CipherMode (CBC bc _)) = blockCipherKeySpec bc
-cipherKeySpec (CipherMode (CFB bc _)) = blockCipherKeySpec bc
-cipherKeySpec (CipherMode (XTS bc))   = monoMapKeySpec (*2) $ blockCipherKeySpec bc
-cipherKeySpec (AEAD ChaCha20Poly1305) = keySpec 32 32 1
-cipherKeySpec (AEAD (GCM bc128 _))    = blockCipherKeySpec bc128
-cipherKeySpec (AEAD (OCB bc128 _))    = blockCipherKeySpec bc128
-cipherKeySpec (AEAD (EAX bc _))       = blockCipherKeySpec bc
-cipherKeySpec (AEAD (SIV bc128))      = monoMapKeySpec (*2) $ blockCipherKeySpec bc128
-cipherKeySpec (AEAD (CCM bc128 _ _))  = blockCipherKeySpec bc128
--- NOTE: Extracted from inspecting:
-{-
-generateCipherKeySpecs :: IO ()
-generateCipherKeySpecs = do
-    each <- forM ciphers  $ \ c -> do
-        ctx <- Low.cipherInit (cipherName c) Low.Encrypt
-        (mn,mx,md) <- Low.cipherGetKeyspec ctx
-        return $ concat $
-            [ "cipherKeySpec "
-            , showsPrec 11 c ""
-            , " = CipherKeySpec "
-            , show mn
-            , " "
-            , show mx
-            , " "
-            , show md
-            ]
-    putStrLn $ unlines $
-        "cipherKeySpec :: Cipher -> CipherKeySpec"
-        : each
--}
 
 type CipherKey = Low.CipherKey
 
@@ -464,146 +594,3 @@ newCipherKey' = newKey . cipherKeySpec
 
 newCipherKeyMaybe :: (MonadRandomIO m) => Int -> Cipher -> m (Maybe CipherKey)
 newCipherKeyMaybe sz bc = newKeyMaybe sz (cipherKeySpec bc) 
-
-cipherDefaultNonceLength :: Cipher -> Int
-cipherDefaultNonceLength (CipherMode (CBC bc _)) = blockCipherBlockSize bc
-cipherDefaultNonceLength (CipherMode (CFB bc _)) = blockCipherBlockSize bc
-cipherDefaultNonceLength (CipherMode (XTS bc))   = blockCipherBlockSize bc
--- NOTE: This is the value at current, and matches the default in botan,
--- presumably because 12 is valid for all AEAD nonces 
-cipherDefaultNonceLength (AEAD _)                = 12
--- NOTE: Extracted from inspecting:
-{-
-generateCipherDefaultNonceLengths :: IO ()
-generateCipherDefaultNonceLengths = do
-    each <- forM ciphers  $ \ c -> do
-        ctx <- Low.cipherInit (cipherName c) Low.Encrypt
-        nlen <- Low.cipherGetDefaultNonceLength ctx
-        return $ concat $
-            [ "cipherDefaultNonceLength "
-            , showsPrec 11 c ""
-            , " = "
-            , show nlen
-            ]
-    putStrLn $ unlines $
-        "cipherDefaultNonceLength :: Cipher -> Int"
-        : each
--}
-
--- TODO: Make NonceSpec? generalize to RangeSpec?
-
-cipherNonceLengthIsValid :: Int -> Cipher -> Bool
--- cipherNonceLengthIsValid n cipher = unsafePerformIO $ do
---     ctx <- Low.cipherInit (cipherName cipher) Low.Encrypt
---     Low.cipherValidNonceLength ctx n
--- {-# NOINLINE cipherNonceLengthIsValid #-}
--- NOTE: Just piping through unsafely with a temp context for now
--- This manual implementation should be efficient, but need to confirm maxBound:
-cipherNonceLengthIsValid n (CipherMode (CBC bc _)) = n == blockCipherBlockSize bc
-cipherNonceLengthIsValid n (CipherMode (CFB bc _)) = n == blockCipherBlockSize bc
-cipherNonceLengthIsValid n (CipherMode (XTS bc))   = 1 <= n && n <= blockCipherBlockSize bc -- Always [ 1 .. 16 ]
-cipherNonceLengthIsValid n (AEAD ChaCha20Poly1305) = n `elem` [ 8, 12, 24 ]
-cipherNonceLengthIsValid n (AEAD (GCM _ _))        = 1 <= n && n <= 512 -- True if unbounded
-cipherNonceLengthIsValid n (AEAD (OCB bc128 _))    = 1 <= n && n <= blockCipherBlockSize bc128 - 1 -- Always [ 1 .. 15 ]
-cipherNonceLengthIsValid n (AEAD (EAX _ _))        = 1 <= n && n <= 512 -- True if unbounded
-cipherNonceLengthIsValid n (AEAD (SIV _))          = 1 <= n && n <= 512 -- True if unbounded
-cipherNonceLengthIsValid n (AEAD (CCM _ _ _))      = n == 12
--- NOTE: Cases inferred from cipherValidNonceLengths and generateCipherNonceLengths
-
--- NOTE: We've capped the length at 512, but they could be potentially unbounded
--- Also this is inefficient compared to cipherNonceLengthIsValid, as it actually
--- calculates the list of valid lengths, which may be large or unbounded
-cipherValidNonceLengths :: Cipher -> [ Int ]
-cipherValidNonceLengths (CipherMode (CBC bc _)) = [ blockCipherBlockSize bc ]
-cipherValidNonceLengths (CipherMode (CFB bc _)) = [ blockCipherBlockSize bc ]
-cipherValidNonceLengths (CipherMode (XTS bc))   = [ 1 .. blockCipherBlockSize bc ] -- Always [ 1 .. 16 ]
-cipherValidNonceLengths (AEAD ChaCha20Poly1305) = [ 8, 12, 24 ]
-cipherValidNonceLengths (AEAD (GCM _ _))        = [ 1 .. 512 ] -- maxBound if unbounded
-cipherValidNonceLengths (AEAD (OCB bc128 _))    = [ 1 .. blockCipherBlockSize bc128 - 1 ] -- Always [ 1 .. 15 ]
-cipherValidNonceLengths (AEAD (EAX _ _))        = [ 1 .. 512 ] -- maxBound if unbounded
-cipherValidNonceLengths (AEAD (SIV _))          = [ 1 .. 512 ] -- maxBound if unbounded
-cipherValidNonceLengths (AEAD (CCM _ _ _))      = [12]
--- NOTE: Extracted from inspecting:
-{-
-generateCipherNonceLengths :: IO ()
-generateCipherNonceLengths = do
-    each <- forM ciphers  $ \ c -> do
-        ctx <- Low.cipherInit (cipherName c) Low.Encrypt
-        validLengths <- filterM (Low.cipherValidNonceLength ctx) [1..512]
-        return $ concat $
-            [ "cipherValidNonceLengths "
-            , showsPrec 11 c ""
-            , " = "
-            , show validLengths
-            ]
-    putStrLn $ unlines $
-        "cipherValidNonceLengths :: Cipher -> [ Int ]"
-        : each
--}
-
-cipherTagLength :: Cipher -> Maybe Int
-cipherTagLength (CipherMode _) = Nothing
-cipherTagLength (AEAD aead) = Just $ aeadTagLength aead
-
-aeadTagLength :: AEAD -> Int
-aeadTagLength ChaCha20Poly1305  = 16
-aeadTagLength (GCM _ tsz)       = tsz
-aeadTagLength (OCB _ tsz)       = tsz
-aeadTagLength (EAX _ tsz)       = tsz
-aeadTagLength (SIV bc)          = 16
-aeadTagLength (CCM _ tsz l)     = tsz
--- NOTE: Extracted / confirmed from inspecting:
-{-
-generateCipherTagLength :: IO ()
-generateCipherTagLength = do
-    each <- forM ciphers  $ \ c -> do
-        ctx <- Low.cipherInit (cipherName c) Low.Encrypt
-        tag <- Low.cipherGetTagLength ctx
-        return $ concat $
-            [ "cipherTagLength "
-            , showsPrec 11 c ""
-            , " = "
-            , show tag
-            ]
-    putStrLn $ unlines $
-        "cipherTagLength :: Cipher -> Int"
-        : each
--}
-
-cipherUpdateGranularity :: Cipher -> Int
-cipherUpdateGranularity (CipherMode (CBC bc CTS))   = 2 * blockCipherBlockSize bc
-cipherUpdateGranularity (CipherMode (CBC bc _))     = blockCipherBlockSize bc
-cipherUpdateGranularity (CipherMode (CFB bc _))     = blockCipherBlockSize bc
-cipherUpdateGranularity (CipherMode (XTS bc))       = 2 * blockCipherBlockSize bc
-cipherUpdateGranularity (AEAD ChaCha20Poly1305)     = 1
-cipherUpdateGranularity (AEAD (GCM bc128 _))        = blockCipherBlockSize bc128 -- always 16
-cipherUpdateGranularity (AEAD (OCB bc128 _))        = blockCipherBlockSize bc128 -- always 16
-cipherUpdateGranularity (AEAD (EAX _ _))            = 1
-cipherUpdateGranularity (AEAD (SIV _))              = 1
-cipherUpdateGranularity (AEAD (CCM _ _ _))          = 1
--- NOTE: Extracted / confirmed from inspecting:
-{-
-generateCipherUpdateGranularity :: IO ()
-generateCipherUpdateGranularity = do
-    each <- forM ciphers  $ \ c -> do
-        ctx <- Low.cipherInit (cipherName c) Low.Encrypt
-        ug <- Low.cipherGetUpdateGranularity ctx
-        return $ concat $
-            [ "cipherUpdateGranularity "
-            , showsPrec 11 c ""
-            , " = "
-            , show ug
-            ]
-    putStrLn $ unlines $
-        "cipherUpdateGranularity :: Cipher -> Int"
-        : each
--}
-
-cipherIdealUpdateGranularity :: Cipher -> Int
-cipherIdealUpdateGranularity cipher = unsafePerformIO $ do
-    ctx <- Low.cipherInit (cipherName cipher) Low.Encrypt
-    Low.cipherGetIdealUpdateGranularity ctx
-{-# NOINLINE cipherIdealUpdateGranularity #-}
--- NOTE: This is machine-dependent, but should stay consistent per-machine
--- so we do this instead of inlining the values  
-
