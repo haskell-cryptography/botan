@@ -1,4 +1,41 @@
-module Botan.PubKey.Sign where
+{-|
+Module      : Botan.PubKey.Sign
+Description : Signature Generation
+Copyright   : (c) Leo D, 2023
+License     : BSD-3-Clause
+Maintainer  : leo@apotheca.io
+Stability   : experimental
+Portability : POSIX
+-}
+
+module Botan.PubKey.Sign
+(
+
+-- * Thing
+-- $introduction
+
+-- * Usage
+-- $usage
+
+-- * Public Key Signatures
+
+-- ** Data type
+  PKSign(..)
+
+-- ** Destructor
+, destroyPKSign
+
+-- ** Initializers
+, newPKSign
+
+-- ** Accessors
+, pkSignOutputLength
+
+-- ** Algorithm
+, pkSignUpdate
+, pkSignFinish
+
+) where
 
 import qualified Data.ByteString as ByteString
 
@@ -10,6 +47,64 @@ import Botan.Error
 import Botan.Hash
 import Botan.Prelude
 import Botan.PubKey
+import Botan.RNG
+
+{- $introduction
+
+-}
+
+{- $usage
+
+-}
+
+--
+-- Public Key Signatures
+--
+
+-- Data type
+data PKSign
+
+-- ** Destructor
+destroyPKSign :: (MonadIO m) => PKSign -> m ()
+destroyPKSign = undefined
+
+-- ** Initializers
+
+data PKSignAlgo
+data PKSignatureFormat
+data PKSignature
+
+newPKSign :: (MonadIO m) => PrivKey -> PKSignAlgo -> PKSignatureFormat -> m PKSign
+newPKSign = undefined
+
+-- ** Accessors
+pkSignOutputLength :: PKSign -> Int -> Int
+pkSignOutputLength = undefined
+
+-- Idiomatic algorithm
+
+pkSign :: (MonadRandomIO m) => PrivKey -> PKSignAlgo -> PKSignatureFormat -> ByteString -> m PKSignature
+pkSign = undefined 
+
+-- ** Mutable Algorithm
+
+pkSignUpdate :: (MonadIO m) => PKSign -> ByteString -> m ()
+pkSignUpdate = undefined
+
+pkSignFinish :: (MonadRandomIO m) => PKSign -> m PKSignature
+pkSignFinish = undefined
+
+
+
+
+--
+-- OG BELOW
+--
+
+
+
+
+
 
 -- NOTE: Related to pk_pad
 

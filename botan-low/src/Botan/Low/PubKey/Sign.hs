@@ -1,5 +1,5 @@
 {-|
-Module      : Botan.Low.Sign
+Module      : Botan.Low.PubKey.Sign
 Description : Signature Generation
 Copyright   : (c) Leo D, 2023
 License     : BSD-3-Clause
