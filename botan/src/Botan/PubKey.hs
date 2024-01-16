@@ -1,11 +1,216 @@
-module Botan.PubKey where
+{-|
+Module      : Botan.PubKey
+Description : Public key cryptography
+Copyright   : (c) Leo D, 2023
+License     : BSD-3-Clause
+Maintainer  : leo@apotheca.io
+Stability   : experimental
+Portability : POSIX
 
-import Botan.Low.PubKey (PubKey(..), PubKeyName(..), PrivKey(..), PrivKeyName(..), PKPaddingName(..))
+Public key cryptography is a collection of techniques allowing
+for encryption, signatures, and key agreement.
+-}
+
+module Botan.PubKey
+(
+
+-- * Thing
+-- $introduction
+
+-- * Usage
+-- $usage
+
+-- * Idiomatic interface
+
+-- ** Data type
+  PK(..)
+
+-- ** Enumerations
+
+, allPKs
+
+-- ** Associated types
+
+-- TODO: Rename XMSSScheme
+, XMSS(..)
+, ECGroup(..)
+, DLGroup(..)
+, PKExportFormat(..)
+, PKCheckKeyFlags(..)
+, PKPadding(..)
+
+-- * Private Keys
+
+-- ** Wrapped private key
+, PrivKey(..)
+
+-- ** Destructor
+, destroyPrivKey
+
+-- ** Initializers
+, newPrivKey
+
+-- ** Accessors
+
+, privKeyAlgo
+, privKeyField
+
+-- ** Accessory functions
+, loadPrivKey
+, exportPrivKey
+, exportPrivKeyPubKey
+, checkPrivKey
+
+-- * Public Keys
+
+, PubKey(..)
+
+-- ** Destructor
+, destroyPubKey
+
+-- ** Accessors
+
+, pubKeyAlgo
+, pubKeyField
+, estimatedPubKeyStrength
+, pubKeyFingerprint
+
+-- ** Accessory functions
+
+, loadPubKey
+, exportPubKey
+, checkPubKey
+
+--
+
+, privKeyCreatePKIO
+
+) where
+
 import qualified Botan.Low.PubKey as Low
+import Botan.Low.PubKey (PrivKey(..), PubKey(..))
 import qualified Botan.Low.RNG as Low
+import Botan.Low.MPI (MP(..))
 
 import Botan.Hash
 import Botan.Prelude
+import Botan.RNG
+
+{- $introduction
+
+-}
+
+{- $usage
+
+-}
+
+--
+-- Idiomatic interface
+--
+
+-- Data type
+
+-- data PK
+
+-- Enumerations
+
+allPKs = undefined
+
+-- Accessory types
+
+data PKExportFormat
+    = PKExportDER
+    | PKExportPEM
+
+--
+-- Private Keys
+--
+
+-- Wrapped private key
+
+-- data PrivKey
+
+-- Destructor
+
+destroyPrivKey :: (MonadIO m) => PrivKey -> m ()
+destroyPrivKey = undefined
+
+-- Initializers
+
+newPrivKey :: (MonadRandomIO m) => PK -> m PrivKey
+newPrivKey = undefined
+
+-- Accessors
+
+privKeyAlgo :: PrivKey -> PK
+privKeyAlgo = undefined
+
+privKeyField :: PrivKey -> ByteString -> Maybe MP
+privKeyField = undefined
+
+-- Accessory functions
+
+-- NOTE: No way to recover the algo yet
+loadPrivKey :: ByteString -> ByteString -> Maybe PrivKey
+loadPrivKey bits password = undefined
+
+exportPrivKey :: PrivKey -> PKExportFormat -> m ByteString
+exportPrivKey = undefined
+
+exportPrivKeyPubKey :: PrivKey -> PubKey
+exportPrivKeyPubKey = undefined
+
+checkPrivKey :: (MonadRandomIO m) => PrivKey -> Bool -> m Bool
+checkPrivKey = undefined
+
+--
+-- Public Keys
+--
+
+-- data PubKey
+
+-- Destructor
+
+destroyPubKey :: (MonadIO m) => PubKey -> m ()
+destroyPubKey = undefined
+
+-- Accessors
+
+pubKeyAlgo :: PubKey -> PK
+pubKeyAlgo = undefined
+
+pubKeyField :: PubKey -> ByteString -> Maybe MP
+pubKeyField = undefined
+
+estimatedPubKeyStrength :: PubKey -> Int
+estimatedPubKeyStrength = undefined
+
+pubKeyFingerprint :: PubKey -> Hash -> ByteString
+pubKeyFingerprint = undefined
+
+-- Accessory functions
+
+-- NOTE: No way to recover the algo yet
+loadPubKey :: ByteString -> Maybe PubKey
+loadPubKey = undefined
+
+exportPubKey :: PubKey -> PKExportFormat -> m ByteString
+exportPubKey = undefined
+
+checkPubKey :: (MonadRandomIO m) => PubKey -> Bool -> m Bool
+checkPubKey = undefined
+
+
+
+
+
+--
+-- OG BELOW
+--
+
+
+
+
 
 -- TODO: Dig into Key agreement (KA) vs key exchange (KE / KX) vs key encapsulation mechanism (KEM)
 -- NOTE: libsodium uses kx for key exchange
@@ -222,9 +427,9 @@ dlGroupName DSA_BOTAN_3072  = Low.DSA_BOTAN_3072
 privKeyCreatePKIO :: PK -> Low.RNG -> IO PrivKey
 privKeyCreatePKIO pk = Low.privKeyCreate (pkName pk) (pkParams pk)
 
-data PKExportFlags
-    = PKExportDER   -- BOTAN_PRIVKEY_EXPORT_FLAG_DER
-    | PKExportPEM   -- BOTAN_PRIVKEY_EXPORT_FLAG_PEM
+-- data PKExportFlags
+--     = PKExportDER   -- BOTAN_PRIVKEY_EXPORT_FLAG_DER
+--     | PKExportPEM   -- BOTAN_PRIVKEY_EXPORT_FLAG_PEM
 
 data PKCheckKeyFlags
     = PKCheckKeyNone            -- BOTAN_CHECK_KEY_NONE
@@ -237,7 +442,7 @@ data PKPadding
     | EME_OAEP Hash (Maybe Hash) (Maybe ByteString)    -- Hash, mask gen hash, label
     | SM2EncParam Hash  -- NOTE: Why SM2 specific? Why not just PKPaddingHash Hash?
 
-pkPaddingName :: PKPadding -> PKPaddingName
+pkPaddingName :: PKPadding -> ByteString
 pkPaddingName EME_RAW     = Low.RAW
 pkPaddingName EME_PKCS1   = Low.PKCS1_v1_5  -- "PKCS1v15" -- Why not "EME-PKCS1-v1_5"? See C++ docs
 pkPaddingName (EME_OAEP h m l) = case (m,l) of
