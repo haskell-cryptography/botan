@@ -36,15 +36,12 @@ module Botan.PubKey.Verify
 
 import qualified Data.ByteString as ByteString
 
-import Data.Bool
-
-import qualified Botan.Low.PubKey.Sign as Low
+import qualified Botan.Low.PubKey.Verify as Low
 
 import Botan.Error
-import Botan.Hash
 import Botan.Prelude
 import Botan.PubKey
-import Botan.RNG
+import Botan.PubKey.Sign
 
 {- $introduction
 
@@ -66,10 +63,6 @@ destroyPKVerify :: (MonadIO m) => PKVerify -> m ()
 destroyPKVerify = undefined
 
 -- ** Initializers
-
-data PKVerifyAlgo
-data PKVerifyatureFormat
-data PKVerifyature
 
 newPKVerify :: (MonadIO m) => PubKey -> PKSignAlgo -> PKSignatureFormat -> m PKVerify
 newPKVerify = undefined

@@ -22,6 +22,12 @@ module Botan.PubKey.Sign
 -- ** Data type
   PKSign(..)
 
+-- ** Associated types
+
+, PKSignAlgo(..)
+, PKSignatureFormat(..)
+, PKSignature(..)
+
 -- ** Destructor
 , destroyPKSign
 

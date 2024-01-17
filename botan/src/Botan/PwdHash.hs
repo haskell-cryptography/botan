@@ -7,6 +7,10 @@ import Botan.Hash
 import Botan.MAC
 import Botan.Prelude
 
+-- NOTE: I suspect that there is an implicit random generator access going on
+--  under the hood, so these are to be relegated to MonadRandomIO, even though
+--  they do not explicitly require an RNG context
+
 pwdhash :: PBKDF -> Int -> ByteString -> ByteString -> ByteString
 pwdhash algo outLen passphrase salt = unsafePerformIO $ Low.pwdhash
     name

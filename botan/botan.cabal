@@ -46,10 +46,15 @@ library
         -- NOTE: Botan does not directly expose padding
         Botan.Padding
         Botan.PubKey
+        Botan.PubKey.Decrypt
+        Botan.PubKey.Encrypt
         Botan.PubKey.Sign
         Botan.PubKey.KeyAgreement
+        Botan.PubKey.KeyEncapsulation
+        Botan.PubKey.Verify
         Botan.PwdHash
         Botan.RNG
+        Botan.SRP6
         Botan.Utility
         Botan.Version
         Botan.X509

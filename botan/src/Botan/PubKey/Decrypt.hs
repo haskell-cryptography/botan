@@ -8,7 +8,7 @@ Stability   : experimental
 Portability : POSIX
 -}
 
-module Botan.Low.PubKey.Decrypt
+module Botan.PubKey.Decrypt
 (
 
 -- * Thing
@@ -20,7 +20,7 @@ module Botan.Low.PubKey.Decrypt
 -- * Public Key Decryption
 
 -- ** Data type
-, PKDecrypt(..)
+  PKDecrypt(..)
 
 -- ** Destructor
 , destroyPKDecrypt
@@ -38,14 +38,12 @@ module Botan.Low.PubKey.Decrypt
 
 import qualified Data.ByteString as ByteString
 
-import Botan.Bindings.PubKey.Decrypt
+import qualified Botan.Low.PubKey.Decrypt as Low
 
-import Botan.Low.Error
-import Botan.Low.Make
-import Botan.Low.Prelude
-import Botan.Low.RNG
-import Botan.Low.PubKey
-import Botan.Low.Remake
+import Botan.Error
+import Botan.Prelude
+import Botan.PubKey
+import Botan.RNG
 
 
 {- $introduction
@@ -81,5 +79,6 @@ pkDecryptOutputLength = undefined
 
 -- Algorithm
 
-pkDecrypt :: (MonadRandomIO m) => PKDecrypt -> ByteString -> IO ByteString
+-- TODO: Probably doesn't require MonadRandomIO
+pkDecrypt :: (MonadRandomIO m) => PKDecrypt -> ByteString -> m ByteString
 pkDecrypt = undefined

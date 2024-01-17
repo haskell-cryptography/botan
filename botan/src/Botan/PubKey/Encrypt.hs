@@ -8,7 +8,7 @@ Stability   : experimental
 Portability : POSIX
 -}
 
-module Botan.Low.PubKey.Encrypt
+module Botan.PubKey.Encrypt
 (
 
 -- * Thing
@@ -20,7 +20,7 @@ module Botan.Low.PubKey.Encrypt
 -- * Public Key Encryption
 
 -- ** Data type
-, PKEncrypt(..)
+  PKEncrypt(..)
 
 -- ** Destructor
 , destroyPKEncrypt
@@ -38,15 +38,12 @@ module Botan.Low.PubKey.Encrypt
 
 import qualified Data.ByteString as ByteString
 
-import Botan.Bindings.PubKey.Encrypt
+import qualified Botan.Low.PubKey.Encrypt as Low
 
-import Botan.Low.Error
-import Botan.Low.Make
-import Botan.Low.Prelude
-import Botan.Low.RNG
-import Botan.Low.PubKey
-import Botan.Low.Remake
-
+import Botan.Error
+import Botan.Prelude
+import Botan.PubKey
+import Botan.RNG
 
 {- $introduction
 
@@ -81,5 +78,5 @@ pkEncryptOutputLength = undefined
 
 -- Algorithm
 
-pkEncrypt :: (MonadRandomIO m) => PKEncrypt -> ByteString -> IO ByteString
+pkEncrypt :: (MonadRandomIO m) => PKEncrypt -> ByteString -> m ByteString
 pkEncrypt = undefined
