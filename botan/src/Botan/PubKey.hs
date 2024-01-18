@@ -24,6 +24,10 @@ module Botan.PubKey
 
 -- ** Data type
   PK(..)
+-- TODO: Rename XMSSScheme
+, XMSS(..)
+, ECGroup(..)
+, DLGroup(..)
 
 -- ** Enumerations
 
@@ -31,10 +35,6 @@ module Botan.PubKey
 
 -- ** Associated types
 
--- TODO: Rename XMSSScheme
-, XMSS(..)
-, ECGroup(..)
-, DLGroup(..)
 , PKExportFormat(..)
 , PKCheckKeyFlags(..)
 , PKPadding(..)
@@ -90,11 +90,13 @@ module Botan.PubKey
 import qualified Botan.Low.PubKey as Low
 import Botan.Low.PubKey (PrivKey(..), PubKey(..))
 import qualified Botan.Low.RNG as Low
-import Botan.Low.MPI (MP(..))
+import Botan.Low.MPI
 
 import Botan.Hash
 import Botan.Prelude
 import Botan.RNG
+
+import Data.Bool
 
 {- $introduction
 
@@ -122,6 +124,10 @@ data PKExportFormat
     = PKExportDER
     | PKExportPEM
 
+pkExportFormatFlags :: PKExportFormat -> Low.PrivKeyExportFlags
+pkExportFormatFlags PKExportDER = Low.PrivKeyExportDER
+pkExportFormatFlags PKExportPEM = Low.PrivKeyExportPEM
+
 --
 -- Private Keys
 --
@@ -129,76 +135,124 @@ data PKExportFormat
 -- Wrapped private key
 
 -- data PrivKey
+--     = PrivKey
+--     { privKeyAlgo :: PK
+--     , privKeyRef :: Low.PrivKey
+--     }
 
 -- Destructor
 
 destroyPrivKey :: (MonadIO m) => PrivKey -> m ()
-destroyPrivKey = undefined
+destroyPrivKey = liftIO . Low.privKeyDestroy
 
 -- Initializers
 
 newPrivKey :: (MonadRandomIO m) => PK -> m PrivKey
-newPrivKey = undefined
+newPrivKey pk = do
+    rng <- getRNG
+    liftIO $ Low.privKeyCreate (pkName pk) (pkParams pk) rng
 
 -- Accessors
 
+-- TODO: Parse Low.botan_privkey_algo -> PK
 privKeyAlgo :: PrivKey -> PK
 privKeyAlgo = undefined
 
+-- TODO: Return Integer instead?
 privKeyField :: PrivKey -> ByteString -> Maybe MP
-privKeyField = undefined
+privKeyField pk field = unsafePerformIO $ do
+    mp <- mpInit
+    -- TODO: Return nothing on catch error
+    Low.privKeyGetField mp pk field
+    return $ Just mp 
+{-# NOINLINE privKeyField #-}
 
 -- Accessory functions
 
 -- NOTE: No way to recover the algo yet
+-- TODO: Should be :: ByteString -> Maybe ByteString -> Maybe PrivKey
 loadPrivKey :: ByteString -> ByteString -> Maybe PrivKey
-loadPrivKey bits password = undefined
+loadPrivKey bits password = unsafePerformIO $ do
+    -- TODO: Return nothing on catch error
+    pk <- Low.privKeyLoad bits password
+    return $ Just pk
+{-# NOINLINE loadPrivKey #-}
 
-exportPrivKey :: PrivKey -> PKExportFormat -> m ByteString
-exportPrivKey = undefined
+-- NOTE: Is including trailing \0 in PEM format?
+exportPrivKey :: PrivKey -> PKExportFormat -> ByteString
+exportPrivKey pk fmt = unsafePerformIO $ Low.privKeyExport pk (pkExportFormatFlags fmt)
+{-# NOINLINE exportPrivKey #-}
 
 exportPrivKeyPubKey :: PrivKey -> PubKey
-exportPrivKeyPubKey = undefined
+exportPrivKeyPubKey pk = unsafePerformIO $ Low.privKeyExportPubKey pk 
+{-# NOINLINE exportPrivKeyPubKey #-}
 
 checkPrivKey :: (MonadRandomIO m) => PrivKey -> Bool -> m Bool
-checkPrivKey = undefined
+checkPrivKey pk expensive = do
+    rng <- getRNG
+    -- TODO: Return false on catch error
+    liftIO $ Low.privKeyCheckKey pk rng (bool Low.CheckKeyNormalTests Low.CheckKeyExpensiveTests expensive)
+    return True
 
 --
 -- Public Keys
 --
 
 -- data PubKey
+--     = PubKey
+--     { pubKeyAlgo :: PK
+--     , pubKeyRef :: Low.PubKey
+--     }
 
 -- Destructor
 
 destroyPubKey :: (MonadIO m) => PubKey -> m ()
-destroyPubKey = undefined
+destroyPubKey = liftIO . Low.pubKeyDestroy
 
 -- Accessors
 
+-- TODO: Parse Low.botan_pubkey_algo -> PK
 pubKeyAlgo :: PubKey -> PK
 pubKeyAlgo = undefined
 
+-- TODO: Return Integer instead?
 pubKeyField :: PubKey -> ByteString -> Maybe MP
-pubKeyField = undefined
+pubKeyField pk field = unsafePerformIO $ do
+    mp <- mpInit
+    -- TODO: Return nothing on catch error
+    Low.pubKeyGetField mp pk field
+    return $ Just mp 
+{-# NOINLINE pubKeyField #-}
 
 estimatedPubKeyStrength :: PubKey -> Int
-estimatedPubKeyStrength = undefined
+estimatedPubKeyStrength = unsafePerformIO . Low.pubKeyEstimatedStrength
+{-# NOINLINE estimatedPubKeyStrength #-}
 
 pubKeyFingerprint :: PubKey -> Hash -> ByteString
-pubKeyFingerprint = undefined
+pubKeyFingerprint pk h = unsafePerformIO $ Low.pubKeyFingerprint pk (hashName h)
+{-# NOINLINE pubKeyFingerprint #-}
 
 -- Accessory functions
 
 -- NOTE: No way to recover the algo yet
 loadPubKey :: ByteString -> Maybe PubKey
-loadPubKey = undefined
+loadPubKey bits = unsafePerformIO $ do
+    -- TODO: Return nothing on catch error
+    pk <- Low.pubKeyLoad bits
+    return $ Just pk
+{-# NOINLINE loadPubKey #-}
 
-exportPubKey :: PubKey -> PKExportFormat -> m ByteString
-exportPubKey = undefined
+-- NOTE: Is including trailing \0 in PEM format?
+exportPubKey :: PubKey -> PKExportFormat -> ByteString
+exportPubKey pk fmt = unsafePerformIO $ Low.pubKeyExport pk (pkExportFormatFlags fmt)
+{-# NOINLINE exportPubKey #-}
 
 checkPubKey :: (MonadRandomIO m) => PubKey -> Bool -> m Bool
-checkPubKey = undefined
+checkPubKey pk expensive = do
+    rng <- getRNG
+    -- TODO: Return false on catch error
+    liftIO $ Low.pubKeyCheckKey pk rng (bool Low.CheckKeyNormalTests Low.CheckKeyExpensiveTests expensive)
+    return True
 
 
 

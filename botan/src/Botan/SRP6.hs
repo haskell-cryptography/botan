@@ -78,6 +78,11 @@ module Botan.SRP6
 , generateSRP6ClientKeys
 , generateSRP6SessionKey
 
+-- TODO: Server and client should exchange proof of session key before it is used,
+-- with the client sending it first. This proof can be a Hash or HMAC of the session
+-- key
+-- , generateSRP6ClientSessionProof
+-- , generateSRP6ServerSessionProof
 
 ) where
 
