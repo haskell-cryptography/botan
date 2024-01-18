@@ -19,8 +19,11 @@ module Botan.PubKey.Encrypt
 
 -- * Public Key Encryption
 
+  pkEncrypt
+, pkEncryptOutputLength
+
 -- ** Data type
-  PKEncrypt(..)
+, PKEncrypt(..)
 
 -- ** Destructor
 , destroyPKEncrypt
@@ -29,10 +32,10 @@ module Botan.PubKey.Encrypt
 , newPKEncrypt
 
 -- ** Accessors
-, pkEncryptOutputLength
+, getPKEncryptOutputLength
 
 -- ** Algorithm
-, pkEncrypt
+, pkEncryptWith
 
 ) where
 
@@ -57,26 +60,44 @@ import Botan.RNG
 -- Public Key Encryption
 --
 
+pkEncrypt :: PubKey -> PKPadding -> ByteString -> Maybe ByteString
+pkEncrypt pk padding plaintext = unsafePerformIO $ do
+    ctx <- newPKEncrypt pk padding
+    -- TODO: Return nothing on catch error
+    ciphertext <- pkEncryptWith ctx plaintext
+    return $ Just ciphertext
+{-# NOINLINE pkEncrypt #-}
+
+pkEncryptOutputLength :: PubKey -> PKPadding -> Int -> Int
+pkEncryptOutputLength pk padding i = unsafePerformIO $ do
+    ctx <- newPKEncrypt pk padding
+    getPKEncryptOutputLength ctx i
+{-# NOINLINE pkEncryptOutputLength #-}
+
 -- Data type
 
-data PKEncrypt
+-- TODO: Maybe rename MutablePKEncrypt
+type PKEncrypt = Low.Encrypt
 
 -- Destructor
 
 destroyPKEncrypt :: (MonadIO m) => PKEncrypt -> m ()
-destroyPKEncrypt = undefined
+destroyPKEncrypt = liftIO . Low.encryptDestroy
 
 -- Initializers
 
 newPKEncrypt :: (MonadIO m) => PubKey -> PKPadding -> m PKEncrypt
-newPKEncrypt = undefined
+newPKEncrypt pk padding = liftIO $ Low.encryptCreate pk (pkPaddingName padding)
 
 -- Accessors
 
-pkEncryptOutputLength :: PKEncrypt -> Int -> Int
-pkEncryptOutputLength = undefined
+-- TODO: Verify
+getPKEncryptOutputLength :: (MonadIO m) => PKEncrypt -> Int -> m Int
+getPKEncryptOutputLength pkd i = liftIO $ Low.encryptOutputLength pkd i
 
 -- Algorithm
 
-pkEncrypt :: (MonadRandomIO m) => PKEncrypt -> ByteString -> m ByteString
-pkEncrypt = undefined
+pkEncryptWith :: (MonadRandomIO m) => PKEncrypt -> ByteString -> m ByteString
+pkEncryptWith pkd bs = do
+    rng <- getRNG
+    liftIO $ Low.encrypt pkd rng bs

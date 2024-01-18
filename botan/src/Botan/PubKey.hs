@@ -38,6 +38,7 @@ module Botan.PubKey
 , PKExportFormat(..)
 , PKCheckKeyFlags(..)
 , PKPadding(..)
+, pkPaddingName
 
 -- * Private Keys
 

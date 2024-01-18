@@ -19,8 +19,13 @@ module Botan.PubKey.Decrypt
 
 -- * Public Key Decryption
 
+  pkDecrypt
+, pkDecryptOutputLength
+
+-- * Mutable interface
+
 -- ** Data type
-  PKDecrypt(..)
+, PKDecrypt(..)
 
 -- ** Destructor
 , destroyPKDecrypt
@@ -29,10 +34,10 @@ module Botan.PubKey.Decrypt
 , newPKDecrypt
 
 -- ** Accessors
-, pkDecryptOutputLength
+, getPKDecryptOutputLength
 
 -- ** Algorithm
-, pkDecrypt
+, pkDecryptWith
 
 ) where
 
@@ -58,27 +63,42 @@ import Botan.RNG
 -- Public Key Decryption
 --
 
+pkDecrypt :: PrivKey -> PKPadding -> ByteString -> Maybe ByteString
+pkDecrypt pk padding ciphertext = unsafePerformIO $ do
+    ctx <- newPKDecrypt pk padding
+    -- TODO: Return nothing on catch error
+    pt <- pkDecryptWith ctx ciphertext
+    return $ Just pt
+{-# NOINLINE pkDecrypt #-}
+
+pkDecryptOutputLength :: PrivKey -> PKPadding -> Int -> Int
+pkDecryptOutputLength pk padding i = unsafePerformIO $ do
+    ctx <- newPKDecrypt pk padding
+    getPKDecryptOutputLength ctx i
+{-# NOINLINE pkDecryptOutputLength #-}
+
 -- Data type
 
-data PKDecrypt
+-- TODO: Maybe rename MutablePKDecrypt
+type PKDecrypt = Low.Decrypt
 
 -- Destructor
 
 destroyPKDecrypt :: (MonadIO m) => PKDecrypt -> m ()
-destroyPKDecrypt = undefined
+destroyPKDecrypt = liftIO . Low.decryptDestroy
 
 -- Initializers
 
-newPKDecrypt :: (MonadIO m) => PubKey -> PKPadding -> m PKDecrypt
-newPKDecrypt = undefined
+newPKDecrypt :: (MonadIO m) => PrivKey -> PKPadding -> m PKDecrypt
+newPKDecrypt pk padding = liftIO $ Low.decryptCreate pk (pkPaddingName padding)
 
 -- Accessors
 
-pkDecryptOutputLength :: PKDecrypt -> Int -> Int
-pkDecryptOutputLength = undefined
+-- TODO: Verify
+getPKDecryptOutputLength :: (MonadIO m) => PKDecrypt -> Int -> m Int
+getPKDecryptOutputLength pkd i = liftIO $ Low.decryptOutputLength pkd i
 
 -- Algorithm
 
--- TODO: Probably doesn't require MonadRandomIO
-pkDecrypt :: (MonadRandomIO m) => PKDecrypt -> ByteString -> m ByteString
-pkDecrypt = undefined
+pkDecryptWith :: (MonadIO m) => PKDecrypt -> ByteString -> m ByteString
+pkDecryptWith pkd bs = liftIO $ Low.decrypt pkd bs
