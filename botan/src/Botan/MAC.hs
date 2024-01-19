@@ -246,6 +246,9 @@ generateMACDigestSize = do
 
 -- Idiomatic algorithm
 
+-- NOTE: Why is this a maybe?
+-- Returns Nothing if the key is the wrong size.
+-- Some macs accept any size (up to 4096).
 mac :: MAC -> MACKey -> ByteString -> Maybe MACDigest
 mac m k msg = unsafePerformIO $ do
     mm <- newMAC m

@@ -48,8 +48,8 @@ module Botan.SRP6
 , destroySRP6ServerSession
 
 -- ** Associated types
-, SRP6GroupId(..)
-, SRP6HashId(..)
+, SRP6Group(..)
+, SRP6Hash(..)
 -- , SRP6Config(..)
 , SRP6Salt(..)
 , SRP6Verifier(..)
@@ -96,21 +96,92 @@ import Botan.PubKey
 import Botan.Prelude
 import Botan.RNG
 
+{- $usage
+
+```
+import Botan.SRP6
+import Botan.PubKey (DLGroup(..))
+import Botan.Hash
+import Botan.MAC
+let group = MODP_SRP_4096
+let hash = Cryptohash $ SHA2 SHA512
+let user = "bob"
+let pass = "burger"
+-- Signup
+-- Client generates a salt and verifier, and sends them to a server
+(salt, verifier) <- generateSRP6ClientSecrets group hash user pass
+-- Authentication (client has requested a connection)
+-- Server looks up their verifier, generates a server key, and sends it back
+session <- newSRP6ServerSession 
+serverKey <- generateSRP6ServerKey group hash session verifier
+-- Client receives server key, and generates a client key and (client) session key
+(clientKey, clientSessionKey) <- generateSRP6ClientKeys group hash user pass salt serverKey
+-- Server receives client key, and generates a matching (server) session key
+serverSessionKey <- generateSRP6SessionKey session clientKey
+-- At this point, clientSessionKey and serverSessionKey should be equal,
+-- but this should be confirmed by exchanging hash digest to check for integrity,
+-- or preferrably, an (h)mac digest to also include authentication and avoid impersonation.
+-- The client should send their hash / hmac first as the server shouldn't do
+-- anything with the session key until they finish verifying the client
+-- SEE: https://en.wikipedia.org/wiki/Secure_Remote_Password_protocol#Offline_bruteforce_attack_with_server-first_messaging_in_the_absence_of_key_verification
+-- We can handle this by having both the client and server calculate a mac auth
+-- code using the session key and user name.
+-- The client calculates and sends first
+Just clientAuth = mac (HMAC hash) clientSessionKey user
+-- The server receives the client auth, generates their own, and compares them
+Just serverAuth = mac (HMAC hash) serverSessionKey user
+serverAuth == clientAuth
+-- If it matches, the server then switches to encrypted mode using the session key
+-- and sends the server auth code to the client
+-- QUESTION, should the server send the server auth code before switching to encrypted,
+-- or should it send the server auth code as the first encrypted message? FIND OUT
+```
+
+Minus the explanations
+
+```
+import Botan.SRP6
+import Botan.PubKey (DLGroup(..))
+import Botan.Hash
+import Botan.MAC
+let group = MODP_SRP_4096
+let hash = Cryptohash $ SHA2 SHA512
+let user = "bob"
+let pass = "burger"
+(salt, verifier) <- generateSRP6ClientSecrets group hash user pass
+session <- newSRP6ServerSession 
+serverKey <- generateSRP6ServerKey group hash session verifier
+(clientKey, clientSessionKey) <- generateSRP6ClientKeys group hash user pass salt serverKey
+serverSessionKey <- generateSRP6SessionKey session clientKey
+Just clientAuth = mac (HMAC hash) clientSessionKey user
+Just serverAuth = mac (HMAC hash) serverSessionKey user
+serverAuth == clientAuth
+```
+-}
+
 --
 -- Server session
 --
 
 -- ** Mutable context
 
-data SRP6ServerSession
+type SRP6ServerSession = Low.SRP6ServerSession
+
+-- data SRP6ServerSession
+--     = SRP6ServerSession
+--     { srp6ServerSessionConfig :: SRP6Config
+--     , srp6ServerSessionServerKey :: SRP6ServerKey
+--     , srp6ServerSessionSessionKey :: SRP6SessionKey
+--     }
 
 -- ** Destructor
 
-destroySRP6ServerSession = undefined
+destroySRP6ServerSession :: (MonadIO m) => Low.SRP6ServerSession -> m ()
+destroySRP6ServerSession = liftIO . Low.srp6ServerSessionDestroy
 
 -- ** Associated types
 
-type SRP6GroupId = DLGroup
+type SRP6Group = DLGroup
 -- TODO: Confirm if a DLGroup in general works, or just the modp srp groups:
 -- , "modp/srp/1024"
 -- , "modp/srp/1536"
@@ -121,7 +192,7 @@ type SRP6GroupId = DLGroup
 -- , "modp/srp/8192"
 
 -- TODO: Confirm if any Hash in general works, or just specific ones (eg block size 128):
-type SRP6HashId = Hash
+type SRP6Hash = Hash
 
 -- data SRP6Config
 --     = SRP6Config
@@ -137,8 +208,9 @@ type SRP6SessionKey = ByteString
 
 -- ** Initializers
 
+-- TODO: Integrate step1 / generateServerKey with session init, persist data in the session
 newSRP6ServerSession :: (MonadIO m) => m SRP6ServerSession
-newSRP6ServerSession = undefined
+newSRP6ServerSession = liftIO Low.srp6ServerSessionInit
 
 -- ** Accessors
 -- TODO: Missing
@@ -147,54 +219,71 @@ newSRP6ServerSession = undefined
 -- Accessory functions
 
 srp6GroupSize :: DLGroup -> Int
-srp6GroupSize = undefined
+srp6GroupSize = unsafePerformIO . Low.srp6GroupSize . dlGroupName
 
 -- Algorithm
 
 generateSRP6ClientVerifier
-    :: SRP6GroupId
-    -> SRP6HashId
+    :: SRP6Group
+    -> SRP6Hash
     -> ByteString
     -> ByteString
     -> SRP6Salt
     -> SRP6Verifier
-generateSRP6ClientVerifier = undefined
+generateSRP6ClientVerifier group hash ident pass salt = unsafePerformIO $ do
+    Low.srp6GenerateVerifier ident pass salt (dlGroupName group) (hashName hash)
 
 generateSRP6ClientSecrets
     :: (MonadRandomIO m)
-    => SRP6GroupId
-    -> SRP6HashId
+    => SRP6Group
+    -> SRP6Hash
     -> ByteString
     -> ByteString
     -> m (SRP6Salt, SRP6Verifier)
-generateSRP6ClientSecrets groupid hashid identifier password = do
+generateSRP6ClientSecrets group hash ident pass = do
     salt <- getRandomBytes 12
-    let verifier = generateSRP6ClientVerifier groupid hashid identifier password salt
+    let verifier = generateSRP6ClientVerifier group hash ident pass salt
     return $ verifier `seq` (salt, verifier)
 
 generateSRP6ServerKey
     :: (MonadRandomIO m)
-    => SRP6GroupId
-    -> SRP6HashId
+    => SRP6Group
+    -> SRP6Hash
     -> SRP6ServerSession
     -> SRP6Verifier
     -> m SRP6ServerKey
-generateSRP6ServerKey = undefined
+generateSRP6ServerKey group hash session verifier = do
+    rng <- getRNG
+    liftIO $ Low.srp6ServerSessionStep1
+        session
+        verifier
+        (dlGroupName group)
+        (hashName hash)
+        rng
 
 generateSRP6ClientKeys
     :: (MonadRandomIO m)
-    => SRP6GroupId
-    -> SRP6HashId
+    => SRP6Group
+    -> SRP6Hash
     -> ByteString
     -> ByteString
     -> SRP6Salt
     -> SRP6ServerKey
     -> m (SRP6ClientKey, SRP6SessionKey)
-generateSRP6ClientKeys = undefined
+generateSRP6ClientKeys group hash ident pass salt skey = do
+    rng <- getRNG
+    liftIO $ Low.srp6ClientAgree
+        ident
+        pass
+        (dlGroupName group)
+        (hashName hash)
+        salt
+        skey
+        rng
 
 generateSRP6SessionKey
     :: (MonadIO m)
     => SRP6ServerSession
     -> SRP6ClientKey
     -> m SRP6SessionKey
-generateSRP6SessionKey = undefined
+generateSRP6SessionKey session ckey = liftIO $ Low.srp6ServerSessionStep2 session ckey

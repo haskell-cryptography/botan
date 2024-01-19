@@ -27,7 +27,9 @@ module Botan.PubKey
 -- TODO: Rename XMSSScheme
 , XMSS(..)
 , ECGroup(..)
+, ecGroupName
 , DLGroup(..)
+, dlGroupName
 
 -- ** Enumerations
 
