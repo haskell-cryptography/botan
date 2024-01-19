@@ -19,12 +19,16 @@ module Botan.PubKey.Sign
 
 -- * Public Key Signatures
 
+  pkSign
+-- , pkSignatureLength
+
 -- ** Data type
-  PKSign(..)
+,  PKSign(..)
 
 -- ** Associated types
 
 , PKSignAlgo(..)
+, signAlgoName
 , PKSignatureFormat(..)
 , PKSignature(..)
 
@@ -41,6 +45,10 @@ module Botan.PubKey.Sign
 , pkSignUpdate
 , pkSignFinish
 
+-- PENDING REFACTOR
+, SignAlgo(..)
+, EMSA(..)
+
 ) where
 
 import qualified Data.ByteString as ByteString
@@ -54,6 +62,7 @@ import Botan.Hash
 import Botan.Prelude
 import Botan.PubKey
 import Botan.RNG
+import Botan.Low.PubKey.Sign (signDestroy)
 
 {- $introduction
 
@@ -67,38 +76,64 @@ import Botan.RNG
 -- Public Key Signatures
 --
 
--- Data type
-data PKSign
+-- NOTE: Signatures are currently wicked dangerous and prone to throwing exceptions
+-- which pk algorithms go with what signing algos and formats is currently not well
+-- defined. Proceed with caution
 
--- ** Destructor
+pkSign
+    :: (MonadRandomIO m)
+    => PrivKey
+    -> PKSignAlgo
+    -> PKSignatureFormat
+    -> ByteString
+    -> m PKSignature
+pkSign pk algo fmt msg = do
+    signer <- newPKSign pk algo fmt
+    pkSignUpdate signer msg
+    pkSignFinish signer
+
+-- NOTE: Needs analysis for static data, involves key algo and fmt too
+-- pkSignatureLength :: PKSignAlgo -> Int
+-- pkSignatureLength algo = undefined
+-- {-# NOINLINE pkSignatureLength #-}
+
+-- Data type
+
+-- TODO:
+
+-- Associated types
+
+type PKSignAlgo = SignAlgo
+
+type PKSignatureFormat = PKExportFormat
+type PKSignature = ByteString
+
+-- Mutable context
+
+type PKSign = Low.Sign
+
+-- Destructor
 destroyPKSign :: (MonadIO m) => PKSign -> m ()
-destroyPKSign = undefined
+destroyPKSign = liftIO . signDestroy
 
 -- ** Initializers
 
-data PKSignAlgo
-data PKSignatureFormat
-data PKSignature
-
 newPKSign :: (MonadIO m) => PrivKey -> PKSignAlgo -> PKSignatureFormat -> m PKSign
-newPKSign = undefined
+newPKSign pk algo fmt = liftIO $ Low.signCreate pk (signAlgoName algo) (pkExportFormatFlags fmt)
 
--- ** Accessors
-pkSignOutputLength :: PKSign -> Int -> Int
-pkSignOutputLength = undefined
+-- Accessors
+pkSignOutputLength :: (MonadIO m) => PKSign -> m Int
+pkSignOutputLength = liftIO . Low.signOutputLength
 
--- Idiomatic algorithm
-
-pkSign :: (MonadRandomIO m) => PrivKey -> PKSignAlgo -> PKSignatureFormat -> ByteString -> m PKSignature
-pkSign = undefined 
-
--- ** Mutable Algorithm
+-- Mutable Algorithm
 
 pkSignUpdate :: (MonadIO m) => PKSign -> ByteString -> m ()
-pkSignUpdate = undefined
+pkSignUpdate signer msg = liftIO $ Low.signUpdate signer msg
 
 pkSignFinish :: (MonadRandomIO m) => PKSign -> m PKSignature
-pkSignFinish = undefined
+pkSignFinish signer = do
+    rng <- getRNG
+    liftIO $ Low.signFinish signer rng
 
 
 
@@ -119,6 +154,7 @@ pkSignFinish = undefined
 --  signature schemes including ECDSA and DSA, simply naming a hash
 --  function like “SHA-256” is all that is required."
 -- Are these all EMSA?
+-- TODO: REFACTOR HEAVILY?
 data SignAlgo
     = EMSA EMSA
     | Ed25519Pure
@@ -127,6 +163,28 @@ data SignAlgo
     | SM2SignParam ByteString Hash
     | XMSSEmptyParam
     deriving (Show, Eq)
+
+{- REFACTORING STAB 1 -}
+
+data PKSignAlgo'
+    = RSASign' EMSA 
+    | SM2Sign' ByteString Hash
+    | DSASign' Hash
+    | ECDSASign' Hash
+    | ECKCDSASign' Hash
+    | ECGDSASign' Hash
+    | GOST_34_10Sign' Hash
+    | Ed25519Sign' Ed25519Sign'
+    | XMSSSign' -- NOTE: Probably has actual params
+    | DilithiumSign' -- NOTE: Probably has actual params
+
+data Ed25519Sign'
+    = Ed25519Pure'
+    | Ed25519ph'
+    | Ed25519Hash' Hash
+    | Ed25519Empty' -- NOTE: SUSPECT DEFAULTS TO ONE OF THE OTHERS
+
+{- END REFACTORING STAB 1 -}
 
 signAlgoName :: SignAlgo -> Low.SignAlgoName
 signAlgoName (EMSA emsa)            = emsaName emsa
@@ -183,3 +241,4 @@ data SignatureFormat
 signatureFormatFlag :: SignatureFormat -> Low.SigningFlags
 signatureFormatFlag Standard    = Low.SigningPEMFormatSignature -- BOTAN_PUBKEY_SIGNING_FLAGS_NONE
 signatureFormatFlag DERSequence = Low.SigningDERFormatSignature -- BOTAN_PUBKEY_DER_FORMAT_SIGNATURE
+

@@ -79,7 +79,7 @@ pkDecryptOutputLength pk padding i = unsafePerformIO $ do
 
 -- Data type
 
--- TODO: Maybe rename MutablePKDecrypt
+-- TODO: Maybe rename MutablePKDecrypt or PKDecryptor
 type PKDecrypt = Low.Decrypt
 
 -- Destructor

@@ -36,6 +36,7 @@ module Botan.PubKey
 -- ** Associated types
 
 , PKExportFormat(..)
+, pkExportFormatFlags
 , PKCheckKeyFlags(..)
 , PKPadding(..)
 , pkPaddingName

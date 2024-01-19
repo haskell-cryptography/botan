@@ -69,6 +69,7 @@ signUpdate :: Sign -> ByteString -> IO ()
 signUpdate = mkWithObjectSetterCBytesLen withSign botan_pk_op_sign_update
 
 -- TODO: Signature type
+-- NOTE: This function is still highly suspect
 signFinish :: Sign -> RNG -> IO ByteString
 signFinish sign rng = withSign sign $ \ signPtr -> do
     withRNG rng $ \ botanRNG -> do

@@ -76,7 +76,7 @@ pkEncryptOutputLength pk padding i = unsafePerformIO $ do
 
 -- Data type
 
--- TODO: Maybe rename MutablePKEncrypt
+-- TODO: Maybe rename MutablePKEncrypt or PKEncryptor
 type PKEncrypt = Low.Encrypt
 
 -- Destructor
