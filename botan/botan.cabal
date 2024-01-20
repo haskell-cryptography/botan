@@ -48,9 +48,10 @@ library
         Botan.PubKey
         Botan.PubKey.Decrypt
         Botan.PubKey.Encrypt
-        Botan.PubKey.Sign
+        Botan.PubKey.Load
         Botan.PubKey.KeyAgreement
         Botan.PubKey.KeyEncapsulation
+        Botan.PubKey.Sign
         Botan.PubKey.Verify
         Botan.PwdHash
         Botan.RNG
