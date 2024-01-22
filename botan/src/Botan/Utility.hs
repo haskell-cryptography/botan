@@ -1,9 +1,12 @@
 module Botan.Utility
 ( constantTimeCompare
--- , scrubMem
-, HexEncodingFlags
-, pattern HexUpperCase
-, pattern HexLowerCase
+, scrubMemory
+, scrub
+, scrubArray
+, scrubForeignPtr
+, scrubForeignPtrArray
+, scrubByteString
+, HexCase(..)
 , hexEncode
 , hexDecode
 , base64Encode
@@ -12,8 +15,16 @@ module Botan.Utility
 
 import System.IO.Unsafe
 
+import Data.ByteString.Unsafe as ByteString
+import Data.ByteString.Internal as ByteString
+
 import Botan.Low.Utility (HexEncodingFlags(..), pattern HexUpperCase, pattern HexLowerCase)
 import qualified Botan.Low.Utility as Low
+import qualified Botan.Bindings.Utility as Bindings
+
+import Foreign.Ptr
+import Foreign.ForeignPtr
+import Foreign.Storable
 
 import Botan.Error
 import Botan.Prelude
@@ -22,24 +33,44 @@ import Botan.Prelude
 constantTimeCompare :: ByteString -> ByteString -> Int -> Bool
 constantTimeCompare = unsafePerformIO3 Low.constantTimeCompare
 
--- I'm not entirely sure what this should be
--- Rather, this should be used in a `ScrubbedBytes` implementation
--- This will require a custom version of allocBytes / mallocByteString that calls scrubmem before freeing
--- See: https://stackoverflow.com/questions/47609959/exporting-importing-via-ffi-vs-using-the-ffi-wrapper
---  Need to mix the wrapper with a closure that also frees the allocated wrapper funptr
---  inside of an allocScrubbed function (or something...)
--- scrubMem :: ForeignPtr a -> Int -> IO ()
--- scrubMem foreignPtr sz = withForeignPtr foreignPtr $ \ ptr -> Low.scrubMem ptr sz
--- Maybe:
--- scrubMemWith :: WithPtr typ ptr -> typ -> Int -> IO ()
--- scrubMemWith withPtr typ sz = withPtr typ $ \ ptr -> Low.scrubMem ptr sz
+-- TODO: randomizeMemory and variants?
 
--- TODO:
--- data HexCase = Upper | Lower
+scrubMemory :: (MonadIO m) => Ptr a -> Int -> m ()
+scrubMemory ptr sz = liftIO $ Low.scrubMem ptr sz
+
+scrub :: (MonadIO m, Storable a) => Ptr a -> m ()
+scrub ptr = scrubMemory ptr (sizeOf ptr)
+
+scrubArray :: (MonadIO m, Storable a) => Int -> Ptr a -> m ()
+scrubArray n ptr  = scrubMemory ptr (n * sizeOf ptr)
+
+scrubForeignPtr :: (MonadIO m, Storable a) => ForeignPtr a -> m ()
+scrubForeignPtr fptr = liftIO $ withForeignPtr fptr scrub
+
+scrubForeignPtrArray :: (MonadIO m, Storable a) => Int -> ForeignPtr a -> m ()
+scrubForeignPtrArray n fptr = liftIO $ withForeignPtr fptr (scrubArray n)
+
+-- TODO: Rename scrubByteStringImmediately?
+scrubByteString :: (MonadIO m) => ByteString -> m ()
+scrubByteString bs = liftIO $ ByteString.unsafeUseAsCStringLen bs $ uncurry $ flip scrubArray
+
+-- TODO: Attach a scrubbing finalizer
+-- This will require freeing the finalizer funptr from inside itself.
+-- SEE: https://mail.haskell.org/pipermail/glasgow-haskell-users/2006-March/009910.html
+-- scrubByteStringFinalizer :: (MonadIO m) => ByteString -> m ()
+-- scrubByteStringFinalizer bs = liftIO $ addForeignPtrFinalizer _ fptr where
+--     (fptr,_,_) = ByteString.toForeignPtr bs
+
+data HexCase = Upper | Lower
+
+hexEncodingFlags :: HexCase -> HexEncodingFlags
+hexEncodingFlags Upper = Low.HexUpperCase
+hexEncodingFlags Lower = Low.HexLowerCase
 
 -- TODO: Discuss ergonomics of flipping argument order
-hexEncode :: ByteString -> HexEncodingFlags -> Text
-hexEncode = unsafePerformIO2 Low.hexEncode
+hexEncode :: ByteString -> HexCase -> Text
+hexEncode bs c = unsafePerformIO $ Low.hexEncode bs (hexEncodingFlags c)
+{-# NOINLINE hexEncode #-}
 
 -- | "Hex decode some data"
 hexDecode :: Text -> ByteString
