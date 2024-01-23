@@ -105,9 +105,40 @@ module Botan.Hash
 , updateFinalizeHash
 , updateFinalizeClearHash
 
--- TODO: Distinguish between nonCopying and autoCopying variants
+-- Algorithm references
 
---
+, blake2b
+, gost_34_11
+, keccak1600_224
+, keccak1600_256
+, keccak1600_384
+, keccak1600_512
+, keccak1600
+, md4
+, md5
+, ripemd160
+, sha1
+, sha2_224
+, sha2_256
+, sha2_384
+, sha2_512
+, sha2_512_256
+, sha2
+, sha3_224
+, sha3_256
+, sha3_384
+, sha3_512
+, sha3
+, shake128
+, shake256
+, sm3
+, skein512
+, streebog256
+, streebog512
+, whirlpool
+, adler32
+, crc24
+, crc32
 
 ) where
 
@@ -120,6 +151,8 @@ import qualified Botan.Low.Hash as Low
 import Botan.Error ()
 import Botan.Prelude
 import Botan.Utility
+
+-- TODO: Distinguish between nonCopying and autoCopying variants
 
 {- $introduction
 
@@ -554,3 +587,126 @@ updateFinalizeClearHash
     -> ByteString
     -> m HashDigest
 updateFinalizeClearHash h bs = updateFinalizeHash h bs <* clearHash h
+
+
+--
+-- Algorithm references
+--
+
+-- blake2b_128 :: Hash
+-- blake2b_128 = fromJust $ blake2b 128
+
+-- blake2b_256 :: Hash
+-- blake2b_256 = fromJust $ blake2b 256
+
+-- blake2b_512 :: Hash
+-- blake2b_512 = fromJust $ blake2b 512
+
+blake2b :: Int -> Maybe Hash
+blake2b n | 0 < n && mod n 8 == 0 && n <= 512 = Just $ Cryptohash $ BLAKE2b n
+blake2b _ = Nothing
+
+gost_34_11 :: Hash
+gost_34_11 = Cryptohash GOST_34_11
+
+keccak1600_224 :: Hash
+keccak1600_224 = Cryptohash $ Keccak1600 Keccak1600_224
+
+keccak1600_256 :: Hash
+keccak1600_256 = Cryptohash $ Keccak1600 Keccak1600_256
+
+keccak1600_384 :: Hash
+keccak1600_384 = Cryptohash $ Keccak1600 Keccak1600_384
+
+keccak1600_512 :: Hash
+keccak1600_512 = Cryptohash $ Keccak1600 Keccak1600_512
+
+keccak1600 :: Int -> Maybe Hash
+keccak1600 224        = Just keccak1600_224
+keccak1600 256        = Just keccak1600_256
+keccak1600 384        = Just keccak1600_384
+keccak1600 512        = Just keccak1600_512
+keccak1600 _          = Nothing
+
+md4 :: Hash
+md4             = Cryptohash MD4
+
+md5 :: Hash
+md5             = Cryptohash MD5
+
+ripemd160 :: Hash
+ripemd160       = Cryptohash RIPEMD160
+
+sha1 :: Hash
+sha1            = Cryptohash SHA1
+
+sha2_224 :: Hash
+sha2_224        = Cryptohash $ SHA2 SHA224
+
+sha2_256 :: Hash
+sha2_256        = Cryptohash $ SHA2 SHA256
+
+sha2_384 :: Hash
+sha2_384        = Cryptohash $ SHA2 SHA384
+
+sha2_512 :: Hash
+sha2_512        = Cryptohash $ SHA2 SHA512
+
+sha2_512_256 :: Hash
+sha2_512_256    = Cryptohash $ SHA2 SHA512_256
+
+sha2 :: Int -> Maybe Hash
+sha2 224        = Just sha2_224
+sha2 256        = Just sha2_256
+sha2 384        = Just sha2_384
+sha2 512        = Just sha2_512
+sha2 _          = Nothing
+
+sha3_224 :: Hash
+sha3_224        = Cryptohash $ SHA3 SHA3_224
+
+sha3_256 :: Hash
+sha3_256        = Cryptohash $ SHA3 SHA3_256
+
+sha3_384 :: Hash
+sha3_384        = Cryptohash $ SHA3 SHA3_384
+
+sha3_512 :: Hash
+sha3_512        = Cryptohash $ SHA3 SHA3_512
+
+sha3 :: Int -> Maybe Hash
+sha3 224        = Just sha3_224
+sha3 256        = Just sha3_256
+sha3 384        = Just sha3_384
+sha3 512        = Just sha3_512
+sha3 _          = Nothing
+
+shake128 :: Int -> Maybe Hash
+shake128 n | 0 < n && mod n 8 == 0 && n <= 512 = Just $ Cryptohash $ SHAKE128 n
+
+shake256 :: Int -> Maybe Hash
+shake256 n | 0 < n && mod n 8 == 0 && n <= 512 = Just $ Cryptohash $ SHAKE256 n
+
+sm3 :: Hash
+sm3 = Cryptohash $ SM3
+
+skein512 :: Int -> ByteString -> Maybe Hash
+skein512 n salt | 0 < n && mod n 8 == 0 && n <= 512 = Just $ Cryptohash $ Skein512 n salt
+
+streebog256 :: Hash
+streebog256 = Cryptohash $ Streebog256
+
+streebog512 :: Hash
+streebog512 = Cryptohash $ Streebog512
+
+whirlpool :: Hash
+whirlpool   = Cryptohash $ Whirlpool
+
+adler32 :: Hash
+adler32     = Checksum $ Adler32
+
+crc24 :: Hash
+crc24       = Checksum $ CRC24
+
+crc32 :: Hash
+crc32       = Checksum $ CRC32
