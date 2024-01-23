@@ -28,6 +28,7 @@ library
     default-extensions:
         DefaultSignatures
         InstanceSigs
+        MultiParamTypeClasses 
         NoImplicitPrelude
         OverloadedStrings
         PatternSynonyms

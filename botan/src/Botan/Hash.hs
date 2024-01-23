@@ -76,7 +76,12 @@ module Botan.Hash
 
 -- ** Idiomatic algorithm
 , hash
--- , hashLazy
+, hashChunks
+, hashLazy
+, hashFile
+, hashFileLazy
+-- , unsafeHash
+-- , unsafeHashLazy
 
 -- * Mutable interface
 
@@ -143,6 +148,7 @@ module Botan.Hash
 ) where
 
 import qualified Data.ByteString as ByteString
+import qualified Data.ByteString.Lazy as Lazy
 
 import Data.Foldable
 
@@ -481,7 +487,30 @@ hash h bs = unsafePerformIO $ do
     updateFinalizeHash ctx bs
 {-# NOINLINE hash #-}
 
--- hashLazy = undefined
+hashChunks :: Hash -> [ ByteString ] -> HashDigest
+hashChunks h bss = unsafePerformIO $ do
+    ctx <- newHash h
+    updateHashChunks ctx bss
+    finalizeHash ctx
+{-# NOINLINE hashChunks #-}
+
+hashLazy :: Hash -> Lazy.ByteString -> HashDigest
+hashLazy h bs = hashChunks h (Lazy.toChunks bs)
+-- hashLazy h bs = unsafePerformIO $ do
+--     ctx <- newHash h
+--     updateHashChunks ctx (Lazy.toChunks bs)
+--     finalizeHash ctx
+-- {-# NOINLINE hashLazy #-}
+
+hashFile :: (MonadIO m) => Hash -> FilePath -> m HashDigest
+hashFile h fp = hash h <$> liftIO (ByteString.readFile fp)
+
+hashFileLazy :: (MonadIO m) => Hash -> FilePath -> m HashDigest
+hashFileLazy h fp = do
+    bs <- liftIO $ Lazy.readFile fp
+    -- Seq is probably unnecessary
+    let d = hashLazy h bs
+        in d `seq` return d
 
 --
 -- Mutable interface
