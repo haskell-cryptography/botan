@@ -50,7 +50,14 @@ library
         Botan.Error
         Botan.Hash
         Botan.Hash.Class
+        Botan.Hash.GOST
+        Botan.Hash.MD4
         Botan.Hash.MD5
+        Botan.Hash.RIPEMD
+        Botan.Hash.SHA1
+        Botan.Hash.SM3
+        Botan.Hash.Streebog
+        Botan.Hash.Whirlpool
         Botan.HOTP
         Botan.KDF
         Botan.KeySpec
