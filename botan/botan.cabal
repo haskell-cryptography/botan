@@ -26,14 +26,22 @@ library
     hs-source-dirs:   src
     default-language: Haskell2010
     default-extensions:
+        ConstraintKinds
+        DataKinds
         DefaultSignatures
+        DerivingStrategies
+        FlexibleContexts
+        FlexibleInstances
+        GeneralizedNewtypeDeriving
         InstanceSigs
         MultiParamTypeClasses 
         NoImplicitPrelude
         OverloadedStrings
         PatternSynonyms
         ScopedTypeVariables
+        TypeApplications
         TypeFamilies
+        TypeOperators
         TupleSections
     exposed-modules:
         Botan.Bcrypt
@@ -42,6 +50,7 @@ library
         Botan.Error
         Botan.Hash
         Botan.Hash.Class
+        Botan.Hash.MD5
         Botan.HOTP
         Botan.KDF
         Botan.KeySpec
