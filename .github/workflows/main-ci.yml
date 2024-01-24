@@ -45,12 +45,19 @@ jobs:
     steps:
       - name: Checkout base repo
         uses: actions/checkout@v4
+      - name: Download Botan 3.2
+        if:  ${{ matrix.os == 'ubuntu-latest' }}
+        with:
+          repository: randombit/botan
+          path: ./.botan-work
+          ref: "3.2.0"    
       - name: Install Botan for Linux
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
           sudo apt-get -y update
           sudo apt-get -y install clang build-essential curl libffi-dev libffi8ubuntu1 libgmp-dev libgmp10 libncurses-dev
-          sudo apt-get -y install pkg-config botan
+          sudo apt-get -y install pkg-config
+          cd ./.botan-work && sudo make && sudo make check && sudo make install
       - name: Install Botan for MacOS
         if: ${{ matrix.os == 'macos-latest' }}
         run: |
