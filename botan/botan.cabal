@@ -51,6 +51,7 @@ library
         Botan.Cipher
         Botan.Error
         Botan.Hash
+        Botan.Hash.BLAKE
         Botan.Hash.Class
         Botan.Hash.GOST
         Botan.Hash.MD4
