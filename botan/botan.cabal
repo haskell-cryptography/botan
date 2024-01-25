@@ -58,6 +58,7 @@ library
         Botan.Hash.MD5
         Botan.Hash.RIPEMD
         Botan.Hash.SHA1
+        Botan.Hash.Skein
         Botan.Hash.SM3
         Botan.Hash.Streebog
         Botan.Hash.Whirlpool
