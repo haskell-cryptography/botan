@@ -54,11 +54,15 @@ library
         Botan.Hash.BLAKE
         Botan.Hash.Class
         Botan.Hash.GOST
+        Botan.Hash.Keccak
         Botan.Hash.MD4
         Botan.Hash.MD5
         Botan.Hash.RIPEMD
         Botan.Hash.SHA1
+        Botan.Hash.SHA2
+        Botan.Hash.SHA3
         Botan.Hash.Skein
+        Botan.Hash.SHAKE
         Botan.Hash.SM3
         Botan.Hash.Streebog
         Botan.Hash.Whirlpool
