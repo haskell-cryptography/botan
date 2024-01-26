@@ -73,6 +73,8 @@ library
         Botan.KeySpec
         Botan.KeyWrap
         Botan.MAC
+        Botan.MAC.Class
+        Botan.MAC.CMAC
         -- NOTE: Botan does not directly expose padding
         Botan.Padding
         Botan.PubKey

@@ -70,6 +70,8 @@ module Botan.MAC
 , mac
 , gmac
 
+, macLazy
+
 -- * Mutable interface
 
 -- ** Tagged mutable context
@@ -100,10 +102,18 @@ module Botan.MAC
 , updateFinalizeMAC
 , updateFinalizeClearMAC
 
+-- *Algorithm references
+, cmac
+, hmac
+-- , kmac
+, sipHash
+, x9_19_mac
+
 ) where
 
 import Data.Foldable
 
+import qualified Data.ByteString.Lazy as Lazy
 import qualified Data.ByteString as ByteString
 
 import qualified Botan.Low.MAC as Low
@@ -258,6 +268,9 @@ mac m k msg = unsafePerformIO $ do
     else return Nothing
 {-# NOINLINE mac #-}
 
+macLazy :: MAC -> MACKey -> Lazy.ByteString -> Maybe MACDigest
+macLazy = undefined
+
 -- NOTE: Or just take a BlockCipher as an argument?
 gmac :: MAC -> MACKey -> GMACNonce -> ByteString -> Maybe MACDigest
 gmac m@(GMAC _) k n msg = unsafePerformIO $  do
@@ -400,3 +413,43 @@ updateFinalizeClearMAC
     -> ByteString
     -> m MACDigest
 updateFinalizeClearMAC mm bs = updateFinalizeMAC mm bs <* clearMAC mm
+
+--
+-- Algorithm references
+--
+
+-- = CMAC BlockCipher  -- NOTE: This is actually OMAC a CMAC variant
+-- -- | CBC_MAC BlockCipher  -- No longer supported (possibly due to security issues) 
+-- | GMAC BlockCipher      -- Requires a nonce "GMAC can accept initialization vectors of arbitrary length"
+-- | HMAC Hash -- Must be a (CS)Hash, and not a Checksum
+-- -- New in 3.2
+-- -- | KMAC_128 Int -- Output length
+-- -- | KMAC_256 Int -- Output length
+-- | Poly1305              -- Requires a unique key per message (key r and nonce s have been combined)
+-- | SipHash Int Int       -- Number of input and finalization rounds
+-- | X9_19_MAC
+
+
+cmac :: BlockCipher -> MAC
+cmac = CMAC
+
+-- MOVE TO OneTimeAuth
+-- gmac :: BlockCipher -> MAC
+-- gmac = undefined
+
+hmac :: Hash -> MAC
+hmac = HMAC
+
+-- kmac :: Int -> Maybe MAC
+-- kmac = undefined
+
+-- MOVE TO OneTimeAuth
+-- poly1305 :: MAC
+-- poly1305 = undefined
+
+-- NOTE: I'm pretty sure any positive values are valid
+sipHash :: Int -> Int -> Maybe MAC
+sipHash r f = Just $ SipHash r f
+ 
+x9_19_mac :: MAC
+x9_19_mac = X9_19_MAC
