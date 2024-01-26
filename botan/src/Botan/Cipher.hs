@@ -58,8 +58,10 @@ module Botan.Cipher
 , cipherOutputLength
 
 -- ** Idiomatic algorithm
-, encrypt   -- NOTE: Offline
-, decrypt
+, cipherEncrypt   -- NOTE: Offline
+, cipherDecrypt
+, cipherEncryptLazy
+, cipherDecryptLazy
 -- , encryptGeneratingKeys
 -- , autoEncrypt
 
@@ -111,6 +113,9 @@ module Botan.Cipher
 , finalizeResetCipher
 , finalizeClearCipher
 
+-- ** Algorithm references
+, chaCha20Poly1305
+
 ) where
 
 import qualified Botan.Low.Cipher as Low
@@ -119,9 +124,10 @@ import Botan.BlockCipher
 import Botan.Error
 import Botan.KeySpec
 import Botan.Prelude
+
 import qualified Data.ByteString as ByteString
+import qualified Data.ByteString.Lazy as Lazy
 import Botan.RNG
-import Botan.Low.Cipher (cipherReset)
 
 -- WARNING: Some notes are incorrect or out of date. Proceed with caution
 
@@ -442,23 +448,35 @@ cipherOutputLength c dir n = unsafePerformIO $ do
 
 -- Idiomatic algorithm
 
-encrypt :: Cipher -> CipherKey -> CipherNonce -> ByteString -> Ciphertext
-encrypt c k n msg = unsafePerformIO $ do
+-- NOTE: Unsafe
+-- TODO: Wrap in Maybe
+cipherEncrypt :: Cipher -> CipherKey -> CipherNonce -> ByteString -> Ciphertext
+cipherEncrypt c k n msg = unsafePerformIO $ do
     ctx <- newCipher c CipherEncrypt
     setCipherKey ctx k
     startCipher ctx n
     finalizeClearCipher ctx msg
-{-# NOINLINE encrypt #-}
+{-# NOINLINE cipherEncrypt #-}
 
-decrypt ::  Cipher -> CipherKey -> CipherNonce -> ByteString -> Maybe Ciphertext
-decrypt c k n ct = unsafePerformIO $ do
+cipherDecrypt ::  Cipher -> CipherKey -> CipherNonce -> Ciphertext -> Maybe ByteString
+cipherDecrypt c k n ct = unsafePerformIO $ do
     ctx <- newCipher c CipherDecrypt
     setCipherKey ctx k
     startCipher ctx n
     -- TODO: Catch error to return Nothing
     Just <$> finalizeClearCipher ctx ct
-{-# NOINLINE decrypt #-}
+{-# NOINLINE cipherDecrypt #-}
 
+-- NOTE: Unsafe
+-- TODO: Wrap in Maybe
+cipherEncryptLazy :: Cipher -> CipherKey -> CipherNonce -> Lazy.ByteString -> LazyCiphertext
+cipherEncryptLazy = undefined
+
+cipherDecryptLazy ::  Cipher -> CipherKey -> CipherNonce -> LazyCiphertext -> Maybe Lazy.ByteString
+cipherDecryptLazy = undefined
+
+-- NOTE: Unsafe
+-- TODO: Wrap in Maybe
 aeadEncrypt :: AEAD -> CipherKey -> CipherNonce -> AEADAssociatedData -> ByteString -> Ciphertext
 aeadEncrypt c k n ad msg = unsafePerformIO $ do
     ctx <- newCipher (AEAD c) CipherEncrypt
@@ -633,3 +651,10 @@ finalizeClearCipher
 finalizeClearCipher c msg = finalizeCipher c msg <* clearCipher c
 
 -- TODO: bring back cipherProcess / processCipher for lazy bytestrings
+
+--
+-- Algorithm references
+--
+
+chaCha20Poly1305 :: Cipher
+chaCha20Poly1305 = AEAD ChaCha20Poly1305

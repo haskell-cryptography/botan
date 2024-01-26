@@ -6,8 +6,6 @@ module Botan.MAC.Class
 , macFile
 , IncrementalMAC(..)
 , macFileLazy
--- , MutableMAC(..)
--- , MutableCtx(..)
 ) where
 
 import Botan.Prelude

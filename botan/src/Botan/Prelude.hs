@@ -15,6 +15,7 @@ module Botan.Prelude
 , module GHC.Stack
 , Message(..)
 , Ciphertext(..)
+, LazyCiphertext(..)
 , Plaintext(..)
 , unsafePerformIO1
 , unsafePerformIO2
@@ -64,16 +65,18 @@ import Data.IORef
 
 -- Internal imports
 
-import qualified Data.ByteString.Char8 as Char8
 import qualified Data.ByteString as ByteString
+import qualified Data.ByteString.Char8 as Char8
+import qualified Data.ByteString.Lazy as Lazy
 import qualified Data.Text as Text
 
 --
 
+-- TODO: Vanish these...
 type Message = ByteString
-
 type Plaintext = ByteString
 type Ciphertext = ByteString
+type LazyCiphertext = Lazy.ByteString
 
 --
 

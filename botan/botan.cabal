@@ -51,6 +51,8 @@ library
         Botan.Checksum.Adler
         Botan.Checksum.CRC
         Botan.Cipher
+        Botan.Cipher.ChaCha20Poly1305
+        Botan.Cipher.Class
         Botan.Error
         Botan.Hash
         Botan.Hash.BLAKE

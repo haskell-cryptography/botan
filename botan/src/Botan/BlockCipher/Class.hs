@@ -10,8 +10,6 @@ module Botan.BlockCipher.Class
 , IncrementalBlockCipher(..)
 , blockCipherEncryptFileLazy
 , blockCipherDecryptFileLazy
--- , MutableBlockCipher(..)
--- , MutableCtx(..)
 ) where
 
 import Botan.Prelude
