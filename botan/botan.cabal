@@ -46,6 +46,8 @@ library
     exposed-modules:
         Botan.Bcrypt
         Botan.BlockCipher
+        Botan.BlockCipher.AES
+        Botan.BlockCipher.Class
         Botan.Checksum.Adler
         Botan.Checksum.CRC
         Botan.Cipher

@@ -51,8 +51,10 @@ module Botan.BlockCipher -- where
 , blockCipherKeySpec
 
 -- ** Idiomatic algorithm
-, encryptBlocks
-, decryptBlocks
+, blockCipherEncrypt
+, blockCipherDecrypt
+, blockCipherEncryptLazy
+, blockCipherDecryptLazy
 
 -- * Mutable interface
 
@@ -82,6 +84,11 @@ module Botan.BlockCipher -- where
 -- , autoEncryptBlockCipherBlocksGeneratingkey
 , autoDecryptBlockCipherBlocks
 
+-- Algorithm references
+, aes128
+, aes192
+, aes256
+
 ) where
 
 import qualified Botan.Low.BlockCipher as Low
@@ -89,6 +96,7 @@ import qualified Botan.Low.BlockCipher as Low
 import Botan.Prelude
 
 import qualified Data.ByteString as ByteString
+import qualified Data.ByteString.Lazy as Lazy
 
 import Data.Maybe
 
@@ -321,31 +329,41 @@ generateBlockCipherKeySpecs = do
 
 -- Idiomatic algorithm
 
-encryptBlocks
+blockCipherEncrypt
     :: BlockCipher
     -> BlockCipherKey
     -> ByteString
-    -> Maybe BlockCipherText
-encryptBlocks bc k pt = unsafePerformIO $ do
+    -> Maybe ByteString
+blockCipherEncrypt bc k pt = unsafePerformIO $ do
     mc <- newBlockCipher bc
     autoEncryptBlockCipherBlocks mc k pt
+{-# NOINLINE blockCipherEncrypt #-}
 
--- TODO:
--- encryptBlocksGeneratingKey
---     :: (MonadRandomIO m)
---     => BlockCipher
---     -> ByteString
---     -> m (Maybe (ByteString, BlockCipherKey))
--- encryptBlocksGeneratingKey = undefined
+-- TODO: blockCipherEncryptGeneratingKey
 
-decryptBlocks
+blockCipherDecrypt
     :: BlockCipher
     -> BlockCipherKey
-    -> BlockCipherText
+    -> ByteString
     -> Maybe ByteString
-decryptBlocks bc k ct = unsafePerformIO $ do
+blockCipherDecrypt bc k ct = unsafePerformIO $ do
     mc <- newBlockCipher bc
     autoDecryptBlockCipherBlocks mc k ct
+{-# NOINLINE blockCipherDecrypt #-}
+
+blockCipherEncryptLazy
+    :: BlockCipher
+    -> BlockCipherKey
+    -> Lazy.ByteString
+    -> Maybe Lazy.ByteString
+blockCipherEncryptLazy = undefined
+
+blockCipherDecryptLazy
+    :: BlockCipher
+    -> BlockCipherKey
+    -> Lazy.ByteString
+    -> Maybe Lazy.ByteString
+blockCipherDecryptLazy = undefined
 
 --
 -- Mutable interface
@@ -415,6 +433,8 @@ clearBlockCipher = liftIO . Low.blockCipherClear . mutableBlockCipherCtx
 
 -- Mutable algorithm
 
+-- NOTE: This is messed up garbage - redo it
+
 encryptBlockCipherBlocks
     :: (MonadIO m)
     => MutableBlockCipher
@@ -459,3 +479,16 @@ autoDecryptBlockCipherBlocks mc k ct = do
         clearBlockCipher mc
         return $ Just pt
     else return Nothing
+
+--
+-- Algorithm references
+--
+
+aes128 :: BlockCipher
+aes128 = BlockCipher128 AES_128
+
+aes192 :: BlockCipher
+aes192 = BlockCipher128 AES_192
+
+aes256 :: BlockCipher
+aes256 = BlockCipher128 AES_256
