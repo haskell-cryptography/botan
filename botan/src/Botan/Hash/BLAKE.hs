@@ -17,7 +17,7 @@ import qualified Data.Text as Text
 import qualified Botan.Hash as Botan
 import qualified Botan.Utility as Botan
 
-import Botan.Hash.Class -- Crypto.Hash
+import Botan.Hash.Class
 import Botan.Prelude
 
 -- BLAKE2b type

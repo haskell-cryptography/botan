@@ -20,6 +20,7 @@ A module for the common task of random number generation.
             ,   CPP
             ,   DerivingStrategies
             ,   FunctionalDependencies
+            ,   GeneralizedNewtypeDeriving
 #-}
 
 module Botan.RNG
@@ -97,7 +98,7 @@ initial key.
 
 Most practical systems take a hybrid approach that involves reseeding a cryptographically
 secure pseudo-random generator (CSPRNG) periodically from some a source of true entropy, which
-is the approach that this library takes.
+is the approach that the Botan C++ library takes.
 
 NOTE: Be forewarned that virtual machines usually lack access to a source of true entropy.
 
@@ -182,6 +183,7 @@ NOTE: This data type is an instance of `System.Random.Stateful.Stateful`
 -}
 type RNG = Low.RNG
 
+-- TODO: Move this to a System.Random.Stateful.Botan module that is imported conditionally
 #if defined(HS_BOTAN_HAS_RANDOM)
 
 instance (MonadIO m) => StatefulGen RNG m where
@@ -195,6 +197,26 @@ packIntegral = ByteString.foldl packIntegralWord 0
 
 packIntegralWord :: (Bits i, Integral i, FiniteBits w, Integral w) => i -> w -> i
 packIntegralWord i w = shiftL i (finiteBitSize w) .|. fromIntegral w
+
+-- TODO: Adapters between MonadRandomIO and StatefulGen?
+-- NOTE: Requires demoting
+--      instance (MonadIO m) => StatefulGen RNG m where
+--          ...
+--  to:
+--      instance (MonadIO m) => StatefulGen RNG (RandomT m) where
+--          uniformWord32 :: RNG -> RandomT m Word32
+--          uniformWord32 rng = packIntegral <$> getRandomBytesRNG 4 rng
+-- Eg, something like:
+{-
+newtype WrappedMonadRandomIO m a = WrapMonadRandomIO { unwrapMonadRandomIO :: m a }
+    deriving newtype (Functor, Applicative, Monad, MonadIO)
+
+instance (Monad m, MonadRandomIO m) => StatefulGen RNG (WrappedMonadRandomIO m) where
+    uniformWord32 rng = packIntegral <$> getRandomBytesRNG 4 rng
+
+instance (Monad m,  MonadRandomIO m) => MonadRandomIO (WrappedMonadRandomIO m) where
+    getRNG = WrapMonadRandomIO getRNG
+-}
 
 #endif
 

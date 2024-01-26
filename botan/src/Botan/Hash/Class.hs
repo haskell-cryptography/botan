@@ -18,21 +18,24 @@ import qualified Data.ByteString.Lazy as Lazy
 
 data family Digest hash
 
-class Hash h where
-    hash :: ByteString -> Digest h
-    default hash :: (IncrementalHash h) => ByteString -> Digest h
+class (Eq (Digest hash), Ord (Digest hash)) => Hash hash where
+    hash :: ByteString -> Digest hash
+    default hash :: (IncrementalHash hash) => ByteString -> Digest hash
     hash = hashLazy . ByteString.fromStrict
 
-hashProxy :: (Hash h) => Proxy h -> ByteString -> Digest h
+    -- verifyHash :: ByteString -> Digest hash -> Bool
+    -- verifyHash bs d = hash bs == d
+
+hashProxy :: (Hash hash) => Proxy hash -> ByteString -> Digest hash
 hashProxy _ = hash
 
-hashFile :: (IncrementalHash h, MonadIO m) => FilePath -> m (Digest h)
+hashFile :: (Hash hash, MonadIO m) => FilePath -> m (Digest hash)
 hashFile fp = hash <$> liftIO (ByteString.readFile fp)
 
-class (Hash h) => IncrementalHash h where
-    hashLazy :: Lazy.ByteString -> Digest h
+class (Hash hash) => IncrementalHash hash where
+    hashLazy :: Lazy.ByteString -> Digest hash
 
-hashFileLazy :: (IncrementalHash h, MonadIO m) => FilePath -> m (Digest h)
+hashFileLazy :: (IncrementalHash hash, MonadIO m) => FilePath -> m (Digest hash)
 hashFileLazy fp = do
     bs <- liftIO $ Lazy.readFile fp
     -- Seq is probably unnecessary
@@ -47,14 +50,14 @@ hashFileLazy fp = do
 -- TODO: Rename Mutable?
 data family MutableCtx hash
 
-class (IncrementalHash h, MonadIO m) => MutableHash h m where
-    hashInit     :: m (MutableCtx h)
-    hashUpdate   :: MutableCtx h -> ByteString -> m ()
-    hashUpdates  :: MutableCtx h -> [ByteString] -> m ()
-    hashFinalize :: MutableCtx h -> m (Digest h)
+class (IncrementalHash hash, MonadIO m) => MutableHash hash m where
+    hashInit     :: m (MutableCtx hash)
+    hashUpdate   :: MutableCtx hash -> ByteString -> m ()
+    hashUpdates  :: MutableCtx hash -> [ByteString] -> m ()
+    hashFinalize :: MutableCtx hash -> m (Digest hash)
 
 
-mutableHashLazy :: MutableHash h m => Lazy.ByteString -> m (Digest h)
+mutableHashLazy :: MutableHash hash m => Lazy.ByteString -> m (Digest hash)
 mutableHashLazy lbs = do
     ctx <- hashInit
     hashUpdates ctx $ Lazy.toChunks lbs
