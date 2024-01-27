@@ -106,6 +106,7 @@ module Botan.MAC
 , cmac
 , hmac
 -- , kmac
+, poly1305
 , sipHash
 , x9_19_mac
 
@@ -444,8 +445,8 @@ hmac = HMAC
 -- kmac = undefined
 
 -- MOVE TO OneTimeAuth
--- poly1305 :: MAC
--- poly1305 = undefined
+poly1305 :: MAC
+poly1305 = Poly1305
 
 -- NOTE: I'm pretty sure any positive values are valid
 sipHash :: Int -> Int -> Maybe MAC
