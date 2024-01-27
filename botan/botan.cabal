@@ -92,6 +92,7 @@ library
         Botan.PwdHash
         Botan.RNG
         Botan.SRP6
+        Botan.Types.Class
         Botan.Utility
         Botan.Version
         Botan.X509
