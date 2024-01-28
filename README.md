@@ -303,7 +303,41 @@ main = do
 
 # Tutorials
 
-There are no tutorials available at this time. For the moment, the unit tests are your best bet for an example of working code.
+<!-- There are no tutorials available at this time. For the moment, the unit tests are your best bet for an example of working code. -->
+
+There are many tutorials available, with at-a-glance references in this README, and complete in-depth articles in the [tutorials folder](tutorials/).
+
+<details><summary>Hashes</summary>
+
+The easiest way to hash is to use a fixed hash algorithm directly. `sha3_512` is the suggested hash algorithm, unless you specifically need another, different algorithm.
+
+```haskell
+import Botan.Hash.SHA3
+sha3_512 "Fee fi fo fum!"
+-- 03a240a2...
+```
+
+If an algorithm has variants, you may use a family-level function such as `sha3`, and select the variant with `TypeApplications`:
+
+```haskell
+-- This produces the same digest as before
+sha3 @512 "Fee fi fo fum!"
+-- Explicit typing also works
+sha3 "Fee fi fo fum!" :: SHA3Digest 512
+```
+
+These functions are implemented via a more generic, classy `Hash` interface which uses the `Digest` data family to ensure that different algorithms and variants have different types while still being inferred properly.
+
+```haskell
+-- Once more at the class-level
+hash @(SHA3 512) "Fee fi fo fum!"
+-- Once more with explicit typing
+hash "Fee fi fo fum!" :: Digest (SHA3 512)
+```
+
+For a more in-depth look, see the full [Hash](tutorials/Hash.md) tutorial.
+
+</details>
 
 # Enabling experimental support
 
