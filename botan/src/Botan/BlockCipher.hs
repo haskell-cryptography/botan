@@ -465,6 +465,10 @@ autoEncryptBlockCipherBlocks mc k pt = do
         return $ Just bct
     else return Nothing
 
+
+-- NOTE: This *actually doesn't throw an exception* if the buffer isn't
+-- block-sized! BUFFER OVERFLOW!
+-- TODO: Safe-ify this
 autoDecryptBlockCipherBlocks
     :: (MonadIO m)
     => MutableBlockCipher
