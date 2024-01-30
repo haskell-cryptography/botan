@@ -1,9 +1,9 @@
 module Botan.Cipher.Class
 ( Cipher(..)
-, CipherKey(..)
-, CipherNonce(..)
-, CipherText(..)
-, IncrementalCipherText(..)
+, SecretKey(..)
+, Nonce(..)
+, Ciphertext(..)
+, LazyCiphertext(..)
 , cipherEncryptProxy
 , cipherDecryptProxy
 , cipherEncryptFile
@@ -15,67 +15,55 @@ module Botan.Cipher.Class
 -- , MutableCtx(..)
 ) where
 
-import Botan.Prelude
+import Botan.Prelude hiding (Ciphertext, LazyCiphertext)
 
 import Data.Proxy (Proxy(..))
 
 import qualified Data.ByteString as ByteString
 import qualified Data.ByteString.Lazy as Lazy
 
-data family CipherKey c
-data family CipherNonce c
-
--- TODO: Strict family?
-data family CipherText c
-data family IncrementalCipherText c
+import Botan.Types.Class
+import Botan.RNG
 
 -- NOTE: I think that CBC NoPadding is the only cipher that doesn't accept arbitrary length input
 -- So we can drop the Maybe from cipherEncrypt
-class (Eq (CipherText c), Ord (CipherText c)) => Cipher c where
+class (HasSecretKey c, HasNonce c, HasCiphertext c) => Cipher c where
 
-    -- HACKY: Really need an IsCipherText, IsLazyCipherText, etc
-    mkCipherText :: ByteString -> CipherText c
+    cipherEncrypt :: SecretKey c -> Nonce c -> ByteString -> Ciphertext c
+    default cipherEncrypt :: (IncrementalCipher c) => SecretKey c -> Nonce c -> ByteString -> Ciphertext c
+    cipherEncrypt k n = toStrictCiphertext . cipherEncryptLazy k n . ByteString.fromStrict
 
-    cipherEncrypt :: CipherKey c -> CipherNonce c -> ByteString -> CipherText c
-    default cipherEncrypt :: (IncrementalCipher c) => CipherKey c -> CipherNonce c -> ByteString -> CipherText c
-    cipherEncrypt k n = fromIncremental . cipherEncryptLazy k n . ByteString.fromStrict
+    cipherDecrypt :: SecretKey c -> Nonce c -> Ciphertext c -> Maybe ByteString
+    default cipherDecrypt :: (IncrementalCipher c) => SecretKey c -> Nonce c -> Ciphertext c -> Maybe ByteString
+    cipherDecrypt k n = fmap ByteString.toStrict . cipherDecryptLazy k n . fromStrictCiphertext
 
-    cipherDecrypt :: CipherKey c -> CipherNonce c -> CipherText c -> Maybe ByteString
-    default cipherDecrypt :: (IncrementalCipher c) => CipherKey c -> CipherNonce c -> CipherText c -> Maybe ByteString
-    cipherDecrypt k n = fmap ByteString.toStrict . cipherDecryptLazy k n . toIncremental
-
-cipherEncryptProxy :: (Cipher c) => Proxy c -> CipherKey c -> CipherNonce c -> ByteString -> CipherText c
+cipherEncryptProxy :: (Cipher c) => Proxy c -> SecretKey c -> Nonce c -> ByteString -> Ciphertext c
 cipherEncryptProxy _ = cipherEncrypt
 
-cipherDecryptProxy :: Cipher c => Proxy c -> CipherKey c -> CipherNonce c -> CipherText c -> Maybe ByteString
+cipherDecryptProxy :: Cipher c => Proxy c -> SecretKey c -> Nonce c -> Ciphertext c -> Maybe ByteString
 cipherDecryptProxy _ = cipherDecrypt
 
-cipherEncryptFile :: (Cipher c, MonadIO m) => CipherKey c -> CipherNonce c -> FilePath -> m (CipherText c)
+cipherEncryptFile :: (Cipher c, MonadIO m) => SecretKey c -> Nonce c -> FilePath -> m (Ciphertext c)
 cipherEncryptFile k n fp = cipherEncrypt k n <$> liftIO (ByteString.readFile fp)
 
-cipherDecryptFile :: (Cipher c, MonadIO m) => CipherKey c -> CipherNonce c -> FilePath -> m (Maybe ByteString)
-cipherDecryptFile k n fp = cipherDecrypt k n . mkCipherText <$> liftIO (ByteString.readFile fp)
+cipherDecryptFile :: (Cipher c, MonadIO m) => SecretKey c -> Nonce c -> FilePath -> m (Maybe ByteString)
+cipherDecryptFile k n fp = cipherDecrypt k n . unsafeDecode <$> liftIO (ByteString.readFile fp)
 
-class (Cipher c) => IncrementalCipher c where
+class (Cipher c, HasLazyCiphertext c) => IncrementalCipher c where
 
-    -- NOTE: Hacky Really need an IsCipherText, IsLazyCipherText, etc
-    mkIncrementalCipherText :: Lazy.ByteString -> IncrementalCipherText c
-    fromIncremental :: IncrementalCipherText c -> CipherText c
-    toIncremental :: CipherText c -> IncrementalCipherText c
+    cipherEncryptLazy :: SecretKey c -> Nonce c -> Lazy.ByteString -> LazyCiphertext c
+    cipherDecryptLazy :: SecretKey c -> Nonce c -> LazyCiphertext c -> Maybe Lazy.ByteString
 
-    cipherEncryptLazy :: CipherKey c -> CipherNonce c -> Lazy.ByteString -> IncrementalCipherText c
-    cipherDecryptLazy :: CipherKey c -> CipherNonce c -> IncrementalCipherText c -> Maybe Lazy.ByteString
-
-cipherEncryptFileLazy :: (IncrementalCipher c, MonadIO m) => CipherKey c -> CipherNonce c -> FilePath -> m (IncrementalCipherText c)
+cipherEncryptFileLazy :: (IncrementalCipher c, MonadIO m) => SecretKey c -> Nonce c -> FilePath -> m (LazyCiphertext c)
 cipherEncryptFileLazy k n fp = do
     bs <- liftIO $ Lazy.readFile fp
     -- Seq is probably unnecessary
     let d = cipherEncryptLazy k n bs
         in d `seq` return d
 
-cipherDecryptFileLazy :: (IncrementalCipher c, MonadIO m) => CipherKey c -> CipherNonce c -> FilePath -> m (Maybe Lazy.ByteString)
+cipherDecryptFileLazy :: (IncrementalCipher c, MonadIO m) => SecretKey c -> Nonce c -> FilePath -> m (Maybe Lazy.ByteString)
 cipherDecryptFileLazy k n fp = do
     bs <- liftIO $ Lazy.readFile fp
     -- Seq is probably unnecessary
-    let d = cipherDecryptLazy k n (mkIncrementalCipherText bs)
+    let d = cipherDecryptLazy k n (unsafeDecodeLazy bs)
         in d `seq` return d

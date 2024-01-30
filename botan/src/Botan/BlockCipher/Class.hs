@@ -22,6 +22,8 @@ import qualified Data.ByteString.Lazy as Lazy
 import Botan.Types.Class
 import Botan.RNG
 
+-- NOTE: Cannot do g- / default implementation like this
+-- See notes in Botan.Types.Class
 -- instance (BlockCipher bc, MonadRandomIO m) => SecretKeyGen bc m where
 --     newSecretKey :: m (SecretKey alg)
 --     newSecretKey = _

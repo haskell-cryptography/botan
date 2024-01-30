@@ -31,11 +31,11 @@ import qualified Data.Text as Text
 import qualified Botan.BlockCipher as Botan
 import qualified Botan.Utility as Botan
 
-import Botan.RNG
+import Botan.Prelude hiding (Ciphertext, LazyCiphertext)
 
 import Botan.BlockCipher.Class
 import Botan.Types.Class
-import Botan.Prelude hiding (Ciphertext, LazyCiphertext)
+import Botan.RNG
 
 -- AES128 type
 

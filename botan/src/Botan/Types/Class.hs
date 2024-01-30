@@ -60,6 +60,8 @@ import Botan.RNG
 
 import Botan.Utility
 
+-- TODO: gnewSecretKey, gnewNonce, etc
+
 --
 -- Helpers
 --
@@ -254,6 +256,21 @@ newtype GSecretKey = MkGSecretKey { unGSecretKey :: ByteString }
 
 instance Show GSecretKey where
     show = showByteStringHex . unGSecretKey
+
+-- NOTE: Cannot do g- / default implementation of new keys since we do not yet
+-- have the secret key constructor.
+-- We also need the algorithm-specific key spec for gnewSecretKey and gnewSecretKeyMaybe.
+-- Being unable to do this isn't necessarily bad, just requires more boilerplate - 
+-- the benefit being that the implementation of SecretKey is entirely opaque
+-- and thus free to be whatever it wants. For example, what if an backing implementation
+-- requires that SecretKey alg ~ Integer? (Actually some PK stuff may do just that)
+{-
+gnewSecretKey :: MonadRandomIO m => m GSecretKey
+gnewSecretKey = newSeed (secretKeySpec @_)
+
+gnewSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (GSecretKey)
+gnewSecretKeyMaybe i = newSeedMaybe (secretKeySpec @_) i
+-}
 
 --
 -- Nonce
