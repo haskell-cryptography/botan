@@ -35,6 +35,9 @@ module Botan.Types.Class
 , GSalt(..)
 , Password(..)
 , GPassword(..)
+, Digest(..)
+, HasDigest(..)
+, GDigest(..)
 , Ciphertext(..)
 , HasCiphertext(..)
 , GCiphertext(..)
@@ -335,6 +338,20 @@ newtype GPassword = MkGPassword { unGPassword :: Text }
 
 instance Show GPassword where
     show = Text.unpack . unGPassword
+
+--
+-- Digest
+--
+
+data family Digest alg
+
+class (Eq (Digest alg), Ord (Digest alg), Encodable (Digest alg)) => HasDigest alg where
+
+newtype GDigest = MkGDigest { unGDigest :: ByteString }
+    deriving newtype (Eq, Ord, Encodable)
+
+instance Show GDigest where
+    show = showByteStringHex . unGDigest
 
 --
 -- Ciphertext
