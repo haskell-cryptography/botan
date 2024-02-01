@@ -62,3 +62,24 @@ mutableHashLazy lbs = do
     ctx <- hashInit
     hashUpdates ctx $ Lazy.toChunks lbs
     hashFinalize ctx
+
+
+
+-- TODO: Something like `Salted "salt" SHA3_512` for static salts?
+{-
+
+data Salted (salt :: Symbol) h
+
+-- NOTE: Needs proper encodable to get rid of coerce
+instance (KnownSymbol salt, Hash h) => Hash (Salted salt h) where
+    hash bs = SaltedDigest $ unsafeCoerce $ hash @h $ bs <> Char8.pack (symbolVal (Proxy @salt))
+
+newtype instance Digest (Salted salt h) = SaltedDigest
+    { getSaltedByteString :: ByteString {- ByteVector n -} }
+    deriving newtype (Eq, Ord)
+
+instance (KnownSymbol salt, Hash h) => Show (Digest (Salted salt h)) where
+    show :: Digest (Salted salt h) -> String
+    show (SaltedDigest bytes) = Text.unpack $ Botan.hexEncode bytes Botan.Lower
+
+-}

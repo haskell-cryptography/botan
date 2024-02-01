@@ -85,9 +85,32 @@ module Botan.BlockCipher -- where
 , autoDecryptBlockCipherBlocks
 
 -- Algorithm references
+
+, blowfish
+, cast128
+, des
+, tripleDES
+, gost_28147_89
+, idea
+
 , aes128
 , aes192
 , aes256
+, aria128
+, aria192
+, aria256
+, camellia128
+, camellia192
+, camellia256
+, noekeon
+, seed
+, sm4
+, serpent
+, twofish
+
+, shalcal2
+
+, threefish512
 
 ) where
 
@@ -488,6 +511,24 @@ autoDecryptBlockCipherBlocks mc k ct = do
 -- Algorithm references
 --
 
+blowfish :: BlockCipher
+blowfish = Blowfish
+
+cast128 :: BlockCipher
+cast128 = CAST_128
+
+des :: BlockCipher
+des = DES
+
+tripleDES :: BlockCipher
+tripleDES = TripleDES
+
+gost_28147_89 :: BlockCipher
+gost_28147_89 = GOST_28147_89
+
+idea :: BlockCipher
+idea = IDEA
+
 aes128 :: BlockCipher
 aes128 = BlockCipher128 AES_128
 
@@ -496,3 +537,42 @@ aes192 = BlockCipher128 AES_192
 
 aes256 :: BlockCipher
 aes256 = BlockCipher128 AES_256
+
+aria128 :: BlockCipher
+aria128 = BlockCipher128 ARIA_128
+
+aria192 :: BlockCipher
+aria192 = BlockCipher128 ARIA_192
+
+aria256 :: BlockCipher
+aria256 = BlockCipher128 ARIA_256
+
+camellia128 :: BlockCipher
+camellia128 = BlockCipher128 Camellia_128
+
+camellia192 :: BlockCipher
+camellia192 = BlockCipher128 Camellia_192
+
+camellia256 :: BlockCipher
+camellia256 = BlockCipher128 Camellia_256
+
+noekeon :: BlockCipher
+noekeon = BlockCipher128 Noekeon
+
+seed :: BlockCipher
+seed = BlockCipher128 SEED
+
+sm4 :: BlockCipher
+sm4 = BlockCipher128 SM4
+
+serpent :: BlockCipher
+serpent = BlockCipher128 Serpent
+
+twofish :: BlockCipher
+twofish = BlockCipher128 Twofish
+
+shalcal2 :: BlockCipher
+shalcal2 = SHACAL2
+
+threefish512 :: BlockCipher
+threefish512 = Threefish_512

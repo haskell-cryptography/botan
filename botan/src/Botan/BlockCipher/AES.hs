@@ -10,6 +10,8 @@ module Botan.BlockCipher.AES
 , aes128DecryptLazy
 , AES192(..)
 , AES192SecretKey(..)
+, pattern AES192SecretKey
+, getAES192SecretKey
 , AES192Ciphertext(..)
 , aes192Encrypt
 , aes192Decrypt
@@ -17,6 +19,8 @@ module Botan.BlockCipher.AES
 , aes192DecryptLazy
 , AES256(..)
 , AES256SecretKey(..)
+, pattern AES256SecretKey
+, getAES256SecretKey
 , AES256Ciphertext(..)
 , aes256Encrypt
 , aes256Decrypt
@@ -288,3 +292,12 @@ aes256EncryptLazy = blockCipherEncryptLazy
 
 aes256DecryptLazy :: SecretKey AES256 -> AES256LazyCiphertext -> Maybe Lazy.ByteString
 aes256DecryptLazy = blockCipherDecryptLazy
+
+-- Temporary BlockCipher128 conformance
+
+instance BlockCipher128 AES128 where
+instance IncrementalBlockCipher128 AES128 where
+instance BlockCipher128 AES192 where
+instance IncrementalBlockCipher128 AES192 where
+instance BlockCipher128 AES256 where
+instance IncrementalBlockCipher128 AES256 where

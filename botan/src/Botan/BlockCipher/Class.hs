@@ -10,10 +10,17 @@ module Botan.BlockCipher.Class
 , IncrementalBlockCipher(..)
 , blockCipherEncryptFileLazy
 , blockCipherDecryptFileLazy
+, unsafeBlockCipherEncrypt
+, unsafeBlockCipherDecrypt
+, unsafeBlockCipherEncryptLazy
+, unsafeBlockCipherDecryptLazy
+, BlockCipher128(..)
+, IncrementalBlockCipher128(..)
 ) where
 
 import Botan.Prelude hiding (Ciphertext, LazyCiphertext)
 
+import Data.Maybe
 import Data.Proxy (Proxy(..))
 
 import qualified Data.ByteString as ByteString
@@ -21,6 +28,8 @@ import qualified Data.ByteString.Lazy as Lazy
 
 import Botan.Types.Class
 import Botan.RNG
+
+-- TODO: Maybe make take Block instead of ByteString, where Block (n :: Nat) ~ ByteString | length bs == natVal n
 
 -- NOTE: Cannot do g- / default implementation like this
 -- See notes in Botan.Types.Class
@@ -70,3 +79,20 @@ blockCipherDecryptFileLazy k fp = do
     -- Seq is probably unnecessary
     let d = blockCipherDecryptLazy k (unsafeDecodeLazy bs)
         in d `seq` return d
+
+unsafeBlockCipherEncrypt :: (BlockCipher bc) => SecretKey bc -> ByteString -> Ciphertext bc
+unsafeBlockCipherEncrypt k bs = fromJust $ blockCipherEncrypt k bs
+
+unsafeBlockCipherDecrypt :: (BlockCipher bc) => SecretKey bc -> Ciphertext bc -> ByteString
+unsafeBlockCipherDecrypt k ct = fromJust $ blockCipherDecrypt k ct
+
+unsafeBlockCipherEncryptLazy :: (IncrementalBlockCipher bc) => SecretKey bc -> Lazy.ByteString -> LazyCiphertext bc
+unsafeBlockCipherEncryptLazy k lbs = fromJust $ blockCipherEncryptLazy k lbs
+
+unsafeBlockCipherDecryptLazy :: (IncrementalBlockCipher bc) => SecretKey bc -> LazyCiphertext bc -> Lazy.ByteString
+unsafeBlockCipherDecryptLazy k lct = fromJust $ blockCipherDecryptLazy k lct
+
+class (BlockCipher bc) => BlockCipher128 bc where
+-- {-# WARNING BlockCipher128 "This is a temporary typeclass to restrict types requiring a block size of 128 bits; the BlockSize API will change in the future" #-}
+class (IncrementalBlockCipher bc) => IncrementalBlockCipher128 bc where
+-- {-# WARNING IncrementalBlockCipher128 "This is a temporary typeclass to restrict types requiring a block size of 128 bits; the BlockSize API will change in the future" #-}

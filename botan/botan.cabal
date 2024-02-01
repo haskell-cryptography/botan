@@ -47,7 +47,20 @@ library
         Botan.Bcrypt
         Botan.BlockCipher
         Botan.BlockCipher.AES
+        Botan.BlockCipher.ARIA
+        Botan.BlockCipher.Blowfish
+        Botan.BlockCipher.Camellia
+        Botan.BlockCipher.CAST
         Botan.BlockCipher.Class
+        Botan.BlockCipher.DES
+        Botan.BlockCipher.GOST
+        Botan.BlockCipher.IDEA
+        Botan.BlockCipher.Noekeon
+        Botan.BlockCipher.Serpent
+        Botan.BlockCipher.SHALCAL
+        Botan.BlockCipher.SM4
+        Botan.BlockCipher.Threefish
+        Botan.BlockCipher.Twofish
         Botan.Checksum.Adler
         Botan.Checksum.CRC
         Botan.Cipher

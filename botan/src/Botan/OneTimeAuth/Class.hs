@@ -26,6 +26,9 @@ data family OneTimeAuthCode ota
 type OneTimeKey ota = (OneTimeAuthKey ota, OneTimeAuthNonce ota)
 -- TODO: Decide whether to `SeparateKey ota -> SeparateNonce ota -> ...`
 --  or `CombinedOneTimeKey ota -> ...`
+-- Note that this is a different meaning of `Combined` than as used in `saltine`.
+-- We mean `Combined` as the opposite of `Detached` in saltine.
+-- TODO: Prefer `Attached` terminology?
 
 class OneTimeAuth ota where
     oneTimeAuth :: OneTimeAuthKey ota -> OneTimeAuthNonce ota -> ByteString -> OneTimeAuthCode ota
