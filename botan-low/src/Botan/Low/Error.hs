@@ -142,10 +142,12 @@ botanErrorDescription e = do
 
 -- | Returns a static string stored in a thread local variable which contains the last exception message thrown.
 --  WARNING: This string buffer is overwritten on the next call to the FFI layer
-botanErrorLastExceptionMessage :: IO ByteString
+botanErrorLastExceptionMessage :: IO ErrorMessage
 botanErrorLastExceptionMessage = do
     msgPtr <- botan_error_last_exception_message
     peekCString (unConstPtr msgPtr)
+
+type ErrorMessage = ByteString
 
 {-
 Exceptions
@@ -168,7 +170,7 @@ fromBotanException x = do
     cast a
 
 data InvalidVerifierException
-    = InvalidVerifierException BotanErrorCode CallStack
+    = InvalidVerifierException BotanErrorCode ErrorMessage CallStack
     deriving (Show)
 
 instance Exception InvalidVerifierException where
@@ -176,7 +178,7 @@ instance Exception InvalidVerifierException where
     fromException = fromBotanException
 
 data InvalidInputException
-    = InvalidInputException BotanErrorCode CallStack
+    = InvalidInputException BotanErrorCode ErrorMessage CallStack
     deriving (Show)
 
 instance Exception InvalidInputException where
@@ -184,7 +186,7 @@ instance Exception InvalidInputException where
     fromException = fromBotanException
 
 data BadMACException
-    = BadMACException BotanErrorCode CallStack
+    = BadMACException BotanErrorCode ErrorMessage CallStack
     deriving (Show)
 
 instance Exception BadMACException where
@@ -192,7 +194,7 @@ instance Exception BadMACException where
     fromException = fromBotanException
 
 data InsufficientBufferSpaceException
-    = InsufficientBufferSpaceException BotanErrorCode CallStack
+    = InsufficientBufferSpaceException BotanErrorCode ErrorMessage CallStack
     deriving (Show)
 
 instance Exception InsufficientBufferSpaceException where
@@ -200,7 +202,7 @@ instance Exception InsufficientBufferSpaceException where
     fromException = fromBotanException
 
 data StringConversionException
-    = StringConversionException BotanErrorCode CallStack
+    = StringConversionException BotanErrorCode ErrorMessage CallStack
     deriving (Show)
 
 instance Exception StringConversionException where
@@ -208,7 +210,7 @@ instance Exception StringConversionException where
     fromException = fromBotanException
 
 data ExceptionThrownException
-    = ExceptionThrownException BotanErrorCode CallStack
+    = ExceptionThrownException BotanErrorCode ErrorMessage CallStack
     deriving (Show)
 
 instance Exception ExceptionThrownException where
@@ -216,7 +218,7 @@ instance Exception ExceptionThrownException where
     fromException = fromBotanException
 
 data OutOfMemoryException
-    = OutOfMemoryException BotanErrorCode CallStack
+    = OutOfMemoryException BotanErrorCode ErrorMessage CallStack
     deriving (Show)
 
 instance Exception OutOfMemoryException where
@@ -224,7 +226,7 @@ instance Exception OutOfMemoryException where
     fromException = fromBotanException
 
 data SystemErrorException
-    = SystemErrorException BotanErrorCode CallStack
+    = SystemErrorException BotanErrorCode ErrorMessage CallStack
     deriving (Show)
 
 instance Exception SystemErrorException where
@@ -232,7 +234,7 @@ instance Exception SystemErrorException where
     fromException = fromBotanException
 
 data InternalErrorException
-    = InternalErrorException BotanErrorCode CallStack
+    = InternalErrorException BotanErrorCode ErrorMessage CallStack
     deriving (Show)
 
 instance Exception InternalErrorException where
@@ -240,7 +242,7 @@ instance Exception InternalErrorException where
     fromException = fromBotanException
 
 data BadFlagException
-    = BadFlagException BotanErrorCode CallStack
+    = BadFlagException BotanErrorCode ErrorMessage CallStack
     deriving (Show)
 
 instance Exception BadFlagException where
@@ -248,7 +250,7 @@ instance Exception BadFlagException where
     fromException = fromBotanException
 
 data NullPointerException
-    = NullPointerException BotanErrorCode CallStack
+    = NullPointerException BotanErrorCode ErrorMessage CallStack
     deriving (Show)
 
 instance Exception NullPointerException where
@@ -256,7 +258,7 @@ instance Exception NullPointerException where
     fromException = fromBotanException
 
 data BadParameterException
-    = BadParameterException BotanErrorCode CallStack
+    = BadParameterException BotanErrorCode ErrorMessage CallStack
     deriving (Show)
 
 instance Exception BadParameterException where
@@ -264,7 +266,7 @@ instance Exception BadParameterException where
     fromException = fromBotanException
 
 data KeyNotSetException
-    = KeyNotSetException BotanErrorCode CallStack
+    = KeyNotSetException BotanErrorCode ErrorMessage CallStack
     deriving (Show)
 
 instance Exception KeyNotSetException where
@@ -272,7 +274,7 @@ instance Exception KeyNotSetException where
     fromException = fromBotanException
 
 data InvalidKeyLengthException
-    = InvalidKeyLengthException BotanErrorCode CallStack
+    = InvalidKeyLengthException BotanErrorCode ErrorMessage CallStack
     deriving (Show)
 
 instance Exception InvalidKeyLengthException where
@@ -280,7 +282,7 @@ instance Exception InvalidKeyLengthException where
     fromException = fromBotanException
 
 data InvalidObjectStateException
-    = InvalidObjectStateException BotanErrorCode CallStack
+    = InvalidObjectStateException BotanErrorCode ErrorMessage CallStack
     deriving (Show)
 
 instance Exception InvalidObjectStateException where
@@ -288,7 +290,7 @@ instance Exception InvalidObjectStateException where
     fromException = fromBotanException
 
 data NotImplementedException
-    = NotImplementedException BotanErrorCode CallStack
+    = NotImplementedException BotanErrorCode ErrorMessage CallStack
     deriving (Show)
 
 instance Exception NotImplementedException where
@@ -296,7 +298,7 @@ instance Exception NotImplementedException where
     fromException = fromBotanException
 
 data InvalidObjectException
-    = InvalidObjectException BotanErrorCode CallStack
+    = InvalidObjectException BotanErrorCode ErrorMessage CallStack
     deriving (Show)
 
 instance Exception InvalidObjectException where
@@ -304,7 +306,7 @@ instance Exception InvalidObjectException where
     fromException = fromBotanException
     
 data UnknownException
-    = UnknownException BotanErrorCode CallStack
+    = UnknownException BotanErrorCode ErrorMessage CallStack
     deriving (Show)
 
 instance Exception UnknownException where
@@ -364,26 +366,28 @@ throwBotanCatchingInt act = do
     return (fromIntegral result)
 
 throwBotanErrorWithCallstack :: BotanErrorCode -> CallStack -> IO a
-throwBotanErrorWithCallstack e cs =  case e of
-    -- BOTAN_FFI_SUCCESS                           -> throwIO $ SUCCESS e cs
-    BOTAN_FFI_INVALID_VERIFIER                  -> throwIO $ InvalidVerifierException e cs
-    BOTAN_FFI_ERROR_INVALID_INPUT               -> throwIO $ InvalidInputException e cs
-    BOTAN_FFI_ERROR_BAD_MAC                     -> throwIO $ BadMACException e cs
-    BOTAN_FFI_ERROR_INSUFFICIENT_BUFFER_SPACE   -> throwIO $ InsufficientBufferSpaceException e cs
-    BOTAN_FFI_ERROR_STRING_CONVERSION_ERROR     -> throwIO $ StringConversionException e cs
-    BOTAN_FFI_ERROR_EXCEPTION_THROWN            -> throwIO $ ExceptionThrownException e cs
-    BOTAN_FFI_ERROR_OUT_OF_MEMORY               -> throwIO $ OutOfMemoryException e cs
-    BOTAN_FFI_ERROR_SYSTEM_ERROR                -> throwIO $ SystemErrorException e cs
-    BOTAN_FFI_ERROR_INTERNAL_ERROR              -> throwIO $ InternalErrorException e cs
-    BOTAN_FFI_ERROR_BAD_FLAG                    -> throwIO $ BadFlagException e cs
-    BOTAN_FFI_ERROR_NULL_POINTER                -> throwIO $ NullPointerException e cs
-    BOTAN_FFI_ERROR_BAD_PARAMETER               -> throwIO $ BadParameterException e cs
-    BOTAN_FFI_ERROR_KEY_NOT_SET                 -> throwIO $ KeyNotSetException e cs
-    BOTAN_FFI_ERROR_INVALID_KEY_LENGTH          -> throwIO $ InvalidKeyLengthException e cs
-    BOTAN_FFI_ERROR_INVALID_OBJECT_STATE        -> throwIO $ InvalidObjectStateException e cs
-    BOTAN_FFI_ERROR_NOT_IMPLEMENTED             -> throwIO $ NotImplementedException e cs
-    BOTAN_FFI_ERROR_INVALID_OBJECT              -> throwIO $ InvalidObjectException e cs
-    _                                           -> throwIO $ UnknownException e cs
+throwBotanErrorWithCallstack e cs =  do
+    emsg <- botanErrorLastExceptionMessage
+    case e of
+        -- BOTAN_FFI_SUCCESS                           -> throwIO $ SUCCESS e cs
+        BOTAN_FFI_INVALID_VERIFIER                  -> throwIO $ InvalidVerifierException e emsg cs
+        BOTAN_FFI_ERROR_INVALID_INPUT               -> throwIO $ InvalidInputException e emsg cs
+        BOTAN_FFI_ERROR_BAD_MAC                     -> throwIO $ BadMACException e emsg cs
+        BOTAN_FFI_ERROR_INSUFFICIENT_BUFFER_SPACE   -> throwIO $ InsufficientBufferSpaceException e emsg cs
+        BOTAN_FFI_ERROR_STRING_CONVERSION_ERROR     -> throwIO $ StringConversionException e emsg cs
+        BOTAN_FFI_ERROR_EXCEPTION_THROWN            -> throwIO $ ExceptionThrownException e emsg cs
+        BOTAN_FFI_ERROR_OUT_OF_MEMORY               -> throwIO $ OutOfMemoryException e emsg cs
+        BOTAN_FFI_ERROR_SYSTEM_ERROR                -> throwIO $ SystemErrorException e emsg cs
+        BOTAN_FFI_ERROR_INTERNAL_ERROR              -> throwIO $ InternalErrorException e emsg cs
+        BOTAN_FFI_ERROR_BAD_FLAG                    -> throwIO $ BadFlagException e emsg cs
+        BOTAN_FFI_ERROR_NULL_POINTER                -> throwIO $ NullPointerException e emsg cs
+        BOTAN_FFI_ERROR_BAD_PARAMETER               -> throwIO $ BadParameterException e emsg cs
+        BOTAN_FFI_ERROR_KEY_NOT_SET                 -> throwIO $ KeyNotSetException e emsg cs
+        BOTAN_FFI_ERROR_INVALID_KEY_LENGTH          -> throwIO $ InvalidKeyLengthException e emsg cs
+        BOTAN_FFI_ERROR_INVALID_OBJECT_STATE        -> throwIO $ InvalidObjectStateException e emsg cs
+        BOTAN_FFI_ERROR_NOT_IMPLEMENTED             -> throwIO $ NotImplementedException e emsg cs
+        BOTAN_FFI_ERROR_INVALID_OBJECT              -> throwIO $ InvalidObjectException e emsg cs
+        _                                           -> throwIO $ UnknownException e emsg cs
 
 -- TODO: catchingBotan
 -- r0 <- botan_foo
