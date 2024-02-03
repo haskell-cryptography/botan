@@ -1,10 +1,12 @@
 cabal-version:  3.0
 name:           botan-bindings
-version:        0.0.1
+version:        0.0.1.0
 license:        BSD-3-Clause
 author:         Leo D.
 maintainer:     leo@apotheca.io
 build-type:     Simple
+category:       Cryptography
+synopsis:       Raw Botan bindings
 description:
     Raw bindings to the Botan cryptography library
 
@@ -59,11 +61,8 @@ library
         Botan.Bindings.PubKey.Ed25519
         Botan.Bindings.PubKey.ElGamal
         Botan.Bindings.PubKey.Encrypt
-        -- TODO: Rename to KA?
         Botan.Bindings.PubKey.KeyAgreement
-        -- TODO: Rename to KEM?
         Botan.Bindings.PubKey.KeyEncapsulation
-        -- TODO: Botan.Bindings.PubKey.Kyber
         Botan.Bindings.PubKey.RSA
         Botan.Bindings.PubKey.Sign
         Botan.Bindings.PubKey.SM2
@@ -80,10 +79,11 @@ library
         Botan.Bindings.ZFEC
     other-modules:
         Paths_botan_bindings
+    autogen-modules:
+        Paths_botan_bindings
     build-depends:
-        base >= 4 && < 5,
-        bytestring,
-        text
+        base        >= 4 && < 5,
+        bytestring  >= 0.11 && < 0.13,
     includes:
         botan/ffi.h
     if os(windows)

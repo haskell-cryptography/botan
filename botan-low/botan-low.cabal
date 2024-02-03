@@ -1,10 +1,12 @@
 cabal-version:  3.0
 name:           botan-low
-version:        0.0.1
+version:        0.0.1.0
 license:        BSD-3-Clause
 author:         Leo D.
 maintainer:     leo@apotheca.io
 build-type:     Simple
+category:       Cryptography
+synopsis:       Low-level Botan bindings
 description:
     Low-level bindings to the Botan cryptography library
 
@@ -24,11 +26,6 @@ source-repository head
 
 flag XFFI
     description: Enable experimental / upstream ffi support
-    manual: True
-    default: False
-
-flag ExtensiveTests
-    description: Perform extensive unit tests
     manual: True
     default: False
 
@@ -86,12 +83,14 @@ library
         Botan.Low.Make
         Botan.Low.Remake
         Paths_botan_low
+    autogen-modules:
+        Paths_botan_low
     build-depends:
-        base >= 4 && < 5,
-        botan-bindings,
-        bytestring,
-        deepseq,
-        text
+        base            >= 4 && < 5,
+        botan-bindings  == 0.0.1.0,
+        bytestring      >= 0.11 && < 0.13,
+        deepseq         >= 1.4  && < 1.6,
+        text            >= 1.2  && < 1.3 || >= 2.0 && < 2.2
     -- cc-options:     -Wall
     -- ghc-options:    -Wall -funbox-strict-fields    
     if flag(XFFI)
