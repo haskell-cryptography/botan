@@ -10,6 +10,9 @@ synopsis:       Raw Botan bindings
 description:
     Raw bindings to the Botan cryptography library
 
+extra-doc-files:
+    CHANGELOG.md
+
 tested-with:
     -- GHC == 9.0.2,
     GHC == 9.2.8,

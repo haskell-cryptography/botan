@@ -20,6 +20,9 @@ extra-source-files:
     test-data/*.der
     test-data/*.pem
 
+extra-doc-files:
+    CHANGELOG.md
+
 source-repository head
   type:     git
   location: https://github.com/apotheca/botan.git
