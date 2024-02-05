@@ -21,6 +21,20 @@ source-repository head
     type:     git
     location: https://github.com/apotheca/botan.git
 
+flag pkg-config
+  default:     True
+  manual:      False
+  description: Use @pkg-config(1)@ to locate foreign @botan-3@ library.
+
+-- TODO: Probably need a custom Setup.hs for building Botan's C++ / Makefile
+--  Would be good to tie this into the extended botan.
+-- SEE: https://discourse.haskell.org/t/botan-bindings-devlog/6855/129
+-- flag bundled-c-botan
+--   default:     False
+--   manual:      True
+--   description: Use the bundled botan-3 C/C++ sources.
+--                For GHCJS and WASM this is the default.
+
 flag XFFI
     description: Enable experimental / upstream ffi support
     manual: True
@@ -86,11 +100,19 @@ library
         bytestring  >= 0.11 && < 0.13,
     includes:
         botan/ffi.h
-    if os(windows)
-        -- UNTESTED, PROBABLY WRONG
-        extra-libraries: botan-3
-    else
+    -- TODO Pt2: Bundle a complete copy of the Botan C/C++ source.
+    -- if flag(bundled-c-botan) || impl(ghcjs) || os(ghcjs) || arch(wasm32)
+    --     c-sources:      ...
+    --     cxx-sources:      ...
+    --     include-dirs:   ...
+    -- else
+    -- TODO: Indent after bundling Botan C/C++ source.
+    if flag(pkg-config)
+        -- NB: pkg-config is available on windows as well when using msys2
         pkgconfig-depends: botan-3 >= 3.0.0
+    else
+        extra-libraries: botan-3
+    -- END TODO: Indent
     -- cc-options:     -Wall
     ghc-options: -Wall -Wno-name-shadowing
     if flag(XFFI)
