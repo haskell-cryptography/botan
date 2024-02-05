@@ -83,6 +83,9 @@ xtsMode bc = bc // BOTAN_CIPHER_MODE_XTS
 
 type AEADName = CipherName
 
+pattern ChaCha20Poly1305 :: CipherName
+pattern ChaCha20Poly1305 = BOTAN_AEAD_CHACHA20POLY1305
+
 chaCha20Poly1305 :: AEADName
 chaCha20Poly1305 = BOTAN_AEAD_CHACHA20POLY1305
 

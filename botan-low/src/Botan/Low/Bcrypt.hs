@@ -66,6 +66,8 @@ bcryptGenerate password rng factor = asCString password $ \ passwordPtr -> do
 --  Returns True iff this password/hash combination is valid,
 --  False if the combination is not valid (but otherwise well formed),
 --  and otherwise throws an exception on error
+--
+-- TODO: Maybe rename bcryptValidate
 bcryptIsValid
     :: ByteString   -- ^ The password to check against
     -> ByteString   -- ^ The stored hash to check against

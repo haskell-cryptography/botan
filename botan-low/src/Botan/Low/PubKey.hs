@@ -238,15 +238,15 @@ pattern RAW = BOTAN_EME_RAW
 pattern PKCS1_v1_5 = BOTAN_EME_PKCS1_v1_5
 pattern OAEP = BOTAN_EME_OAEP
 
-oaep' :: HashName -> EMEName
-oaep' h = OAEP /$ h
+oaep :: HashName -> EMEName
+oaep h = OAEP /$ h
 
-oaep_mgf' :: HashName -> MGFName -> EMEName
-oaep_mgf' h m = OAEP /$ h <> "," <> m
+oaep_mgf :: HashName -> MGFName -> EMEName
+oaep_mgf h m = OAEP /$ h <> "," <> m
 -- TODO: OAEP with MGF, L
 
-sm2EncParam' :: HashName -> EMEName
-sm2EncParam' h = h
+sm2EncParam :: HashName -> EMEName
+sm2EncParam h = h
 
 type MGFName = ByteString
 
@@ -255,8 +255,8 @@ pattern MGF1
 
 pattern MGF1 = BOTAN_MGF_MGF1
 
-mgf1' :: HashName -> MGFName
-mgf1' h = MGF1 /$ h
+mgf1 :: HashName -> MGFName
+mgf1 h = MGF1 /$ h
 
 privKeyCreate :: ByteString -> ByteString -> RNG -> IO PrivKey
 privKeyCreate name params rng = asCString name $ \ namePtr -> do

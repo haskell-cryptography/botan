@@ -86,26 +86,26 @@ pattern Poly1305  = BOTAN_MAC_Poly1305
 pattern SipHash   = BOTAN_MAC_SipHash
 pattern X9_19_MAC = BOTAN_MAC_X9_19_MAC
 
-cmac' :: BlockCipherName -> MACName
-cmac' bc = CMAC /$ bc
+cmac :: BlockCipherName -> MACName
+cmac bc = CMAC /$ bc
 
-gmac' :: BlockCipherName -> MACName
-gmac' bc = GMAC /$ bc
+gmac :: BlockCipherName -> MACName
+gmac bc = GMAC /$ bc
 
--- cbc_mac' :: BlockCipherName -> MACName
--- cbc_mac' bc = CBC_MAC /$ bc
+-- cbc_mac :: BlockCipherName -> MACName
+-- cbc_mac bc = CBC_MAC /$ bc
 
-hmac' :: BlockCipherName -> MACName
-hmac' h = HMAC /$ h
+hmac :: BlockCipherName -> MACName
+hmac h = HMAC /$ h
 
--- kmac_128' :: BlockCipherName -> MACName
--- kmac_128' = ...
+-- kmac_128 :: BlockCipherName -> MACName
+-- kmac_128 = ...
 
--- kmac_256' :: BlockCipherName -> MACName
--- kmac_256' = ...
+-- kmac_256 :: BlockCipherName -> MACName
+-- kmac_256 = ...
 
-sipHash' :: Int -> Int -> MACName
-sipHash' ir fr = SipHash /$ showBytes ir <> "," <> showBytes fr
+sipHash :: Int -> Int -> MACName
+sipHash ir fr = SipHash /$ showBytes ir <> "," <> showBytes fr
 
 -- TODO: Rename MACTag?
 type MACDigest = ByteString

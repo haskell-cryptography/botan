@@ -192,11 +192,11 @@ type MACDigest = ByteString
 -- Accessors
 
 macName :: MAC -> ByteString
-macName (CMAC bc)       = Low.cmac' (blockCipherName bc)
-macName (GMAC bc)       = Low.gmac' (blockCipherName bc)
-macName (HMAC h)        = Low.hmac' (hashName h)
+macName (CMAC bc)       = Low.cmac (blockCipherName bc)
+macName (GMAC bc)       = Low.gmac (blockCipherName bc)
+macName (HMAC h)        = Low.hmac (hashName h)
 macName Poly1305        = Low.Poly1305
-macName (SipHash ir fr) = Low.sipHash' ir fr
+macName (SipHash ir fr) = Low.sipHash ir fr
 macName X9_19_MAC       = Low.X9_19_MAC
 
 macKeySpec :: MAC -> KeySpec

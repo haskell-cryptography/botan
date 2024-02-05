@@ -303,41 +303,434 @@ main = do
 
 # Tutorials
 
-<!-- There are no tutorials available at this time. For the moment, the unit tests are your best bet for an example of working code. -->
+<details><summary>Botan.Low.Bcrypt</summary>
 
-There are many tutorials available, with at-a-glance references in this README, and complete in-depth articles in the [tutorials folder](tutorials/).
+`bcrypt` is a password-hashing algorithm designed to protect your passwords against hackers using an expensive key setup phase. Instead of storing a user's password in plaintext in the database, the server may instead generate a salted bcrypt digest upon signup, and verify it upon login. 
 
-<details><summary>Hashes</summary>
+The `bcrypt` implementation provided by `botan` generates a random salt for you automatically. A work factor of 12 or greater is recommended.
 
-The easiest way to hash is to use a fixed hash algorithm directly. `sha3_512` is the suggested hash algorithm, unless you specifically need another, different algorithm.
-
-```haskell
-import Botan.Hash.SHA3
-sha3_512 "Fee fi fo fum!"
--- 03a240a2...
-```
-
-If an algorithm has variants, you may use a family-level function such as `sha3`, and select the variant with `TypeApplications`:
+To generate the bcrypt digest:
 
 ```haskell
--- This produces the same digest as before
-sha3 @512 "Fee fi fo fum!"
--- Explicit typing also works
-sha3 "Fee fi fo fum!" :: SHA3Digest 512
+import Botan.Low.RNG
+import Botan.Low.Bcrypt
+
+-- The user has sent us a username and password in order to sign up 
+onUserSignup :: ByteString -> ByteString -> IO ()
+onUserSignup username password = do
+    rng <- rngInit "user"
+    digest <- bcryptGenerate password rng 12
+    createAndStoreNewUser username digest
 ```
 
-These functions are implemented via a more generic, classy `Hash` interface which uses the `Digest` data family to ensure that different algorithms and variants have different types while still being inferred properly.
+To validate the bcrypt digest:
 
 ```haskell
--- Once more at the class-level
-hash @(SHA3 512) "Fee fi fo fum!"
--- Once more with explicit typing
-hash "Fee fi fo fum!" :: Digest (SHA3 512)
-```
+import Botan.Low.RNG
+import Botan.Low.Bcrypt
 
-For a more in-depth look, see the full [Hash](tutorials/Hash.md) tutorial.
+-- The user has sent us a username and password in order to log in
+onUserLogin :: ByteString -> ByteString -> IO Bool
+onUserLogin username password = do
+    rng <- rngInit "user"
+    digestMaybe <- getStoredUserDigest username
+    case digestMaybe of
+        Nothing     -> return False
+        Just digest -> bcryptIsValid password digest
+```
 
 </details>
+
+<details><summary>Botan.Low.BlockCipher</summary>
+
+A `block cipher` is a deterministic, cryptographic primitive suitable for encrypting or decrypting a single, fixed-size block of data at a time. Block ciphers are used as building blocks for more complex cryptographic operations. If you are looking to encrypt user data, you are probably looking for `Botan.Low.Cipher` instead.
+
+Unless you need a specific block cipher, it is strongly recommended that you use the `AES_256` algorithm.
+
+```haskell
+import Botan.Low.BlockCipher
+blockCipher <- blockCipherInit AES_256
+```
+
+To use a block cipher, we first need to generate (if we haven't already) a secret key.
+
+```haskell
+import Botan.Low.RNG
+rng <- rngInit "user"
+-- We will use the maximum key size; AES_256 keys are always 16 bytes
+(_,keySize,_) <- blockCipherGetKeyspec blockCipher
+-- Block cipher keys are randomly generated
+key <- rngGet rng keySize
+```
+
+After the key is generated, we must set it as the block cipher key:
+
+```haskell
+blockCipherSetKey blockCipher key
+```
+
+To encrypt a message, it must be a multiple of the block size.
+
+```haskell
+blockSize <- blockCipherBlockSize blockCipher
+-- AES_256 block size is always 16 bytes
+message = "0000DEADBEEF0000" :: ByteString
+ciphertext <- blockCipherEncryptBlocks blockCipher message
+```
+
+To decrypt a message, simply reverse the process:
+
+```haskell
+plaintext <- blockCipherDecryptBlocks blockCipher ciphertext
+message == plaintext -- True
+```
+
+</details>
+
+<details><summary>Botan.Low.Cipher</summary>
+
+A `cipher` mode is a cryptographic algorithm suitable for encrypting and decrypting large quantities of arbitrarily-sized data. An `aead` is a cipher mode that also used to provide authentication of the ciphertext, potentially with plaintext `associated data`.
+
+Unless you need a specific `cipher` or `aead`, it is strongly recommended that you use the `cbcMode AES_256 PKCS7` and `gcmMode AES_256` (or `ChaCha20Poly1305`) algorithms respectively.
+
+```haskell
+import Botan.Low.Cipher
+encrypter <- cipherInit ChaCha20Poly1305 Encrypt
+```
+
+To use a cipher, we first need to generate (if we haven't already) a secret key.
+
+```haskell
+import Botan.Low.RNG
+rng <- rngInit "user"
+-- We will use the maximum key size; ChaCha20Poly1305 keys are always 32 bytes
+(_,keySize,_) <- cipherGetKeyspec encrypter
+-- Block cipher keys are randomly generated
+key <- rngGet rng keySize
+```
+
+After the key is generated, we must set it as the cipher key:
+
+```haskell
+cipherSetKey encrypter key
+```
+
+If the cipher is an `aead`, we may also set the `associated data`:
+
+```haskell
+cipherSetAssociatedData encrypter "Fee fi fo fum!"
+```
+
+To ensure that the key is not leaked, we should generate a new nonce for every encryption. The range of allowed nonce sizes depends on the specific algorithm.
+
+```haskell
+import Botan.Low.RNG
+-- The default ChaCha20Poly1305 nonce is always 12 bytes.
+nonceSize <- cipherGetDefaultNonceLength encrypter
+nonce <- rngGet rng nonceSize
+```
+
+To encrypt a message, it must be a multiple of the block size. If the cipher was an aead, the authentication tag will automatically be included in the ciphertext
+
+```haskell
+-- Rarely, some cipher modes require that the message size be aligned to the block size
+-- Consult algorithm-specific documentation if this occurs. 
+message = "I smell the blood of an Englishman!"
+cipherStart encrypter nonce
+-- NOTE: This function is currently marked as deprecated; this precise functionality is likely to be renamed `cipherEncrypt`, and may be moved to `botan`
+ciphertext <- cipherEncryptOffline encrypter message
+```
+
+> NOTE: Online decryption is also available for most, but not all ciphers. However, this functionality is imperfect, should not be used, and will be exposed properly in the high-level `botan` interface.
+
+To decrypt a message, we run the same process with a decrypter, using the same `key` and `nonce` to decode the `ciphertext`:
+
+```haskell
+decrypter <- cipherInit ChaCha20Poly1305 Decrypt
+cipherSetKey decrypter key
+cipherSetAssociatedData decrypter "Fee fi fo fum!"
+cipherStart decrypter nonce
+plaintext <- cipherDecryptOffline decrypter ciphertext
+message == plaintext -- True
+```
+
+You can completely clear a cipher's state, leaving it ready for reuse:
+
+```haskell
+cipherClear encrypter
+-- You'll have to set the key, nonce, (and ad, if aead) again.
+cipherSetKey encrypter anotherKey
+cipherStart encrypter anotherNonce
+cipherSetAssociatedData encrypter anotherAD
+-- Process another message
+anotherCiphertext <- cipherEncryptOffline encrypter anotherMessage
+```
+
+If you are encrypting or decrypting multiple messages with the same key, you can reset the cipher instead of clearing it, leaving the key set:
+
+```haskell
+cipherClear encrypter
+-- This is equivalent to calling cipherClear followed by cipherSetKey with the original key.
+-- You'll have to set the nonce  (and ad, if aead) again, but not the key.
+cipherStart encrypter anotherNonce
+cipherSetAssociatedData encrypter anotherAD
+-- Process another message with the same key
+anotherCiphertext <- cipherEncryptOffline encrypter anotherMessage
+```
+
+
+</details>
+
+<!-- <details><summary>Botan.Low.FPE</summary>
+
+</details> -->
+
+<details><summary>Botan.Low.Hash</summary>
+
+A `hash` is deterministic, one-way function suitable for producing a deterministic, fixed-size digest from an arbitrarily-sized message, which is used to verify the integrity of the data. 
+
+Unless you need a specific `hash`, it is strongly recommended that you use the `SHA_3` algorithm.
+
+```haskell
+import Botan.Low.Hash
+hash <- hashInit SHA_3
+message = "Fee fi fo fum!"
+hashUpdate hash message
+digest <- hashFinal hash
+```
+
+You can verify a digest by hashing the message a second time, and comparing the two:
+
+```haskell
+rehash <- hashInit SHA_3
+hashUpdate rehash message
+redigest <- hashFinal rehash
+digest == redigest -- True
+```
+
+You can clear a hash's state, leaving it ready for reuse:
+
+```haskell
+hashClear hash
+-- Process another message
+hashUpdate hash anotherMessage
+anotherDigest <- hashFinal hash
+```
+
+</details>
+
+<!-- <details><summary>Botan.Low.HOTP</summary>
+
+</details> -->
+
+<!-- <details><summary>Botan.Low.KDF</summary>
+
+</details> -->
+
+<!-- <details><summary>Botan.Low.KeyWrap</summary>
+
+</details> -->
+
+<details><summary>Botan.Low.MAC</summary>
+
+A `mac` (or message authentication code) is a cryptographic algorithm that uses a secret key to produce a fixed-size digest from an arbitrarily-sized message, which is then used to verify the integrity and authenticity of the data. 
+
+Unless you need a specific `mac`, it is strongly recommended that you use the `hmac SHA_3` algorithm.
+
+```haskell
+import Botan.Low.MAC
+import Botan.Low.Hash
+mac <- macInit (hmac SHA_3)
+```
+
+To use a MAC, we first need to generate (if we haven't already) a secret key.
+
+```haskell
+import Botan.Low.RNG
+rng <- rngInit "user"
+-- HMAC allows for an arbitrary key size, but we can check the key spec if necessary
+(keyMin,keyMax,keyMod) <- macGetKeyspec mac
+-- MAC are randomly generated; 32 bytes is acceptable
+key <- rngGet rng 32
+```
+
+After the key is generated, we must set it as the mac key:
+
+```haskell
+macSetKey mac key
+```
+
+Then, we may produce an authentication code from a message using the secret key:
+
+```haskell
+macUpdate mac "Fee fi fo fum!"
+auth <- macFinal mac
+```
+
+To verify an message authentication code, we can reproduce it using the secret key and message, and then check for equality:
+
+```haskell
+verify <- macInit (hmac SHA_3)
+macSetKey verify key
+macUpdate verify "Fee fi fo fum!"
+verifyAuth <- macFinal verify
+auth == verifyAuth -- True
+```
+
+You can completely clear a mac's state, leaving it ready for reuse:
+
+```haskell
+macClear mac
+-- You'll have to set the key again
+macSetKey mac anotherKey
+-- Process another message
+macUpdate mac anotherMessage
+anotherAuth <- macFinal mac
+```
+
+Some algorithms (GMAC, Poly1305) may additionally require a nonce. These algorithms are to be avoided if possible. Consult algorithm-specific documentation for GMAC and Poly1305 nonce sizes. If you must use them, the nonce must be set:
+
+```haskell
+mac <- macInit (gmac AES_256)
+k <- systemRNGGet 32
+n <- systemRNGGet 32    -- Here
+macSetKey mac k
+macSetNonce mac n       -- Here
+macUpdate mac "Fee fi fo fum!"
+auth <- macFinal mac
+```
+
+</details>
+
+<!-- <details><summary>Botan.Low.MPI</summary>
+
+</details> -->
+
+<details><summary>Botan.Low.PubKey</summary>
+
+Unless you need a specific `public key cryptosystem`, it is strongly recommended that you use the `RSA`, `Ed25519`, or `Curve25519` algorithms, depending on your desired operation.
+
+Create an RSA keypair:
+
+```haskell
+import Botan.Low.RNG
+import Botan.Low.PubKey
+rng <- rngInit "user"
+-- Alice generates her keys
+alicePrivKey <- privKeyCreate RSA "4096" rng
+alicePubKey <- privKeyExportPubKey alicePrivKey
+```
+
+> NOTE: For algorithm-specific parameters, consult the Botan documentation and source
+
+Encrypt a message:
+
+```haskell
+import Botan.Low.PubKey.Encrypt
+message = "Fee fi fo fum!"
+-- Bob encrypts a message for Alice using her public key
+-- Unlike `Crypto.Saltine.Core.Box`, the message is only encrypted, not signed.
+encrypter <- encryptCreate alicePubKey PKCS1_v1_5
+ciphertext <- encrypt encrypter rng message
+```
+
+> NOTE: For algorithm-specific padding parameters, consult the Botan documentation and source
+
+Decrypt a message:
+
+```haskell
+import Botan.Low.PubKey.Decrypt
+-- Alice decrypts the message from Bob using her private key
+decrypter <- decryptCreate alicePrivKey PKCS1_v1_5
+plaintext <- decrypt decrypter ciphertext
+message == plaintext -- True
+```
+
+> NOTE: The same padding must be used
+
+Sign a message:
+
+```haskell
+import Botan.Low.PubKey.Sign
+message = "Fee fi fo fum!"
+-- Alice signs the message using her private key
+signer <- signCreate alicePrivKey "EMSA4(SHA-3)" SigningPEMFormatSignature
+signUpdate signer message
+sig <- signFinish signer rng
+```
+
+> NOTE: Signing uses a different set of padding algorithms `EMSA` from encryption `EME`, and different signing / encryption algorithms support different specific padding algorithms
+
+> NOTE: Signing does not yet have proper constants for selecting a padding mechanism. For more information, refer to the `Botan.PubKey`, `Botan.PubKey.Sign`, or the Botan C++ documentation. This area will be improved in the near future.
+
+Verify a message:
+
+```haskell
+import Botan.Low.PubKey.Verify
+-- Bob verifies the message using Alice's public key
+verifier <- verifyCreate alicePubKey "EMSA4(SHA-3)" SigningPEMFormatSignature
+verifyUpdate verifier message
+verified <- verifyFinish verifier sig
+verified -- True
+```
+
+> NOTE: The same padding must be used
+
+</details>
+
+<details><summary>Botan.Low.RNG</summary>
+
+A `random number generator` is used to generate uniform samples of pseudorandom bytes. You can always use the system `RNG`:
+
+```haskell
+import Botan.Low.RNG
+randomBytes <- systemRNGGet 16
+```
+
+Unless you need a specific `RNG`, it is strongly recommended that you use the autoseeded `user` RNG.
+
+```haskell
+import Botan.Low.RNG
+rng <- rngInit "user"
+randomBytes <- rngGet rng 16
+```
+
+You can reseed a generator using the system generator:
+
+```haskell
+rngReseed rng 64
+```
+
+You can also reseed a generator using a specific generator:
+
+```haskell
+systemRNG <- rngInit "system"
+rngReseedFromRNG rng systemRNG 64
+```
+
+You can also seed it with your own entropy; this is safe and can never *decrease* the amount of entropy in the generator.
+
+```haskell
+rngAddEntropy rng "Fee fi fo fum!"
+```
+
+</details>
+
+<!-- <details><summary>Botan.Low.SRP6</summary>
+
+</details> -->
+
+<!-- <details><summary>Botan.Low.TOTP</summary>
+
+</details> -->
+
+<!-- <details><summary>Botan.Low.X509</summary>
+
+</details> -->
+
+<!-- <details><summary>Botan.Low.ZFEC</summary>
+
+</details> -->
 
 # Enabling experimental support
 
