@@ -8,7 +8,18 @@ Stability   : experimental
 Portability : POSIX
 -}
 
-module Botan.Low.PubKey.Decrypt where
+module Botan.Low.PubKey.Decrypt
+(
+
+-- * Public key decryption
+  Decrypt(..)
+, withDecrypt
+, decryptCreate
+, decryptDestroy
+, decryptOutputLength
+, decrypt  
+
+) where
 
 import qualified Data.ByteString as ByteString
 
@@ -37,7 +48,7 @@ createDecrypt   :: (Ptr BotanPKOpDecrypt -> IO CInt) -> IO Decrypt
         MkDecrypt getDecryptForeignPtr
         botan_pk_op_decrypt_destroy
 
-decryptCreate :: PrivKey -> PKPaddingName -> IO Decrypt
+decryptCreate :: PrivKey -> EMEName -> IO Decrypt
 decryptCreate sk padding =  withPrivKey sk $ \ skPtr -> do
     asCString padding $ \ paddingPtr -> do
         createDecrypt $ \ out -> botan_pk_op_decrypt_create
@@ -47,7 +58,7 @@ decryptCreate sk padding =  withPrivKey sk $ \ skPtr -> do
             BOTAN_PUBKEY_DECRYPT_FLAGS_NONE
 
 -- WARNING: withFooInit-style limited lifetime functions moved to high-level botan
-withDecryptCreate :: PrivKey -> PKPaddingName -> (Decrypt -> IO a) -> IO a
+withDecryptCreate :: PrivKey -> EMEName -> (Decrypt -> IO a) -> IO a
 withDecryptCreate = mkWithTemp2 decryptCreate decryptDestroy
 
 decryptOutputLength :: Decrypt -> Int -> IO Int

@@ -8,7 +8,22 @@ Stability   : experimental
 Portability : POSIX
 -}
 
-module Botan.Low.PubKey.Sign where
+module Botan.Low.PubKey.Sign
+(
+
+-- * Public key signatures
+  Sign(..)
+, SigningFlags(..)
+, pattern SigningPEMFormatSignature
+, pattern SigningDERFormatSignature
+, withSign
+, signCreate
+, signDestroy
+, signOutputLength
+, signUpdate
+, signFinish
+
+) where
 
 import qualified Data.ByteString as ByteString
 
@@ -48,7 +63,7 @@ pattern SigningPEMFormatSignature   -- ^ Not an actual flags
 pattern SigningPEMFormatSignature = BOTAN_PUBKEY_PEM_FORMAT_SIGNATURE
 pattern SigningDERFormatSignature = BOTAN_PUBKEY_DER_FORMAT_SIGNATURE
 
-signCreate :: PrivKey -> SignAlgoName -> SigningFlags -> IO Sign
+signCreate :: PrivKey -> EMSAName -> SigningFlags -> IO Sign
 signCreate sk algo flags = withPrivKey sk $ \ skPtr -> do
     asCString algo $ \ algoPtr -> do
         createSign $ \ out -> botan_pk_op_sign_create
@@ -58,7 +73,7 @@ signCreate sk algo flags = withPrivKey sk $ \ skPtr -> do
             flags
 
 -- WARNING: withFooInit-style limited lifetime functions moved to high-level botan
-withSignCreate :: PrivKey -> SignAlgoName -> SigningFlags -> (Sign -> IO a) -> IO a
+withSignCreate :: PrivKey -> EMSAName -> SigningFlags -> (Sign -> IO a) -> IO a
 withSignCreate = mkWithTemp3 signCreate signDestroy
 
 signOutputLength :: Sign -> IO Int

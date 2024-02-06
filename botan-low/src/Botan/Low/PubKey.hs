@@ -11,7 +11,170 @@ Public key cryptography is a collection of techniques allowing
 for encryption, signatures, and key agreement.
 -}
 
-module Botan.Low.PubKey where
+module Botan.Low.PubKey
+(
+
+-- * Private keys
+  PrivKey(..)
+, CheckKeyFlags(..)
+, pattern CheckKeyNormalTests
+, pattern CheckKeyExpensiveTests
+, PrivKeyExportFlags(..)
+, pattern PrivKeyExportDER
+, pattern PrivKeyExportPEM
+, withPrivKey
+, privKeyCreate
+, privKeyLoad
+, privKeyDestroy
+, privKeyAlgoName
+, privKeyCheckKey
+, privKeyGetField
+, privKeyExport
+, privKeyExportPubKey
+
+-- * Public Keys
+
+, PubKey(..)
+, withPubKey
+, pubKeyLoad
+, pubKeyDestroy
+, pubKeyAlgoName
+, pubKeyCheckKey
+, pubKeyEstimatedStrength
+, pubKeyFingerprint
+, pubKeyGetField
+, pubKeyExport
+
+-- * PK Algorithms
+
+, PKName(..)
+, pattern RSA
+, pattern SM2
+, pattern ElGamal
+, pattern DSA
+, pattern ECDSA
+, pattern ECKCDSA
+, pattern ECGDSA
+, pattern GOST_34_10
+, pattern Ed25519
+, pattern XMSS
+, pattern DH
+, pattern ECDH
+, pattern Curve25519
+, pattern Dilithium
+, pattern Kyber
+, pattern McEliece
+
+-- ** DLGroup
+
+, DLGroupName(..)
+, pattern FFDHE_IETF_2048
+, pattern FFDHE_IETF_3072
+, pattern FFDHE_IETF_4096
+, pattern FFDHE_IETF_6144
+, pattern FFDHE_IETF_8192
+, pattern MODP_IETF_1024
+, pattern MODP_IETF_1536
+, pattern MODP_IETF_2048
+, pattern MODP_IETF_3072
+, pattern MODP_IETF_4096
+, pattern MODP_IETF_6144
+, pattern MODP_IETF_8192
+, pattern MODP_SRP_1024
+, pattern MODP_SRP_1536
+, pattern MODP_SRP_2048
+, pattern MODP_SRP_3072
+, pattern MODP_SRP_4096
+, pattern MODP_SRP_6144
+, pattern MODP_SRP_8192
+, pattern DSA_JCE_1024
+, pattern DSA_BOTAN_2048
+, pattern DSA_BOTAN_3072
+
+-- ** ECGroup
+
+, ECGroupName(..)
+, pattern Secp160k1
+, pattern Secp160r1
+, pattern Secp160r2
+, pattern Secp192k1
+, pattern Secp192r1
+, pattern Secp224k1
+, pattern Secp224r1
+, pattern Secp256k1
+, pattern Secp256r1
+, pattern Secp384r1
+, pattern Secp521r1
+, pattern Brainpool160r1
+, pattern Brainpool192r1
+, pattern Brainpool224r1
+, pattern Brainpool256r1
+, pattern Brainpool320r1
+, pattern Brainpool384r1
+, pattern Brainpool512r1
+, pattern X962_p192v2
+, pattern X962_p192v3
+, pattern X962_p239v1
+, pattern X962_p239v2
+, pattern X962_p239v3
+, pattern Gost_256A
+, pattern Gost_512A
+, pattern Frp256v1
+, pattern Sm2p256v1
+
+-- ** XMSS
+
+, XMSSName(..)
+, pattern XMSS_SHA2_10_256
+, pattern XMSS_SHA2_16_256
+, pattern XMSS_SHA2_20_256
+, pattern XMSS_SHA2_10_512
+, pattern XMSS_SHA2_16_512
+, pattern XMSS_SHA2_20_512
+, pattern XMSS_SHAKE_10_256
+, pattern XMSS_SHAKE_16_256
+, pattern XMSS_SHAKE_20_256
+, pattern XMSS_SHAKE_10_512
+, pattern XMSS_SHAKE_16_512
+, pattern XMSS_SHAKE_20_512
+
+-- * EME
+
+, EMEName(..)
+, pattern EME_RAW
+, pattern EME_PKCS1_v1_5
+, pattern EME_OAEP
+, eme_raw
+, eme_pkcs1_v1_5
+, eme_oaep
+-- , eme_oaep_mgf
+, eme_hash
+, eme_sm2EncParam
+
+-- * EMSA
+
+, EMSAName(..)
+, emsa_none
+, emsa_hash
+, emsa_ed25519Pure
+, emsa_ed25519Prehashed
+, emsa_ed25519GnuPG
+, emsa_sm2SignParam
+
+-- * Convenience
+
+-- , PKPaddingName(..)
+, createPrivKey
+, createPubKey
+, mkPrivKeyLoad1_name
+, mkPrivKeyLoad3
+, mkPrivKeyLoad4
+, mkPubKeyLoad2
+, mkPubKeyLoad2_name
+, mkPubKeyLoad3
+, mkPubKeyLoad4
+    
+) where
 
 import qualified Data.ByteString as ByteString
 import qualified Data.ByteString.Unsafe as ByteString
@@ -28,6 +191,81 @@ import Botan.Low.Prelude
 import Botan.Low.Remake
 import Botan.Low.RNG
 import Botan.Low.View
+
+{- $introduction
+
+-}
+
+{- $usage
+
+Unless you need a specific `public key cryptosystem`, it is strongly
+recommended that you use the `RSA`, `Ed25519`, or `Curve25519` algorithms,
+depending on your desired operation.
+
+Create an RSA keypair:
+
+> import Botan.Low.RNG
+> import Botan.Low.PubKey
+> rng <- rngInit "user"
+> -- Alice generates her keys
+> alicePrivKey <- privKeyCreate RSA "4096" rng
+> alicePubKey <- privKeyExportPubKey alicePrivKey
+
+> NOTE: For algorithm-specific parameters, consult the Botan documentation and
+source
+
+Encrypt a message:
+
+> import Botan.Low.PubKey.Encrypt
+> message = "Fee fi fo fum!"
+> -- Bob encrypts a message for Alice using her public key
+> -- Unlike `Crypto.Saltine.Core.Box`, the message is only encrypted, not signed.
+> encrypter <- encryptCreate alicePubKey PKCS1_v1_5
+> ciphertext <- encrypt encrypter rng message
+
+> NOTE: For algorithm-specific padding parameters, consult the Botan
+documentation and source
+
+Decrypt a message:
+
+> import Botan.Low.PubKey.Decrypt
+> -- Alice decrypts the message from Bob using her private key
+> decrypter <- decryptCreate alicePrivKey PKCS1_v1_5
+> plaintext <- decrypt decrypter ciphertext
+> message == plaintext -- True
+
+> NOTE: The same padding must be used for both encryption and decryption
+
+Sign a message:
+
+> import Botan.Low.PubKey.Sign
+> message = "Fee fi fo fum!"
+> -- Alice signs the message using her private key
+> signer <- signCreate alicePrivKey "EMSA4(SHA-3)" SigningPEMFormatSignature
+> signUpdate signer message
+> sig <- signFinish signer rng
+
+> NOTE: Signing uses a different set of padding algorithms `EMSA` from
+encryption `EME`, and different signing / encryption algorithms support
+different specific padding algorithms
+
+> NOTE: Signing does not yet have proper constants for selecting a padding
+mechanism. For more information, refer to the `Botan.PubKey`,
+`Botan.PubKey.Sign`, or the Botan C++ documentation. This area will be improved
+in the near future.
+
+Verify a message:
+
+> import Botan.Low.PubKey.Verify
+> -- Bob verifies the message using Alice's public key
+> verifier <- verifyCreate alicePubKey "EMSA4(SHA-3)" SigningPEMFormatSignature
+> verifyUpdate verifier message
+> verified <- verifyFinish verifier sig
+> verified -- True
+
+> NOTE: The same padding must be used for both encryption and decryption
+
+-}
 
 -- Associated types
 
@@ -227,26 +465,40 @@ pattern DSA_JCE_1024    = BOTAN_DLGROUP_DSA_JCE_1024
 pattern DSA_BOTAN_2048  = BOTAN_DLGROUP_DSA_BOTAN_2048
 pattern DSA_BOTAN_3072  = BOTAN_DLGROUP_DSA_BOTAN_3072
 
+{- |
+Encoding Method for Encryption
+
+WARNING: Name is not completely accurate, may be changed to PKEncryptParams
+-}
 type EMEName = ByteString
 
-pattern RAW
-    ,   PKCS1_v1_5
-    ,   OAEP
+pattern EME_RAW
+    ,   EME_PKCS1_v1_5
+    ,   EME_OAEP
     :: EMEName
 
-pattern RAW = BOTAN_EME_RAW
-pattern PKCS1_v1_5 = BOTAN_EME_PKCS1_v1_5
-pattern OAEP = BOTAN_EME_OAEP
+pattern EME_RAW = BOTAN_EME_RAW
+pattern EME_PKCS1_v1_5 = BOTAN_EME_PKCS1_v1_5
+pattern EME_OAEP = BOTAN_EME_OAEP
 
-oaep :: HashName -> EMEName
-oaep h = OAEP /$ h
+eme_raw :: EMEName
+eme_raw = EME_RAW
 
-oaep_mgf :: HashName -> MGFName -> EMEName
-oaep_mgf h m = OAEP /$ h <> "," <> m
+eme_pkcs1_v1_5 :: EMEName
+eme_pkcs1_v1_5 = EME_PKCS1_v1_5
+
+eme_oaep :: HashName -> EMEName
+eme_oaep h = EME_OAEP /$ h
+
 -- TODO: OAEP with MGF, L
+-- eme_oaep_mgf :: HashName -> MGFName -> EMEName
+-- eme_oaep_mgf h m = EME_OAEP /$ h <> "," <> m
 
-sm2EncParam :: HashName -> EMEName
-sm2EncParam h = h
+eme_hash :: HashName -> EMEName
+eme_hash = id
+
+eme_sm2EncParam :: HashName -> EMEName
+eme_sm2EncParam h = h
 
 type MGFName = ByteString
 
@@ -257,6 +509,39 @@ pattern MGF1 = BOTAN_MGF_MGF1
 
 mgf1 :: HashName -> MGFName
 mgf1 h = MGF1 /$ h
+
+{- |
+Encoding Method for Signature with Appendix
+
+WARNING: Name is not completely accurate, may be changed to PKSignParams
+-}
+type EMSAName = ByteString
+
+-- emsa_rsa :: 
+
+emsa_emsa4 :: HashName -> EMSAName
+emsa_emsa4 h = "EMSA4(" <> h <> ")"
+
+emsa_ed25519Pure :: EMSAName
+emsa_ed25519Pure = "Pure"
+
+emsa_ed25519Prehashed :: EMSAName
+emsa_ed25519Prehashed = "Ed25519ph"
+
+emsa_ed25519GnuPG :: HashName -> EMSAName
+emsa_ed25519GnuPG = emsa_hash
+
+emsa_hash :: HashName -> EMSAName
+emsa_hash = id
+
+emsa_sm2SignParam :: ByteString -> HashName -> EMSAName
+emsa_sm2SignParam uid h = uid <> "," <> h
+
+-- emsa_xmss
+-- emsa_dilithium
+
+emsa_none :: EMSAName
+emsa_none = ""
 
 privKeyCreate :: ByteString -> ByteString -> RNG -> IO PrivKey
 privKeyCreate name params rng = asCString name $ \ namePtr -> do

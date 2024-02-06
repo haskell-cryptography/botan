@@ -8,7 +8,29 @@ Stability   : experimental
 Portability : POSIX
 -}
 
-module Botan.Low.PubKey.KeyEncapsulation where
+module Botan.Low.PubKey.KeyEncapsulation
+(
+
+-- * KEM Encryption
+  KEMSharedKey(..)
+, KEMEncapsulatedKey(..)
+, KEMEncrypt(..)
+, withKEMEncrypt
+, kemEncryptDestroy
+, kemEncryptCreate
+, kemEncryptSharedKeyLength
+, kemEncryptEncapsulatedKeyLength
+, kemEncryptCreateSharedKey
+
+-- * KEM Decryption
+, KEMDecrypt(..)
+, withKEMDecrypt
+, kemDecryptDestroy
+, kemDecryptCreate
+, kemDecryptSharedKeyLength
+, kemDecryptSharedKey
+
+) where
 
 import qualified Data.ByteString as ByteString
 

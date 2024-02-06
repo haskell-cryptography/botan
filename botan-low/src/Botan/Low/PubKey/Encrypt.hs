@@ -8,7 +8,18 @@ Stability   : experimental
 Portability : POSIX
 -}
 
-module Botan.Low.PubKey.Encrypt where
+module Botan.Low.PubKey.Encrypt
+(
+
+-- * Public key encryption
+  Encrypt(..)
+, withEncrypt
+, encryptCreate
+, encryptDestroy
+, encryptOutputLength
+, encrypt
+
+) where
 
 import qualified Data.ByteString as ByteString
 
@@ -37,7 +48,7 @@ createEncrypt   :: (Ptr BotanPKOpEncrypt -> IO CInt) -> IO Encrypt
         MkEncrypt getEncryptForeignPtr
         botan_pk_op_encrypt_destroy
 
-encryptCreate :: PubKey -> PKPaddingName -> IO Encrypt
+encryptCreate :: PubKey -> EMEName -> IO Encrypt
 encryptCreate pk padding = withPubKey pk $ \ pkPtr -> do
     asCString padding $ \ paddingPtr -> do
         createEncrypt $ \ out -> botan_pk_op_encrypt_create
@@ -47,7 +58,7 @@ encryptCreate pk padding = withPubKey pk $ \ pkPtr -> do
             0
             
 -- WARNING: withFooInit-style limited lifetime functions moved to high-level botan
-withEncryptCreate :: PubKey -> PKPaddingName -> (Encrypt -> IO a) -> IO a
+withEncryptCreate :: PubKey -> EMEName -> (Encrypt -> IO a) -> IO a
 withEncryptCreate = mkWithTemp2 encryptCreate encryptDestroy
 
 encryptOutputLength :: Encrypt -> Int -> IO Int

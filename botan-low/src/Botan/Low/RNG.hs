@@ -6,33 +6,84 @@ License     : BSD-3-Clause
 Maintainer  : leo@apotheca.io
 Stability   : experimental
 Portability : POSIX
+
+Pseudo-random number generation.
 -}
 
 module Botan.Low.RNG
-( RNG(..)
-, withRNG
-, rngDestroy
+( 
+
+-- * Random number generators
+-- $introduction
+
+-- * Usage
+-- $usage
+
+  RNG(..)
 , RNGType(..)
-, pattern SystemRNG
-, pattern UserRNG
-, pattern UserThreadsafeRNG
-, pattern RDRandRNG
+, withRNG
 , rngInit
+, rngDestroy
 , rngGet
 , systemRNGGet
 , rngReseed
 , rngReseedFromRNG
 , rngAddEntropy
+
+-- * RNG Types
+
+, pattern SystemRNG
+, pattern UserRNG
+, pattern UserThreadsafeRNG
+, pattern RDRandRNG
+
 ) where
 
 import qualified Data.ByteString as ByteString
 
 import Botan.Bindings.RNG
 
-import Botan.Low.Error
-import Botan.Low.Make
+import Botan.Low.Error ( throwBotanIfNegative_ )
+import Botan.Low.Make ( mkWithTemp1 )
 import Botan.Low.Remake
 import Botan.Low.Prelude
+
+{- $introduction
+
+A `random number generator` is used to generate uniform samples of pseudorandom
+bytes.
+
+-}
+
+{- $usage
+
+You can always use the system `RNG`:
+
+> import Botan.Low.RNG
+> randomBytes <- systemRNGGet 16
+
+Unless you need a specific `RNG`, it is strongly recommended that you use the
+autoseeded `user` RNG.
+
+> import Botan.Low.RNG
+> rng <- rngInit "user"
+> randomBytes <- rngGet rng 16
+
+You can reseed a generator using the system generator:
+
+> rngReseed rng 64
+
+You can also reseed a generator using a specific generator:
+
+> systemRNG <- rngInit "system"
+> rngReseedFromRNG rng systemRNG 64
+
+You can also seed it with your own entropy; this is safe and can never
+*decrease* the amount of entropy in the generator.
+
+> rngAddEntropy rng "Fee fi fo fum!"
+
+-}
 
 -- NOTE: Does not take advantage of Remake
 -- NOTE: Uses ConstPtr / unConstPtr manually

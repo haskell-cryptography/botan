@@ -8,7 +8,19 @@ Stability   : experimental
 Portability : POSIX
 -}
 
-module Botan.Low.PubKey.KeyAgreement where
+module Botan.Low.PubKey.KeyAgreement
+(
+
+-- * Key agreement
+  KeyAgreement(..)
+, withKeyAgreement
+, keyAgreementCreate
+, keyAgreementDestroy
+, keyAgreementExportPublic
+, keyAgreementSize
+, keyAgreement 
+
+) where
 
 import qualified Data.ByteString as ByteString
 

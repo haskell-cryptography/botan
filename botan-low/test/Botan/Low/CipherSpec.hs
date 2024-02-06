@@ -120,7 +120,7 @@ main = hspec $ testSuite (cipherModes ++ aeads) chars $ \ cipher -> do
         cipherStart ctx n
         g <- cipherGetIdealUpdateGranularity ctx
         msg <- systemRNGGet g
-        encmsg <- cipherEncryptOffline ctx msg
+        encmsg <- cipherEncrypt ctx msg
         pass
     it "can one-shot / offline decipher a message" $ do
         -- Same as prior test
@@ -137,7 +137,7 @@ main = hspec $ testSuite (cipherModes ++ aeads) chars $ \ cipher -> do
         cipherStart ctx n
         g <- cipherGetIdealUpdateGranularity ctx
         msg <- systemRNGGet g
-        encmsg <- cipherEncryptOffline ctx msg
+        encmsg <- cipherEncrypt ctx msg
         -- Start actual test
         dctx <- cipherInit cipher Decrypt
         cipherSetKey dctx k
@@ -146,7 +146,7 @@ main = hspec $ testSuite (cipherModes ++ aeads) chars $ \ cipher -> do
                 cipherSetAssociatedData dctx ad
             else pass
         cipherStart dctx n
-        decmsg <- cipherDecryptOffline dctx encmsg
+        decmsg <- cipherDecrypt dctx encmsg
         msg `shouldBe` decmsg
         pass
     it "can incrementally / online encipher a message" $ do
@@ -215,7 +215,7 @@ main = hspec $ testSuite (cipherModes ++ aeads) chars $ \ cipher -> do
         putStrLn "    Testing online encryption:"
         onlinemsg <- cipherEncryptOnline onlinectx msg
         putStrLn "    Testing offline encryption:"
-        offlinemsg <- cipherEncryptOffline offlinectx msg
+        offlinemsg <- cipherEncrypt offlinectx msg
         putStrLn "    Result:"
         onlinemsg `shouldBe` offlinemsg
         pass

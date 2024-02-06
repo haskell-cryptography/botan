@@ -94,7 +94,7 @@ library
         Botan.OneTimeAuth.Class
         Botan.OneTimeAuth.Poly1305
         -- NOTE: Botan does not directly expose padding
-        Botan.Padding
+        -- Botan.Padding
         Botan.PubKey
         Botan.PubKey.Decrypt
         Botan.PubKey.Encrypt

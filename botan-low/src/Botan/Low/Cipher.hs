@@ -13,7 +13,89 @@ a mode of operation applies the block cipher’s single block operation
 repeatedly to encrypt an entire message.
 -}
 
-module Botan.Low.Cipher where
+module Botan.Low.Cipher
+(
+ 
+-- * Cipher
+-- $introduction
+
+-- * Usage
+-- $usage
+
+  Cipher(..)
+, CipherName(..)
+, CipherKey(..)
+, CipherNonce(..)
+, CipherInitFlags(..)
+, pattern MaskDirection
+, pattern Encrypt
+, pattern Decrypt
+, CipherUpdateFlags(..)
+, pattern CipherUpdate
+, pattern CipherFinal
+, withCipher
+, cipherInit
+, cipherDestroy
+, cipherName
+, cipherOutputLength
+, cipherValidNonceLength
+, cipherGetTagLength
+, cipherGetDefaultNonceLength
+, cipherGetUpdateGranularity
+, cipherGetIdealUpdateGranularity
+, cipherQueryKeylen
+, cipherGetKeyspec
+, cipherSetKey
+, cipherReset
+, cipherSetAssociatedData
+, cipherStart
+, cipherUpdate
+, cipherEncrypt
+, cipherDecrypt
+, cipherClear
+
+-- * Cipher modes
+, CipherMode(..)
+, cbcMode
+, cfbMode
+, cfbModeWith
+, xtsMode
+
+-- ** CBC padding
+, CBCPaddingName(..)
+, pattern PKCS7
+, pattern OneAndZeros
+, pattern X9_23
+, pattern ESP
+, pattern CTS
+, pattern NoPadding
+
+-- * AEAD
+, AEADName(..)
+, pattern ChaCha20Poly1305
+, chaCha20Poly1305
+
+-- * AEAD modes
+, AEADMode(..)
+, gcmMode
+, gcmModeWith
+, ocbMode
+, ocbModeWith
+, eaxMode
+, eaxModeWith
+, sivMode
+, ccmMode
+, ccmModeWith
+
+-- * Convenience
+, cipherEncryptOnline
+, cipherDecryptOnline
+, cipherModes
+, cbcPaddings
+, aeads
+, allCiphers
+
+) where
 
 import qualified Data.ByteString as ByteString
 
@@ -27,8 +109,86 @@ import Botan.Low.Remake
 
 import Botan.Low.RNG
 
--- NOTE: This is *symmetric* ciphers
---  For the 'raw' interface to ECB mode block ciphers, see BlockCipher.hs
+{- $introduction
+
+A `cipher` mode is a cryptographic algorithm suitable for encrypting and
+decrypting large quantities of arbitrarily-sized data. An `aead` is a cipher
+mode that also used to provide authentication of the ciphertext, potentially
+with plaintext `associated data`.
+
+-}
+
+{- $usage
+
+Unless you need a specific `cipher` or `aead`, it is strongly recommended that you use the `cbcMode AES_256 PKCS7` and `gcmMode AES_256` (or `ChaCha20Poly1305`) algorithms respectively.
+
+> import Botan.Low.Cipher
+> encrypter <- cipherInit ChaCha20Poly1305 Encrypt
+
+To use a cipher, we first need to generate (if we haven't already) a secret key.
+
+> import Botan.Low.RNG
+> rng <- rngInit "user"
+> -- We will use the maximum key size; ChaCha20Poly1305 keys are always 32 bytes
+> (_,keySize,_) <- cipherGetKeyspec encrypter
+> -- Block cipher keys are randomly generated
+> key <- rngGet rng keySize
+
+After the key is generated, we must set it as the cipher key:
+
+> cipherSetKey encrypter key
+
+If the cipher is an `aead`, we may also set the `associated data`:
+
+> cipherSetAssociatedData encrypter "Fee fi fo fum!"
+
+To ensure that the key is not leaked, we should generate a new nonce for every encryption. The range of allowed nonce sizes depends on the specific algorithm.
+
+> import Botan.Low.RNG
+> -- The default ChaCha20Poly1305 nonce is always 12 bytes.
+> nonceSize <- cipherGetDefaultNonceLength encrypter
+> nonce <- rngGet rng nonceSize
+
+To encrypt a message, it must be a multiple of the block size. If the cipher was an aead, the authentication tag will automatically be included in the ciphertext
+
+> -- Rarely, some cipher modes require that the message size be aligned to the block size
+> -- Consult algorithm-specific documentation if this occurs. 
+> message = "I smell the blood of an Englishman!"
+> cipherStart encrypter nonce
+> ciphertext <- cipherEncrypt encrypter message
+
+To decrypt a message, we run the same process with a decrypter, using the same `key` and `nonce` to decode the `ciphertext`:
+
+> decrypter <- cipherInit ChaCha20Poly1305 Decrypt
+> cipherSetKey decrypter key
+> cipherSetAssociatedData decrypter "Fee fi fo fum!"
+> cipherStart decrypter nonce
+> plaintext <- cipherDecrypt decrypter ciphertext
+> message == plaintext -- True
+
+You can completely clear a cipher's state, leaving it ready for reuse:
+
+> cipherClear encrypter
+> -- You'll have to set the key, nonce, (and ad, if aead) again.
+> cipherSetKey encrypter anotherKey
+> cipherStart encrypter anotherNonce
+> cipherSetAssociatedData encrypter anotherAD
+> -- Process another message
+> anotherCiphertext <- cipherEncrypt encrypter anotherMessage
+
+If you are encrypting or decrypting multiple messages with the same key, you can reset the cipher instead of clearing it, leaving the key set:
+
+> cipherClear encrypter
+> -- This is equivalent to calling cipherClear followed by cipherSetKey with the original key.
+> -- You'll have to set the nonce  (and ad, if aead) again, but not the key.
+> cipherStart encrypter anotherNonce
+> cipherSetAssociatedData encrypter anotherAD
+> -- Process another message with the same key
+> anotherCiphertext <- cipherEncrypt encrypter anotherMessage
+
+-}
+
+-- NOTE: This is *symmetric* ciphers  For the 'raw' interface to ECB mode block ciphers, see BlockCipher.hs
 
 newtype Cipher = MkCipher { getCipherForeignPtr :: ForeignPtr BotanCipherStruct }
 
@@ -75,8 +235,8 @@ cbcMode bc padding = bc // BOTAN_CIPHER_MODE_CBC // padding
 cfbMode :: BlockCipherName -> CipherName 
 cfbMode bc = bc // BOTAN_CIPHER_MODE_CFB
 
-cfbMode' :: BlockCipherName -> Int -> CipherName 
-cfbMode' bc feedbackSz = cfbMode bc /$ showBytes feedbackSz
+cfbModeWith :: BlockCipherName -> Int -> CipherName 
+cfbModeWith bc feedbackSz = cfbMode bc /$ showBytes feedbackSz
 
 xtsMode :: BlockCipherName -> CipherName
 xtsMode bc = bc // BOTAN_CIPHER_MODE_XTS
@@ -94,20 +254,20 @@ type AEADMode = ByteString
 gcmMode :: BlockCipher128Name -> AEADName
 gcmMode bc = bc // BOTAN_AEAD_MODE_GCM
 
-gcmMode' :: BlockCipher128Name -> Int -> AEADName
-gcmMode' bc tagSz = gcmMode bc /$ showBytes tagSz
+gcmModeWith :: BlockCipher128Name -> Int -> AEADName
+gcmModeWith bc tagSz = gcmMode bc /$ showBytes tagSz
 
 ocbMode :: BlockCipher128Name -> AEADName
 ocbMode bc = bc // BOTAN_AEAD_MODE_OCB
 
-ocbMode' :: BlockCipher128Name -> Int -> AEADName
-ocbMode' bc tagSz = ocbMode bc /$ showBytes tagSz
+ocbModeWith :: BlockCipher128Name -> Int -> AEADName
+ocbModeWith bc tagSz = ocbMode bc /$ showBytes tagSz
 
 eaxMode :: BlockCipherName -> AEADName
 eaxMode bc = bc // BOTAN_AEAD_MODE_EAX
 
-eaxMode' :: BlockCipherName -> Int -> AEADName
-eaxMode' bc tagSz = eaxMode bc /$ showBytes tagSz
+eaxModeWith :: BlockCipherName -> Int -> AEADName
+eaxModeWith bc tagSz = eaxMode bc /$ showBytes tagSz
 
 sivMode :: BlockCipher128Name -> AEADName
 sivMode bc = bc // BOTAN_AEAD_MODE_SIV
@@ -115,8 +275,8 @@ sivMode bc = bc // BOTAN_AEAD_MODE_SIV
 ccmMode :: BlockCipher128Name -> AEADName
 ccmMode bc = bc // BOTAN_AEAD_MODE_CCM
 
-ccmMode' :: BlockCipher128Name -> Int -> Int -> AEADName
-ccmMode' bc tagSz l = ccmMode bc /$ showBytes tagSz <> "," <> showBytes l
+ccmModeWith :: BlockCipher128Name -> Int -> Int -> AEADName
+ccmModeWith bc tagSz l = ccmMode bc /$ showBytes tagSz <> "," <> showBytes l
 
 cbcPaddings =
     [ PKCS7
@@ -144,24 +304,20 @@ aeads = concat
 
 allCiphers = cipherModes ++ aeads
 
-type CipherInitFlag = Word32
-
 -- TODO: Rename CipherMaskDirection, CipherEncrypt, CipherDecrypt;
 --  Leave slim terminology for botan
 pattern MaskDirection
     ,   Encrypt         -- ^ May be renamed Encipher to avoid confusion with PKEncrypt
     ,   Decrypt         -- ^ May be renamed Decipher to avoid confusion with PKDecrypt
-    ::  CipherInitFlag
+    ::  CipherInitFlags
 
 pattern MaskDirection = BOTAN_CIPHER_INIT_FLAG_MASK_DIRECTION
 pattern Encrypt = BOTAN_CIPHER_INIT_FLAG_ENCRYPT
 pattern Decrypt = BOTAN_CIPHER_INIT_FLAG_DECRYPT
 
-type CipherUpdateFlag = Word32
-
 pattern CipherUpdate
     ,   CipherFinal
-    ::  (Eq a, Num a) => a
+    ::  CipherUpdateFlags
 
 pattern CipherUpdate    = BOTAN_CIPHER_UPDATE_FLAG_NONE
 pattern CipherFinal     = BOTAN_CIPHER_UPDATE_FLAG_FINAL
@@ -275,6 +431,22 @@ cipherUpdate ctx flags outputSz input = withCipher ctx $ \ ctxPtr -> do
                 let processed = ByteString.take written output
                     in processed `seq` return (consumed,processed)
 
+{- |
+Encrypt and finalize a complete piece of data.
+
+This is not a canonical Botan C/C++ function.
+-}
+cipherEncrypt :: Cipher -> ByteString -> IO ByteString
+cipherEncrypt = cipherEncryptOffline
+
+{- |
+Encrypt and finalize a complete piece of data.
+
+This is not a canonical Botan C/C++ function.
+-}
+cipherDecrypt :: Cipher -> ByteString -> IO ByteString
+cipherDecrypt = cipherDecryptOffline
+
 -- |Reset the key, nonce, AD and all other state on this cipher object
 cipherClear :: Cipher -> IO ()
 cipherClear = mkAction withCipher botan_cipher_clear
@@ -328,11 +500,11 @@ cipherProcessOffline ctx flags msg = do
     -- snd <$> cipherUpdate ctx BOTAN_CIPHER_UPDATE_FLAG_FINAL o msg
     fst <$> cipherProcess ctx BOTAN_CIPHER_UPDATE_FLAG_FINAL o msg
 
-{-# DEPRECATED cipherEncryptOffline "Moving from botan-low to botan" #-}
+{-# WARNING cipherEncryptOffline "May be renamed to cipherEncrypt, may be moved to botan" #-}
 cipherEncryptOffline :: Cipher -> ByteString -> IO ByteString
 cipherEncryptOffline ctx = cipherProcessOffline ctx BOTAN_CIPHER_INIT_FLAG_ENCRYPT
 
-{-# DEPRECATED cipherDecryptOffline "Moving from botan-low to botan" #-}
+{-# WARNING cipherDecryptOffline "May be renamed to cipherDecrypt, may be moved to botan" #-}
 cipherDecryptOffline :: Cipher -> ByteString -> IO ByteString
 cipherDecryptOffline ctx = cipherProcessOffline ctx BOTAN_CIPHER_INIT_FLAG_DECRYPT
 

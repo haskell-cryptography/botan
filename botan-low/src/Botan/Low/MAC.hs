@@ -34,7 +34,48 @@ The Botan MAC computation is split into five stages.
 - Finalize the MAC computation.
 -}
 
-module Botan.Low.MAC where
+module Botan.Low.MAC
+(
+
+-- * Message authentication codes
+-- $introduction
+
+-- * Usage
+-- $usage
+
+  MAC(..)
+, MACName(..)
+, MACKey(..)
+, MACNonce(..)
+, MACDigest(..)
+, withMAC
+, macInit
+, macDestroy
+, macName
+, macOutputLength
+, macGetKeyspec
+, macSetKey
+, macSetNonce
+, macUpdate
+, macFinal
+, macClear
+
+-- * MAC algorithms
+
+, pattern CMAC
+, cmac
+, pattern GMAC
+, gmac
+, pattern HMAC
+, hmac
+, pattern Poly1305
+, pattern SipHash
+, sipHash
+, pattern X9_19_MAC
+
+-- * Convenience
+
+) where
 
 import qualified Data.ByteString as ByteString
 
@@ -46,6 +87,73 @@ import Botan.Low.Hash
 import Botan.Low.Make
 import Botan.Low.Prelude
 import Botan.Low.Remake
+
+{- $introduction
+
+A `mac` (or message authentication code) is a cryptographic algorithm that uses
+a secret key to produce a fixed-size digest from an arbitrarily-sized message,
+which is then used to verify the integrity and authenticity of the data.
+
+-}
+
+{- $usage
+
+Unless you need a specific `mac`, it is strongly recommended that you use the
+`hmac SHA_3` algorithm.
+
+> import Botan.Low.MAC
+> import Botan.Low.Hash
+> mac <- macInit (hmac SHA_3)
+
+To use a MAC, we first need to generate (if we haven't already) a secret key.
+
+> import Botan.Low.RNG
+> rng <- rngInit "user"
+> -- HMAC allows for an arbitrary key size, but we can check the key spec.
+> (keyMin,keyMax,keyMod) <- macGetKeyspec mac
+> -- MAC are randomly generated; 32 bytes is acceptable
+> key <- rngGet rng 32
+
+After the key is generated, we must set it as the mac key:
+
+> macSetKey mac key
+
+Then, we may produce an authentication code from a message using the secret key:
+
+> macUpdate mac "Fee fi fo fum!"
+> auth <- macFinal mac
+
+To verify an message authentication code, we can reproduce it using the secret
+key and message, and then check for equality:
+
+> verify <- macInit (hmac SHA_3)
+> macSetKey verify key
+> macUpdate verify "Fee fi fo fum!"
+> verifyAuth <- macFinal verify
+> auth == verifyAuth -- True
+
+You can completely clear a mac's state, leaving it ready for reuse:
+
+> macClear mac
+> -- You'll have to set the key again
+> macSetKey mac anotherKey
+> -- Process another message
+> macUpdate mac anotherMessage
+> anotherAuth <- macFinal mac
+
+Some algorithms (GMAC, Poly1305) have additional requirements for use. Avoid if
+possible, and consult algorithm-specific documentation for GMAC and Poly1305.
+If you must use GMAC, a nonce needs to be set:
+
+> mac <- macInit (gmac AES_256)
+> k <- systemRNGGet 32
+> n <- systemRNGGet 32    -- Here
+> macSetKey mac k
+> macSetNonce mac n       -- Here
+> macUpdate mac "Fee fi fo fum!"
+> auth <- macFinal mac
+
+-}
 
 -- /*
 -- * Message Authentication type
@@ -106,6 +214,10 @@ hmac h = HMAC /$ h
 
 sipHash :: Int -> Int -> MACName
 sipHash ir fr = SipHash /$ showBytes ir <> "," <> showBytes fr
+
+
+type MACKey = ByteString
+type MACNonce = ByteString
 
 -- TODO: Rename MACTag?
 type MACDigest = ByteString

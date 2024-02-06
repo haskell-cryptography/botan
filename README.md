@@ -309,7 +309,7 @@ main = do
 
 The `bcrypt` implementation provided by `botan` generates a random salt for you automatically. A work factor of 12 or greater is recommended.
 
-To generate the bcrypt digest:
+To generate a bcrypt digest:
 
 ```haskell
 import Botan.Low.RNG
@@ -323,7 +323,7 @@ onUserSignup username password = do
     createAndStoreNewUser username digest
 ```
 
-To validate the bcrypt digest:
+To validate a bcrypt digest:
 
 ```haskell
 import Botan.Low.RNG
@@ -437,11 +437,8 @@ To encrypt a message, it must be a multiple of the block size. If the cipher was
 -- Consult algorithm-specific documentation if this occurs. 
 message = "I smell the blood of an Englishman!"
 cipherStart encrypter nonce
--- NOTE: This function is currently marked as deprecated; this precise functionality is likely to be renamed `cipherEncrypt`, and may be moved to `botan`
-ciphertext <- cipherEncryptOffline encrypter message
+ciphertext <- cipherEncrypt encrypter message
 ```
-
-> NOTE: Online decryption is also available for most, but not all ciphers. However, this functionality is imperfect, should not be used, and will be exposed properly in the high-level `botan` interface.
 
 To decrypt a message, we run the same process with a decrypter, using the same `key` and `nonce` to decode the `ciphertext`:
 
@@ -450,7 +447,7 @@ decrypter <- cipherInit ChaCha20Poly1305 Decrypt
 cipherSetKey decrypter key
 cipherSetAssociatedData decrypter "Fee fi fo fum!"
 cipherStart decrypter nonce
-plaintext <- cipherDecryptOffline decrypter ciphertext
+plaintext <- cipherDecrypt decrypter ciphertext
 message == plaintext -- True
 ```
 
@@ -463,7 +460,7 @@ cipherSetKey encrypter anotherKey
 cipherStart encrypter anotherNonce
 cipherSetAssociatedData encrypter anotherAD
 -- Process another message
-anotherCiphertext <- cipherEncryptOffline encrypter anotherMessage
+anotherCiphertext <- cipherEncrypt encrypter anotherMessage
 ```
 
 If you are encrypting or decrypting multiple messages with the same key, you can reset the cipher instead of clearing it, leaving the key set:
@@ -475,7 +472,7 @@ cipherClear encrypter
 cipherStart encrypter anotherNonce
 cipherSetAssociatedData encrypter anotherAD
 -- Process another message with the same key
-anotherCiphertext <- cipherEncryptOffline encrypter anotherMessage
+anotherCiphertext <- cipherEncrypt encrypter anotherMessage
 ```
 
 
@@ -487,7 +484,7 @@ anotherCiphertext <- cipherEncryptOffline encrypter anotherMessage
 
 <details><summary>Botan.Low.Hash</summary>
 
-A `hash` is deterministic, one-way function suitable for producing a deterministic, fixed-size digest from an arbitrarily-sized message, which is used to verify the integrity of the data. 
+A `hash` is deterministic, one-way function suitable for producing a deterministic, fixed-size digest from an arbitrarily-sized message, which is used to verify the integrity of the data.
 
 Unless you need a specific `hash`, it is strongly recommended that you use the `SHA_3` algorithm.
 
@@ -533,7 +530,7 @@ anotherDigest <- hashFinal hash
 
 <details><summary>Botan.Low.MAC</summary>
 
-A `mac` (or message authentication code) is a cryptographic algorithm that uses a secret key to produce a fixed-size digest from an arbitrarily-sized message, which is then used to verify the integrity and authenticity of the data. 
+A `mac` (or message authentication code) is a cryptographic algorithm that uses a secret key to produce a fixed-size digest from an arbitrarily-sized message, which is then used to verify the integrity and authenticity of the data.
 
 Unless you need a specific `mac`, it is strongly recommended that you use the `hmac SHA_3` algorithm.
 
@@ -588,7 +585,7 @@ macUpdate mac anotherMessage
 anotherAuth <- macFinal mac
 ```
 
-Some algorithms (GMAC, Poly1305) may additionally require a nonce. These algorithms are to be avoided if possible. Consult algorithm-specific documentation for GMAC and Poly1305 nonce sizes. If you must use them, the nonce must be set:
+Some algorithms (GMAC, Poly1305) have additional requirements for use. Avoid if possible, and consult algorithm-specific documentation for GMAC and Poly1305. If you must use GMAC, a nonce needs to be set:
 
 ```haskell
 mac <- macInit (gmac AES_256)
@@ -646,7 +643,7 @@ plaintext <- decrypt decrypter ciphertext
 message == plaintext -- True
 ```
 
-> NOTE: The same padding must be used
+> NOTE: The same padding must be used for both encryption and decryption
 
 Sign a message:
 
@@ -674,13 +671,15 @@ verified <- verifyFinish verifier sig
 verified -- True
 ```
 
-> NOTE: The same padding must be used
+> NOTE: The same padding must be used for both encryption and decryption
 
 </details>
 
 <details><summary>Botan.Low.RNG</summary>
 
-A `random number generator` is used to generate uniform samples of pseudorandom bytes. You can always use the system `RNG`:
+A `random number generator` is used to generate uniform samples of pseudorandom bytes.
+
+You can always use the system `RNG`:
 
 ```haskell
 import Botan.Low.RNG
@@ -826,7 +825,9 @@ git checkout https://github.com/apotheca/botan -b some_new_branch
 
 # Acknowledgements
 
-This project has received funding from the Haskell Foundation, with support from Mercury.
+This project has received support from the Haskell Foundation, and was made possible through funding provided by [Mercury](https://mercury.com/).
+
+<a href="https://mercury.com/" alt="Mercury"><img src="https://github.com/apotheca/botan/blob/master/contributors/mercury.svg" width="320"></a>
 
 <!-- TODO: Acknowlege code contributors -->
 <!-- TODO: Adding a CONTRIBUTING file: https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/setting-guidelines-for-repository-contributors -->

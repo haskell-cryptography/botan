@@ -8,7 +8,18 @@ Stability   : experimental
 Portability : POSIX
 -}
 
-module Botan.Low.PubKey.Verify where
+module Botan.Low.PubKey.Verify
+(
+
+-- * Public key signature verification
+  Verify(..)
+, withVerify
+, verifyCreate
+, verifyDestroy
+, verifyUpdate
+, verifyFinish
+
+) where
 
 import qualified Data.ByteString as ByteString
 
@@ -19,7 +30,7 @@ import Botan.Low.Make
 import Botan.Low.Prelude
 import Botan.Low.RNG
 import Botan.Low.PubKey
-import Botan.Low.PubKey.Sign (SignAlgoName(..), SigningFlags(..))
+import Botan.Low.PubKey.Sign (SigningFlags(..))
 import Botan.Low.Remake
 
 -- /*
@@ -40,7 +51,7 @@ createVerify   :: (Ptr BotanPKOpVerify -> IO CInt) -> IO Verify
 
 type VerifyAlgo = ByteString
 
-verifyCreate :: PubKey -> SignAlgoName -> SigningFlags -> IO Verify
+verifyCreate :: PubKey -> EMSAName -> SigningFlags -> IO Verify
 verifyCreate pk algo flags =  withPubKey pk $ \ pkPtr -> do
     asCString algo $ \ algoPtr -> do
         createVerify $ \ out -> botan_pk_op_verify_create
@@ -50,7 +61,7 @@ verifyCreate pk algo flags =  withPubKey pk $ \ pkPtr -> do
             flags
 
 -- WARNING: withFooInit-style limited lifetime functions moved to high-level botan
-withVerifyCreate :: PubKey -> SignAlgoName -> SigningFlags -> (Verify -> IO a) -> IO a
+withVerifyCreate :: PubKey -> EMSAName -> SigningFlags -> (Verify -> IO a) -> IO a
 withVerifyCreate = mkWithTemp3 verifyCreate verifyDestroy
 
 verifyUpdate :: Verify -> ByteString -> IO ()
