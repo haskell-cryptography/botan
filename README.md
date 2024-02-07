@@ -8,11 +8,20 @@
 
 > Botan's goal is to be the best option for cryptography in C++ by offering the tools necessary to implement a range of practical systems, such as TLS protocol, X.509 certificates, modern AEAD ciphers, PKCS#11 and TPM hardware support, password hashing, and post quantum crypto schemes.
 
+# Acknowledgements
+
+This project has received support from the [Haskell Foundation](https://haskell.foundation/), and was made possible through funding provided by [Mercury](https://mercury.com/).
+
+<a href="https://mercury.com/" alt="Mercury"><img src="https://github.com/apotheca/botan/blob/main/contributors/mercury.svg" height="4em"></a>
+
 <details open>
 
-<summary>Navigation</summary>
+# Navigation
+
+<summary>Expand / Collapse Navigation</summary>
 
 - [Welcome to botan](#Welcome-to-botan)
+- [Acknowledgements](#Acknowledgements)
 - [Introduction](#Introduction)
 - [Installation](#Installation)
     - [Unix package](#Unix-package)
@@ -27,7 +36,6 @@
 - [Contributing](#Contributing)
     - [Reporting Bugs](#Reporting-Bugs)
     - [Assist in Development](#Assist-in-Development)
-- [Acknowledgements](#Acknowledgements)
 - [Donations](#Donations)
 
 </details>
@@ -823,11 +831,7 @@ git checkout https://github.com/apotheca/botan -b some_new_branch
 
 3. Submit a pull request with a comprehensive description of the changes
 
-# Acknowledgements
-
-This project has received support from the Haskell Foundation, and was made possible through funding provided by [Mercury](https://mercury.com/).
-
-<a href="https://mercury.com/" alt="Mercury"><img src="https://github.com/apotheca/botan/blob/master/contributors/mercury.svg" width="320"></a>
+<!-- # Contributors -->
 
 <!-- TODO: Acknowlege code contributors -->
 <!-- TODO: Adding a CONTRIBUTING file: https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/setting-guidelines-for-repository-contributors -->
