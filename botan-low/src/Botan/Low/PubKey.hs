@@ -155,6 +155,7 @@ module Botan.Low.PubKey
 
 , EMSAName(..)
 , emsa_none
+, emsa_emsa4
 , emsa_hash
 , emsa_ed25519Pure
 , emsa_ed25519Prehashed
@@ -220,7 +221,7 @@ Encrypt a message:
 > message = "Fee fi fo fum!"
 > -- Bob encrypts a message for Alice using her public key
 > -- Unlike `Crypto.Saltine.Core.Box`, the message is only encrypted, not signed.
-> encrypter <- encryptCreate alicePubKey PKCS1_v1_5
+> encrypter <- encryptCreate alicePubKey EME_PKCS1_v1_5
 > ciphertext <- encrypt encrypter rng message
 
 > NOTE: For algorithm-specific padding parameters, consult the Botan
@@ -230,7 +231,7 @@ Decrypt a message:
 
 > import Botan.Low.PubKey.Decrypt
 > -- Alice decrypts the message from Bob using her private key
-> decrypter <- decryptCreate alicePrivKey PKCS1_v1_5
+> decrypter <- decryptCreate alicePrivKey EME_PKCS1_v1_5
 > plaintext <- decrypt decrypter ciphertext
 > message == plaintext -- True
 
@@ -239,9 +240,10 @@ Decrypt a message:
 Sign a message:
 
 > import Botan.Low.PubKey.Sign
+> import Botan.Low.Hash
 > message = "Fee fi fo fum!"
 > -- Alice signs the message using her private key
-> signer <- signCreate alicePrivKey "EMSA4(SHA-3)" SigningPEMFormatSignature
+> signer <- signCreate alicePrivKey (emsa_emsa4 SHA3) SigningPEMFormatSignature
 > signUpdate signer message
 > sig <- signFinish signer rng
 
@@ -258,7 +260,7 @@ Verify a message:
 
 > import Botan.Low.PubKey.Verify
 > -- Bob verifies the message using Alice's public key
-> verifier <- verifyCreate alicePubKey "EMSA4(SHA-3)" SigningPEMFormatSignature
+> verifier <- verifyCreate alicePubKey (emsa_emsa4 SHA3) SigningPEMFormatSignature
 > verifyUpdate verifier message
 > verified <- verifyFinish verifier sig
 > verified -- True

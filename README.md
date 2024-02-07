@@ -351,11 +351,11 @@ onUserLogin username password = do
 
 A `block cipher` is a deterministic, cryptographic primitive suitable for encrypting or decrypting a single, fixed-size block of data at a time. Block ciphers are used as building blocks for more complex cryptographic operations. If you are looking to encrypt user data, you are probably looking for `Botan.Low.Cipher` instead.
 
-Unless you need a specific block cipher, it is strongly recommended that you use the `AES_256` algorithm.
+Unless you need a specific block cipher, it is strongly recommended that you use the `AES256` algorithm.
 
 ```haskell
 import Botan.Low.BlockCipher
-blockCipher <- blockCipherInit AES_256
+blockCipher <- blockCipherInit AES256
 ```
 
 To use a block cipher, we first need to generate (if we haven't already) a secret key.
@@ -363,7 +363,7 @@ To use a block cipher, we first need to generate (if we haven't already) a secre
 ```haskell
 import Botan.Low.RNG
 rng <- rngInit "user"
--- We will use the maximum key size; AES_256 keys are always 16 bytes
+-- We will use the maximum key size; AES256 keys are always 16 bytes
 (_,keySize,_) <- blockCipherGetKeyspec blockCipher
 -- Block cipher keys are randomly generated
 key <- rngGet rng keySize
@@ -379,7 +379,7 @@ To encrypt a message, it must be a multiple of the block size.
 
 ```haskell
 blockSize <- blockCipherBlockSize blockCipher
--- AES_256 block size is always 16 bytes
+-- AES256 block size is always 16 bytes
 message = "0000DEADBEEF0000" :: ByteString
 ciphertext <- blockCipherEncryptBlocks blockCipher message
 ```
@@ -397,7 +397,7 @@ message == plaintext -- True
 
 A `cipher` mode is a cryptographic algorithm suitable for encrypting and decrypting large quantities of arbitrarily-sized data. An `aead` is a cipher mode that also used to provide authentication of the ciphertext, potentially with plaintext `associated data`.
 
-Unless you need a specific `cipher` or `aead`, it is strongly recommended that you use the `cbcMode AES_256 PKCS7` and `gcmMode AES_256` (or `ChaCha20Poly1305`) algorithms respectively.
+Unless you need a specific `cipher` or `aead`, it is strongly recommended that you use the `cbcMode AES256 PKCS7` and `gcmMode AES256` (or `ChaCha20Poly1305`) algorithms respectively.
 
 ```haskell
 import Botan.Low.Cipher
@@ -492,11 +492,11 @@ anotherCiphertext <- cipherEncrypt encrypter anotherMessage
 
 A `hash` is deterministic, one-way function suitable for producing a deterministic, fixed-size digest from an arbitrarily-sized message, which is used to verify the integrity of the data.
 
-Unless you need a specific `hash`, it is strongly recommended that you use the `SHA_3` algorithm.
+Unless you need a specific `hash`, it is strongly recommended that you use the `SHA3` algorithm.
 
 ```haskell
 import Botan.Low.Hash
-hash <- hashInit SHA_3
+hash <- hashInit SHA3
 message = "Fee fi fo fum!"
 hashUpdate hash message
 digest <- hashFinal hash
@@ -505,7 +505,7 @@ digest <- hashFinal hash
 You can verify a digest by hashing the message a second time, and comparing the two:
 
 ```haskell
-rehash <- hashInit SHA_3
+rehash <- hashInit SHA3
 hashUpdate rehash message
 redigest <- hashFinal rehash
 digest == redigest -- True
@@ -538,12 +538,12 @@ anotherDigest <- hashFinal hash
 
 A `mac` (or message authentication code) is a cryptographic algorithm that uses a secret key to produce a fixed-size digest from an arbitrarily-sized message, which is then used to verify the integrity and authenticity of the data.
 
-Unless you need a specific `mac`, it is strongly recommended that you use the `hmac SHA_3` algorithm.
+Unless you need a specific `mac`, it is strongly recommended that you use the `hmac SHA3` algorithm.
 
 ```haskell
 import Botan.Low.MAC
 import Botan.Low.Hash
-mac <- macInit (hmac SHA_3)
+mac <- macInit (hmac SHA3)
 ```
 
 To use a MAC, we first need to generate (if we haven't already) a secret key.
@@ -573,7 +573,7 @@ auth <- macFinal mac
 To verify an message authentication code, we can reproduce it using the secret key and message, and then check for equality:
 
 ```haskell
-verify <- macInit (hmac SHA_3)
+verify <- macInit (hmac SHA3)
 macSetKey verify key
 macUpdate verify "Fee fi fo fum!"
 verifyAuth <- macFinal verify
@@ -594,7 +594,7 @@ anotherAuth <- macFinal mac
 Some algorithms (GMAC, Poly1305) have additional requirements for use. Avoid if possible, and consult algorithm-specific documentation for GMAC and Poly1305. If you must use GMAC, a nonce needs to be set:
 
 ```haskell
-mac <- macInit (gmac AES_256)
+mac <- macInit (gmac AES256)
 k <- systemRNGGet 32
 n <- systemRNGGet 32    -- Here
 macSetKey mac k
@@ -633,7 +633,7 @@ import Botan.Low.PubKey.Encrypt
 message = "Fee fi fo fum!"
 -- Bob encrypts a message for Alice using her public key
 -- Unlike `Crypto.Saltine.Core.Box`, the message is only encrypted, not signed.
-encrypter <- encryptCreate alicePubKey PKCS1_v1_5
+encrypter <- encryptCreate alicePubKey EME_PKCS1_v1_5
 ciphertext <- encrypt encrypter rng message
 ```
 
@@ -644,7 +644,7 @@ Decrypt a message:
 ```haskell
 import Botan.Low.PubKey.Decrypt
 -- Alice decrypts the message from Bob using her private key
-decrypter <- decryptCreate alicePrivKey PKCS1_v1_5
+decrypter <- decryptCreate alicePrivKey EME_PKCS1_v1_5
 plaintext <- decrypt decrypter ciphertext
 message == plaintext -- True
 ```
@@ -655,9 +655,10 @@ Sign a message:
 
 ```haskell
 import Botan.Low.PubKey.Sign
+import Botan.Low.Hash
 message = "Fee fi fo fum!"
 -- Alice signs the message using her private key
-signer <- signCreate alicePrivKey "EMSA4(SHA-3)" SigningPEMFormatSignature
+signer <- signCreate alicePrivKey (emsa_emsa4 SHA3) SigningPEMFormatSignature
 signUpdate signer message
 sig <- signFinish signer rng
 ```
@@ -671,7 +672,7 @@ Verify a message:
 ```haskell
 import Botan.Low.PubKey.Verify
 -- Bob verifies the message using Alice's public key
-verifier <- verifyCreate alicePubKey "EMSA4(SHA-3)" SigningPEMFormatSignature
+verifier <- verifyCreate alicePubKey (emsa_emsa4 SHA3) SigningPEMFormatSignature
 verifyUpdate verifier message
 verified <- verifyFinish verifier sig
 verified -- True

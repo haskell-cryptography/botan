@@ -120,7 +120,7 @@ with plaintext `associated data`.
 
 {- $usage
 
-Unless you need a specific `cipher` or `aead`, it is strongly recommended that you use the `cbcMode AES_256 PKCS7` and `gcmMode AES_256` (or `ChaCha20Poly1305`) algorithms respectively.
+Unless you need a specific `cipher` or `aead`, it is strongly recommended that you use the `cbcMode AES256 PKCS7` and `gcmMode AES256` (or `ChaCha20Poly1305`) algorithms respectively.
 
 > import Botan.Low.Cipher
 > encrypter <- cipherInit ChaCha20Poly1305 Encrypt

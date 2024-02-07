@@ -99,11 +99,11 @@ which is then used to verify the integrity and authenticity of the data.
 {- $usage
 
 Unless you need a specific `mac`, it is strongly recommended that you use the
-`hmac SHA_3` algorithm.
+`hmac SHA3` algorithm.
 
 > import Botan.Low.MAC
 > import Botan.Low.Hash
-> mac <- macInit (hmac SHA_3)
+> mac <- macInit (hmac SHA3)
 
 To use a MAC, we first need to generate (if we haven't already) a secret key.
 
@@ -126,7 +126,7 @@ Then, we may produce an authentication code from a message using the secret key:
 To verify an message authentication code, we can reproduce it using the secret
 key and message, and then check for equality:
 
-> verify <- macInit (hmac SHA_3)
+> verify <- macInit (hmac SHA3)
 > macSetKey verify key
 > macUpdate verify "Fee fi fo fum!"
 > verifyAuth <- macFinal verify
@@ -145,7 +145,7 @@ Some algorithms (GMAC, Poly1305) have additional requirements for use. Avoid if
 possible, and consult algorithm-specific documentation for GMAC and Poly1305.
 If you must use GMAC, a nonce needs to be set:
 
-> mac <- macInit (gmac AES_256)
+> mac <- macInit (gmac AES256)
 > k <- systemRNGGet 32
 > n <- systemRNGGet 32    -- Here
 > macSetKey mac k
