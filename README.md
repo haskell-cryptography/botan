@@ -12,13 +12,11 @@
 
 This project has received support from the [Haskell Foundation](https://haskell.foundation/), and was made possible through funding provided by [Mercury](https://mercury.com/).
 
-<a href="https://mercury.com/" alt="Mercury"><img src="https://github.com/apotheca/botan/blob/main/contributors/mercury.svg" height="4em"></a>
-
-<details open>
+<a href="https://mercury.com/" alt="Mercury"><img src="https://github.com/apotheca/botan/blob/main/contributors/mercury.svg" width="320"></a>
 
 # Navigation
 
-<summary>Expand / Collapse Navigation</summary>
+<details open><summary>Expand / Collapse Navigation</summary>
 
 - [Welcome to botan](#Welcome-to-botan)
 - [Acknowledgements](#Acknowledgements)
