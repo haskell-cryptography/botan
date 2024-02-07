@@ -35,7 +35,30 @@ consideration as would be given to any other symmetric key or
 plaintext password.
 -}
 
-module Botan.Low.HOTP where
+module Botan.Low.HOTP
+(
+
+  HOTP(..)
+, HOTPHashName(..)
+, HOTPCounter(..)
+, HOTPCode(..)
+, withHOTP
+, hotpInit
+, hotpDestroy
+, hotpGenerate
+, hotpCheck
+
+-- * HOTP Hashes
+
+, pattern HOTP_SHA1
+, pattern HOTP_SHA256
+, pattern HOTP_SHA512
+
+-- * Convenience
+
+, hotpHashes
+
+) where
 
 import qualified Data.ByteString as ByteString
 
@@ -69,20 +92,20 @@ createHOTP   :: (Ptr BotanHOTP -> IO CInt) -> IO HOTP
 
 type HOTPHashName = HashName
 
-pattern HOTP_SHA_1 
-    ,   HOTP_SHA_256
-    ,   HOTP_SHA_512
+pattern HOTP_SHA1 
+    ,   HOTP_SHA256
+    ,   HOTP_SHA512
     ::  HOTPHashName
 
-pattern HOTP_SHA_1   = SHA_1
-pattern HOTP_SHA_256 = SHA_256
-pattern HOTP_SHA_512 = SHA_512
+pattern HOTP_SHA1   = SHA1
+pattern HOTP_SHA256 = SHA256
+pattern HOTP_SHA512 = SHA512
 
 -- TODO: Do any other hashes work?
 hotpHashes =
-    [ HOTP_SHA_1
-    , HOTP_SHA_256
-    , HOTP_SHA_512
+    [ HOTP_SHA1
+    , HOTP_SHA256
+    , HOTP_SHA512
     ]
 
 type HOTPCounter = Word64

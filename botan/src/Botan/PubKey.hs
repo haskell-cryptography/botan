@@ -33,7 +33,7 @@ module Botan.PubKey
 
 -- ** Enumerations
 
-, allPKs
+-- , allPKs
 
 -- ** Associated types
 
@@ -120,7 +120,7 @@ import Data.Bool
 
 -- Enumerations
 
-allPKs = undefined
+-- allPKs = undefined
 
 -- Accessory types
 
@@ -501,8 +501,8 @@ data PKPadding
     | SM2EncParam Hash  -- NOTE: Why SM2 specific? Why not just PKPaddingHash Hash?
 
 pkPaddingName :: PKPadding -> ByteString
-pkPaddingName EME_RAW     = Low.RAW
-pkPaddingName EME_PKCS1   = Low.PKCS1_v1_5  -- "PKCS1v15" -- Why not "EME-PKCS1-v1_5"? See C++ docs
+pkPaddingName EME_RAW     = "Raw"
+pkPaddingName EME_PKCS1   = "PKCS1v15"  -- "PKCS1v15" -- Why not "EME-PKCS1-v1_5"? See C++ docs
 pkPaddingName (EME_OAEP h m l) = case (m,l) of
     (Nothing, Nothing) -> "OAEP(" <> hashName h <> ",MGF1)"
     (Nothing, Just l') -> "OAEP(" <> hashName h <> ",MGF1," <> l' <> ")"

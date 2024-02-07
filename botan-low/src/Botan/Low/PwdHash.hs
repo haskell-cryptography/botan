@@ -10,7 +10,28 @@ Portability : POSIX
 Derive a key from a passphrase
 -}
 
-module Botan.Low.PwdHash where
+module Botan.Low.PwdHash
+(
+
+-- * Password hashing
+
+  PBKDFName(..)
+, pwdhash
+, pwdhashTimed
+
+-- * Password hashing algorithms
+
+, pattern PBKDF2
+, pbkdf2
+, pattern Scrypt
+, pattern Argon2d
+, pattern Argon2i
+, pattern Argon2id
+, pattern Bcrypt_PBKDF
+, pattern OpenPGP_S2K
+, openPGP_S2K
+    
+) where
 
 import qualified Data.ByteString as ByteString
 
@@ -42,11 +63,11 @@ pattern Bcrypt_PBKDF = BOTAN_PBKDF_BCRYPT_PBKDF
 pattern OpenPGP_S2K = BOTAN_PBKDF_OPENPGP_S2K
 
 -- NOTE: May require HMAC
-pbkdf2' :: MACName -> PBKDFName
-pbkdf2' m = PBKDF2 /$ m
+pbkdf2 :: MACName -> PBKDFName
+pbkdf2 m = PBKDF2 /$ m
 
-openPGP_S2K':: HashName -> PBKDFName
-openPGP_S2K' h = OpenPGP_S2K /$ h
+openPGP_S2K:: HashName -> PBKDFName
+openPGP_S2K h = OpenPGP_S2K /$ h
 
 -- NOTE: Should passphrase be Text or ByteString? Text is implied by use of const char*
 --  as well as the non-null context implied by passphrase_len == 0. ByteString for now.

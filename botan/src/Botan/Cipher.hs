@@ -265,7 +265,7 @@ cipherName (AEAD aead) = aeadName aead
 
 cipherModeName :: CipherMode -> Low.CipherName
 cipherModeName (CBC bc padding)    = Low.cbcMode (blockCipherName bc) (cbcPaddingName padding)
-cipherModeName (CFB bc fsz)        = Low.cfbMode' (blockCipherName bc) fsz
+cipherModeName (CFB bc fsz)        = Low.cfbModeWith (blockCipherName bc) fsz
 cipherModeName (XTS bc)            = Low.xtsMode (blockCipherName bc)
 
 cbcPaddingName :: CBCPadding -> ByteString
@@ -278,11 +278,11 @@ cbcPaddingName NoPadding    = Low.NoPadding
 
 aeadName :: AEAD -> Low.CipherName
 aeadName ChaCha20Poly1305   = Low.chaCha20Poly1305
-aeadName (GCM bc tsz)       = Low.gcmMode' (blockCipherName bc) tsz
-aeadName (OCB bc tsz)       = Low.ocbMode' (blockCipherName bc) tsz
-aeadName (EAX bc tsz)       = Low.eaxMode' (blockCipherName bc) tsz
+aeadName (GCM bc tsz)       = Low.gcmModeWith (blockCipherName bc) tsz
+aeadName (OCB bc tsz)       = Low.ocbModeWith (blockCipherName bc) tsz
+aeadName (EAX bc tsz)       = Low.eaxModeWith (blockCipherName bc) tsz
 aeadName (SIV bc)           = Low.sivMode (blockCipherName bc)
-aeadName (CCM bc tsz l)     = Low.ccmMode' (blockCipherName bc) tsz l
+aeadName (CCM bc tsz l)     = Low.ccmModeWith (blockCipherName bc) tsz l
 
 cipherKeySpec :: Cipher -> CipherKeySpec
 cipherKeySpec (CipherMode (CBC bc _)) = blockCipherKeySpec bc

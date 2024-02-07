@@ -19,6 +19,9 @@ import Botan.Prelude
 -- SP800-56A has two unique create functions, and uses Hash or HMAC (but trying to use hash fails according to tests)
 -- SP800-56C has two unique create functions, and uses macs or hashes
 
+-- TODO: Find out if the algorithms that support both HMAC and Hash syntax are actually different,
+-- or if its just substituting HMAC() silently
+
 data KDF
     = HKDF Hash
     | HKDF_Extract Hash
@@ -49,22 +52,22 @@ data SP800_108_Mode
     | Pipeline
     
 kdfName :: KDF -> KDFName
-kdfName (HKDF h)                = Low.hkdf' (hashName h)            -- "HKDF(" <> hashName h <> ")"
-kdfName (HKDF_Extract h)        = Low.hkdf_extract' (hashName h)    -- "HKDF-Extract(" <> hashName h <> ")"
-kdfName (HKDF_Expand h)         = Low.hkdf_expand' (hashName h)     -- "HKDF-Expand(" <> hashName h <> ")"
-kdfName (KDF2 h)                = Low.kdf2' (hashName h)            -- "KDF2(" <> hashName h <> ")"
-kdfName (KDF1_18033 h)          = Low.kdf1_18033' (hashName h)      -- "KDF1-18033(" <> hashName h <> ")"
-kdfName (KDF1 h)                = Low.kdf1' (hashName h)            -- "KDF1(" <> hashName h <> ")"
-kdfName (TLS_12_PRF h)          = Low.tls_12_prf' (hashName h)      -- "TLS-12-PRF(" <> hashName h <> ")"
+kdfName (HKDF h)                = Low.hkdf (hashName h)            -- "HKDF(" <> hashName h <> ")"
+kdfName (HKDF_Extract h)        = Low.hkdf_extract (hashName h)    -- "HKDF-Extract(" <> hashName h <> ")"
+kdfName (HKDF_Expand h)         = Low.hkdf_expand (hashName h)     -- "HKDF-Expand(" <> hashName h <> ")"
+kdfName (KDF2 h)                = Low.kdf2 (hashName h)            -- "KDF2(" <> hashName h <> ")"
+kdfName (KDF1_18033 h)          = Low.kdf1_18033 (hashName h)      -- "KDF1-18033(" <> hashName h <> ")"
+kdfName (KDF1 h)                = Low.kdf1 (hashName h)            -- "KDF1(" <> hashName h <> ")"
+kdfName (TLS_12_PRF h)          = Low.tls_12_prf (hashName h)      -- "TLS-12-PRF(" <> hashName h <> ")"
 -- NOTE: Many hashes do not throw an error for this KDF but are not necessarily correct
 -- kdfName (X9_42_PRF h)           = "X9.42-PRF(" <> hashName h <> ")"
 -- Only SHA-1 is valid for X9_42_PRF according to the source
-kdfName X9_42_PRF               = Low.x9_42_prf' (hashName $ Cryptohash SHA1)        --"X9.42-PRF(SHA-1)"
-kdfName (SP800_108_Counter h)   = Low.sp800_108_counter' (hashName h)   -- "SP800-108-Counter(HMAC(" <> hashName h <> "))"
-kdfName (SP800_108_Feedback h)  = Low.sp800_108_feedback' (hashName h)  -- "SP800-108-Feedback(HMAC(" <> hashName h <> "))"
-kdfName (SP800_108_Pipeline h)  = Low.sp800_108_pipeline' (hashName h)  -- "SP800-108-Pipeline(HMAC(" <> hashName h <> "))"
-kdfName (SP800_56A h)           = Low.sp800_56A' (hashName h)           -- "SP800-56A(HMAC(" <> hashName h <> "))"
-kdfName (SP800_56C h)           = Low.sp800_56C' (hashName h)           -- "SP800-56C(HMAC(" <> hashName h <> "))"
+kdfName X9_42_PRF               = Low.x9_42_prf (hashName $ Cryptohash SHA1)        --"X9.42-PRF(SHA-1)"
+kdfName (SP800_108_Counter h)   = Low.sp800_108_counter (hashName h)   -- "SP800-108-Counter(HMAC(" <> hashName h <> "))"
+kdfName (SP800_108_Feedback h)  = Low.sp800_108_feedback (hashName h)  -- "SP800-108-Feedback(HMAC(" <> hashName h <> "))"
+kdfName (SP800_108_Pipeline h)  = Low.sp800_108_pipeline (hashName h)  -- "SP800-108-Pipeline(HMAC(" <> hashName h <> "))"
+kdfName (SP800_56A h)           = Low.sp800_56A (hashName h)           -- "SP800-56A(HMAC(" <> hashName h <> "))"
+kdfName (SP800_56C h)           = Low.sp800_56C (hashName h)           -- "SP800-56C(HMAC(" <> hashName h <> "))"
 
 -- NOTE: This works:
 --  > kdf "KDF1(SHA-256)" 32 "Fee fi fo fum!" "English" "Bread"

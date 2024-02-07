@@ -55,14 +55,15 @@ import qualified Data.ByteString as ByteString
 
 import Data.Bool
 
+import qualified Botan.Low.PubKey as Low
 import qualified Botan.Low.PubKey.Sign as Low
 
 import Botan.Error
 import Botan.Hash
 import Botan.Prelude
 import Botan.PubKey
+    ( PrivKey, PKExportFormat, pkExportFormatFlags )
 import Botan.RNG
-import Botan.Low.PubKey.Sign (signDestroy)
 
 {- $introduction
 
@@ -114,7 +115,7 @@ type PKSign = Low.Sign
 
 -- Destructor
 destroyPKSign :: (MonadIO m) => PKSign -> m ()
-destroyPKSign = liftIO . signDestroy
+destroyPKSign = liftIO . Low.signDestroy
 
 -- ** Initializers
 
@@ -186,7 +187,7 @@ data Ed25519Sign'
 
 {- END REFACTORING STAB 1 -}
 
-signAlgoName :: SignAlgo -> Low.SignAlgoName
+signAlgoName :: SignAlgo -> Low.EMSAName
 signAlgoName (EMSA emsa)            = emsaName emsa
 signAlgoName Ed25519Pure            = "Pure"
 signAlgoName Ed25519ph              = "Ed25519ph"
@@ -214,7 +215,7 @@ mkNameArgs name args = name <> "(" <> ByteString.intercalate "," args <> ")"
 
 -- NOTE: Raw mode assumes the plaintext is already processed and just signs the plaintext
 -- TODO: Split out Raw mode?
-emsaName :: EMSA -> Low.SignAlgoName
+emsaName :: EMSA -> Low.EMSAName
 emsaName EMSA_Raw                   = "Raw"
 emsaName (EMSA1 h)                  = mkNameArgs "EMSA1" [ hashName h ]
 emsaName (EMSA2 h)                  = mkNameArgs "EMSA2" [ hashName h ]

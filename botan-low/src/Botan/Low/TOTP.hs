@@ -38,7 +38,31 @@ TOTP is based on the same algorithm as HOTP, but instead of a
 counter a timestamp is used.
 -}
 
-module Botan.Low.TOTP where
+module Botan.Low.TOTP
+(
+
+  TOTP(..)
+, TOTPHashName(..)
+, TOTPTimestep(..)
+, TOTPTimestamp(..)
+, TOTPCode(..)
+, withTOTP
+, totpInit
+, totpDestroy
+, totpGenerate
+, totpCheck
+
+-- * TOTP Hashes
+
+, pattern TOTP_SHA1
+, pattern TOTP_SHA256
+, pattern TOTP_SHA512
+
+-- * Convenience
+
+, totpHashes
+
+) where
 
 import qualified Data.ByteString as ByteString
 
@@ -70,20 +94,20 @@ createTOTP   :: (Ptr BotanTOTP -> IO CInt) -> IO TOTP
 
 type TOTPHashName = HashName
 
-pattern TOTP_SHA_1 
-    ,   TOTP_SHA_256
-    ,   TOTP_SHA_512
+pattern TOTP_SHA1 
+    ,   TOTP_SHA256
+    ,   TOTP_SHA512
     ::  TOTPHashName
 
-pattern TOTP_SHA_1   = SHA_1
-pattern TOTP_SHA_256 = SHA_256
-pattern TOTP_SHA_512 = SHA_512
+pattern TOTP_SHA1   = SHA1
+pattern TOTP_SHA256 = SHA256
+pattern TOTP_SHA512 = SHA512
 
 -- TODO: Do any other hashes work?
 totpHashes =
-    [ TOTP_SHA_1
-    , TOTP_SHA_256
-    , TOTP_SHA_512
+    [ TOTP_SHA1
+    , TOTP_SHA256
+    , TOTP_SHA512
     ]
 
 type TOTPTimestep = Word64

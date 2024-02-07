@@ -32,7 +32,20 @@ the words by their lexicographical order, and choose the modulus to be
 the number of words in the dictionary.
 -}
 
-module Botan.Low.FPE where
+module Botan.Low.FPE
+(
+
+  FPE(..)
+, FPEFlags(..)
+, pattern FPENone
+, pattern FPEFE1CompatMode
+, withFPE
+, fpeInitFE1
+, fpeDestroy
+, fpeEncrypt
+, fpeDecrypt
+
+) where
 
 import qualified Data.ByteString as ByteString
 

@@ -8,7 +8,17 @@ Stability   : experimental
 Portability : POSIX
 -}
 
-module Botan.Low.View where
+module Botan.Low.View
+(
+
+  BotanViewBinFn(..)
+, BotanViewBinCallback(..)
+, viewBin
+, BotanViewStrFn(..)
+, BotanViewStrCallback(..)
+, viewStr
+
+)where
 
 import qualified Data.ByteString as ByteString
 

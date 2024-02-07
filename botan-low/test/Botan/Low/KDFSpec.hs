@@ -25,9 +25,10 @@ import Botan.Low.KDF
 --  except for SP800-56A which fails with NotImplementedException
 --  TODO: Exhaustive algorithm testing (see Botan.KDF notes)
 
+-- NOTE: Some kdfs (HKDF-Extract) do not support label input arguments
 main :: IO ()
 main = hspec $ testSuite kdfs chars $ \ algo -> do
     describe "kdf" $ do
         it "can derive a key" $ do
-            key <- kdf algo 3 "secret" "salt" "label"
+            key <- kdf algo 3 "secret" "salt" "" -- "label"
             pass

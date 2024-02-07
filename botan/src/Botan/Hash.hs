@@ -309,14 +309,14 @@ hashName (Checksum cs)   = checksumName cs
 cryptohashName :: Cryptohash -> Low.HashName
 cryptohashName spec = case spec of
     -- Cryptographic hashes
-    BLAKE2b sz      -> Low.blake2b' sz      -- "BLAKE2b(" <> showBytes sz <> ")"
+    BLAKE2b sz      -> Low.blake2b sz       -- "BLAKE2b(" <> showBytes sz <> ")"
     GOST_34_11      -> Low.GOST_34_11       -- "GOST-34.11"
     -- Keccak1600 sz   -> "Keccak-1600(" <> showBytes sz <> ")"
     Keccak1600 v    -> keccak1600Name v
     MD4             -> Low.MD4              -- "MD4"
     MD5             -> Low.MD5              -- "MD5"
-    RIPEMD160       -> Low.RIPEMD_160       -- "RIPEMD-160"
-    SHA1            -> Low.SHA_1            -- "SHA-1"
+    RIPEMD160       -> Low.RIPEMD160        -- "RIPEMD-160"
+    SHA1            -> Low.SHA1             -- "SHA-1"
     -- SHA224          -> "SHA-224"    -- SHA2
     -- SHA256          -> "SHA-256"
     -- SHA512          -> "SHA-512"
@@ -325,32 +325,32 @@ cryptohashName spec = case spec of
     SHA2 v          -> sha2Name v
     -- SHA3 sz         -> "SHA-3(" <> showBytes sz <> ")"
     SHA3 v          -> sha3Name v
-    SHAKE128 sz     -> Low.shake_128' sz    -- "SHAKE-128(" <> showBytes sz <> ")"
-    SHAKE256 sz     -> Low.shake_256' sz    -- "SHAKE-256(" <> showBytes sz <> ")"
+    SHAKE128 sz     -> Low.shake128 sz      -- "SHAKE-128(" <> showBytes sz <> ")"
+    SHAKE256 sz     -> Low.shake256 sz      -- "SHAKE-256(" <> showBytes sz <> ")"
     SM3             -> Low.SM3              -- "SM3"
-    Skein512 sz b   -> Low.skein_512' sz b  -- "Skein-512(" <> showBytes sz <> "," <> b <> ")"
-    Streebog256     -> Low.Streebog_256     -- "Streebog-256"
-    Streebog512     -> Low.Streebog_512     -- "Streebog-512"
+    Skein512 sz b   -> Low.skein512 sz b    -- "Skein-512(" <> showBytes sz <> "," <> b <> ")"
+    Streebog256     -> Low.Streebog256      -- "Streebog-256"
+    Streebog512     -> Low.Streebog512      -- "Streebog-512"
     Whirlpool       -> Low.Whirlpool        -- "Whirlpool"
 
 keccak1600Name :: Keccak1600 -> Low.HashName
-keccak1600Name Keccak1600_224 = Low.keccak_1600' 224 -- "Keccak-1600(224)"
-keccak1600Name Keccak1600_256 = Low.keccak_1600' 256 -- "Keccak-1600(256)"
-keccak1600Name Keccak1600_384 = Low.keccak_1600' 384 -- "Keccak-1600(384)"
-keccak1600Name Keccak1600_512 = Low.keccak_1600' 512 -- "Keccak-1600(512)"
+keccak1600Name Keccak1600_224 = Low.keccak1600 224 -- "Keccak-1600(224)"
+keccak1600Name Keccak1600_256 = Low.keccak1600 256 -- "Keccak-1600(256)"
+keccak1600Name Keccak1600_384 = Low.keccak1600 384 -- "Keccak-1600(384)"
+keccak1600Name Keccak1600_512 = Low.keccak1600 512 -- "Keccak-1600(512)"
 
 sha2Name :: SHA2 -> Low.HashName
-sha2Name SHA224     = Low.SHA_224       -- "SHA-224"
-sha2Name SHA256     = Low.SHA_256       -- "SHA-256"
-sha2Name SHA512     = Low.SHA_512       -- "SHA-512"
-sha2Name SHA384     = Low.SHA_384       -- "SHA-384"
-sha2Name SHA512_256 = Low.SHA_512_256   -- "SHA-512-256"
+sha2Name SHA224     = Low.SHA224       -- "SHA-224"
+sha2Name SHA256     = Low.SHA256       -- "SHA-256"
+sha2Name SHA512     = Low.SHA512       -- "SHA-512"
+sha2Name SHA384     = Low.SHA384       -- "SHA-384"
+sha2Name SHA512_256 = Low.SHA512_256   -- "SHA-512-256"
 
 sha3Name :: SHA3 -> Low.HashName
-sha3Name SHA3_224 = Low.sha_3' 224 -- "SHA-3(224)"
-sha3Name SHA3_256 = Low.sha_3' 256 -- "SHA-3(256)"
-sha3Name SHA3_384 = Low.sha_3' 384 -- "SHA-3(384)"
-sha3Name SHA3_512 = Low.sha_3' 512 -- "SHA-3(512)"
+sha3Name SHA3_224 = Low.sha3 224 -- "SHA-3(224)"
+sha3Name SHA3_256 = Low.sha3 256 -- "SHA-3(256)"
+sha3Name SHA3_384 = Low.sha3 384 -- "SHA-3(384)"
+sha3Name SHA3_512 = Low.sha3 512 -- "SHA-3(512)"
 
 -- hashStrategyName :: HashStrategy -> Low.HashName
 -- hashStrategyName hs = case hs of

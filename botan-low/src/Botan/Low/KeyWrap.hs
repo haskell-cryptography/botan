@@ -21,7 +21,13 @@ implementations (such as in OpenSSL) do also allow other ciphers.
 Use AES for best interop.
 -}
 
-module Botan.Low.KeyWrap where
+module Botan.Low.KeyWrap
+(
+
+  nistKeyWrapEncode
+, nistKeyWrapDecode
+
+) where
 
 import qualified Data.ByteString as ByteString
 

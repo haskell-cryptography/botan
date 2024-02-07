@@ -34,7 +34,15 @@ needed define a padding scheme to pad your input to the necessary
 size.
 -}
 
-module Botan.Low.ZFEC where
+module Botan.Low.ZFEC
+(
+
+-- * Forward error correction
+  ZFECShare(..)
+, zfecEncode
+, zfecDecode
+
+) where
 
 import Control.Concurrent
 
