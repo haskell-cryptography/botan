@@ -14,8 +14,8 @@ module Botan.Low.PubKey.Sign
 -- * Public key signatures
   Sign(..)
 , SigningFlags(..)
-, pattern SigningPEMFormatSignature
-, pattern SigningDERFormatSignature
+, pattern StandardFormatSignature
+, pattern DERFormatSignature
 , withSign
 , signCreate
 , signDestroy
@@ -57,11 +57,11 @@ type SignAlgoName = ByteString
 
 type SigningFlags = Word32
 
-pattern SigningPEMFormatSignature   -- ^ Not an actual flags
-    ,   SigningDERFormatSignature
+pattern StandardFormatSignature   -- ^ Not an actual flags
+    ,   DERFormatSignature
     ::  SigningFlags
-pattern SigningPEMFormatSignature = BOTAN_PUBKEY_PEM_FORMAT_SIGNATURE
-pattern SigningDERFormatSignature = BOTAN_PUBKEY_DER_FORMAT_SIGNATURE
+pattern StandardFormatSignature = BOTAN_PUBKEY_STD_FORMAT_SIGNATURE
+pattern DERFormatSignature = BOTAN_PUBKEY_DER_FORMAT_SIGNATURE
 
 signCreate :: PrivKey -> EMSAName -> SigningFlags -> IO Sign
 signCreate sk algo flags = withPrivKey sk $ \ skPtr -> do
@@ -108,6 +108,7 @@ signFinish sign rng = withSign sign $ \ signPtr -> do
                 throwBotanIfNegative_ $ botan_pk_op_sign_finish signPtr botanRNG sigPtr szPtr
                 peek szPtr
         return $!! ByteString.take (fromIntegral sz') bytes
+{-# WARNING signFinish "Depending on the algorithm, signatures produced using StandardFormatSignature may have trailing null bytes." #-}
 
 -- /**
 -- * Signature Scheme Utility Functions

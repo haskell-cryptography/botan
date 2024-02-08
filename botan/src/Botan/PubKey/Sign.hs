@@ -62,7 +62,6 @@ import Botan.Error
 import Botan.Hash
 import Botan.Prelude
 import Botan.PubKey
-    ( PrivKey, PKExportFormat, pkExportFormatFlags )
 import Botan.RNG
 
 {- $introduction
@@ -106,7 +105,7 @@ pkSign pk algo fmt msg = do
 
 type PKSignAlgo = SignAlgo
 
-type PKSignatureFormat = PKExportFormat
+type PKSignatureFormat = Low.SigningFlags
 type PKSignature = ByteString
 
 -- Mutable context
@@ -120,7 +119,7 @@ destroyPKSign = liftIO . Low.signDestroy
 -- ** Initializers
 
 newPKSign :: (MonadIO m) => PrivKey -> PKSignAlgo -> PKSignatureFormat -> m PKSign
-newPKSign pk algo fmt = liftIO $ Low.signCreate pk (signAlgoName algo) (pkExportFormatFlags fmt)
+newPKSign pk algo fmt = liftIO $ Low.signCreate pk (signAlgoName algo) fmt
 
 -- Accessors
 pkSignOutputLength :: (MonadIO m) => PKSign -> m Int
@@ -235,11 +234,11 @@ iso9796Implicit :: Bool -> ByteString
 iso9796Implicit = bool "exp" "imp"
 
 data SignatureFormat
-    = Standard
-    | DERSequence
+    = StandardFormat
+    | DERFormat
     deriving (Show, Eq)
 
 signatureFormatFlag :: SignatureFormat -> Low.SigningFlags
-signatureFormatFlag Standard    = Low.SigningPEMFormatSignature -- BOTAN_PUBKEY_SIGNING_FLAGS_NONE
-signatureFormatFlag DERSequence = Low.SigningDERFormatSignature -- BOTAN_PUBKEY_DER_FORMAT_SIGNATURE
+signatureFormatFlag StandardFormat    = Low.StandardFormatSignature -- BOTAN_PUBKEY_SIGNING_FLAGS_NONE
+signatureFormatFlag DERFormat = Low.DERFormatSignature -- BOTAN_PUBKEY_DER_FORMAT_SIGNATURE
 

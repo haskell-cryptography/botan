@@ -17,7 +17,7 @@ module Botan.Bindings.PubKey.Verify
 , botan_pk_op_verify_create
 , botan_pk_op_verify_update
 , botan_pk_op_verify_finish
-, pattern BOTAN_PUBKEY_PEM_FORMAT_SIGNATURE 
+, pattern BOTAN_PUBKEY_STD_FORMAT_SIGNATURE 
 , pattern BOTAN_PUBKEY_DER_FORMAT_SIGNATURE
 ) where
 

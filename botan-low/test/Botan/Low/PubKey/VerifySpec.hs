@@ -54,25 +54,25 @@ main = hspec $ testSuite pks pkTestName $ \ (pk, param, algo) -> do
         rng <- rngInit "system"
         privKey <- privKeyCreate pk param rng
         pubKey <- privKeyExportPubKey privKey
-        ctx <- verifyCreate pubKey algo SigningPEMFormatSignature
+        ctx <- verifyCreate pubKey algo StandardFormatSignature
         pass
     it "verifyUpdate" $ do
         rng <- rngInit "system"
         privKey <- privKeyCreate pk param rng
         pubKey <- privKeyExportPubKey privKey
-        ctx <- verifyCreate pubKey algo SigningPEMFormatSignature
+        ctx <- verifyCreate pubKey algo StandardFormatSignature
         verifyUpdate ctx "Fee fi fo fum!"
         pass
     it "verifyFinish" $ do
         rng <- rngInit "system"
         privKey <- privKeyCreate pk param rng
-        signCtx <- signCreate privKey algo SigningPEMFormatSignature
+        signCtx <- signCreate privKey algo StandardFormatSignature
         signUpdate signCtx "Fee fi fo fum!"
         sig <- signFinish signCtx rng
         -- print $ "Siglen is: " <> show (ByteString.length sig)
         print sig
         pubKey <- privKeyExportPubKey privKey
-        verifyCtx <- verifyCreate pubKey algo SigningPEMFormatSignature
+        verifyCtx <- verifyCreate pubKey algo StandardFormatSignature
         verifyUpdate verifyCtx "Fee fi fo fum!"
         verified <- verifyFinish verifyCtx sig
         verified `shouldBe` True

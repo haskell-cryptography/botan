@@ -91,12 +91,17 @@ keyAgreementExportPublic sk = withPrivKey sk $ \ skPtr -> do
 keyAgreementSize :: KeyAgreement -> IO Int
 keyAgreementSize = mkGetSize withKeyAgreement botan_pk_op_key_agreement_size
 
+{-# WARNING keyAgreement "This function was leaking memory and causing crashes. Please observe carefully and report any future leaks." #-}
 keyAgreement :: KeyAgreement -> ByteString -> ByteString -> IO ByteString
 keyAgreement ka key salt = withKeyAgreement ka $ \ kaPtr -> do
     asBytesLen key $ \ keyPtr keyLen -> do
         asBytesLen salt $ \ saltPtr saltLen -> do
             outSz <- keyAgreementSize ka
             alloca $ \ szPtr -> do
+                -- NOTE: This poke was necessary to stop a memory leak
+                -- Similar pokes have been needed elsewere
+                -- TODO: Ensure that all alloca szPtr elsewhere are properly poked
+                poke szPtr (fromIntegral outSz)
                 out <- allocBytes outSz $ \ outPtr -> do
                     throwBotanIfNegative_ $ botan_pk_op_key_agreement
                         kaPtr

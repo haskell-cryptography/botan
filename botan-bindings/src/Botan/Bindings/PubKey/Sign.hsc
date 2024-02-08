@@ -31,10 +31,13 @@ foreign import capi safe "botan/ffi.h &botan_pk_op_sign_destroy"
     botan_pk_op_sign_destroy
         :: FinalizerPtr BotanPKOpSignStruct
 
-pattern BOTAN_PUBKEY_PEM_FORMAT_SIGNATURE   -- ^ Not an actual flags
+-- NOTE: These are separate flags from BOTAN_PRIVKEY_EXPORT_FLAG_DER and BOTAN_PRIVKEY_EXPORT_FLAG_PEM
+-- The correct default flag would be BOTAN_PUBKEY_STD_FORMAT_SIGNATURE, and is not necessarily
+-- indicative of PEM encoding
+pattern BOTAN_PUBKEY_STD_FORMAT_SIGNATURE   -- ^ Not an actual flag
     ,   BOTAN_PUBKEY_DER_FORMAT_SIGNATURE
     ::  (Eq a, Num a) => a
-pattern BOTAN_PUBKEY_PEM_FORMAT_SIGNATURE = 0
+pattern BOTAN_PUBKEY_STD_FORMAT_SIGNATURE = 0
 pattern BOTAN_PUBKEY_DER_FORMAT_SIGNATURE = #const BOTAN_PUBKEY_DER_FORMAT_SIGNATURE
 
 foreign import capi safe "botan/ffi.h botan_pk_op_sign_create"

@@ -75,7 +75,7 @@ destroyPKVerify = liftIO . Low.verifyDestroy
 -- ** Initializers
 
 newPKVerify :: (MonadIO m) => PubKey -> PKSignAlgo -> PKSignatureFormat -> m PKVerify
-newPKVerify pk algo fmt = liftIO $ Low.verifyCreate pk (signAlgoName algo) (pkExportFormatFlags fmt)
+newPKVerify pk algo fmt = liftIO $ Low.verifyCreate pk (signAlgoName algo) fmt
 
 -- ** Mutable Algorithm
 

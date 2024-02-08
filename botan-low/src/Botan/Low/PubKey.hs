@@ -243,7 +243,7 @@ Sign a message:
 > import Botan.Low.Hash
 > message = "Fee fi fo fum!"
 > -- Alice signs the message using her private key
-> signer <- signCreate alicePrivKey (emsa_emsa4 SHA3) SigningPEMFormatSignature
+> signer <- signCreate alicePrivKey (emsa_emsa4 SHA3) StandardFormatSignature
 > signUpdate signer message
 > sig <- signFinish signer rng
 
@@ -260,7 +260,7 @@ Verify a message:
 
 > import Botan.Low.PubKey.Verify
 > -- Bob verifies the message using Alice's public key
-> verifier <- verifyCreate alicePubKey (emsa_emsa4 SHA3) SigningPEMFormatSignature
+> verifier <- verifyCreate alicePubKey (emsa_emsa4 SHA3) StandardFormatSignature
 > verifyUpdate verifier message
 > verified <- verifyFinish verifier sig
 > verified -- True
