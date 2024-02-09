@@ -10,6 +10,60 @@ Portability : POSIX
 The library contains an implementation of the SRP6-a password
 authenticated key exchange protocol.
 
+-}
+
+module Botan.Low.SRP6
+(
+
+-- * Secure Random Password 6a
+-- $introduction
+
+-- * Usage
+-- $usage
+
+  SRP6ServerSession(..)
+, withSRP6ServerSession
+, srp6ServerSessionInit
+, srp6ServerSessionDestroy
+, srp6ServerSessionStep1
+, srp6ServerSessionStep2
+, srp6GenerateVerifier
+, srp6ClientAgree
+, srp6GroupSize
+
+-- * SRP6 Types
+
+, SRP6Verifier(..)
+, SRP6BValue(..)
+, SRP6AValue(..)
+, SRP6SharedSecret(..)
+
+-- * SRP discrete logarithm groups
+
+, pattern MODP_SRP_1024
+, pattern MODP_SRP_1536
+, pattern MODP_SRP_2048
+, pattern MODP_SRP_3072
+, pattern MODP_SRP_4096
+, pattern MODP_SRP_6144
+, pattern MODP_SRP_8192
+
+) where
+
+import qualified Data.ByteString as ByteString
+
+import Botan.Bindings.SRP6
+
+import Botan.Low.Error
+import Botan.Low.Hash
+import Botan.Low.Make
+import Botan.Low.Prelude
+import Botan.Low.Remake
+import Botan.Low.RNG
+import Botan.Low.PubKey
+
+{- $introduction
+
 A SRP client provides what is called a SRP verifier to the server.
 This verifier is based on a password, but the password cannot be
 easily derived from the verifier (however brute force attacks are
@@ -18,8 +72,8 @@ which results in a shared secret key. This key can be used for
 mutual authentication and/or encryption.
 
 SRP works in a discrete logarithm group. Special parameter sets for
-SRP6 are defined, denoted in the library as “modp/srp/<size>”, for
-example “modp/srp/2048”.
+SRP6 are defined, denoted in the library as @modp\/srp\/<size>@, for
+example @modp\/srp\/2048@.
 
 Warning
 
@@ -27,33 +81,101 @@ While knowledge of the verifier does not easily allow an attacker to
 get the raw password, they could still use the verifier to impersonate
 the server to the client, so verifiers should be protected as carefully
 as a plaintext password would be.
+
+SRP6 may be used as part of SSL/TLS: https://www.rfc-editor.org/rfc/rfc5054
+
 -}
 
-module Botan.Low.SRP6 where
+{- $usage
 
-import qualified Data.ByteString as ByteString
+On signup, the client generates a salt and verifier, and securely sends them to a server:
 
-import Botan.Bindings.SRP6
+> import Botan.Low.SRP6
+> import Botan.Low.Hash
+> import Botan.Low.RNG
+> import Botan.Low.MAC
+> rng <- rngInit UserRNG
+> group = MODP_SRP_4096
+> hash = SHA512
+> identifier = "alice"
+> password = "Fee fi fo fum!"
+> salt <- rngGet rng 12
+> verifier <- srp6GenerateVerifier identifier password salt group hash
+> -- signUpUserWithServer identifier verifier salt group hash
 
-import Botan.Low.Error
-import Botan.Low.Make
-import Botan.Low.Prelude
-import Botan.Low.Remake
-import Botan.Low.RNG
-import Botan.Low.PubKey
+Later, on the server when the client request authentication, the server
+looks up the verfier, generates a server key (a SRP6 'B' value), and sends
+it back to the client:
 
--- /**
--- * SRP-6 Server Session type
--- */
+> -- rng <- rngInit UserRNG
+> session <- srp6ServerSessionInit 
+> -- (verifier, salt, group, hash) <- lookupUser identifier
+> serverKey <- srp6ServerSessionStep1 session verifier group hash rng
+
+Once the client receives the server key, it generates a client key (SRP6 'A' value)
+and the session key, and sends the client key to the server:
+
+> -- serverKey <- didReceiveServerKey
+> (clientKey, clientSessionKey) <- srp6ClientAgree identifier password group hash salt serverKey rng
+> -- sendClientKey clientKey
+
+The server then receives client key, and generates a matching session key:
+
+> -- clientKey <- didReceiveClientKey
+> serverSessionKey <- srp6ServerSessionStep2 session clientKey
+
+At this point, clientSessionKey and serverSessionKey should be equal,
+but this should be confirmed by exchanging a hash digest to check for integrity,
+using the exchange's session key, identifier, salt, and client and server keys.
+
+There are many ways to do this, but preferrably, an (h)mac digest should be used
+to also include authentication and avoid impersonation.
+
+> NOTE: Both sides could calculate 'identifier <> salt <> serverKey <> clientKey'
+> individually but then we need to prove that each side has calculated it without
+relying on the copy received for validation, so we do this song and dance:
+
+The client should first calculate and send the HMAC auth, using identifier + salt + clientKey:
+
+> mac <- macInit (hmac SHA3)
+> macSetKey mac clientSessionKey
+> macUpdate mac $ identifier <> salt <> clientKey
+> clientAuth <- macFinal mac
+> -- sendClientAuth clientAuth
+
+The server should then verify the client auth, and send its own HMAC
+auth back to the client using serverKey + clientAuth:
+
+> -- clientAuth <- didReceiveClientAuth
+> mac <- macInit (hmac SHA3)
+> macSetKey mac serverSessionKey
+> macUpdate mac $ identifier <> salt <> clientKey
+> verifiedClientAuth <- macFinal mac
+> -- clientAuth == verifiedClientAuth
+> macClear mac
+> macSetKey mac serverSessionKey
+> macUpdate mac $ serverKey <> clientAuth
+> serverAuth <- macFinal mac
+> -- sendServerAuth serverAuth
+
+The client then receives the server HMAC auth, and validates it
+
+> -- serverAuth <- didReceiveServerAuth
+> macClear mac
+> macSetKey mac clientSessionKey
+> macUpdate mac $ serverKey <> clientAuth
+> verifiedServerAuth <- macFinal mac
+> -- serverAuth == verifiedServerAuth
+
+After this, the shared session key may be safely used.
+
+-}
+
 
 -- TODO: Unify with other / move to botan
 type Identifier = ByteString
 type Password = ByteString
 type Salt = ByteString
-
-type HashId = ByteString -- HashName
-
-type GroupId = ByteString -- NOTE: Should be a DLGroup, potentially just the modp/srp/* ones
 
 type SRP6Verifier = ByteString
 type SRP6BValue = ByteString
@@ -81,7 +203,7 @@ srp6ServerSessionInit = createSRP6ServerSession botan_srp6_server_session_init
 withSRP6ServerSessionInit :: (SRP6ServerSession -> IO a) -> IO a
 withSRP6ServerSessionInit = mkWithTemp srp6ServerSessionInit srp6ServerSessionDestroy
 
-srp6ServerSessionStep1 :: SRP6ServerSession -> SRP6Verifier -> GroupId -> HashId -> RNG -> IO SRP6BValue
+srp6ServerSessionStep1 :: SRP6ServerSession -> SRP6Verifier -> DLGroupName -> HashName -> RNG -> IO SRP6BValue
 srp6ServerSessionStep1 srp6 verifier groupId hashId rng = withSRP6ServerSession srp6 $ \ srp6Ptr -> do
     asBytesLen verifier $ \ verifierPtr verifierLen -> do
         asCString groupId $ \ groupIdPtr -> do
@@ -107,7 +229,7 @@ srp6ServerSessionStep2 srp6 a = withSRP6ServerSession srp6 $ \ srp6Ptr -> do
             outPtr
             outLen
 
-srp6GenerateVerifier :: Identifier -> Password -> Salt -> GroupId -> HashId -> IO SRP6Verifier
+srp6GenerateVerifier :: Identifier -> Password -> Salt -> DLGroupName -> HashName -> IO SRP6Verifier
 srp6GenerateVerifier identifier password salt groupId hashId = asCString identifier $ \ identifierPtr -> do
     asCString password $ \ passwordPtr -> do
         asBytesLen salt $ \ saltPtr saltLen -> do
@@ -124,7 +246,7 @@ srp6GenerateVerifier identifier password salt groupId hashId = asCString identif
                         outLen
 
 -- NOTE: ORDER IS DIFFERENT FROM SERVER GENERATE VERIFIER
-srp6ClientAgree :: Identifier -> Password -> GroupId -> HashId -> Salt -> SRP6BValue -> RNG -> IO (SRP6AValue, SRP6SharedSecret)
+srp6ClientAgree :: Identifier -> Password -> DLGroupName -> HashName -> Salt -> SRP6BValue -> RNG -> IO (SRP6AValue, SRP6SharedSecret)
 srp6ClientAgree identifier password groupId hashId salt b rng = do
     asCString identifier $ \ identifierPtr -> do
         asCString password $ \ passwordPtr -> do
@@ -173,7 +295,7 @@ srp6ClientAgree identifier password groupId hashId salt b rng = do
 
 -- NOTE: Missing FFI function: srp6_group_identifierz
 
-srp6GroupSize :: GroupId -> IO Int
+srp6GroupSize :: DLGroupName -> IO Int
 srp6GroupSize groupId = asCString groupId $ \ groupIdPtr -> do
     alloca $ \ szPtr -> do
         throwBotanIfNegative_ $ botan_srp6_group_size (ConstPtr groupIdPtr) szPtr

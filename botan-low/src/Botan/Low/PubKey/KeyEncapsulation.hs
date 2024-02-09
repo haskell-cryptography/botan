@@ -11,6 +11,11 @@ Portability : POSIX
 module Botan.Low.PubKey.KeyEncapsulation
 (
 
+-- * PK Key Encapsulation
+-- $introduction
+-- * Usage
+-- $usage
+
 -- * KEM Encryption
   KEMSharedKey(..)
 , KEMEncapsulatedKey(..)
@@ -44,9 +49,60 @@ import Botan.Low.PubKey
 import Botan.Low.Remake
 import Botan.Low.RNG
 
--- /*
--- * Key Encapsulation
--- */
+{- $introduction
+
+Key encapsulation (KEM) is a variation on public key encryption which is
+commonly used by post-quantum secure schemes. Instead of choosing a random
+secret and encrypting it, as in typical public key encryption, a KEM encryption
+takes no inputs and produces two values, the shared secret and the encapsulated
+key. The decryption operation takes in the encapsulated key and returns the
+shared secret.
+
+-}
+
+{- $usage
+
+> NOTE: KEM only requires the public knowledge of one person's key pair, unlike
+> Key Agreement.
+
+First, Alice generates her private and public key pair:
+
+> import Botan.Low.PubKey
+> import Botan.Low.PubKey.KeyEncapsulation
+> import Botan.Low.Hash
+> import Botan.Low.KDF
+> import Botan.Low.RNG
+> rng <- rngInit UserRNG
+> -- Alice generates her private and public keys
+> alicePrivKey <- privKeyCreate RSA "2048" rng
+> alicePubKey <- privKeyExportPubKey alicePrivKey
+
+Then, Alice shares her public key somewhere where others can see. When Bob
+wants to create a shared key with Alice, they choose a KDF algorithm, generate
+a salt, and choose a shared key length.
+
+> kdfAlg = hkdf SHA256
+> salt <- rngGet rng 4
+> sharedKeyLength = 256
+
+Then, Bob generates the shared + encapsulated key, and sends the
+encapsulated key to Alice:
+
+> encryptCtx <- kemEncryptCreate alicePubKey kdfAlg
+> (bobSharedKey, encapsulatedKey) <- kemEncryptCreateSharedKey encryptCtx rng salt sharedKeyLength
+> -- sendToAlice encapsulatedKey
+
+Upon receiving the encapsulated key, Alice can decrypt and extract the shared
+key using her private key:
+
+> decryptCtx <- kemDecryptCreate alicePrivKey kdfAlg
+> aliceSharedKey <- kemDecryptSharedKey decryptCtx salt encapsulatedKey sharedKeyLength
+> bobSharedKey == aliceSharedKey
+> -- True
+
+Then, this shared key may be used for any suitable purpose.
+
+-}
 
 -- TODO: KEM supports the following key types:
 --      RSA

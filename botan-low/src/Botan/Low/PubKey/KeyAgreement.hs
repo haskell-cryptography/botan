@@ -11,6 +11,11 @@ Portability : POSIX
 module Botan.Low.PubKey.KeyAgreement
 (
 
+-- * PK Key Agreement
+-- $introduction
+-- * Usage
+-- $usage
+
 -- * Key agreement
   KeyAgreement(..)
 , withKeyAgreement
@@ -33,9 +38,77 @@ import Botan.Low.Prelude
 import Botan.Low.PubKey
 import Botan.Low.Remake
 
--- /*
--- * Key Agreement
--- */
+{- $introduction
+
+Key agreement is a scheme where two parties exchange public keys, after which
+it is possible for them to derive a secret key which is known only to the two
+of them.
+
+There are different approaches possible for key agreement. In many protocols,
+both parties generate a new key, exchange public keys, and derive a secret,
+after which they throw away their private keys, using them only the once.
+However this requires the parties to both be online and able to communicate
+with each other.
+
+In other protocols, one of the parties publishes their public key online in
+some way, and then it is possible for someone to send encrypted messages to
+that recipient by generating a new keypair, performing key exchange with the
+published public key, and then sending both the message along with their
+ephemeral public key. Then the recipient uses the provided public key along
+with their private key to complete the key exchange, recover the shared secret,
+and decrypt the message.
+
+Typically the raw output of the key agreement function is not uniformly
+distributed, and may not be of an appropriate length to use as a key. To
+resolve these problems, key agreement will use a Key Derivation Functions (KDF)
+on the shared secret to produce an output of the desired length.
+
+- ECDH over GF(p) Weierstrass curves
+- ECDH over x25519
+- DH over prime fields
+
+-}
+
+{- $usage
+
+First, Alice and Bob generate their private keys:
+
+> import Botan.Low.PubKey
+> import Botan.Low.PubKey.KeyAgreement
+> import Botan.Low.RNG
+> import Botan.Low.Hash
+> import Botan.Low.KDF
+> rng <- rngInit "system"
+> -- Alice creates her private key
+> alicePrivKey <- privKeyCreate ECDH Secp521r1 rng 
+> -- Bob creates his private key
+> bobPrivKey <-  privKeyCreate ECDH Secp521r1 rng 
+
+Then, they exchange their public keys using any channel, private or public:
+
+> -- Alice and Bob exchange public keys
+> alicePubKey <- keyAgreementExportPublic alicePrivKey
+> bobPubKey <- keyAgreementExportPublic bobPrivKey
+> -- ...
+
+Then, they may separately generate the same agreed-upon key and a randomized,
+agreed-upon salt:
+
+> salt <- rngGet rng 4
+> -- Alice generates her shared key:
+> aliceKeyAgreement <- keyAgreementCreate alicePrivKey (kdf2 SHA256)
+> aliceSharedKey    <- keyAgreement aliceKeyAgreement bobPubKey salt
+> -- Bob generates his shared key:
+> bobKeyAgreement   <- keyAgreementCreate bobPrivKey (kdf2 SHA256)
+> bobSharedKey      <- keyAgreement bobKeyAgreement alicePubKey salt
+> -- They are the same
+> aliceSharedKey == bobSharedKey
+> -- True
+
+> WARNING: There used to be a memory leak in keyAgreement. Please
+> report this bug to the maintainers if it returns.
+
+-}
 
 newtype KeyAgreement = MkKeyAgreement { getKeyAgreementForeignPtr :: ForeignPtr BotanPKOpKeyAgreementStruct }
 
