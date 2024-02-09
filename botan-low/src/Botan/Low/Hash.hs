@@ -115,11 +115,11 @@ used to verify the integrity of the data.
 
 Unless you need a specific `hash`, it is strongly recommended that you use the `SHA3` algorithm.
 
-import Botan.Low.Hash
-hash <- hashInit SHA3
-message = "Fee fi fo fum!"
-hashUpdate hash message
-digest <- hashFinal hash
+> import Botan.Low.Hash
+> hash <- hashInit SHA3
+> message = "Fee fi fo fum!"
+> hashUpdate hash message
+> digest <- hashFinal hash
 
 You can verify a digest by hashing the message a second time, and comparing the two:
 

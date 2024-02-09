@@ -19,7 +19,7 @@ main = hspec $ do
         it "encodes a message into shares" $ do
             shares <- zfecEncode k n message
             length shares `shouldBe` n
-    describe "zfecDecodO" $ do
+    describe "zfecDecode" $ do
         it "recovers a message from enough shares" $ do
             shares <- zfecEncode k n message
             someShares <- take k <$> generate (shuffle shares)

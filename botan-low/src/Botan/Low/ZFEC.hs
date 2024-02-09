@@ -7,37 +7,21 @@ Maintainer  : leo@apotheca.io
 Stability   : experimental
 Portability : POSIX
 
-The ZFEC module provides forward error correction compatible
-with the zfec library.
-
 Forward error correction takes an input and creates multiple
 “shares”, such that any K of N shares is sufficient to recover
 the entire original input.
 
-Note
-
-Specific to the ZFEC format, the first K generated shares are
-identical to the original input data, followed by N-K shares of
-error correcting code. This is very different from threshold
-secret sharing, where having fewer than K shares gives no
-information about the original input.
-
-Warning
-
-If a corrupted share is provided to the decoding algorithm, the
-resulting decoding will be invalid. It is recommended to protect
-shares using a technique such as a MAC or public key signature,
-if corruption is likely in your application.
-
-ZFEC requires that the input length be exactly divisible by K; if
-needed define a padding scheme to pad your input to the necessary
-size.
 -}
 
 module Botan.Low.ZFEC
 (
 
--- * Forward error correction
+-- * Forward Error Correction
+-- $introduction
+-- * Usage
+-- $usage
+
+-- * ZFEC
   ZFECShare(..)
 , zfecEncode
 , zfecDecode
@@ -57,9 +41,67 @@ import Botan.Low.Error
 import Botan.Low.Make
 import Botan.Low.Prelude
 
--- /**
---  * ZFEC
---  */
+{- $introduction
+
+The ZFEC module provides forward error correction compatible
+with the zfec library.
+
+Note
+
+Specific to the ZFEC format, the first K generated shares are
+identical to the original input data, followed by N-K shares of
+error correcting code. This is very different from threshold
+secret sharing, where having fewer than K shares gives no
+information about the original input.
+
+Warning
+
+If a corrupted share is provided to the decoding algorithm, the
+resulting decoding will be invalid. It is recommended to protect
+shares using a technique such as a MAC or public key signature,
+if corruption is likely in your application.
+
+-}
+
+{- $usage
+
+Forward error correction takes an input and creates multiple
+“shares”, such that any K of N shares is sufficient to recover
+the entire original input.
+
+First, we choose a K value appropriate to our message - the higher K is,
+the smaller (but more numerous) the resulting shares will be:
+
+> k = 7
+> message = "The length of this message must be divisible by K"
+
+> NOTE: ZFEC requires that the input length be exactly divisible by K; if
+needed define a padding scheme to pad your input to the necessary
+size.
+
+We can calculate N = K + R, where R is the number of redundant shares,
+meaning we can tolerate the loss of up to R shares and still recover
+the original message.
+
+We want 2 additional shares of redundancy, so we set R and N appropriately:
+
+> r = 2
+> n = k + r -- 7 + 2 = 9
+
+Then, we encode the message into N shares:
+
+> shares <- zfecEncode k n message
+> length shares
+> -- 9
+
+Then, we can recover the message from any K of N shares:
+
+> someShares <- take k <$> shuffle shares
+> recoveredMessage <- zfecDecode k n someShares
+> message == recoveredMessage
+> -- True
+
+-}
 
 type ZFECShare = (Int, ByteString)
 
@@ -125,13 +167,3 @@ zfecDecode k n shares@((_,share0):_) = do
         shareIndexes = fmap (fromIntegral . fst) shares
         shareBytes = fmap snd shares
         shareSize = ByteString.length share0
-
-{-
-k = 5
-n = 7
-testData = "0123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0123456789"
-shares@[a,b,c,d,e,f,g] <- zfecEncode k n testData
-shares
-recoveredData <- zfecDecode k n [a,c,e,f,g]
-recoveredData
--}
