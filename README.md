@@ -522,9 +522,88 @@ anotherDigest <- hashFinal hash
 
 </details>
 
-<!-- <details><summary>Botan.Low.HOTP</summary>
+<details><summary>Botan.Low.HOTP</summary>
 
-</details> -->
+To use HOTP for MFA / 2FA, the client authenticator must generate a
+client-specific shared secret and counter value, and securely communicate
+them to the server authenticator.
+
+The secret key may be any bytestring value with more than 160 bits, such as
+a Bcrypt digest or SRP6 shared key. The counter value is not required to be
+a secret; it may start at 0 for simplicity, or it may start at a value that
+was selected at random.
+
+```haskell
+import Botan.Low.HOTP
+import Botan.Low.RNG
+import Botan.Low.MPI
+import Data.Bits
+sharedSecret <- systemRNGGet 16
+-- TODO: Use random:System.Random.Stateful.Uniform instead of MPI in `botan`
+(hi :: Word32) <- mpInit >>= \ w -> mpRandBits w rng 32 >> mpToWord32 w
+(lo :: Word32) <- mpInit >>= \ w -> mpRandBits w rng 32 >> mpToWord32 w
+(counter :: Word64) = shiftL (fromIntegral hi) 32 `xor` fromIntegral lo 
+```
+
+The client and server authenticators are now in a shared state, and any login
+attempts from a new device may be authenticated using HOTP as MFA.
+
+A client has requested a new connection, and HOTP is being used as MFA/2FA to
+authenticate their request. The server authenticator receives the client connection
+request and initializes a HOTP session using the stored client-specific shared
+secret, and then sends an authentication request to the client authenticator:
+
+```haskell
+-- (serverSharedSecret, serverCounter) <- lookupServerSharedSecretAndCounter
+serverSession <- hotpInit serverSharedSecret HOTP_SHA512 8
+-- sendMFAAuthenticationRequest
+```
+
+The client authenticator receives the authentication request, generates a
+client-side code, increments their counter, and displays the HOTP code to
+the user:
+
+```haskell
+-- (clientSharedSecret, clientCounter) <- lookupClientSharedSecretAndCounter
+clientSession <- hotpInit clientSharedSecret HOTP_SHA512 8
+clientCode <- hotpGenerate clientSession clientCounter
+-- incrementAndPersistClientCounter
+-- displayClientCode clientCode
+```
+
+> NOTE: The client authenticator is responsible for incrementing and persisting
+> their own counter manually.
+
+The client then sends the client code to the server authenticator using the
+unauthenticated / requested connection:
+
+```haskell
+-- clientCode <- readClientCode
+-- sendMFAAuthenticationResponse clientCode
+```
+
+The server authenticator receives the authentication response, and performs
+a check of the key, with a resync range of R in case the client has generated
+a few codes without logging in successfully:
+
+```haskell
+-- serverClientCode <- didreceiveMFAAuthenticationResponse
+(isValid,nextCounter) <- hotpCheck serverSession serverClientCode serverCounter 10
+persistClientCounter nextCounter
+```
+
+> NOTE: The server authentication check returns an incremented and resynced
+> counter which must be persisted manually. If the authentication check fails,
+> the counter value is return unchanged.
+
+If the code is valid, then the signin may be completed on the new connection
+as normal.
+
+The server should discontinue the session and refuse any new connections
+to the account after T unsuccessful authentication attempts, where T < R.
+The user should then be notified.
+
+</details>
 
 <!-- <details><summary>Botan.Low.KDF</summary>
 
@@ -626,6 +705,10 @@ alicePubKey <- privKeyExportPubKey alicePrivKey
 
 > NOTE: For algorithm-specific parameters, consult the Botan documentation and source
 
+</details>
+
+<details><summary>Botan.Low.PubKey.Encrypt</summary>
+
 Encrypt a message:
 
 ```haskell
@@ -651,6 +734,10 @@ message == plaintext -- True
 
 > NOTE: The same padding must be used for both encryption and decryption
 
+</details>
+
+<details><summary>Botan.Low.PubKey.Sign</summary>
+
 Sign a message:
 
 ```haskell
@@ -658,7 +745,7 @@ import Botan.Low.PubKey.Sign
 import Botan.Low.Hash
 message = "Fee fi fo fum!"
 -- Alice signs the message using her private key
-signer <- signCreate alicePrivKey (emsa_emsa4 SHA3) SigningPEMFormatSignature
+signer <- signCreate alicePrivKey (emsa_emsa4 SHA3) StandardFormatSignature
 signUpdate signer message
 sig <- signFinish signer rng
 ```
@@ -672,7 +759,7 @@ Verify a message:
 ```haskell
 import Botan.Low.PubKey.Verify
 -- Bob verifies the message using Alice's public key
-verifier <- verifyCreate alicePubKey (emsa_emsa4 SHA3) SigningPEMFormatSignature
+verifier <- verifyCreate alicePubKey (emsa_emsa4 SHA3) StandardFormatSignature
 verifyUpdate verifier message
 verified <- verifyFinish verifier sig
 verified -- True
@@ -681,6 +768,104 @@ verified -- True
 > NOTE: The same padding must be used for both encryption and decryption
 
 </details>
+
+<details><summary>Botan.Low.PubKey.KeyAgreement</summary>
+
+First, Alice and Bob generate their private keys:
+
+```haskell
+import Botan.Low.PubKey
+import Botan.Low.PubKey.KeyAgreement
+import Botan.Low.RNG
+import Botan.Low.Hash
+import Botan.Low.KDF
+rng <- rngInit "system"
+-- Alice creates her private key
+alicePrivKey <- privKeyCreate ECDH Secp521r1 rng 
+-- Bob creates his private key
+bobPrivKey <-  privKeyCreate ECDH Secp521r1 rng 
+```
+
+Then, they exchange their public keys using any channel, private or public:
+
+```haskell
+-- Alice and Bob exchange public keys
+alicePubKey <- keyAgreementExportPublic alicePrivKey
+bobPubKey <- keyAgreementExportPublic bobPrivKey
+-- ...
+```
+
+Then, they may separately generate the same agreed-upon key and a randomized,
+agreed-upon salt:
+
+```haskell
+salt <- rngGet rng 4
+-- Alice generates her shared key:
+aliceKeyAgreement <- keyAgreementCreate alicePrivKey (kdf2 SHA256)
+aliceSharedKey    <- keyAgreement aliceKeyAgreement bobPubKey salt
+-- Bob generates his shared key:
+bobKeyAgreement   <- keyAgreementCreate bobPrivKey (kdf2 SHA256)
+bobSharedKey      <- keyAgreement bobKeyAgreement alicePubKey salt
+-- They are the same
+aliceSharedKey == bobSharedKey
+-- True
+```
+
+</details>
+
+<details><summary>Botan.Low.PubKey.KeyEncapsulation</summary>
+
+First, Alice generates her private and public key pair:
+
+```haskell
+import Botan.Low.PubKey
+import Botan.Low.PubKey.KeyEncapsulation
+import Botan.Low.Hash
+import Botan.Low.KDF
+import Botan.Low.RNG
+rng <- rngInit UserRNG
+-- Alice generates her private and public keys
+alicePrivKey <- privKeyCreate RSA "2048" rng
+alicePubKey <- privKeyExportPubKey alicePrivKey
+```
+
+Then, Alice shares her public key somewhere where others can see. When Bob
+wants to create a shared key with Alice, they choose a KDF algorithm, generate
+a salt, and choose a shared key length.
+
+```haskell
+kdfAlg = hkdf SHA256
+salt <- rngGet rng 4
+sharedKeyLength = 256
+```
+
+Then, Bob generates the shared + encapsulated key, and sends the
+encapsulated key to Alice:
+
+```haskell
+encryptCtx <- kemEncryptCreate alicePubKey kdfAlg
+(bobSharedKey, encapsulatedKey) <- kemEncryptCreateSharedKey encryptCtx rng salt sharedKeyLength
+-- sendToAlice encapsulatedKey
+```
+
+Upon receiving the encapsulated key, Alice can decrypt and extract the shared
+key using her private key:
+
+```haskell
+decryptCtx <- kemDecryptCreate alicePrivKey kdfAlg
+aliceSharedKey <- kemDecryptSharedKey decryptCtx salt encapsulatedKey sharedKeyLength
+bobSharedKey == aliceSharedKey
+-- True
+```
+
+Then, this shared key may be used for any suitable purpose.
+
+
+</details>
+
+<!--  <details><summary>Botan.Low.PwdHash</summary>
+
+</details> -->
 
 <details><summary>Botan.Low.RNG</summary>
 
@@ -722,21 +907,234 @@ rngAddEntropy rng "Fee fi fo fum!"
 
 </details>
 
-<!-- <details><summary>Botan.Low.SRP6</summary>
+<details><summary>Botan.Low.SRP6</summary>
 
-</details> -->
+On signup, the client generates a salt and verifier, and securely sends them to a server:
 
-<!-- <details><summary>Botan.Low.TOTP</summary>
+```haskell
+import Botan.Low.SRP6
+import Botan.Low.Hash
+import Botan.Low.RNG
+import Botan.Low.MAC
+rng <- rngInit UserRNG
+group = MODP_SRP_4096
+hash = SHA512
+identifier = "alice"
+password = "Fee fi fo fum!"
+salt <- rngGet rng 12
+verifier <- srp6GenerateVerifier identifier password salt group hash
+-- signUpUserWithServer identifier verifier salt group hash
+```
 
-</details> -->
+Later, on the server when the client request authentication, the server
+looks up the verfier, generates a server key (a SRP6 'B' value), and sends
+it back to the client:
+
+```haskell
+-- rng <- rngInit UserRNG
+session <- srp6ServerSessionInit 
+-- (verifier, salt, group, hash) <- lookupUser identifier
+serverKey <- srp6ServerSessionStep1 session verifier group hash rng
+```
+
+Once the client receives the server key, it generates a client key (SRP6 'A' value)
+and the session key, and sends the client key to the server:
+
+```haskell
+-- serverKey <- didReceiveServerKey
+(clientKey, clientSessionKey) <- srp6ClientAgree identifier password group hash salt serverKey rng
+-- sendClientKey clientKey
+```
+
+The server then receives client key, and generates a matching session key:
+
+```haskell
+-- clientKey <- didReceiveClientKey
+serverSessionKey <- srp6ServerSessionStep2 session clientKey
+```
+
+At this point, clientSessionKey and serverSessionKey should be equal,
+but this should be confirmed by exchanging a hash digest to check for integrity,
+using the exchange's session key, identifier, salt, and client and server keys.
+
+There are many ways to do this, but preferrably, an (h)mac digest should be used
+to also include authentication and avoid impersonation.
+
+> NOTE: Both sides could calculate 'identifier <> salt <> serverKey <> clientKey'
+> individually but then we need to prove that each side has calculated it without
+relying on the copy received for validation, so we do this song and dance:
+
+The client should first calculate and send the HMAC auth, using identifier + salt + clientKey:
+
+```haskell
+mac <- macInit (hmac SHA3)
+macSetKey mac clientSessionKey
+macUpdate mac $ identifier <> salt <> clientKey
+clientAuth <- macFinal mac
+-- sendClientAuth clientAuth
+```
+
+The server should then verify the client auth, and send its own HMAC
+auth back to the client using serverKey + clientAuth:
+
+```haskell
+-- clientAuth <- didReceiveClientAuth
+mac <- macInit (hmac SHA3)
+macSetKey mac serverSessionKey
+macUpdate mac $ identifier <> salt <> clientKey
+verifiedClientAuth <- macFinal mac
+-- clientAuth == verifiedClientAuth
+macClear mac
+macSetKey mac serverSessionKey
+macUpdate mac $ serverKey <> clientAuth
+serverAuth <- macFinal mac
+-- sendServerAuth serverAuth
+```
+
+The client then receives the server HMAC auth, and validates it
+
+```haskell
+-- serverAuth <- didReceiveServerAuth
+macClear mac
+macSetKey mac clientSessionKey
+macUpdate mac $ serverKey <> clientAuth
+verifiedServerAuth <- macFinal mac
+-- serverAuth == verifiedServerAuth
+```
+
+After this, the shared session key may be safely used.
+
+
+</details>
+
+<details><summary>Botan.Low.TOTP</summary>
+
+To use TOTP for MFA / 2FA, the client authenticator must generate a
+client-specific shared secret, and securely communicate it to the
+server authenticator.
+
+The secret key may be any bytestring value with more than 160 bits, such as
+a Bcrypt digest or SRP6 shared key.
+
+```haskell
+import Botan.Low.TOTP
+import Botan.Low.RNG
+import Data.Time.Clock.POSIX
+timestep = 30
+drift = 3
+sharedSecret <- systemRNGGet 16
+```
+
+The client and server authenticators are now in a shared state, and any login
+attempts from a new device may be authenticated using TOTP as MFA.
+
+A client has requested a new connection, and TOTP is being used as MFA/2FA to
+authenticate their request. The server authenticator receives the client connection
+request and initializes a TOTP session using the stored client-specific shared
+secret, and then sends an authentication request to the client authenticator:
+
+```haskell
+-- serverSharedSecret <- lookupServerSharedSecret
+serverSession <- totpInit serverSharedSecret TOTP_SHA512 8 timestep
+-- sendMFAAuthenticationRequest
+```
+
+> NOTE: We are using a timestep value of 30 seconds, which means that the
+> code will refresh every 30 seconds
+
+The client authenticator receives the authentication request, generates a
+client-side code using their timestamp, and displays the TOTP code to
+the user:
+
+```haskell
+-- clientSharedSecret <- lookupClientSharedSecret
+clientSession <- totpInit clientSharedSecret TOTP_SHA512 8 timestep
+(clientTimestamp :: TOTPTimestamp) <- round <$> getPOSIXTime
+clientCode <- totpGenerate clientSession clientTimestamp
+-- displayClientCode clientCode
+```
+
+The client then sends the client code to the server authenticator using the
+unauthenticated / requested connection:
+
+```haskell
+-- clientCode <- readClientCode
+-- sendMFAAuthenticationResponse clientCode
+```
+
+The server authenticator receives the authentication response, and performs
+a check of the key, with an acceptable clock drift in steps, in case the client
+and server are slightly desynchronized. 
+
+```haskell
+-- serverClientCode <- didreceiveMFAAuthenticationResponse
+(serverTimestamp :: TOTPTimestamp) <- round <$> getPOSIXTime
+isValid <- totpCheck serverSession serverClientCode serverTimestamp drift
+```
+
+> NOTE: We are using a acceptable clock drift value of 3, which means that the
+> codes for the previous 3 time steps are still valid.
+
+If the code is valid, then the signin may be completed on the new connection
+as normal.
+
+The server should discontinue the session and refuse any new connections
+to the account after multiple unsuccessful authentication attempts.
+The user should then be notified.
+
+</details>
 
 <!-- <details><summary>Botan.Low.X509</summary>
 
 </details> -->
 
-<!-- <details><summary>Botan.Low.ZFEC</summary>
+<details><summary>Botan.Low.ZFEC</summary>
 
-</details> -->
+Forward error correction takes an input and creates multiple
+“shares”, such that any K of N shares is sufficient to recover
+the entire original input.
+
+First, we choose a K value appropriate to our message - the higher K is,
+the smaller (but more numerous) the resulting shares will be:
+
+```haskell
+k = 7
+message = "The length of this message must be divisible by K"
+```
+
+> NOTE: ZFEC requires that the input length be exactly divisible by K; if
+needed define a padding scheme to pad your input to the necessary
+size.
+
+We can calculate N = K + R, where R is the number of redundant shares,
+meaning we can tolerate the loss of up to R shares and still recover
+the original message.
+
+We want 2 additional shares of redundancy, so we set R and N appropriately:
+
+```haskell
+r = 2
+n = k + r -- 7 + 2 = 9
+```
+
+Then, we encode the message into N shares:
+
+```haskell
+shares <- zfecEncode k n message
+length shares
+-- 9
+```
+
+Then, we can recover the message from any K of N shares:
+
+```haskell
+someShares <- take k <$> shuffle shares
+recoveredMessage <- zfecDecode k n someShares
+message == recoveredMessage
+-- True
+```
+
+</details>
 
 # Enabling experimental support
 
