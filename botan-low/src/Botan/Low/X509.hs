@@ -113,23 +113,35 @@ createX509Cert   :: (Ptr BotanX509Cert -> IO CInt) -> IO X509Cert
 (newX509Cert, withX509Cert, x509CertDestroy, createX509Cert, _)
     = mkBindings MkBotanX509Cert runBotanX509Cert MkX509Cert getX509CertForeignPtr botan_x509_cert_destroy
 
-x509CertLoad :: ByteString -> IO X509Cert
+x509CertLoad
+    :: ByteString   -- ^ @cert[]@
+    -> IO X509Cert  -- ^ @cert_obj@
 x509CertLoad = mkCreateObjectCBytesLen createX509Cert botan_x509_cert_load
 
-x509CertLoadFile :: FilePath -> IO X509Cert
+x509CertLoadFile
+    :: FilePath     -- ^ @filename@
+    -> IO X509Cert  -- ^ @cert_obj@
 x509CertLoadFile = mkCreateObjectCString createX509Cert botan_x509_cert_load_file . Char8.pack
 
-x509CertDup :: X509Cert -> IO X509Cert
+x509CertDup
+    :: X509Cert     -- ^ @new_cert@
+    -> IO X509Cert  -- ^ @cert@
 x509CertDup = mkCreateObjectWith createX509Cert withX509Cert botan_x509_cert_dup
 
-x509CertGetTimeStarts :: X509Cert -> IO ByteString
+x509CertGetTimeStarts
+    :: X509Cert         -- ^ @cert@
+    -> IO ByteString    -- ^ @out[]@
 x509CertGetTimeStarts = mkGetBytes withX509Cert botan_x509_cert_get_time_starts
 
-x509CertGetTimeExpires :: X509Cert -> IO ByteString
+x509CertGetTimeExpires
+    :: X509Cert         -- ^ @cert@
+    -> IO ByteString    -- ^ @out[]@
 x509CertGetTimeExpires = mkGetBytes withX509Cert botan_x509_cert_get_time_expires
 
 -- TODO: mkGetIntegral
-x509CertNotBefore :: X509Cert -> IO Word64
+x509CertNotBefore
+    :: X509Cert     -- ^ @cert@
+    -> IO Word64    -- ^ @time_since_epoch@
 x509CertNotBefore cert = withX509Cert cert $ \ certPtr -> do
     alloca $ \ timePtr -> do
         botan_x509_cert_not_before
@@ -138,7 +150,9 @@ x509CertNotBefore cert = withX509Cert cert $ \ certPtr -> do
         fromIntegral <$> peek timePtr
 
 -- TODO: mkGetIntegral
-x509CertNotAfter :: X509Cert -> IO Word64
+x509CertNotAfter
+    :: X509Cert     -- ^ @cert@
+    -> IO Word64    -- ^ @time_since_epoch@
 x509CertNotAfter cert = withX509Cert cert $ \ certPtr -> do
     alloca $ \ timePtr -> do
         botan_x509_cert_not_after
@@ -147,7 +161,10 @@ x509CertNotAfter cert = withX509Cert cert $ \ certPtr -> do
         fromIntegral <$> peek timePtr
 
 
-x509CertGetPubKeyFingerprint :: X509Cert -> HashName -> IO ByteString
+x509CertGetPubKeyFingerprint
+    :: X509Cert         -- ^ @cert@
+    -> HashName         -- ^ @hash@
+    -> IO ByteString    -- ^ @out[]@
 x509CertGetPubKeyFingerprint cert algo = withX509Cert cert $ \ certPtr -> do
     asCString algo $ \ algoPtr -> do
         allocBytesQuerying $ \ outPtr outLen -> botan_x509_cert_get_fingerprint
@@ -156,26 +173,40 @@ x509CertGetPubKeyFingerprint cert algo = withX509Cert cert $ \ certPtr -> do
             outPtr
             outLen
 
-x509CertGetSerialNumber :: X509Cert -> IO ByteString
+x509CertGetSerialNumber
+    :: X509Cert         -- ^ @cert@
+    -> IO ByteString    -- ^ @out[]@
 x509CertGetSerialNumber = mkGetBytes withX509Cert botan_x509_cert_get_serial_number
 
-x509CertGetAuthorityKeyId :: X509Cert -> IO ByteString
+x509CertGetAuthorityKeyId
+    :: X509Cert         -- ^ @cert@
+    -> IO ByteString    -- ^ @out[]@
 x509CertGetAuthorityKeyId = mkGetBytes withX509Cert botan_x509_cert_get_authority_key_id
 
-x509CertGetSubjectKeyId :: X509Cert -> IO ByteString
+x509CertGetSubjectKeyId 
+    :: X509Cert         -- ^ @cert@
+    -> IO ByteString    -- ^ @out[]@
 x509CertGetSubjectKeyId = mkGetBytes withX509Cert botan_x509_cert_get_subject_key_id
 
-x509CertGetPublicKeyBits :: X509Cert -> IO ByteString
+x509CertGetPublicKeyBits
+    :: X509Cert         -- ^ @cert@
+    -> IO ByteString    -- ^ @out[]@
 x509CertGetPublicKeyBits = mkGetBytes withX509Cert botan_x509_cert_get_public_key_bits
 
 -- NOTE: Unique / quirk - the return value is the second argument?
 --  This necessitates the use of `flip`
-x509CertGetPublicKey :: X509Cert -> IO PubKey
+x509CertGetPublicKey
+    :: X509Cert     -- ^ @cert@
+    -> IO PubKey    -- ^ @key@
 x509CertGetPublicKey = mkCreateObjectWith createPubKey withX509Cert (flip botan_x509_cert_get_public_key)
 
 -- Distinguished Names
 --  SEE: https://www.ibm.com/docs/en/ibm-mq/7.5?topic=certificates-distinguished-names
-x509CertGetIssuerDN :: X509Cert -> DistinguishedName -> Int -> IO ByteString
+x509CertGetIssuerDN
+    :: X509Cert         -- ^ @cert@
+    -> ByteString       -- ^ @key@
+    -> Int              -- ^ @index@
+    -> IO ByteString    -- ^ @out[]@
 x509CertGetIssuerDN cert key index = withX509Cert cert $ \ certPtr -> do
     asCString key $ \ keyPtr -> do
         allocBytesQuerying $ \ outPtr outLen -> botan_x509_cert_get_issuer_dn
@@ -187,7 +218,11 @@ x509CertGetIssuerDN cert key index = withX509Cert cert $ \ certPtr -> do
 
 -- Distinguished Names
 --  SEE: https://www.ibm.com/docs/en/ibm-mq/7.5?topic=certificates-distinguished-names
-x509CertGetSubjectDN :: X509Cert -> DistinguishedName -> Int -> IO ByteString
+x509CertGetSubjectDN
+    :: X509Cert         -- ^ @cert@
+    -> ByteString       -- ^ @key@
+    -> Int              -- ^ @index@
+    -> IO ByteString    -- ^ @out[]@
 x509CertGetSubjectDN cert key index = withX509Cert cert $ \ certPtr -> do
     asCString key $ \ keyPtr -> do
         allocBytesQuerying $ \ outPtr outLen -> botan_x509_cert_get_issuer_dn
@@ -197,7 +232,9 @@ x509CertGetSubjectDN cert key index = withX509Cert cert $ \ certPtr -> do
             outPtr
             outLen
 
-x509CertToString :: X509Cert -> IO ByteString
+x509CertToString
+    :: X509Cert         -- ^ @cert@
+    -> IO ByteString    -- ^ @out[]@
 x509CertToString = mkGetCString withX509Cert botan_x509_cert_to_string
 
 -- NOTE: Per X509 key usage extension, the extension should
@@ -242,27 +279,45 @@ pattern DecipherOnly = DECIPHER_ONLY
 -- NOTE: This function lacks documentation, and it is unknown whether this is
 --  setting a value (as implied by Z-botan), or whether it is using either
 --  a negative error or INVALID_IDENTIFIER to return a bool
-x509CertAllowedUsage :: X509Cert -> X509KeyConstraints -> IO Bool
+x509CertAllowedUsage
+    :: X509Cert             -- ^ @cert@
+    -> X509KeyConstraints   -- ^ @key_usage@
+    -> IO Bool
 x509CertAllowedUsage cert usage = withX509Cert cert $ \ certPtr -> do
     throwBotanCatchingSuccess $ botan_x509_cert_allowed_usage certPtr usage
 
 {-# WARNING x509CertHostnameMatch "Unexplained function, best-guess implementation" #-}
-x509CertHostnameMatch :: X509Cert -> ByteString -> IO Bool
+{- |
+Check if the certificate matches the specified hostname via alternative name or CN match.
+RFC 5280 wildcards also supported.
+-}
+x509CertHostnameMatch
+    :: X509Cert     -- ^ @cert@
+    -> ByteString   -- ^ @hostname@
+    -> IO Bool
 x509CertHostnameMatch cert hostname = withX509Cert cert $ \ certPtr -> do
     asCString hostname $ \ hostnamePtr -> do
         throwBotanCatchingSuccess $ botan_x509_cert_hostname_match
             certPtr
             (ConstPtr hostnamePtr)
 
+{- |
+Returns 0 if the validation was successful, 1 if validation failed,
+and negative on error. A status code with details is written to
+*validation_result
+
+Intermediates or trusted lists can be null
+Trusted path can be null
+-}
 x509CertVerify
-    :: X509Cert
-    -> [X509Cert]
-    -> [X509Cert]
-    -> Maybe FilePath
-    -> Int
-    -> ByteString
-    -> Word64
-    -> IO (Bool, Int)
+    :: X509Cert         -- ^ @cert@
+    -> [X509Cert]       -- ^ @intermediates@
+    -> [X509Cert]       -- ^ @trusted@
+    -> Maybe FilePath   -- ^ @trusted_path@
+    -> Int              -- ^ @required_strength@
+    -> ByteString       -- ^ @hostname@
+    -> Word64           -- ^ @reference_time@
+    -> IO (Bool, Int)   -- ^ @(valid,validation_result)@
 x509CertVerify cert icerts tcerts tpath strength hostname time = do
     withX509Cert cert $ \ certPtr -> do
         withPtrs withX509Cert icerts $ flip withArrayLen $ \ icertsLen icertsPtr -> do
@@ -289,7 +344,9 @@ x509CertVerify cert icerts tcerts tpath strength hostname time = do
     --          withNullPtr withPtr m = if m == mempty then ($ nullPtr) else withPtr m
     --  but we'll need to fiddle with this function (and x509CertVerifyWithCLR)
 
-x509CertValidationStatus :: Int -> IO (Maybe ByteString)
+x509CertValidationStatus
+    :: Int  -- ^ @code@
+    -> IO (Maybe ByteString)
 x509CertValidationStatus code = do
     status <- botan_x509_cert_validation_status (fromIntegral code)
     if status == ConstPtr nullPtr
@@ -311,27 +368,42 @@ createX509CRL   :: (Ptr BotanX509CRL -> IO CInt) -> IO X509CRL
 (newX509CRL, withX509CRL, x509CRLDestroy, createX509CRL, _)
     = mkBindings MkBotanX509CRL runBotanX509CRL MkX509CRL getX509CRLForeignPtr botan_x509_crl_destroy
 
-x509CRLLoad :: ByteString -> IO X509CRL
+x509CRLLoad
+    :: ByteString   -- ^ @crl_bits[]@        
+    -> IO X509CRL   -- ^ @crl_obj@        
 x509CRLLoad = mkCreateObjectCBytesLen createX509CRL botan_x509_crl_load
 
-x509CRLLoadFile :: FilePath -> IO X509CRL
+x509CRLLoadFile
+    :: FilePath     -- ^ @crl_path@
+    -> IO X509CRL   -- ^ @crl_obj@
 x509CRLLoadFile = mkCreateObjectCString createX509CRL botan_x509_crl_load_file . Char8.pack
 
-x509IsRevoked :: X509CRL -> X509Cert -> IO Bool
+{- |
+Given a CRL and a certificate,
+check if the certificate is revoked on that particular CRL
+-}
+x509IsRevoked
+    :: X509CRL  -- ^ @crl@
+    -> X509Cert -- ^ @cert@
+    -> IO Bool
 x509IsRevoked crl cert = withX509CRL crl $ \ crlPtr -> do
     withX509Cert cert $ \ certPtr -> do
         throwBotanCatchingSuccess $ botan_x509_is_revoked crlPtr certPtr
 
+{- |
+Different flavor of `botan_x509_cert_verify`, supports revocation lists.
+CRLs are passed as an array, same as intermediates and trusted CAs
+-}
 x509CertVerifyWithCLR
-    :: X509Cert
-    -> [X509Cert]
-    -> [X509Cert]
-    -> [X509CRL]
-    -> Maybe FilePath
-    -> Int
-    -> ByteString
-    -> Word64
-    -> IO (Bool, Int)
+    :: X509Cert         -- ^ @cert@
+    -> [X509Cert]       -- ^ @intermediates@
+    -> [X509Cert]       -- ^ @trusted@
+    -> [X509CRL]        -- ^ @crls@
+    -> Maybe FilePath   -- ^ @trusted_path@
+    -> Int              -- ^ @required_strength@
+    -> ByteString       -- ^ @hostname@
+    -> Word64           -- ^ @reference_time@
+    -> IO (Bool, Int)   -- ^ @(valid,validation_result)@
 x509CertVerifyWithCLR cert icerts tcerts crls tpath strength hostname time = do
     withX509Cert cert $ \ certPtr -> do
         withPtrs withX509Cert icerts $ flip withArrayLen $ \ icertsLen icertsPtr -> do

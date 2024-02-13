@@ -52,10 +52,10 @@ foreign import capi safe "botan/ffi.h &botan_srp6_server_session_destroy"
 -- | Initialize an SRP-6 server session object
 foreign import capi safe "botan/ffi.h botan_srp6_server_session_init"
     botan_srp6_server_session_init
-        :: Ptr BotanSRP6ServerSession -- ^ srp6 SRP-6 server session object
+        :: Ptr BotanSRP6ServerSession -- ^ @srp6@: SRP-6 server session object
         -> IO CInt
 
--- | SRP-6 Server side step 1
+-- | SRP-6 Server side step 1: Generate a server B-value
 foreign import capi safe "botan/ffi.h botan_srp6_server_session_step1"
     botan_srp6_server_session_step1
         :: BotanSRP6ServerSession   -- ^ @srp6@: SRP-6 server session object
@@ -68,7 +68,7 @@ foreign import capi safe "botan/ffi.h botan_srp6_server_session_step1"
         -> Ptr CSize                -- ^ @B_pub_len@: SRP-6 B value length
         -> IO CInt                  -- ^ 0 on success, negative on failure
 
--- | SRP-6 Server side step 2
+-- | SRP-6 Server side step 2:  Generate the server shared key
 foreign import capi safe "botan/ffi.h botan_srp6_server_session_step2"
     botan_srp6_server_session_step2
         :: BotanSRP6ServerSession   -- ^ @srp6@: SRP-6 server session object
@@ -78,7 +78,7 @@ foreign import capi safe "botan/ffi.h botan_srp6_server_session_step2"
         -> Ptr CSize                -- ^ @key_len@: symmetric key length
         -> IO CInt                  -- ^ 0 on success, negative on failure
 
--- | Generate a new SRP-6 verifier
+-- | SRP-6 Client side step 1:  Generate a new SRP-6 verifier
 foreign import capi safe "botan/ffi.h botan_srp6_generate_verifier"
     botan_srp6_generate_verifier
         :: ConstPtr CChar -- ^ @identifier@: a username or other client identifier
@@ -91,7 +91,7 @@ foreign import capi safe "botan/ffi.h botan_srp6_generate_verifier"
         -> Ptr CSize      -- ^ @verifier_len@: SRP-6 verifier value length
         -> IO CInt        -- ^ 0 on success, negative on failure
 
--- | SRP6a Client side
+-- | SRP6a Client side step 2:  Generate a client A-value and the client shared key
 foreign import capi safe "botan/ffi.h botan_srp6_client_agree"
     botan_srp6_client_agree
         :: ConstPtr CChar -- ^ @username@: the username we are attempting login for

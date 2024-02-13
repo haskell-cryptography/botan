@@ -38,7 +38,11 @@ import Botan.Low.Make (allocBytesQuerying, allocBytesQueryingCString)
 -- NOTE: Use of Text is unique here - leave for Text for `botan`
 
 -- | Returns 0 if x[0..len] == y[0..len], -1 otherwise.
-constantTimeCompare :: ByteString -> ByteString -> Int -> IO Bool
+constantTimeCompare
+    :: ByteString   -- ^ @x@
+    -> ByteString   -- ^ @y@
+    -> Int          -- ^ @len@
+    -> IO Bool
 constantTimeCompare x y len = do
     asBytesLen x $ \ xPtr xlen -> do
         asBytesLen y $ \ yPtr ylen -> do
@@ -50,7 +54,10 @@ constantTimeCompare x y len = do
                 0 -> return True
                 _ -> return False
 
-scrubMem :: Ptr a -> Int -> IO ()
+scrubMem
+    :: Ptr a    -- ^ @mem@
+    -> Int      -- ^ @bytes@
+    -> IO ()
 scrubMem ptr sz = throwBotanIfNegative_ $ botan_scrub_mem (castPtr ptr) (fromIntegral sz)
 
 type HexEncodingFlags = Word32
@@ -65,7 +72,10 @@ pattern HexLowerCase = BOTAN_FFI_HEX_LOWER_CASE
 -- | Performs hex encoding of binary data in x of size len bytes. The output buffer out must be of at least x*2 bytes in size. If flags contains BOTAN_FFI_HEX_LOWER_CASE, hex encoding will only contain lower-case letters, upper-case letters otherwise. Returns 0 on success, 1 otherwise.
 -- DISCUSS: Handling of positive return code / BOTAN_FFI_INVALID_VERIFIER?
 -- DISCUSS: Use of Text.decodeUtf8 - bad, partial function! - but safe here?
-hexEncode :: ByteString -> HexEncodingFlags -> IO Text
+hexEncode
+    :: ByteString           -- ^ @x@
+    -> HexEncodingFlags     -- ^ @flags@
+    -> IO Text              -- ^ @y@
 hexEncode bytes flags =  Text.decodeUtf8 <$> do
     asBytesLen bytes $ \ bytesPtr bytesLen -> do
         allocBytes (fromIntegral $ 2 * bytesLen) $ \ hexPtr -> do
@@ -79,7 +89,9 @@ hexEncode bytes flags =  Text.decodeUtf8 <$> do
 -- DISCUSS: Return value, maybe vs exception
 -- DISCUSS: Botan documentation is lacking here
 -- WARNING: Does not actually check that len is a multiple of 2
-hexDecode :: Text -> IO ByteString
+hexDecode
+    :: Text             -- ^ @hex_str@
+    -> IO ByteString    -- ^ @out@
 hexDecode txt = do
     asBytesLen (Text.encodeUtf8 txt) $ \ hexPtr hexLen -> do
         allocBytesQuerying $ \ bytesPtr szPtr -> do
@@ -90,7 +102,9 @@ hexDecode txt = do
                 szPtr
 
 -- NOTE: Does not check tht base64Len == peek sizePtr
-base64Encode :: ByteString -> IO Text
+base64Encode
+    :: ByteString   -- ^ @x@
+    -> IO Text      -- ^ @out@
 base64Encode bytes = Text.decodeUtf8 <$> do
     asBytesLen bytes $ \ bytesPtr bytesLen -> do
         allocBytesQueryingCString $ \ base64Ptr szPtr -> do
@@ -101,7 +115,9 @@ base64Encode bytes = Text.decodeUtf8 <$> do
                 szPtr
 
 -- | Ditto everything hexDecode
-base64Decode :: Text -> IO ByteString
+base64Decode
+    :: Text             -- ^ @base64_str@
+    -> IO ByteString    -- ^ @out@
 base64Decode txt = do
     asBytesLen (Text.encodeUtf8 txt) $ \ base64Ptr base64Len -> do
         allocBytesQueryingCString $ \ bytesPtr szPtr -> do

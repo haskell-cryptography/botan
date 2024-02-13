@@ -48,7 +48,10 @@ createDecrypt   :: (Ptr BotanPKOpDecrypt -> IO CInt) -> IO Decrypt
         MkDecrypt getDecryptForeignPtr
         botan_pk_op_decrypt_destroy
 
-decryptCreate :: PrivKey -> EMEName -> IO Decrypt
+decryptCreate
+    :: PrivKey  -- ^ @key@
+    -> EMEName  -- ^ @padding@
+    -> IO Decrypt
 decryptCreate sk padding =  withPrivKey sk $ \ skPtr -> do
     asCString padding $ \ paddingPtr -> do
         createDecrypt $ \ out -> botan_pk_op_decrypt_create
@@ -61,10 +64,16 @@ decryptCreate sk padding =  withPrivKey sk $ \ skPtr -> do
 withDecryptCreate :: PrivKey -> EMEName -> (Decrypt -> IO a) -> IO a
 withDecryptCreate = mkWithTemp2 decryptCreate decryptDestroy
 
-decryptOutputLength :: Decrypt -> Int -> IO Int
+decryptOutputLength
+    :: Decrypt  -- ^ @op@
+    -> Int      -- ^ @ctext_len@
+    -> IO Int   -- ^ @ptext_len@
 decryptOutputLength = mkGetSize_csize withDecrypt botan_pk_op_decrypt_output_length
 
-decrypt :: Decrypt -> ByteString -> IO ByteString
+decrypt
+    :: Decrypt          -- ^ @op@
+    -> ByteString       -- ^ @ciphertext@
+    -> IO ByteString    -- ^ @plaintext@
 decrypt dec ctext = withDecrypt dec $ \ decPtr -> do
     asBytesLen ctext $ \ ctextPtr ctextLen -> do
         allocBytesQuerying $ \ outPtr szPtr -> botan_pk_op_decrypt

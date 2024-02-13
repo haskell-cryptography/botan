@@ -120,9 +120,9 @@ Create a password hash using Bcrypt
 Output is formatted bcrypt $2a$...
 -}
 bcryptGenerate
-    :: BcryptPassword   -- ^ The password
-    -> RNG              -- ^ A random number generator
-    -> BcryptWorkFactor -- ^ How much work to do to slow down guessing attacks. A value of 12 to 16 is probably fine.
+    :: BcryptPassword   -- ^ @password@: The password
+    -> RNG              -- ^ @rng@: A random number generator
+    -> BcryptWorkFactor -- ^ @work_factor@: How much work to do to slow down guessing attacks. A value of 12 to 16 is probably fine.
     -> IO BcryptDigest
 bcryptGenerate password rng factor = asCString password $ \ passwordPtr -> do
    withRNG rng $ \ botanRNG -> do
@@ -151,8 +151,8 @@ False if the combination is not valid (but otherwise well formed),
 and otherwise throws an exception on error.
 -}
 bcryptIsValid
-    :: BcryptPassword   -- ^ The password to check against
-    -> BcryptDigest     -- ^ The stored hash to check against
+    :: BcryptPassword   -- ^ @password@: The password to check against
+    -> BcryptDigest     -- ^ @hash@: The stored hash to check against
     -> IO Bool
 bcryptIsValid password hash = asCString password $ \ passwordPtr -> do
     asCString hash $ \ hashPtr -> do

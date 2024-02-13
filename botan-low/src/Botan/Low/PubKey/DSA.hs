@@ -22,7 +22,13 @@ import Botan.Low.Prelude
 import Botan.Low.PubKey
 import Botan.Low.RNG
 
-privKeyCreateDSA :: RNG -> Int -> Int -> IO PrivKey
+privKeyCreateDSA
+    :: RNG          -- ^ @rng@: initialized PRNG
+    -> Int          -- ^ @pbits@: length of the key in bits. Must be between in range (1024, 3072)
+                    --   and multiple of 64. Bit size of the prime 'p'
+    -> Int          -- ^ @qbits@: qbits order of the subgroup. Must be in range (160, 256) and multiple
+                    --   of 8
+    -> IO PrivKey   -- ^ @key@: handler to the resulting key
 privKeyCreateDSA rng pbits qbits = withRNG rng $ \ botanRNG -> do
     createPrivKey $ \ out -> botan_privkey_create_dsa
         out
@@ -30,8 +36,18 @@ privKeyCreateDSA rng pbits qbits = withRNG rng $ \ botanRNG -> do
         (fromIntegral pbits)
         (fromIntegral qbits)
         
-privKeyLoadDSA :: MP -> MP -> MP -> MP -> IO PrivKey
+privKeyLoadDSA 
+    :: MP           -- ^ @p@
+    -> MP           -- ^ @q@
+    -> MP           -- ^ @g@
+    -> MP           -- ^ @x@
+    -> IO PrivKey   -- ^ @key@
 privKeyLoadDSA = mkPrivKeyLoad4 botan_privkey_load_dsa
 
-pubKeyLoadDSA :: MP -> MP -> MP -> MP -> IO PubKey
+pubKeyLoadDSA
+    :: MP           -- ^ @p@
+    -> MP           -- ^ @q@
+    -> MP           -- ^ @g@
+    -> MP           -- ^ @y@
+    -> IO PubKey    -- ^ @key@
 pubKeyLoadDSA = mkPubKeyLoad4 botan_pubkey_load_dsa

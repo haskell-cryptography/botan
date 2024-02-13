@@ -233,6 +233,7 @@ pattern BOTAN_CHECK_KEY_NORMAL_TESTS
 pattern BOTAN_CHECK_KEY_NORMAL_TESTS    = 0
 pattern BOTAN_CHECK_KEY_EXPENSIVE_TESTS = #const BOTAN_CHECK_KEY_EXPENSIVE_TESTS
 
+-- | Check the validity of a private key
 foreign import capi safe "botan/ffi.h botan_privkey_check_key"
     botan_privkey_check_key
         :: BotanPrivKey    -- ^ @key@

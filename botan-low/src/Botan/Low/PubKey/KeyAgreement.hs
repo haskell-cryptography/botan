@@ -123,7 +123,10 @@ createKeyAgreement   :: (Ptr BotanPKOpKeyAgreement -> IO CInt) -> IO KeyAgreemen
         botan_pk_op_key_agreement_destroy
 
 -- NOTE: Silently uses the system RNG
-keyAgreementCreate :: PrivKey -> KDFName -> IO KeyAgreement
+keyAgreementCreate
+    :: PrivKey          -- ^ @key@
+    -> KDFName          -- ^ @kdf@
+    -> IO KeyAgreement  -- ^ @op@
 keyAgreementCreate sk algo = withPrivKey sk $ \ skPtr -> do
     asCString algo $ \ algoPtr -> do
         createKeyAgreement $ \ out -> botan_pk_op_key_agreement_create
@@ -154,18 +157,26 @@ int botan_pk_op_key_agreement_view_public(botan_privkey_t key, botan_view_ctx ct
    });
 }
 -}
-keyAgreementExportPublic :: PrivKey -> IO ByteString
+keyAgreementExportPublic
+    :: PrivKey          -- ^ @key@
+    -> IO ByteString    -- ^ @out[]@
 keyAgreementExportPublic sk = withPrivKey sk $ \ skPtr -> do
     allocBytesQuerying $ \ outPtr outLen -> botan_pk_op_key_agreement_export_public
         skPtr
         outPtr
         outLen
 
-keyAgreementSize :: KeyAgreement -> IO Int
+keyAgreementSize
+    :: KeyAgreement -- ^ @op@
+    -> IO Int       -- ^ @out_len@
 keyAgreementSize = mkGetSize withKeyAgreement botan_pk_op_key_agreement_size
 
 {-# WARNING keyAgreement "This function was leaking memory and causing crashes. Please observe carefully and report any future leaks." #-}
-keyAgreement :: KeyAgreement -> ByteString -> ByteString -> IO ByteString
+keyAgreement
+    :: KeyAgreement     -- ^ @op@
+    -> ByteString       -- ^ @out[]@
+    -> ByteString       -- ^ @other_key[]@
+    -> IO ByteString    -- ^ @salt[]@
 keyAgreement ka key salt = withKeyAgreement ka $ \ kaPtr -> do
     asBytesLen key $ \ keyPtr keyLen -> do
         asBytesLen salt $ \ saltPtr saltLen -> do

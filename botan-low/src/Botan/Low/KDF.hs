@@ -142,7 +142,13 @@ kdfs = concat
     ]
 
 -- SEE: Algos here: https://botan.randombit.net/doxygen/classBotan_1_1KDF.html
-kdf :: KDFName -> Int -> ByteString -> ByteString -> ByteString -> IO ByteString
+kdf
+    :: KDFName          -- ^ @kdf_algo@: KDF algorithm, e.g., "SP800-56C"
+    -> Int              -- ^ @out_len@: the desired output length in bytes
+    -> ByteString       -- ^ @secret[]@: the secret input
+    -> ByteString       -- ^ @salt[]@: a diversifier
+    -> ByteString       -- ^ @label[]@: purpose for the derived keying material
+    -> IO ByteString    -- ^ @out[]@: buffer holding the derived key
 kdf algo outLen secret salt label = allocBytes outLen $ \ outPtr -> do
     asCString algo $ \ algoPtr -> do
         asBytesLen secret $ \ secretPtr secretLen -> do

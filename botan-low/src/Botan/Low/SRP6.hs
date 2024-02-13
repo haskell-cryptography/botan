@@ -195,15 +195,23 @@ createSRP6ServerSession   :: (Ptr BotanSRP6ServerSession -> IO CInt) -> IO SRP6S
         MkSRP6ServerSession getSRP6ServerSessionForeignPtr
         botan_srp6_server_session_destroy
 
-
-srp6ServerSessionInit :: IO SRP6ServerSession
+-- | Initialize an SRP-6 server session object
+srp6ServerSessionInit
+    :: IO SRP6ServerSession -- ^ @srp6@: SRP-6 server session object
 srp6ServerSessionInit = createSRP6ServerSession botan_srp6_server_session_init
 
 -- WARNING: withFooInit-style limited lifetime functions moved to high-level botan
 withSRP6ServerSessionInit :: (SRP6ServerSession -> IO a) -> IO a
 withSRP6ServerSessionInit = mkWithTemp srp6ServerSessionInit srp6ServerSessionDestroy
 
-srp6ServerSessionStep1 :: SRP6ServerSession -> SRP6Verifier -> DLGroupName -> HashName -> RNG -> IO SRP6BValue
+-- | SRP-6 Server side step 1: Generate a server B-value
+srp6ServerSessionStep1
+    :: SRP6ServerSession    -- ^ @srp6@: SRP-6 server session object
+    -> SRP6Verifier         -- ^ @verifier[]@: the verification value saved from client registration
+    -> DLGroupName          -- ^ @group_id@: the SRP group id
+    -> HashName             -- ^ @hash_id@: the SRP hash in use
+    -> RNG                  -- ^ @rng_obj@: a random number generator object
+    -> IO SRP6BValue        -- ^ @B_pub[]@: out buffer to store the SRP-6 B value
 srp6ServerSessionStep1 srp6 verifier groupId hashId rng = withSRP6ServerSession srp6 $ \ srp6Ptr -> do
     asBytesLen verifier $ \ verifierPtr verifierLen -> do
         asCString groupId $ \ groupIdPtr -> do
@@ -219,7 +227,11 @@ srp6ServerSessionStep1 srp6 verifier groupId hashId rng = withSRP6ServerSession 
                         outPtr
                         outLen
 
-srp6ServerSessionStep2 :: SRP6ServerSession -> SRP6AValue -> IO SRP6SharedSecret
+-- | SRP-6 Server side step 2:  Generate the server shared key
+srp6ServerSessionStep2
+    :: SRP6ServerSession    -- ^ @srp6@: SRP-6 server session object
+    -> SRP6AValue           -- ^ @A[]@: the client's value
+    -> IO SRP6SharedSecret  -- ^ @key[]@: out buffer to store the symmetric key value
 srp6ServerSessionStep2 srp6 a = withSRP6ServerSession srp6 $ \ srp6Ptr -> do
     asBytesLen a $ \ aPtr aLen -> do
         allocBytesQuerying $ \ outPtr outLen -> botan_srp6_server_session_step2
@@ -229,7 +241,14 @@ srp6ServerSessionStep2 srp6 a = withSRP6ServerSession srp6 $ \ srp6Ptr -> do
             outPtr
             outLen
 
-srp6GenerateVerifier :: Identifier -> Password -> Salt -> DLGroupName -> HashName -> IO SRP6Verifier
+-- | SRP-6 Client side step 1:  Generate a new SRP-6 verifier  
+srp6GenerateVerifier
+    :: Identifier       -- ^ @identifier@: a username or other client identifier
+    -> Password         -- ^ @password@: the secret used to authenticate user
+    -> Salt             -- ^ @salt[]@: a randomly chosen value, at least 128 bits long
+    -> DLGroupName      -- ^ @group_id@: specifies the shared SRP group
+    -> HashName         -- ^ @hash_id@: specifies a secure hash function
+    -> IO SRP6Verifier  -- ^ @verifier[]@: out buffer to store the SRP-6 verifier value
 srp6GenerateVerifier identifier password salt groupId hashId = asCString identifier $ \ identifierPtr -> do
     asCString password $ \ passwordPtr -> do
         asBytesLen salt $ \ saltPtr saltLen -> do
@@ -246,7 +265,16 @@ srp6GenerateVerifier identifier password salt groupId hashId = asCString identif
                         outLen
 
 -- NOTE: ORDER IS DIFFERENT FROM SERVER GENERATE VERIFIER
-srp6ClientAgree :: Identifier -> Password -> DLGroupName -> HashName -> Salt -> SRP6BValue -> RNG -> IO (SRP6AValue, SRP6SharedSecret)
+-- | SRP6a Client side step 2:  Generate a client A-value and the client shared key
+srp6ClientAgree
+    :: Identifier   -- ^ @username@: the username we are attempting login for
+    -> Password     -- ^ @password@: the password we are attempting to use
+    -> DLGroupName  -- ^ @group_id@: specifies the shared SRP group
+    -> HashName     -- ^ @hash_id@: specifies a secure hash function
+    -> Salt         -- ^ @salt[]@: is the salt value sent by the server
+    -> SRP6BValue   -- ^ @uint8_t@: B[] is the server's public value
+    -> RNG          -- ^ @rng_obj@: is a random number generator object
+    -> IO (SRP6AValue, SRP6SharedSecret)    -- @(A,K)@
 srp6ClientAgree identifier password groupId hashId salt b rng = do
     asCString identifier $ \ identifierPtr -> do
         asCString password $ \ passwordPtr -> do
@@ -295,7 +323,10 @@ srp6ClientAgree identifier password groupId hashId salt b rng = do
 
 -- NOTE: Missing FFI function: srp6_group_identifierz
 
-srp6GroupSize :: DLGroupName -> IO Int
+-- | Return the size, in bytes, of the prime associated with group_id
+srp6GroupSize
+    :: DLGroupName  -- ^ @group_id@
+    -> IO Int       -- ^ @group_p_bytes@
 srp6GroupSize groupId = asCString groupId $ \ groupIdPtr -> do
     alloca $ \ szPtr -> do
         throwBotanIfNegative_ $ botan_srp6_group_size (ConstPtr groupIdPtr) szPtr

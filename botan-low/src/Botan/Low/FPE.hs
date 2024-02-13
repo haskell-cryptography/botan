@@ -92,7 +92,13 @@ pattern FPENone
 pattern FPENone          = BOTAN_FPE_FLAG_NONE
 pattern FPEFE1CompatMode = BOTAN_FPE_FLAG_FE1_COMPAT_MODE
 
-fpeInitFE1 :: MP -> ByteString -> Int -> FPEFlags -> IO FPE
+-- | Initialize a FE1 FPE context
+fpeInitFE1
+    :: MP           -- ^ @n@
+    -> ByteString   -- ^ @key[]@
+    -> Int          -- ^ @rounds@
+    -> FPEFlags     -- ^ @flags@
+    -> IO FPE       -- ^ @fpe@
 fpeInitFE1 n key rounds flags = withMP n $ \ nPtr -> do
     asBytesLen key $ \ keyPtr keyLen -> do
         createFPE $ \ out -> botan_fpe_fe1_init
@@ -114,8 +120,14 @@ withFPEInitFE1 = mkWithTemp4 fpeInitFE1 fpeDestroy
 --     fpeEncrypt fpe mp' tweak
 --     return mp 
 
+-- | Encrypt the 'x' value in-place
+--
 -- NOTE: Mutates the MP
-fpeEncrypt :: FPE -> MP -> ByteString -> IO ()
+fpeEncrypt
+    :: FPE          -- ^ @fpe@
+    -> MP           -- ^ @x@
+    -> ByteString   -- ^ @tweak[]@
+    -> IO ()
 fpeEncrypt fpe mp tweak = do
     withFPE fpe $ \ fpePtr -> do
         withMP mp $ \ mpPtr -> do
@@ -129,8 +141,14 @@ fpeEncrypt fpe mp tweak = do
 --     fpeDecrypt fpe mp' tweak
 --     return mp 
 
+-- | Decrypt the 'x' value in-place
+--
 -- NOTE: Mutates the MP
-fpeDecrypt :: FPE -> MP -> ByteString -> IO ()
+fpeDecrypt
+    :: FPE          -- ^ @fpe@
+    -> MP           -- ^ @x@
+    -> ByteString   -- ^ @tweak[]@
+    -> IO ()
 fpeDecrypt fpe mp tweak = do
     withFPE fpe $ \ fpePtr -> do
         withMP mp $ \ mpPtr -> do

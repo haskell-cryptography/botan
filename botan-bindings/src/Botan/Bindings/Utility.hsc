@@ -55,8 +55,8 @@ foreign import capi safe "botan/ffi.h botan_hex_decode"
 
 foreign import capi safe "botan/ffi.h botan_base64_encode"
     botan_base64_encode
-        :: ConstPtr Word8  -- ^ @hex_str@
-        -> CSize           -- ^ @in_len@
+        :: ConstPtr Word8  -- ^ @x@
+        -> CSize           -- ^ @len@
         -> Ptr CChar       -- ^ @out@
         -> Ptr CSize       -- ^ @out_len@
         -> IO CInt

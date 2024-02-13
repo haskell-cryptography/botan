@@ -71,7 +71,15 @@ openPGP_S2K h = OpenPGP_S2K /$ h
 
 -- NOTE: Should passphrase be Text or ByteString? Text is implied by use of const char*
 --  as well as the non-null context implied by passphrase_len == 0. ByteString for now.
-pwdhash :: PBKDFName -> Int -> Int -> Int -> Int -> ByteString -> ByteString -> IO ByteString
+pwdhash
+    :: PBKDFName        -- ^ @algo@: PBKDF algorithm, e.g., "Scrypt" or "PBKDF2(SHA-256)"
+    -> Int              -- ^ @param1@: the first PBKDF algorithm parameter
+    -> Int              -- ^ @param2@: the second PBKDF algorithm parameter (may be zero if unneeded)
+    -> Int              -- ^ @param3@: the third PBKDF algorithm parameter (may be zero if unneeded)
+    -> Int              -- ^ @out_len@: the desired length of the key to produce
+    -> ByteString       -- ^ @passphrase@: the password to derive the key from
+    -> ByteString       -- ^ @salt[]@: a randomly chosen salt
+    -> IO ByteString    -- ^ @out[]@: buffer to store the derived key, must be of out_len bytes
 pwdhash algo p1 p2 p3 outLen passphrase salt = allocBytes outLen $ \ outPtr -> do
     asCString algo $ \ algoPtr -> do
         asCStringLen passphrase $ \ passphrasePtr passphraseLen -> do
@@ -87,8 +95,17 @@ pwdhash algo p1 p2 p3 outLen passphrase salt = allocBytes outLen $ \ outPtr -> d
                     passphraseLen
                     (ConstPtr saltPtr)
                     saltLen
+{-# WARNING pwdhash "pwdhash and pwdhashTimed's parameter order may be inconsistent. See botan-low/test/Botan/Low/PwdHashSpec.hs for more information." #-}
 
-pwdhashTimed :: PBKDFName -> Int -> Int -> ByteString -> ByteString -> IO (Int,Int,Int,ByteString)
+
+
+pwdhashTimed
+    :: PBKDFName                    -- ^ @algo@: PBKDF algorithm, e.g., "Scrypt" or "PBKDF2(SHA-256)"
+    -> Int                          -- ^ @msec@: the desired runtime in milliseconds
+    -> Int                          -- ^ @out_len@: the desired length of the key to produce
+    -> ByteString                   -- ^ @passphrase@: the password to derive the key from
+    -> ByteString                   -- ^ @salt[]@: a randomly chosen salt
+    -> IO (Int,Int,Int,ByteString)  -- ^ @out[]@: buffer to store the derived key, must be of out_len bytes
 pwdhashTimed algo msec outLen passphrase salt = alloca $ \ p1Ptr -> alloca $ \ p2Ptr -> alloca $ \ p3Ptr -> do
     out <- allocBytes outLen $ \ outPtr -> do
         asCString algo $ \ algoPtr -> do
@@ -110,3 +127,4 @@ pwdhashTimed algo msec outLen passphrase salt = alloca $ \ p1Ptr -> alloca $ \ p
     p2 <- fromIntegral <$> peek p2Ptr
     p3 <- fromIntegral <$> peek p3Ptr
     return (p1,p2,p3,out)
+{-# WARNING pwdhashTimed "pwdhash and pwdhashTimed's parameter order may be inconsistent. See botan-low/test/Botan/Low/PwdHashSpec.hs for more information." #-}

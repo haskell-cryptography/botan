@@ -323,7 +323,10 @@ pattern CipherUpdate    = BOTAN_CIPHER_UPDATE_FLAG_NONE
 pattern CipherFinal     = BOTAN_CIPHER_UPDATE_FLAG_FINAL
 
 -- |Initialize a cipher object
-cipherInit :: CipherName -> CipherInitFlags -> IO Cipher
+cipherInit
+    :: CipherName       -- ^ @name@
+    -> CipherInitFlags  -- ^ @flags@
+    -> IO Cipher        -- ^ @cipher@
 cipherInit = mkCreateObjectCString1 createCipher botan_cipher_init
 
 -- WARNING: withFooInit-style limited lifetime functions moved to high-level botan
@@ -331,7 +334,9 @@ withCipherInit :: CipherName -> CipherInitFlags -> (Cipher -> IO a) -> IO a
 withCipherInit = mkWithTemp2 cipherInit cipherDestroy
 
 -- |Return the name of the cipher object
-cipherName :: Cipher -> IO CipherName
+cipherName
+    :: Cipher           -- ^ @cipher@
+    -> IO CipherName    -- ^ @name@
 cipherName = mkGetCString withCipher botan_cipher_name
 
 -- |Return the output length of this cipher, for a particular input length.
@@ -344,45 +349,67 @@ cipherName = mkGetCString withCipher botan_cipher_name
 --   * upper bound is returned.
 --   */
 --  We need to explicitly calculate padding + tag length
-cipherOutputLength :: Cipher -> Int -> IO Int
+cipherOutputLength
+    :: Cipher   -- ^ @cipher@
+    -> Int      -- ^ @in_len@
+    -> IO Int   -- ^ @out_len@
 cipherOutputLength = mkGetSize_csize withCipher botan_cipher_output_length
 
 -- NOTE: Unique function form?
 -- |Return if the specified nonce length is valid for this cipher
 -- NOTE: This just always seems to return 'True', even for -1 and maxBound
-cipherValidNonceLength :: Cipher -> Int -> IO Bool
+cipherValidNonceLength
+    :: Cipher   -- ^ @cipher@
+    -> Int      -- ^ @nl@
+    -> IO Bool
 cipherValidNonceLength = mkGetBoolCode_csize withCipher botan_cipher_valid_nonce_length
 
 -- |Get the tag length of the cipher (0 for non-AEAD modes)
-cipherGetTagLength :: Cipher -> IO Int
+cipherGetTagLength
+    :: Cipher   -- ^ @cipher@
+    -> IO Int   -- ^ @tag_size@
 cipherGetTagLength = mkGetSize withCipher botan_cipher_get_tag_length
 
 -- |Get the default nonce length of this cipher
-cipherGetDefaultNonceLength :: Cipher -> IO Int
+cipherGetDefaultNonceLength
+    :: Cipher   -- ^ @cipher@
+    -> IO Int   -- ^ @nl@
 cipherGetDefaultNonceLength = mkGetSize withCipher botan_cipher_get_default_nonce_length
 
 -- |Return the update granularity of the cipher; botan_cipher_update must be
 --  called with blocks of this size, except for the final.
-cipherGetUpdateGranularity :: Cipher -> IO Int
+cipherGetUpdateGranularity
+    :: Cipher   -- ^ @cipher@
+    -> IO Int   -- ^ @ug@
 cipherGetUpdateGranularity = mkGetSize withCipher botan_cipher_get_update_granularity
 
 -- |Return the ideal update granularity of the cipher. This is some multiple of the
 --  update granularity, reflecting possibilities for optimization.
 --
 -- Some ciphers (ChaChaPoly, EAX) may consume less input than the reported ideal granularity
-cipherGetIdealUpdateGranularity :: Cipher -> IO Int
+cipherGetIdealUpdateGranularity
+    :: Cipher   -- ^ @cipher@
+    -> IO Int   -- ^ @ug@
 cipherGetIdealUpdateGranularity = mkGetSize withCipher botan_cipher_get_ideal_update_granularity
 
--- |Get information about the key lengths. Prefer botan_cipher_get_keyspec
-cipherQueryKeylen :: Cipher -> IO (Int,Int)
+-- |Get information about the key lengths.
+cipherQueryKeylen
+    :: Cipher       -- ^ @cipher@
+    -> IO (Int,Int) -- ^ @(min,max)@
 cipherQueryKeylen = mkGetSizes2 withCipher botan_cipher_query_keylen
+{-# DEPRECATED cipherQueryKeylen "Prefer cipherGetKeyspec." #-}
 
 -- |Get information about the supported key lengths.
-cipherGetKeyspec :: Cipher -> IO (Int,Int,Int)
+cipherGetKeyspec
+    :: Cipher           -- ^ @cipher@
+    -> IO (Int,Int,Int) -- ^ @(min,max,mod)@
 cipherGetKeyspec = mkGetSizes3 withCipher botan_cipher_get_keyspec
 
 -- |Set the key for this cipher object
-cipherSetKey :: Cipher -> ByteString -> IO ()
+cipherSetKey
+    :: Cipher       -- ^ @cipher@
+    -> ByteString   -- ^ @key@
+    -> IO ()
 cipherSetKey = mkWithObjectSetterCBytesLen withCipher botan_cipher_set_key
 
 -- |Reset the message specific state for this cipher.
@@ -391,15 +418,23 @@ cipherSetKey = mkWithObjectSetterCBytesLen withCipher botan_cipher_set_key
 --  
 --  It is conceptually equivalent to calling botan_cipher_clear followed
 --  by botan_cipher_set_key with the original key.
-cipherReset :: Cipher -> IO ()
+cipherReset
+    :: Cipher   -- ^ @cipher@
+    -> IO ()
 cipherReset = mkAction withCipher botan_cipher_reset
 
 -- |Set the associated data. Will fail if cipher is not an AEAD
-cipherSetAssociatedData :: Cipher -> ByteString -> IO ()
+cipherSetAssociatedData
+    :: Cipher       -- ^ @cipher@
+    -> ByteString   -- ^ @ad@
+    -> IO ()
 cipherSetAssociatedData = mkWithObjectSetterCBytesLen withCipher botan_cipher_set_associated_data
 
 -- |Begin processing a new message using the provided nonce
-cipherStart :: Cipher -> ByteString -> IO ()
+cipherStart
+    :: Cipher       -- ^ @cipher@
+    -> ByteString   -- ^ @nonce@
+    -> IO ()
 cipherStart = mkWithObjectSetterCBytesLen withCipher botan_cipher_start
 
 -- |"Encrypt some data"
@@ -410,7 +445,12 @@ cipherStart = mkWithObjectSetterCBytesLen withCipher botan_cipher_start
 --  https://github.com/randombit/botan/blob/72dc18bbf598f2c3bef81a4fb2915e9c3c524ac4/src/lib/ffi/ffi_cipher.cpp#L133
 --
 -- Some ciphers (ChaChaPoly, EAX) may consume less input than the reported ideal granularity
-cipherUpdate :: Cipher -> CipherUpdateFlags -> Int -> ByteString -> IO (Int,ByteString)
+cipherUpdate
+    :: Cipher               -- ^ @cipher@
+    -> CipherUpdateFlags    -- ^ @flags@
+    -> Int                  -- ^ @output_size@
+    -> ByteString           -- ^ @input_bytes[]@
+    -> IO (Int,ByteString)  -- ^ @(input_consumed,output[])@
 cipherUpdate ctx flags outputSz input = withCipher ctx $ \ ctxPtr -> do
     unsafeAsBytesLen input $ \ inputPtr inputSz -> do
         alloca $ \ consumedPtr -> do

@@ -189,8 +189,15 @@ type TOTPTimestep = Word64
 type TOTPTimestamp = Word64
 type TOTPCode = Word32
 
+-- | Initialize a TOTP instance
+--
 -- NOTE: Digits should be 6-8
-totpInit :: ByteString -> TOTPHashName -> Int -> TOTPTimestep -> IO TOTP
+totpInit
+    :: ByteString   -- ^ @key[]@
+    -> TOTPHashName -- ^ @hash_algo@
+    -> Int          -- ^ @digits@
+    -> TOTPTimestep -- ^ @time_step@
+    -> IO TOTP      -- ^ @totp@
 totpInit key algo digits timestep = asBytesLen key $ \ keyPtr keyLen -> do
     asCString algo $ \ algoPtr -> do
         createTOTP $ \ out -> botan_totp_init
@@ -205,12 +212,23 @@ totpInit key algo digits timestep = asBytesLen key $ \ keyPtr keyLen -> do
 withTOTPInit :: ByteString -> ByteString -> Int -> TOTPTimestep -> (TOTP -> IO a) -> IO a
 withTOTPInit = mkWithTemp4 totpInit totpDestroy
 
-totpGenerate :: TOTP -> TOTPTimestamp -> IO TOTPCode
+-- | Generate a TOTP code for the provided timestamp
+totpGenerate
+    :: TOTP             -- ^ @totp@: the TOTP object
+    -> TOTPTimestamp    -- ^ @totp_code@: the OTP code will be written here
+    -> IO TOTPCode      -- ^ @timestamp@: the current local timestamp
 totpGenerate totp timestamp = withTOTP totp $ \ totpPtr -> do
     alloca $ \ outPtr -> do
         throwBotanIfNegative $ botan_totp_generate totpPtr outPtr timestamp
         peek outPtr
 
-totpCheck :: TOTP -> TOTPCode -> TOTPTimestamp -> Int -> IO Bool
+-- | Verify a TOTP code
+totpCheck
+    :: TOTP             -- ^ @totp@: the TOTP object
+    -> TOTPCode         -- ^ @totp_code@: the presented OTP
+    -> TOTPTimestamp    -- ^ @timestamp@: the current local timestamp
+    -> Int              -- ^ @acceptable_clock_drift@: specifies the acceptable amount
+                        --   of clock drift (in terms of time steps) between the two hosts.
+    -> IO Bool
 totpCheck totp code timestamp drift = withTOTP totp $ \ totpPtr -> do
     throwBotanCatchingSuccess $ botan_totp_check totpPtr code timestamp (fromIntegral drift)

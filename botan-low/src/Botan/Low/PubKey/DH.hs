@@ -20,8 +20,16 @@ import Botan.Low.MPI
 import Botan.Low.Prelude
 import Botan.Low.PubKey
 
-privKeyLoadDH :: MP -> MP -> MP -> IO PrivKey
+privKeyLoadDH
+    :: MP           -- ^ @p@: prime order of a Z_p group
+    -> MP           -- ^ @g@: group generator
+    -> MP           -- ^ @x@: private key
+    -> IO PrivKey   -- ^ @key@: variable populated with key material
 privKeyLoadDH = mkPrivKeyLoad3 botan_privkey_load_dh
 
-pubKeyLoadDH :: MP -> MP -> MP -> IO PubKey
+pubKeyLoadDH
+    :: MP           -- ^ @p@: prime order of a Z_p group
+    -> MP           -- ^ @g@: group generator
+    -> MP           -- ^ @y@: public key
+    -> IO PubKey    -- ^ @key@: variable populated with key material
 pubKeyLoadDH = mkPubKeyLoad3 botan_pubkey_load_dh

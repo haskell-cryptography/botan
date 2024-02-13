@@ -7,9 +7,15 @@ import Botan.Low.MPI
 import Botan.Low.Prelude
 import Botan.Low.PubKey
 
-
-privKeyLoadECDSA :: MP -> ByteString -> IO PrivKey
+privKeyLoadECDSA
+    :: MP           -- ^ @scalar@
+    -> ByteString   -- ^ @curve_name@
+    -> IO PrivKey   -- ^ @key@
 privKeyLoadECDSA = mkPrivKeyLoad1_name botan_privkey_load_ecdsa
 
-pubKeyLoadECDSA :: MP -> MP -> ByteString -> IO PubKey
+pubKeyLoadECDSA
+    :: MP           -- ^ @public_x@
+    -> MP           -- ^ @public_y@
+    -> ByteString   -- ^ @curve_name@
+    -> IO PubKey    -- ^ @key@
 pubKeyLoadECDSA = mkPubKeyLoad2_name botan_pubkey_load_ecdsa

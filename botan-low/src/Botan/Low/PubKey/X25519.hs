@@ -33,19 +33,27 @@ import Botan.Low.Remake
 --      typedef Curve25519_PrivateKey X25519_PrivateKey;
 
 -- NOTE: Input must be exactly 32 bytes long
-privKeyLoadX25519 :: ByteString -> IO PrivKey
+privKeyLoadX25519
+    :: ByteString   -- ^ @privkey[32]@
+    -> IO PrivKey   -- ^ @key@
 privKeyLoadX25519 = mkCreateObjectCBytes createPrivKey botan_privkey_load_x25519
 
 -- NOTE: Input must be exactly 32 bytes long
-pubKeyLoadX25519 :: ByteString -> IO PubKey
+pubKeyLoadX25519
+    :: ByteString   -- ^ @pubkey[32]@
+    -> IO PubKey    -- ^ @key@
 pubKeyLoadX25519 = mkCreateObjectCBytes createPubKey botan_pubkey_load_x25519
 
-privKeyX25519GetPrivKey :: PrivKey -> IO ByteString
+privKeyX25519GetPrivKey
+    :: PrivKey          -- ^ @key@
+    -> IO ByteString    -- ^ @output[32]@
 privKeyX25519GetPrivKey sk = withPrivKey sk $ \ skPtr -> do
     allocBytes 32 $ \ outPtr -> do
         throwBotanIfNegative_ $ botan_privkey_x25519_get_privkey skPtr outPtr
 
-pubKeyX25519GetPubKey :: PubKey -> IO ByteString
+pubKeyX25519GetPubKey
+    :: PubKey           -- ^ @key@
+    -> IO ByteString    -- ^ @pubkey[32]@
 pubKeyX25519GetPubKey pk = withPubKey pk $ \ pkPtr -> do
     allocBytes 32 $ \ outPtr -> do
         throwBotanIfNegative_ $ botan_pubkey_x25519_get_pubkey pkPtr outPtr

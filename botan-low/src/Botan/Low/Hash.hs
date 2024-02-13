@@ -292,41 +292,65 @@ allHashes = cryptohashes ++ checksums
 
 type HashDigest = ByteString
 
--- TODO: hashInit :: HashName -> -> HashFlags -> IO Hash?
-hashInit :: HashName -> IO Hash
+hashInit
+    :: HashName -- ^ @hash_name@: name of the hash function, e.g., "SHA-384"
+    -> IO Hash  -- ^ @hash@: hash object
 hashInit = mkCreateObjectCString createHash (\ out name -> botan_hash_init out name 0)
 
 -- WARNING: withFooInit-style limited lifetime functions moved to high-level botan
 withHashInit :: HashName -> (Hash -> IO a) -> IO a
 withHashInit = mkWithTemp1 hashInit hashDestroy
 
-hashName :: Hash -> IO HashDigest
+hashName
+    :: Hash             -- ^ @hash@: the object to read
+    -> IO HashDigest    -- ^ @name@: output buffer
 hashName = mkGetCString withHash botan_hash_name
 
 -- NOTE: This does the correct thing - see C++ docs:
 --  Return a newly allocated HashFunction object of the same type as this one,
 --  whose internal state matches the current state of this.
-hashCopyState :: Hash -> IO Hash
-hashCopyState source = withHash source $ \ sourcePtr -> do
-    createHash $ \ out -> botan_hash_copy_state out sourcePtr
 
-hashClear :: Hash -> IO ()
+hashCopyState
+    :: Hash     -- ^ @source@: source hash object
+    -> IO Hash  -- ^ @dest@: destination hash object
+hashCopyState source = withHash source $ \ sourcePtr -> do
+    createHash $ \ dest -> botan_hash_copy_state dest sourcePtr
+
+hashClear
+    :: Hash -- ^ @hash@: hash object
+    -> IO ()
 hashClear =  mkAction withHash botan_hash_clear
 
-hashBlockSize :: Hash -> IO Int
+hashBlockSize
+    :: Hash     -- ^ @hash@: hash object
+    -> IO Int   -- ^ @block_size@: output buffer to hold the hash function block size
 hashBlockSize = mkGetSize withHash botan_hash_block_size
 
-hashOutputLength :: Hash -> IO Int
+hashOutputLength
+    :: Hash     -- ^ @hash@: hash object
+    -> IO Int   -- ^ @block_size@: output buffer to hold the hash function output length
 hashOutputLength = mkGetSize withHash botan_hash_output_length
 
-hashUpdate :: Hash -> ByteString -> IO ()
+hashUpdate
+    :: Hash         -- ^ @hash@: hash object
+    -> ByteString   -- ^ @in@: input buffer
+    -> IO ()
 hashUpdate = mkWithObjectSetterCBytesLen withHash botan_hash_update
 
-hashFinal :: Hash -> IO HashDigest
+hashFinal
+    :: Hash             -- ^ @hash@: hash object
+    -> IO HashDigest    -- ^ @out[]@: output buffer
 hashFinal hash = withHash hash $ \ hashPtr -> do
     sz <- hashOutputLength hash
     allocBytes sz $ \ digestPtr -> do
         throwBotanIfNegative_ $ botan_hash_final hashPtr digestPtr
+
+-- TODO:
+-- pkcsHashId
+--     :: ByteString       -- ^ @hash_name@
+--     -> IO ByteString    -- ^ @pkcs_id[]@
+-- pkcsHashId = undefined
+
 
 -- Convenience
 

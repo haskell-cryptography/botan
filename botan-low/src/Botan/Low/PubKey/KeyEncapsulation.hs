@@ -126,7 +126,14 @@ createKEMEncrypt   :: (Ptr BotanPKOpKEMEncrypt -> IO CInt) -> IO KEMEncrypt
         MkKEMEncrypt getKEMEncryptForeignPtr
         botan_pk_op_kem_encrypt_destroy
 
-kemEncryptCreate :: PubKey -> KDFName -> IO KEMEncrypt
+
+
+
+
+kemEncryptCreate
+    :: PubKey           -- ^ @key@
+    -> KDFName          -- ^ @kdf@
+    -> IO KEMEncrypt    -- ^ @op@
 kemEncryptCreate pk algo = withPubKey pk $ \ pkPtr -> do
     asCString algo $ \ algoPtr -> do
         createKEMEncrypt $ \ out -> botan_pk_op_kem_encrypt_create
@@ -138,16 +145,29 @@ kemEncryptCreate pk algo = withPubKey pk $ \ pkPtr -> do
 withKEMEncryptCreate :: PubKey -> KDFName -> (KEMEncrypt -> IO a) -> IO a
 withKEMEncryptCreate = mkWithTemp2 kemEncryptCreate kemEncryptDestroy
 
-kemEncryptSharedKeyLength :: KEMEncrypt -> Int -> IO Int
+kemEncryptSharedKeyLength
+    :: KEMEncrypt   -- ^ @op@
+    -> Int          -- ^ @desired_shared_key_length@
+    -> IO Int       -- ^ @output_shared_key_length@
 kemEncryptSharedKeyLength = mkGetSize_csize withKEMEncrypt botan_pk_op_kem_encrypt_shared_key_length
 
-kemEncryptEncapsulatedKeyLength :: KEMEncrypt -> IO Int
+
+kemEncryptEncapsulatedKeyLength
+    :: KEMEncrypt   -- ^ @op@
+    -> IO Int       -- ^ @output_encapsulated_key_length@
 kemEncryptEncapsulatedKeyLength = mkGetSize withKEMEncrypt botan_pk_op_kem_encrypt_encapsulated_key_length
 
 -- NOTE: Awkward because of double-query and returning double bytestrings
 --  Cannot use allocBytesQuerying because of double-return
 -- NOTE: Returns (SharedKey, EncapsulatedKey)
-kemEncryptCreateSharedKey :: KEMEncrypt -> RNG -> ByteString -> Int -> IO (KEMSharedKey,KEMEncapsulatedKey)
+
+
+kemEncryptCreateSharedKey
+    :: KEMEncrypt                           -- ^ @op@
+    -> RNG                                  -- ^ @rng@
+    -> ByteString                           -- ^ @salt[]@
+    -> Int                                  -- ^ @desired_shared_key_len@
+    -> IO (KEMSharedKey,KEMEncapsulatedKey) -- ^ @(shared_key,encapsulated_key)@
 kemEncryptCreateSharedKey ke rng salt desiredLen = withKEMEncrypt ke $ \ kePtr -> do
     withRNG rng $ \ botanRNG -> do
         asBytesLen salt $ \ saltPtr saltLen -> do
@@ -182,7 +202,10 @@ createKEMDecrypt   :: (Ptr BotanPKOpKEMDecrypt -> IO CInt) -> IO KEMDecrypt
         MkKEMDecrypt getKEMDecryptForeignPtr
         botan_pk_op_kem_decrypt_destroy
 
-kemDecryptCreate :: PrivKey -> KDFName -> IO KEMDecrypt
+kemDecryptCreate
+    :: PrivKey          -- ^ @key@
+    -> KDFName          -- ^ @kdf@
+    -> IO KEMDecrypt    -- ^ @op@
 kemDecryptCreate sk algo = withPrivKey sk $ \ skPtr -> do
     asCString algo $ \ algoPtr -> do
         createKEMDecrypt $ \ out -> botan_pk_op_kem_decrypt_create
@@ -194,10 +217,18 @@ kemDecryptCreate sk algo = withPrivKey sk $ \ skPtr -> do
 withKEMDecryptCreate :: PrivKey -> KDFName -> (KEMDecrypt -> IO a) -> IO a
 withKEMDecryptCreate = mkWithTemp2 kemDecryptCreate kemDecryptDestroy
 
-kemDecryptSharedKeyLength :: KEMDecrypt -> Int -> IO Int
+kemDecryptSharedKeyLength
+    :: KEMDecrypt   -- ^ @op@
+    -> Int          -- ^ @desired_shared_key_length@
+    -> IO Int       -- ^ @output_shared_key_length@
 kemDecryptSharedKeyLength = mkGetSize_csize withKEMDecrypt botan_pk_op_kem_decrypt_shared_key_length
 
-kemDecryptSharedKey :: KEMDecrypt -> ByteString -> KEMEncapsulatedKey -> Int -> IO KEMSharedKey
+kemDecryptSharedKey
+    :: KEMDecrypt           -- ^ @op@
+    -> ByteString           -- ^ @salt[]@
+    -> KEMEncapsulatedKey   -- ^ @encapsulated_key[]@
+    -> Int                  -- ^ @desired_shared_key_len@
+    -> IO KEMSharedKey      -- ^ @shared_key[]@
 kemDecryptSharedKey kd salt encap desiredLen = withKEMDecrypt kd $ \ kdPtr -> do
     asBytesLen salt $ \ saltPtr saltLen -> do
         asBytesLen encap $ \ encapPtr encapLen -> do

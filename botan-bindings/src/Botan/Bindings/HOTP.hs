@@ -56,7 +56,7 @@ foreign import capi safe "botan/ffi.h &botan_hotp_destroy"
 -- | Initialize a HOTP instance
 foreign import capi safe "botan/ffi.h botan_hotp_init"
     botan_hotp_init
-    :: Ptr BotanHOTP        -- ^ @hotp@
+        :: Ptr BotanHOTP    -- ^ @hotp@
         -> ConstPtr Word8   -- ^ @key[]@
         -> CSize            -- ^ @key_len@
         -> ConstPtr CChar   -- ^ @hash_algo@

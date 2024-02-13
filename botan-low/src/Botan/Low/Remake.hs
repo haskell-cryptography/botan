@@ -19,7 +19,10 @@ module Botan.Low.Remake
 , mkCreateObjectCString1
 , mkCreateObjectCBytes
 , mkCreateObjectCBytesLen
+, mkCreateObjectCBytesLen1
 , mkWithObjectAction
+, mkWithObjectGetterCBytesLen
+, mkWithObjectGetterCBytesLen1
 , mkWithObjectSetterCString
 , mkWithObjectSetterCBytesLen
 ) where
@@ -28,6 +31,8 @@ import Botan.Low.Prelude
 import Botan.Low.Error
 
 import qualified Data.ByteString.Internal as ByteString
+
+import Botan.Low.Make (allocBytesQuerying)
 
 -- ByteString Helpers
 
@@ -177,6 +182,7 @@ mkCreateObjectCBytes
     -> IO object
 mkCreateObjectCBytes createObject init bytes = withCBytes bytes $ \ cbytes -> do
     createObject $ \ out -> init out (ConstPtr cbytes)
+{-# WARNING mkCreateObjectCBytes "You probably want mkCreateObjectCBytesLen; this is for functions that expect a bytestring of known exact length." #-}
 
 -- TODO: Rename mkCreateCBytesLen
 mkCreateObjectCBytesLen
@@ -186,6 +192,15 @@ mkCreateObjectCBytesLen
     -> IO object
 mkCreateObjectCBytesLen createObject init bytes = withCBytesLen bytes $ \ (cbytes,len) -> do
     createObject $ \ out -> init out (ConstPtr cbytes) (fromIntegral len)
+
+mkCreateObjectCBytesLen1
+    :: ((Ptr botan -> IO CInt) -> IO object)
+    -> (Ptr botan -> ConstPtr Word8 -> CSize -> a -> IO CInt)
+    -> ByteString
+    -> a
+    -> IO object
+mkCreateObjectCBytesLen1 createObject init bytes a = withCBytesLen bytes $ \ (cbytes,len) -> do
+    createObject $ \ out -> init out (ConstPtr cbytes) (fromIntegral len) a
 
 {-
 Action
@@ -203,6 +218,32 @@ mkWithObjectAction withObject action obj = withObject obj $ \ cobj -> do
 {-
 Getters
 -}
+
+-- TODO: getter parameter order may be improper - switch up if problematic
+mkWithObjectGetterCBytesLen
+    :: (forall a . object -> (botan -> IO a) -> IO a)
+    -> (botan -> Ptr Word8 -> Ptr CSize -> IO CInt)
+    -> object
+    -> IO ByteString
+mkWithObjectGetterCBytesLen withObject getter obj = withObject obj $ \ cobj -> do
+    allocBytesQuerying $ \ outPtr outLen -> getter
+        cobj
+        outPtr
+        outLen
+
+-- TODO: getter parameter order may be improper - switch up if problematic
+mkWithObjectGetterCBytesLen1
+    :: (forall a . object -> (botan -> IO a) -> IO a)
+    -> (botan -> a -> Ptr Word8 -> Ptr CSize -> IO CInt)
+    -> object
+    -> a
+    -> IO ByteString
+mkWithObjectGetterCBytesLen1 withObject getter obj a = withObject obj $ \ cobj -> do
+    allocBytesQuerying $ \ outPtr outLen -> getter
+        cobj
+        a
+        outPtr
+        outLen
 
 {-
 Setters

@@ -38,7 +38,12 @@ import Botan.Low.Error
 import Botan.Low.Make
 import Botan.Low.Prelude
 
-nistKeyWrapEncode :: BlockCipherName -> Int -> ByteString -> ByteString -> IO ByteString
+nistKeyWrapEncode
+    :: BlockCipherName  -- ^ @cipher_algo@
+    -> Int              -- ^ @padded@
+    -> ByteString       -- ^ @key[]@
+    -> ByteString       -- ^ @kek[]@
+    -> IO ByteString    -- ^ @wrapped_key[]@
 nistKeyWrapEncode algo padded key kek = asCString algo $ \ algoPtr -> do
     asBytesLen key $ \ keyPtr keyLen -> do
         asBytesLen kek $ \ kekPtr kekLen -> do
@@ -52,7 +57,12 @@ nistKeyWrapEncode algo padded key kek = asCString algo $ \ algoPtr -> do
                 wrappedKeyPtr
                 wrappedKeyLen
 
-nistKeyWrapDecode :: BlockCipherName -> Int -> ByteString -> ByteString -> IO ByteString
+nistKeyWrapDecode
+    :: BlockCipherName  -- ^ @cipher_algo@
+    -> Int              -- ^ @padded@
+    -> ByteString       -- ^ @wrapped_key[]@
+    -> ByteString       -- ^ @kek[]@
+    -> IO ByteString    -- ^ @key[]@
 nistKeyWrapDecode algo padded wrappedKey kek = asCString algo $ \ algoPtr -> do
     asBytesLen wrappedKey $ \ wrappedKeyPtr wrappedKeyLen -> do
         asBytesLen kek $ \ kekPtr kekLen -> do

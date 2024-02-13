@@ -195,7 +195,11 @@ type HOTPCounter = Word64
 type HOTPCode = Word32
 
 -- NOTE: Digits should be 6-8
-hotpInit :: ByteString -> HashName -> Int -> IO HOTP
+hotpInit
+    :: ByteString   -- ^ @key[]@
+    -> HashName     -- ^ @hash_algo@
+    -> Int          -- ^ @digits@
+    -> IO HOTP      -- ^ @hotp@
 hotpInit key algo digits = asBytesLen key $ \ keyPtr keyLen -> do
     asCString algo $ \ algoPtr -> do
         createHOTP $ \ out -> botan_hotp_init 
@@ -210,7 +214,10 @@ withHOTPInit :: ByteString -> ByteString -> Int -> (HOTP -> IO a) -> IO a
 withHOTPInit = mkWithTemp3 hotpInit hotpDestroy
 
 -- NOTE: User is responsible for incrementing counter at this level
-hotpGenerate :: HOTP -> HOTPCounter -> IO HOTPCode
+hotpGenerate
+    :: HOTP         -- ^ @hotp@
+    -> HOTPCounter  -- ^ @hotp_counter@
+    -> IO HOTPCode  -- ^ @hotp_code@
 hotpGenerate hotp counter = withHOTP hotp $ \ hotpPtr -> do
     alloca $ \ outPtr -> do
         throwBotanIfNegative $ botan_hotp_generate hotpPtr outPtr counter
@@ -221,7 +228,12 @@ hotpGenerate hotp counter = withHOTP hotp $ \ hotpPtr -> do
 --      invalid then always returns (false,starting_counter), since the
 --      last successful authentication counter has not changed. ""
 -- NOTE: "Depending on the environment a resync_range of 3 to 10 might be appropriate."
-hotpCheck :: HOTP -> HOTPCode -> HOTPCounter -> Int -> IO (Bool, HOTPCounter)
+hotpCheck
+    :: HOTP                     -- ^ @hotp@
+    -> HOTPCode                 -- ^ @hotp_code@
+    -> HOTPCounter              -- ^ @hotp_counter@
+    -> Int                      -- ^ @resync_range@
+    -> IO (Bool, HOTPCounter)   -- ^ @(valid,next_counter)@
 hotpCheck hotp code counter resync = withHOTP hotp $ \ hotpPtr -> do
     alloca $ \ outPtr -> do
         valid <- throwBotanCatchingSuccess $ botan_hotp_check hotpPtr outPtr code counter (fromIntegral resync)

@@ -105,11 +105,19 @@ Then, we can recover the message from any K of N shares:
 
 type ZFECShare = (Int, ByteString)
 
--- Or should this be:
+-- Or should this be?:
 -- zfecEncode :: Int -> Int -> Int -> Input -> IO [ZFECShare]
 -- zfecEncode k n shareSz input = ...
 -- ^ is more 'raw'.
-zfecEncode :: Int -> Int -> ByteString -> IO [ZFECShare]
+
+-- | Encode some bytes with certain ZFEC parameters.
+--
+-- NOTE: The length in bytes of input must be a multiple of K
+zfecEncode
+    :: Int              -- ^ @K@: the number of shares needed for recovery
+    -> Int              -- ^ @N@: the number of shares generated
+    -> ByteString       -- ^ @input@: the data to FEC
+    -> IO [ZFECShare]   
 zfecEncode k n input = asBytesLen input $ \ inputPtr inputLen -> do
     let shareSize = div (fromIntegral inputLen) k
     allocaBytes (n * shareSize) $ \ outPtr -> do
@@ -126,7 +134,17 @@ zfecEncode k n input = asBytesLen input $ \ inputPtr inputLen -> do
             return $!! zip [0..(n-1)] shares
 
 -- TODO: Throw a fit if shares are not equal length, not k shares
-zfecDecode :: Int -> Int -> [ZFECShare] -> IO ByteString
+    
+-- | Decode some previously encoded shares using certain ZFEC parameters.
+--
+-- NOTE: There must be at least K shares of equal length
+zfecDecode
+    :: Int              -- ^ @K@: the number of shares needed for recovery
+    -> Int              -- ^ @N@: the total number of shares
+    -> [ZFECShare]      -- ^ @inputs@: K previously encoded shares to decode
+    -> IO ByteString    -- ^ @outputs@: An out parameter pointing to a fully allocated array of size
+                        --   [N][size / K].  For all n in range, an encoded block will be
+                        --   written to the memory starting at outputs[n][0].
 zfecDecode _ _ [] = return ""
 zfecDecode k n shares@((_,share0):_) = do
     allocaArray k $ \ (indexesPtr :: Ptr CSize) -> do

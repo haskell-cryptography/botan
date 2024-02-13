@@ -543,9 +543,15 @@ emsa_sm2SignParam uid h = uid <> "," <> h
 -- emsa_dilithium
 
 emsa_none :: EMSAName
-emsa_none = ""
+emsa_none = ""        
 
-privKeyCreate :: ByteString -> ByteString -> RNG -> IO PrivKey
+-- | Create a new private key
+privKeyCreate
+    :: ByteString   -- ^ @algo_name@: something like "RSA" or "ECDSA"
+    -> ByteString   -- ^ @algo_params@: is specific to the algorithm. For RSA, specifies
+                    --   the modulus bit length. For ECC is the name of the curve.
+    -> RNG          -- ^ @rng@: a random number generator
+    -> IO PrivKey   -- ^ @key@: the new object will be placed here
 privKeyCreate name params rng = asCString name $ \ namePtr -> do
     asCString params $ \ paramsPtr -> do
         withRNG rng $ \ botanRNG -> do
@@ -568,7 +574,12 @@ pattern CheckKeyNormalTests    = BOTAN_CHECK_KEY_NORMAL_TESTS
 pattern CheckKeyExpensiveTests = BOTAN_CHECK_KEY_EXPENSIVE_TESTS
 
 -- TODO: Probably catch -1 (INVALID_INPUT), return Bool
-privKeyCheckKey :: PrivKey -> RNG -> CheckKeyFlags -> IO ()
+-- | Check the validity of a private key
+privKeyCheckKey
+    :: PrivKey          -- ^ @key@
+    -> RNG              -- ^ @rng@
+    -> CheckKeyFlags    -- ^ @flags@
+    -> IO ()
 privKeyCheckKey sk rng flags = withPrivKey sk $ \ skPtr -> do
     withRNG rng $ \ botanRNG -> do
         throwBotanIfNegative_ $ botan_privkey_check_key skPtr botanRNG flags
@@ -578,7 +589,15 @@ privKeyCheckKey sk rng flags = withPrivKey sk $ \ skPtr -> do
 -- NOTE: This is probably a bad implementation; null pointer and empty string are different
 --  and unencrypted is not the same as encrypted with "" as a pasword
 --  We'll fix this by having privKeyLoad and privKeyLoadEncrypted be separate functions
-privKeyLoad :: ByteString -> ByteString -> IO PrivKey
+{- |
+Input currently assumed to be PKCS #8 structure;
+Set password to NULL to indicate no encryption expected
+Starting in 2.8.0, the rng parameter is unused and may be set to null
+-}
+privKeyLoad
+    :: ByteString   -- ^ @bits[]@
+    -> ByteString   -- ^ @password@
+    -> IO PrivKey   -- ^ @key@
 privKeyLoad bits password = asBytesLen bits $ \ bitsPtr bitsLen -> do
     let asCStringNullable str act = if ByteString.null str
         then act nullPtr
@@ -601,7 +620,17 @@ pattern PrivKeyExportDER = BOTAN_PRIVKEY_EXPORT_FLAG_DER
 pattern PrivKeyExportPEM = BOTAN_PRIVKEY_EXPORT_FLAG_PEM
 
 -- NOTE: Different from allocBytesQuerying / INSUFFICIENT_BUFFER_SPACE
-privKeyExport :: PrivKey -> PrivKeyExportFlags -> IO ByteString
+{- |
+On input *out_len is number of bytes in out[]
+On output *out_len is number of bytes written (or required)
+If out is not big enough no output is written, *out_len is set and 1 is returned
+Returns 0 on success and sets
+If some other error occurs a negative integer is returned.
+-}      
+privKeyExport
+    :: PrivKey              -- ^ @key@
+    -> PrivKeyExportFlags   -- ^ @flags@
+    -> IO ByteString        -- ^ @out[]@
 privKeyExport sk flags = withPrivKey sk $ \ skPtr -> do
     alloca $ \szPtr -> do
         poke szPtr 0
@@ -611,7 +640,25 @@ privKeyExport sk flags = withPrivKey sk $ \ skPtr -> do
         allocBytes (fromIntegral sz) $ \ bytesPtr -> do
             throwBotanIfNegative_ $ botan_privkey_export skPtr bytesPtr szPtr flags
 
-privKeyAlgoName :: PrivKey -> IO ByteString
+-- TODO:
+-- | View the private key's DER encoding
+-- privKeyViewDER
+--         :: BotanPrivKey                         -- ^ @key@
+--         -> BotanViewContext ctx                 -- ^ @ctx@
+--         -> FunPtr (BotanViewBinCallback ctx)    -- ^ @view@
+--         -> IO CInt
+
+-- TODO:
+-- | View the private key's PEM encoding
+-- privKeyViewPEM
+--         :: BotanPrivKey                         -- ^ @key@
+--         -> BotanViewContext ctx                 -- ^ @ctx@
+--         -> FunPtr (BotanViewStrCallback ctx)    -- ^ @view@
+--         -> IO CInt
+
+privKeyAlgoName
+    :: PrivKey          -- ^ @key@
+    -> IO ByteString    -- ^ @out[]@
 privKeyAlgoName = mkGetCString withPrivKey botan_privkey_algo_name
 
 -- TODO:
@@ -652,14 +699,18 @@ createPubKey   :: (Ptr BotanPubKey -> IO CInt) -> IO PubKey
 
 type PubKeyName = ByteString
 
-pubKeyLoad :: ByteString -> IO PubKey
+pubKeyLoad
+    :: ByteString   -- ^ @bits[]@
+    -> IO PubKey    -- ^ @key@
 pubKeyLoad = mkCreateObjectCBytesLen createPubKey botan_pubkey_load
 
 -- WARNING: withFooInit-style limited lifetime functions moved to high-level botan
 withPubKeyLoad :: ByteString -> (PubKey -> IO a) -> IO a
 withPubKeyLoad = mkWithTemp1 pubKeyLoad pubKeyDestroy
 
-privKeyExportPubKey :: PrivKey -> IO PubKey
+privKeyExportPubKey
+    :: PrivKey      -- ^ @in@
+    -> IO PubKey    -- ^ @out@
 privKeyExportPubKey = mkCreateObjectWith createPubKey withPrivKey botan_privkey_export_pubkey
 
 type PubKeyExportFlags = PrivKeyExportFlags
@@ -671,8 +722,11 @@ pattern PubKeyExportDER
 pattern PubKeyExportDER = PrivKeyExportDER
 pattern PubKeyExportPEM = PrivKeyExportPEM
 
--- NOTE: Different from allocBytesQuerying / INSUFFICIENT_BUFFER_SPACE
-pubKeyExport :: PubKey -> PubKeyExportFlags -> IO ByteString
+-- NOTE: Different from allocBytesQuerying / INSUFFICIENT_BUFFER_SPACE     
+pubKeyExport
+    :: PubKey               -- ^ @key@
+    -> PubKeyExportFlags    -- ^ @flags@
+    -> IO ByteString        -- ^ @out[]@
 pubKeyExport pk flags = withPubKey pk $ \ pkPtr -> do
     alloca $ \szPtr -> do
         poke szPtr 0
@@ -682,20 +736,32 @@ pubKeyExport pk flags = withPubKey pk $ \ pkPtr -> do
         allocBytes (fromIntegral sz) $ \ bytesPtr -> do
             throwBotanIfNegative_ $ botan_pubkey_export pkPtr bytesPtr szPtr flags
 
-pubKeyAlgoName :: PubKey -> IO ByteString
+
+pubKeyAlgoName
+    :: PubKey           -- ^ @key@
+    -> IO ByteString    -- ^ @out[]@
 pubKeyAlgoName = mkGetCString withPubKey botan_pubkey_algo_name
 
-pubKeyCheckKey :: PubKey -> RNG -> CheckKeyFlags -> IO Bool
+pubKeyCheckKey
+    :: PubKey           -- ^ @key@
+    -> RNG              -- ^ @rng@
+    -> CheckKeyFlags    -- ^ @flags@
+    -> IO Bool
 pubKeyCheckKey pk rng flags = withPubKey pk $ \ pkPtr -> do
     withRNG rng $ \ botanRNG -> do
         throwBotanCatchingSuccess $ botan_pubkey_check_key pkPtr botanRNG flags
 
 -- Annoying - this mixes cint and csize
 --  I need to consolidate getsize / getint
-pubKeyEstimatedStrength :: PubKey -> IO Int
+pubKeyEstimatedStrength
+    :: PubKey   -- ^ @key@
+    -> IO Int   -- ^ @estimate@
 pubKeyEstimatedStrength pk = fromIntegral <$> mkGetSize withPubKey botan_pubkey_estimated_strength pk
 
-pubKeyFingerprint :: PubKey -> HashName -> IO ByteString
+pubKeyFingerprint
+    :: PubKey           -- ^ @key@
+    -> HashName         -- ^ @hash@
+    -> IO ByteString    -- ^ @out[]@
 pubKeyFingerprint pk algo = withPubKey pk $ \ pkPtr -> do
     asCString algo $ \ algoPtr -> do
         allocBytesQuerying $ \ outPtr outLen -> botan_pubkey_fingerprint
@@ -704,8 +770,12 @@ pubKeyFingerprint pk algo = withPubKey pk $ \ pkPtr -> do
             outPtr
             outLen
 
--- NOTE: Sets the MP
-pubKeyGetField :: MP -> PubKey -> ByteString -> IO ()
+-- | Get arbitrary named fields from public or private keys
+pubKeyGetField
+    :: MP           -- ^ @output@
+    -> PubKey       -- ^ @key@
+    -> ByteString   -- ^ @field_name@
+    -> IO ()
 pubKeyGetField mp pk field = withMP mp $ \ mpPtr -> do
     withPubKey pk $ \ pkPtr -> do
         asCString field $ \ fieldPtr -> do
@@ -714,8 +784,12 @@ pubKeyGetField mp pk field = withMP mp $ \ mpPtr -> do
                 pkPtr
                 (ConstPtr fieldPtr)
 
--- NOTE: Sets the MP
-privKeyGetField :: MP -> PrivKey -> ByteString -> IO ()
+-- | Get arbitrary named fields from public or private keys
+privKeyGetField
+    :: MP           -- ^ @output@
+    -> PrivKey      -- ^ @key@
+    -> ByteString   -- ^ @field_name@
+    -> IO ()
 privKeyGetField mp sk field = withMP mp $ \ mpPtr -> do
     withPrivKey sk $ \ skPtr -> do
         asCString field $ \ fieldPtr -> do
