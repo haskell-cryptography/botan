@@ -227,7 +227,7 @@ You will need to add `botan` as a package dependency in order to use it.
 
 <details><summary>Cabal</summary>
 
-This package is not yet available on hackage, so you'll have to add the repo to your `cabal.project` file using a `source-repository-package` stanza:
+<!-- This package is not yet available on hackage, so you'll have to add the repo to your `cabal.project` file using a `source-repository-package` stanza:
 
 ```
 source-repository-package
@@ -235,8 +235,9 @@ source-repository-package
     location: git://github.com/apotheca/botan.git
     tag: [commit-hash]
 ```
+-->
 
-Then, add it to your `[project].cabal` under the `build-depends` stanza:
+This package is now available on hackage. Simply add it to your `[project].cabal` under the `build-depends` stanza:
 
 ```
 build-depends:
