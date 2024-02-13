@@ -22,9 +22,9 @@ type BotanViewContext a = Ptr a
 -- View binary
 
 type BotanViewBinFn ctx
-    =   BotanViewContext ctx    -- ^ view_ctx some application context
-    ->  ConstPtr Word8          -- ^ data the binary data
-    ->  CSize                   -- ^ len the length of data in bytes
+    =   BotanViewContext ctx    -- ^ @view_ctx@: some application context
+    ->  ConstPtr Word8          -- ^ @data@: the binary data
+    ->  CSize                   -- ^ @len@: the length of data in bytes
     ->  CInt
     
 type BotanViewBinCallback ctx = FunPtr (BotanViewBinFn ctx)
@@ -41,9 +41,9 @@ freeBotanViewBinCallback = freeHaskellFunPtr
 -- View string
 
 type BotanViewStrFn ctx
-    =   BotanViewContext ctx    -- ^ view_ctx some application context
-    ->  ConstPtr CChar          -- ^ str the null terminated string
-    ->  CSize                   -- ^ len the length of string *including* the null terminator
+    =   BotanViewContext ctx    -- ^ @view_ctx@: some application context
+    ->  ConstPtr CChar          -- ^ @str@: the null terminated string
+    ->  CSize                   -- ^ @len@: the length of string *including* the null terminator
     ->  CInt
 
 type BotanViewStrCallback ctx = FunPtr (BotanViewStrFn ctx)

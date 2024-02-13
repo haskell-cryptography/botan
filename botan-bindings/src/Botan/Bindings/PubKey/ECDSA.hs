@@ -18,15 +18,15 @@ import Botan.Bindings.PubKey
 
 foreign import capi safe "botan/ffi.h botan_privkey_load_ecdsa"
     botan_privkey_load_ecdsa
-        :: Ptr BotanPrivKey    -- ^ key
-        -> BotanMP             -- ^ scalar
-        -> ConstPtr CChar      -- ^ curve_name
+        :: Ptr BotanPrivKey    -- ^ @key@
+        -> BotanMP             -- ^ @scalar@
+        -> ConstPtr CChar      -- ^ @curve_name@
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_pubkey_load_ecdsa"
     botan_pubkey_load_ecdsa
-        :: Ptr BotanPubKey    -- ^ key
-        -> BotanMP            -- ^ public_x
-        -> BotanMP            -- ^ public_y
-        -> ConstPtr CChar     -- ^ curve_name
+        :: Ptr BotanPubKey    -- ^ @key@
+        -> BotanMP            -- ^ @public_x@
+        -> BotanMP            -- ^ @public_y@
+        -> ConstPtr CChar     -- ^ @curve_name@
         -> IO CInt

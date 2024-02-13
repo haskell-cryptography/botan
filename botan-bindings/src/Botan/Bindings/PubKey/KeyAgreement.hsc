@@ -39,39 +39,39 @@ pattern BOTAN_PUBKEY_KEY_AGREEMENT_FLAGS_NONE = 0
 
 foreign import capi safe "botan/ffi.h botan_pk_op_key_agreement_create"
     botan_pk_op_key_agreement_create
-        :: Ptr BotanPKOpKeyAgreement -- ^ op
-        -> BotanPrivKey              -- ^ key
-        -> ConstPtr CChar            -- ^ kdf
-        -> Word32                    -- ^ flags
+        :: Ptr BotanPKOpKeyAgreement -- ^ @op@
+        -> BotanPrivKey              -- ^ @key@
+        -> ConstPtr CChar            -- ^ @kdf@
+        -> Word32                    -- ^ @flags@
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_pk_op_key_agreement_export_public"
     botan_pk_op_key_agreement_export_public
-        :: BotanPrivKey    -- ^ key
-        -> Ptr Word8       -- ^ out[]
-        -> Ptr CSize       -- ^ out_len
+        :: BotanPrivKey    -- ^ @key@
+        -> Ptr Word8       -- ^ @out[]@
+        -> Ptr CSize       -- ^ @out_len@
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_pk_op_key_agreement_view_public"
     botan_pk_op_key_agreement_view_public
-        :: BotanPrivKey                         -- ^ key
-        -> BotanViewContext ctx                 -- ^ ctx
-        -> FunPtr (BotanViewBinCallback ctx)    -- ^ view
+        :: BotanPrivKey                         -- ^ @key@
+        -> BotanViewContext ctx                 -- ^ @ctx@
+        -> FunPtr (BotanViewBinCallback ctx)    -- ^ @view@
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_pk_op_key_agreement_size"
     botan_pk_op_key_agreement_size
-        :: BotanPKOpKeyAgreement -- ^ op
-        -> Ptr CSize             -- ^ out_len
+        :: BotanPKOpKeyAgreement -- ^ @op@
+        -> Ptr CSize             -- ^ @out_len@
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_pk_op_key_agreement"
     botan_pk_op_key_agreement
-        :: BotanPKOpKeyAgreement -- ^ op
-        -> Ptr Word8             -- ^ out[]
-        -> Ptr CSize             -- ^ out_len,
-        -> ConstPtr Word8        -- ^ other_key[]
-        -> CSize                 -- ^ other_key_len,
-        -> ConstPtr Word8        -- ^ salt[]
-        -> CSize                 -- ^ salt_len
+        :: BotanPKOpKeyAgreement -- ^ @op@
+        -> Ptr Word8             -- ^ @out[]@
+        -> Ptr CSize             -- ^ @out_len@,
+        -> ConstPtr Word8        -- ^ @other_key[]@
+        -> CSize                 -- ^ @other_key_len@
+        -> ConstPtr Word8        -- ^ @salt[]@
+        -> CSize                 -- ^ @salt_len@
         -> IO CInt

@@ -29,24 +29,24 @@ import Botan.Bindings.Prelude
 
 foreign import capi safe "botan/ffi.h botan_nist_kw_enc"
     botan_nist_kw_enc
-        :: ConstPtr CChar -- ^ cipher_algo
-        -> CInt           -- ^ padded
-        -> ConstPtr Word8 -- ^ key[]
-        -> CSize          -- ^ key_len
-        -> ConstPtr Word8 -- ^ kek[]
-        -> CSize          -- ^ kek_len
-        -> Ptr Word8      -- ^ wrapped_key[]
-        -> Ptr CSize      -- ^ wrapped_key_len
+        :: ConstPtr CChar -- ^ @cipher_algo@
+        -> CInt           -- ^ @padded@
+        -> ConstPtr Word8 -- ^ @key[]@
+        -> CSize          -- ^ @key_len@
+        -> ConstPtr Word8 -- ^ @kek[]@
+        -> CSize          -- ^ @kek_len@
+        -> Ptr Word8      -- ^ @wrapped_key[]@
+        -> Ptr CSize      -- ^ @wrapped_key_len@
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_nist_kw_dec"
     botan_nist_kw_dec
-        :: ConstPtr CChar -- ^ cipher_algo
-        -> CInt           -- ^ padded
-        -> ConstPtr Word8 -- ^ wrapped_key[]
-        -> CSize          -- ^ wrapped_key_len
-        -> ConstPtr Word8 -- ^ kek[]
-        -> CSize          -- ^ kek_len
-        -> Ptr Word8      -- ^ key[]
-        -> Ptr CSize      -- ^ key_len
+        :: ConstPtr CChar -- ^ @cipher_algo@
+        -> CInt           -- ^ @padded@
+        -> ConstPtr Word8 -- ^ @wrapped_key[]@
+        -> CSize          -- ^ @wrapped_key_len@
+        -> ConstPtr Word8 -- ^ @kek[]@
+        -> CSize          -- ^ @kek_len@
+        -> Ptr Word8      -- ^ @key[]@
+        -> Ptr CSize      -- ^ @key_len@
         -> IO CInt

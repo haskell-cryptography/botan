@@ -55,15 +55,15 @@ Set rng_type to null to let the library choose some default.
 -}
 foreign import capi safe "botan/ffi.h botan_rng_init"
     botan_rng_init
-        :: Ptr BotanRNG     -- ^ rng
-        -> ConstPtr CChar   -- ^ rng_type type of the rng
+        :: Ptr BotanRNG     -- ^ @rng@
+        -> ConstPtr CChar   -- ^ @rng_type@: type of the rng
         -> IO CInt          -- ^ 0 if success, else error code
 
 -- | Callback for getting random bytes from the rng, return 0 for success
 type BotanRNGGetCallback ctx
-    =  Ptr ctx      -- ^ context
-    -> Ptr Word8    -- ^ out
-    -> CSize        -- ^ out_len
+    =  Ptr ctx      -- ^ @context@
+    -> Ptr Word8    -- ^ @out@
+    -> CSize        -- ^ @out_len@
     -> IO CInt
 
 -- NOTE: "Wrapper stubs can't be used with CApiFFI."
@@ -74,9 +74,9 @@ foreign import ccall "wrapper"
 
 -- | Callback for adding entropy to the rng, return 0 for success
 type BotanRNGAddEntropyCallback ctx
-    =  Ptr ctx          -- ^ context
-    -> ConstPtr Word8   -- ^ input[]
-    -> CSize            -- ^ length
+    =  Ptr ctx          -- ^ @context@
+    -> ConstPtr Word8   -- ^ @input[]@
+    -> CSize            -- ^ @length@
     -> IO CInt
 
 -- NOTE: "Wrapper stubs can't be used with CApiFFI."
@@ -87,7 +87,7 @@ foreign import ccall "wrapper"
 
 -- | Callback called when rng is destroyed
 type BotanRNGDestroyCallback ctx
-    =  Ptr ctx  -- ^ context
+    =  Ptr ctx  -- ^ @context@
     -> IO ()
 
 -- NOTE: "Wrapper stubs can't be used with CApiFFI."
@@ -99,27 +99,27 @@ foreign import ccall "wrapper"
 -- | Initialize a custom random number generator from a set of callback functions
 foreign import capi safe "botan/ffi.h botan_rng_init_custom"
     botan_rng_init_custom
-        :: Ptr BotanRNG     -- ^ rng_out
-        -> ConstPtr CChar   -- ^ rng_name name of the rng
-        -> Ptr ctx          -- ^ context an application-specific context passed to the callback functions
-        -> FunPtr (BotanRNGGetCallback ctx)         -- ^ get_cb
-        -> FunPtr (BotanRNGAddEntropyCallback ctx)  -- ^ add_entropy_cb may be NULL
-        -> FunPtr (BotanRNGDestroyCallback ctx)     -- ^ destroy_cb may be NULL
+        :: Ptr BotanRNG     -- ^ @rng_out@
+        -> ConstPtr CChar   -- ^ @rng_name@: name of the rng
+        -> Ptr ctx          -- ^ @context@: an application-specific context passed to the callback functions
+        -> FunPtr (BotanRNGGetCallback ctx)         -- ^ @get_cb@
+        -> FunPtr (BotanRNGAddEntropyCallback ctx)  -- ^ @add_entropy_cb@: may be NULL
+        -> FunPtr (BotanRNGDestroyCallback ctx)     -- ^ @destroy_cb@: may be NULL
         -> IO CInt
 
 -- | Get random bytes from a random number generators
 foreign import capi safe "botan/ffi.h botan_rng_get"
     botan_rng_get
-        :: BotanRNG     -- ^ rng rng object
-        -> Ptr Word8    -- ^ out output buffer of size out_len
-        -> CSize        -- ^ out_len number of requested bytes
+        :: BotanRNG     -- ^ @rng@: rng object
+        -> Ptr Word8    -- ^ @out@: output buffer of size out_len
+        -> CSize        -- ^ @out_len@: number of requested bytes
         -> IO CInt      -- ^ 0 on success, negative on failure
 
 -- | Get random bytes from system random number generator
 foreign import capi safe "botan/ffi.h botan_system_rng_get"
     botan_system_rng_get
-        :: Ptr Word8    -- ^ out output buffer of size out_len
-        -> CSize        -- ^ out_len number of requested bytes
+        :: Ptr Word8    -- ^ @out@: output buffer of size out_len
+        -> CSize        -- ^ @out_len@: number of requested bytes
         -> IO CInt      -- ^ 0 on success, negative on failure
 
 {- |
@@ -129,22 +129,22 @@ Uses the System_RNG as a seed generator.
 -}
 foreign import capi safe "botan/ffi.h botan_rng_reseed"
     botan_rng_reseed
-        :: BotanRNG -- ^ rng rng object
-        -> CSize    -- ^ bits number of bits to reseed with
+        :: BotanRNG -- ^ @rng@: rng object
+        -> CSize    -- ^ @bits@: number of bits to reseed with
         -> IO CInt  -- ^ 0 on success, a negative value on failure
 
 -- | Reseed a random number generator
 foreign import capi safe "botan/ffi.h botan_rng_reseed_from_rng"
     botan_rng_reseed_from_rng
-        :: BotanRNG -- ^ rng rng object
-        -> BotanRNG -- ^ source_rng the rng that will be read from
-        -> CSize    -- ^ bits number of bits to reseed with
+        :: BotanRNG -- ^ @rng@: rng object
+        -> BotanRNG -- ^ @source_rng@: the rng that will be read from
+        -> CSize    -- ^ @bits@: number of bits to reseed with
         -> IO CInt  -- ^ 0 on success, a negative value on failure
 
 -- | Add some seed material to a random number generator
 foreign import capi safe "botan/ffi.h botan_rng_add_entropy"
     botan_rng_add_entropy
-        :: BotanRNG         -- ^ rng rng object
-        -> ConstPtr Word8   -- ^ entropy the data to add
-        -> CSize            -- ^ entropy_len length of entropy buffer
+        :: BotanRNG         -- ^ @rng@: rng object
+        -> ConstPtr Word8   -- ^ @entropy@: the data to add
+        -> CSize            -- ^ @entropy_len@: length of entropy buffer
         -> IO CInt          -- ^ 0 on success, a negative value on failure

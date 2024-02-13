@@ -84,61 +84,61 @@ pattern BOTAN_BLOCK_CIPHER_THREEFISH_512    = "Threefish-512"
 -- | Initialize a block cipher object
 foreign import capi safe "botan/ffi.h botan_block_cipher_init"
     botan_block_cipher_init
-        :: Ptr BotanBlockCipher -- ^ bc
-        -> ConstPtr CChar       -- ^ cipher_name
+        :: Ptr BotanBlockCipher -- ^ @bc@
+        -> ConstPtr CChar       -- ^ @cipher_name@
         -> IO CInt
 
 -- | Reinitializes the block cipher
 foreign import capi safe "botan/ffi.h botan_block_cipher_clear"
     botan_block_cipher_clear
-        :: BotanBlockCipher -- ^ bc
+        :: BotanBlockCipher -- ^ @bc@
         -> IO CInt          -- ^ 0 on success, a negative value on failure
 
 -- | Set the key for a block cipher instance
 foreign import capi safe "botan/ffi.h botan_block_cipher_set_key"
     botan_block_cipher_set_key
-        :: BotanBlockCipher -- ^ bc
-        -> ConstPtr Word8   -- ^ key[]
-        -> CSize            -- ^ len
+        :: BotanBlockCipher -- ^ @bc@
+        -> ConstPtr Word8   -- ^ @key[]@
+        -> CSize            -- ^ @len@
         -> IO CInt
 
 -- | Return the positive block size of this block cipher, or negative to indicate an error
 foreign import capi safe "botan/ffi.h botan_block_cipher_block_size"
     botan_block_cipher_block_size
-        :: BotanBlockCipher -- ^ bc
+        :: BotanBlockCipher -- ^ @bc@
         -> IO CInt
 
 -- | Encrypt one or more blocks with the cipher
 foreign import capi safe "botan/ffi.h botan_block_cipher_encrypt_blocks"
     botan_block_cipher_encrypt_blocks
-        :: BotanBlockCipher -- ^ bc
-        -> ConstPtr Word8   -- ^ in[]
-        -> Ptr Word8        -- ^ out[]
-        -> CSize            -- ^ blocks
+        :: BotanBlockCipher -- ^ @bc@
+        -> ConstPtr Word8   -- ^ @in[]@
+        -> Ptr Word8        -- ^ @out[]@
+        -> CSize            -- ^ @blocks@
         -> IO CInt
 
 -- | Decrypt one or more blocks with the cipher
 foreign import capi safe "botan/ffi.h botan_block_cipher_decrypt_blocks"
     botan_block_cipher_decrypt_blocks
-        :: BotanBlockCipher -- ^ bc
-        -> ConstPtr Word8   -- ^ in[]
-        -> Ptr Word8        -- ^ out[]
-        -> CSize            -- ^ blocks
+        :: BotanBlockCipher -- ^ @bc@
+        -> ConstPtr Word8   -- ^ @in[]@
+        -> Ptr Word8        -- ^ @out[]@
+        -> CSize            -- ^ @blocks@
         -> IO CInt
 
 -- | Get the name of this block cipher
 foreign import capi safe "botan/ffi.h botan_block_cipher_name"
     botan_block_cipher_name
-        :: BotanBlockCipher -- ^ cipher the object to read
-        -> Ptr CChar        -- ^ name output buffer
-        -> Ptr CSize        -- ^ name_len on input, the length of buffer, on success the number of bytes written
+        :: BotanBlockCipher -- ^ @cipher@: the object to read
+        -> Ptr CChar        -- ^ @name@: output buffer
+        -> Ptr CSize        -- ^ @name_len@: on input, the length of buffer, on success the number of bytes written
         -> IO CInt
 
 -- | Get the key length limits of this block cipher
 foreign import capi safe "botan/ffi.h botan_block_cipher_get_keyspec"
     botan_block_cipher_get_keyspec
-        :: BotanBlockCipher -- ^ cipher the object to read
-        -> Ptr CSize        -- ^ out_minimum_keylength if non-NULL, will be set to minimum keylength of cipher
-        -> Ptr CSize        -- ^ out_maximum_keylength if non-NULL, will be set to maximum keylength of cipher
-        -> Ptr CSize        -- ^ out_keylength_modulo if non-NULL will be set to byte multiple of valid keys
+        :: BotanBlockCipher -- ^ @cipher@: the object to read
+        -> Ptr CSize        -- ^ @out_minimum_keylength@: if non-NULL, will be set to minimum keylength of cipher
+        -> Ptr CSize        -- ^ @out_maximum_keylength@: if non-NULL, will be set to maximum keylength of cipher
+        -> Ptr CSize        -- ^ @out_keylength_modulo@: if non-NULL will be set to byte multiple of valid keys
         -> IO CInt

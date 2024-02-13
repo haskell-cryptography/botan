@@ -43,128 +43,128 @@ foreign import capi safe "botan/ffi.h &botan_x509_cert_destroy"
 
 foreign import capi safe "botan/ffi.h botan_x509_cert_load"
     botan_x509_cert_load
-        :: Ptr BotanX509Cert    -- ^ cert_obj
-        -> ConstPtr Word8       -- ^ cert[]
-        -> CSize                -- ^ cert_len
+        :: Ptr BotanX509Cert    -- ^ @cert_obj@
+        -> ConstPtr Word8       -- ^ @cert[]@
+        -> CSize                -- ^ @cert_len@
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_x509_cert_load_file"
     botan_x509_cert_load_file
-        :: Ptr BotanX509Cert    -- ^ cert_obj
-        -> ConstPtr CChar       -- ^ filename
+        :: Ptr BotanX509Cert    -- ^ @cert_obj@
+        -> ConstPtr CChar       -- ^ @filename@
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_x509_cert_dup"
     botan_x509_cert_dup
-        :: Ptr BotanX509Cert    -- ^ new_cert
-        -> BotanX509Cert        -- ^ cert
+        :: Ptr BotanX509Cert    -- ^ @new_cert@
+        -> BotanX509Cert        -- ^ @cert@
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_x509_cert_get_time_starts"
     botan_x509_cert_get_time_starts
-        :: BotanX509Cert    -- ^ cert
-        -> Ptr CChar        -- ^ out[]
-        -> Ptr CSize        -- ^ out_len
+        :: BotanX509Cert    -- ^ @cert@
+        -> Ptr CChar        -- ^ @out[]@
+        -> Ptr CSize        -- ^ @out_len@
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_x509_cert_get_time_expires"
     botan_x509_cert_get_time_expires
-        :: BotanX509Cert    -- ^ cert
-        -> Ptr CChar        -- ^ out[]
-        -> Ptr CSize        -- ^ out_len
+        :: BotanX509Cert    -- ^ @cert@
+        -> Ptr CChar        -- ^ @out[]@
+        -> Ptr CSize        -- ^ @out_len@
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_x509_cert_not_before"
     botan_x509_cert_not_before
-        :: BotanX509Cert    -- ^ cert
-        -> Ptr Word64       -- ^ time_since_epoch
+        :: BotanX509Cert    -- ^ @cert@
+        -> Ptr Word64       -- ^ @time_since_epoch@
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_x509_cert_not_after"
     botan_x509_cert_not_after
-        :: BotanX509Cert    -- ^ cert
-        -> Ptr Word64       -- ^ time_since_epoch
+        :: BotanX509Cert    -- ^ @cert@
+        -> Ptr Word64       -- ^ @time_since_epoch@
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_x509_cert_get_fingerprint"
     botan_x509_cert_get_fingerprint
-        :: BotanX509Cert    -- ^ cert
-        -> ConstPtr CChar   -- ^ hash
-        -> Ptr Word8        -- ^ out[]
-        -> Ptr CSize        -- ^ out_len
+        :: BotanX509Cert    -- ^ @cert@
+        -> ConstPtr CChar   -- ^ @hash@
+        -> Ptr Word8        -- ^ @out[]@
+        -> Ptr CSize        -- ^ @out_len@
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_x509_cert_get_serial_number"
     botan_x509_cert_get_serial_number
-        :: BotanX509Cert    -- ^ cert
-        -> Ptr Word8        -- ^ out[]
-        -> Ptr CSize        -- ^ out_len
+        :: BotanX509Cert    -- ^ @cert@
+        -> Ptr Word8        -- ^ @out[]@
+        -> Ptr CSize        -- ^ @out_len@
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_x509_cert_get_authority_key_id"
     botan_x509_cert_get_authority_key_id
-        :: BotanX509Cert    -- ^ cert
-        -> Ptr Word8        -- ^ out[]
-        -> Ptr CSize        -- ^ out_len
+        :: BotanX509Cert    -- ^ @cert@
+        -> Ptr Word8        -- ^ @out[]@
+        -> Ptr CSize        -- ^ @out_len@
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_x509_cert_get_subject_key_id"
     botan_x509_cert_get_subject_key_id
-        :: BotanX509Cert    -- ^ cert
-        -> Ptr Word8        -- ^ out[]
-        -> Ptr CSize        -- ^ out_len
+        :: BotanX509Cert    -- ^ @cert@
+        -> Ptr Word8        -- ^ @out[]@
+        -> Ptr CSize        -- ^ @out_len@
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_x509_cert_get_public_key_bits"
     botan_x509_cert_get_public_key_bits
-        :: BotanX509Cert    -- ^ cert
-        -> Ptr Word8        -- ^ out[]
-        -> Ptr CSize        -- ^ out_len
+        :: BotanX509Cert    -- ^ @cert@
+        -> Ptr Word8        -- ^ @out[]@
+        -> Ptr CSize        -- ^ @out_len@
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_x509_cert_view_public_key_bits"
     botan_x509_cert_view_public_key_bits
-        :: BotanX509Cert                        -- ^ cert
-        -> BotanViewContext ctx                 -- ^ ctx
-        -> FunPtr (BotanViewBinCallback ctx)    -- ^ view
+        :: BotanX509Cert                        -- ^ @cert@
+        -> BotanViewContext ctx                 -- ^ @ctx@
+        -> FunPtr (BotanViewBinCallback ctx)    -- ^ @view@
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_x509_cert_get_public_key"
     botan_x509_cert_get_public_key
-        :: BotanX509Cert    -- ^ cert
-        -> Ptr BotanPubKey  -- ^ key
+        :: BotanX509Cert    -- ^ @cert@
+        -> Ptr BotanPubKey  -- ^ @key@
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_x509_cert_get_issuer_dn"
     botan_x509_cert_get_issuer_dn
-        :: BotanX509Cert    -- ^ cert
-        -> ConstPtr CChar   -- ^ key
-        -> CSize            -- ^ index
-        -> Ptr Word8        -- ^ out[]
-        -> Ptr CSize        -- ^ out_len
+        :: BotanX509Cert    -- ^ @cert@
+        -> ConstPtr CChar   -- ^ @key@
+        -> CSize            -- ^ @index@
+        -> Ptr Word8        -- ^ @out[]@
+        -> Ptr CSize        -- ^ @out_len@
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_x509_cert_get_subject_dn"
     botan_x509_cert_get_subject_dn
-        :: BotanX509Cert    -- ^ cert
-        -> ConstPtr CChar   -- ^ key
-        -> CSize            -- ^ index
-        -> Ptr Word8        -- ^ out[]
-        -> Ptr CSize        -- ^ out_len
+        :: BotanX509Cert    -- ^ @cert@
+        -> ConstPtr CChar   -- ^ @key@
+        -> CSize            -- ^ @index@
+        -> Ptr Word8        -- ^ @out[]@
+        -> Ptr CSize        -- ^ @out_len@
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_x509_cert_to_string"
     botan_x509_cert_to_string
-        :: BotanX509Cert    -- ^ cert
-        -> Ptr CChar        -- ^ out[]
-        -> Ptr CSize        -- ^ out_len
+        :: BotanX509Cert    -- ^ @cert@
+        -> Ptr CChar        -- ^ @out[]@
+        -> Ptr CSize        -- ^ @out_len@
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_x509_cert_view_as_string"
     botan_x509_cert_view_as_string
-        :: BotanX509Cert                        -- ^ cert
-        -> BotanViewContext ctx                 -- ^ ctx
-        -> FunPtr (BotanViewStrCallback ctx)    -- ^ view
+        :: BotanX509Cert                        -- ^ @cert@
+        -> BotanViewContext ctx                 -- ^ @ctx@
+        -> FunPtr (BotanViewStrCallback ctx)    -- ^ @view@
         -> IO CInt
 
 pattern NO_CONSTRAINTS
@@ -191,8 +191,8 @@ pattern DECIPHER_ONLY     = #const DECIPHER_ONLY
 
 foreign import capi safe "botan/ffi.h botan_x509_cert_allowed_usage"
     botan_x509_cert_allowed_usage
-        :: BotanX509Cert    -- ^ cert
-        -> CUInt            -- ^ key_usage
+        :: BotanX509Cert    -- ^ @cert@
+        -> CUInt            -- ^ @key_usage@
         -> IO CInt
 
 {- |
@@ -201,8 +201,8 @@ RFC 5280 wildcards also supported.
 -}
 foreign import capi safe "botan/ffi.h botan_x509_cert_hostname_match"
     botan_x509_cert_hostname_match
-        :: BotanX509Cert    -- ^ cert
-        -> ConstPtr CChar   -- ^ hostname
+        :: BotanX509Cert    -- ^ @cert@
+        -> ConstPtr CChar   -- ^ @hostname@
         -> IO CInt
 
 {- |
@@ -215,16 +215,16 @@ Trusted path can be null
 -}
 foreign import capi safe "botan/ffi.h botan_x509_cert_verify"
     botan_x509_cert_verify
-        :: Ptr CInt                 -- ^ validation_result
-        -> BotanX509Cert            -- ^ cert
-        -> ConstPtr BotanX509Cert   -- ^ intermediates
-        -> CSize                    -- ^ intermediates_len
-        -> ConstPtr BotanX509Cert   -- ^ trusted
-        -> CSize                    -- ^ trusted_len
-        -> ConstPtr CChar           -- ^ trusted_path
-        -> CSize                    -- ^ required_strength
-        -> ConstPtr CChar           -- ^ hostname
-        -> Word64                   -- ^ reference_time
+        :: Ptr CInt                 -- ^ @validation_result@
+        -> BotanX509Cert            -- ^ @cert@
+        -> ConstPtr BotanX509Cert   -- ^ @intermediates@
+        -> CSize                    -- ^ @intermediates_len@
+        -> ConstPtr BotanX509Cert   -- ^ @trusted@
+        -> CSize                    -- ^ @trusted_len@
+        -> ConstPtr CChar           -- ^ @trusted_path@
+        -> CSize                    -- ^ @required_strength@
+        -> ConstPtr CChar           -- ^ @hostname@
+        -> Word64                   -- ^ @reference_time@
         -> IO CInt
 
 {- |
@@ -233,7 +233,7 @@ or else NULL if unknown.
 -}
 foreign import capi safe "botan/ffi.h botan_x509_cert_validation_status"
     botan_x509_cert_validation_status
-        :: CInt -- ^ code
+        :: CInt -- ^ @code@
         -> IO (ConstPtr CChar)
 
 {-
@@ -256,15 +256,15 @@ foreign import capi safe "botan/ffi.h &botan_x509_crl_destroy"
 
 foreign import capi safe "botan/ffi.h botan_x509_crl_load_file"
     botan_x509_crl_load_file
-        :: Ptr BotanX509CRL -- ^ crl_obj
-        -> ConstPtr CChar   -- ^ crl_path
+        :: Ptr BotanX509CRL -- ^ @crl_obj@
+        -> ConstPtr CChar   -- ^ @crl_path@
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_x509_crl_load"
     botan_x509_crl_load
-        :: Ptr BotanX509CRL -- ^ crl_obj
-        -> ConstPtr Word8   -- ^ crl_bits[]
-        -> CSize            -- ^ crl_bits_len
+        :: Ptr BotanX509CRL -- ^ @crl_obj@
+        -> ConstPtr Word8   -- ^ @crl_bits[]@
+        -> CSize            -- ^ @crl_bits_len@
         -> IO CInt
 
 {- |
@@ -273,8 +273,8 @@ check if the certificate is revoked on that particular CRL
 -}
 foreign import capi safe "botan/ffi.h botan_x509_is_revoked"
     botan_x509_is_revoked
-        :: BotanX509CRL  -- ^ crl
-        -> BotanX509Cert -- ^ cert
+        :: BotanX509CRL  -- ^ @crl@
+        -> BotanX509Cert -- ^ @cert@
         -> IO CInt
 
 {- |
@@ -283,16 +283,16 @@ CRLs are passed as an array, same as intermediates and trusted CAs
 -}
 foreign import capi safe "botan/ffi.h botan_x509_cert_verify_with_crl"
     botan_x509_cert_verify_with_crl
-        :: Ptr CInt                 -- ^ validation_result
-        -> BotanX509Cert            -- ^ cert
-        -> ConstPtr BotanX509Cert   -- ^ intermediates
-        -> CSize                    -- ^ intermediates_len
-        -> ConstPtr BotanX509Cert   -- ^ trusted
-        -> CSize                    -- ^ trusted_len
-        -> ConstPtr BotanX509CRL    -- ^ crls
-        -> CSize                    -- ^ crls_len
-        -> ConstPtr CChar           -- ^ trusted_path
-        -> CSize                    -- ^ required_strength
-        -> ConstPtr CChar           -- ^ hostname
-        -> Word64                   -- ^ reference_time
+        :: Ptr CInt                 -- ^ @validation_result@
+        -> BotanX509Cert            -- ^ @cert@
+        -> ConstPtr BotanX509Cert   -- ^ @intermediates@
+        -> CSize                    -- ^ @intermediates_len@
+        -> ConstPtr BotanX509Cert   -- ^ @trusted@
+        -> CSize                    -- ^ @trusted_len@
+        -> ConstPtr BotanX509CRL    -- ^ @crls@
+        -> CSize                    -- ^ @crls_len@
+        -> ConstPtr CChar           -- ^ @trusted_path@
+        -> CSize                    -- ^ @required_strength@
+        -> ConstPtr CChar           -- ^ @hostname@
+        -> Word64                   -- ^ @reference_time@
         -> IO CInt

@@ -64,26 +64,26 @@ pattern BOTAN_FPE_FLAG_FE1_COMPAT_MODE = #const BOTAN_FPE_FLAG_FE1_COMPAT_MODE
 
 foreign import capi safe "botan/ffi.h botan_fpe_fe1_init"
     botan_fpe_fe1_init
-        :: Ptr BotanFPE     -- ^ fpe
-        -> BotanMP          -- ^ n
-        -> ConstPtr Word8   -- ^ key[]
-        -> CSize            -- ^ key_len
-        -> CSize            -- ^ rounds
-        -> Word32           -- ^ flags
+        :: Ptr BotanFPE     -- ^ @fpe@
+        -> BotanMP          -- ^ @n@
+        -> ConstPtr Word8   -- ^ @key[]@
+        -> CSize            -- ^ @key_len@
+        -> CSize            -- ^ @rounds@
+        -> Word32           -- ^ @flags@
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_fpe_encrypt"
     botan_fpe_encrypt
-        :: BotanFPE         -- ^ fpe
-        -> BotanMP          -- ^ x
-        -> ConstPtr Word8   -- ^ tweak[]
-        -> CSize            -- ^ tweak_len
+        :: BotanFPE         -- ^ @fpe@
+        -> BotanMP          -- ^ @x@
+        -> ConstPtr Word8   -- ^ @tweak[]@
+        -> CSize            -- ^ @tweak_len@
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_fpe_decrypt"
     botan_fpe_decrypt
-        :: BotanFPE         -- ^ fpe
-        -> BotanMP          -- ^ x
-        -> ConstPtr Word8   -- ^ tweak[]
-        -> CSize            -- ^ tweak_len
+        :: BotanFPE         -- ^ @fpe@
+        -> BotanMP          -- ^ @x@
+        -> ConstPtr Word8   -- ^ @tweak[]@
+        -> CSize            -- ^ @tweak_len@
         -> IO CInt

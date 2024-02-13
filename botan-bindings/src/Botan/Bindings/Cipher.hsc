@@ -87,55 +87,55 @@ pattern BOTAN_CIPHER_INIT_FLAG_DECRYPT        = #const BOTAN_CIPHER_INIT_FLAG_DE
 -- | Initialize a cipher object
 foreign import capi safe "botan/ffi.h botan_cipher_init"
     botan_cipher_init
-        :: Ptr BotanCipher  -- ^ cipher
-        -> ConstPtr CChar   -- ^ name
-        -> Word32           -- ^ flags
+        :: Ptr BotanCipher  -- ^ @cipher@
+        -> ConstPtr CChar   -- ^ @name@
+        -> Word32           -- ^ @flags@
         -> IO CInt
 
 -- | Return the name of the cipher object
 foreign import capi safe "botan/ffi.h botan_cipher_name"
     botan_cipher_name
-        :: BotanCipher  -- ^ cipher
-        -> Ptr CChar    -- ^ name
-        -> Ptr CSize    -- ^ name_len
+        :: BotanCipher  -- ^ @cipher@
+        -> Ptr CChar    -- ^ @name@
+        -> Ptr CSize    -- ^ @name_len@
         -> IO CInt
 
 -- | Return the output length of this cipher, for a particular input length.
 foreign import capi safe "botan/ffi.h botan_cipher_output_length"
     botan_cipher_output_length
-        :: BotanCipher  -- ^ cipher
-        -> CSize        -- ^ in_len
-        -> Ptr CSize    -- ^ out_len
+        :: BotanCipher  -- ^ @cipher@
+        -> CSize        -- ^ @in_len@
+        -> Ptr CSize    -- ^ @out_len@
         -> IO CInt
 
 -- | Return if the specified nonce length is valid for this cipher
 --   (0 / SUCCESS if valid, 1 / INVALID_IDENTIFIER if not)
 foreign import capi safe "botan/ffi.h botan_cipher_valid_nonce_length"
     botan_cipher_valid_nonce_length
-        :: BotanCipher  -- ^ cipher
-        -> CSize        -- ^ nl
+        :: BotanCipher  -- ^ @cipher@
+        -> CSize        -- ^ @nl@
         -> IO CInt
 
 -- | Get the tag length of the cipher (0 for non-AEAD modes)
 foreign import capi safe "botan/ffi.h botan_cipher_get_tag_length"
     botan_cipher_get_tag_length
-        :: BotanCipher  -- ^ cipher
-        -> Ptr CSize    -- ^ tag_size
+        :: BotanCipher  -- ^ @cipher@
+        -> Ptr CSize    -- ^ @tag_size@
         -> IO CInt
 
 -- | Get the default nonce length of this cipher
 foreign import capi safe "botan/ffi.h botan_cipher_get_default_nonce_length"
     botan_cipher_get_default_nonce_length
-        :: BotanCipher  -- ^ cipher
-        -> Ptr CSize    -- ^ nl
+        :: BotanCipher  -- ^ @cipher@
+        -> Ptr CSize    -- ^ @nl@
         -> IO CInt
 
 -- | Return the update granularity of the cipher;
 --   botan_cipher_update must be called with blocks of this size, except for the final.
 foreign import capi safe "botan/ffi.h botan_cipher_get_update_granularity"
     botan_cipher_get_update_granularity
-        :: BotanCipher  -- ^ cipher
-        -> Ptr CSize    -- ^ ug
+        :: BotanCipher  -- ^ @cipher@
+        -> Ptr CSize    -- ^ @ug@
         -> IO CInt
 
 {-
@@ -145,33 +145,33 @@ reflecting possibilities for optimization.
 -}
 foreign import capi safe "botan/ffi.h botan_cipher_get_ideal_update_granularity"
     botan_cipher_get_ideal_update_granularity
-        :: BotanCipher  -- ^ cipher
-        -> Ptr CSize    -- ^ ug
+        :: BotanCipher  -- ^ @cipher@
+        -> Ptr CSize    -- ^ @ug@
         -> IO CInt
 
 -- | Get information about the key lengths. Prefer botan_cipher_get_keyspec
 foreign import capi safe "botan/ffi.h botan_cipher_query_keylen"
     botan_cipher_query_keylen
-        :: BotanCipher  -- ^ cipher
-        -> Ptr CSize    -- ^ out_minimum_keylength,
-        -> Ptr CSize    -- ^ out_maximum_keylength
+        :: BotanCipher  -- ^ @cipher@
+        -> Ptr CSize    -- ^ @out_minimum_keylength@
+        -> Ptr CSize    -- ^ @out_maximum_keylength@
         -> IO CInt
 
 -- | Get information about the supported key lengths.
 foreign import capi safe "botan/ffi.h botan_cipher_get_keyspec"
     botan_cipher_get_keyspec
-        :: BotanCipher  -- ^ cipher
-        -> Ptr CSize    -- ^ min_keylen
-        -> Ptr CSize    -- ^ max_keylen
-        -> Ptr CSize    -- ^ mod_keylen
+        :: BotanCipher  -- ^ @cipher@
+        -> Ptr CSize    -- ^ @min_keylen@
+        -> Ptr CSize    -- ^ @max_keylen@
+        -> Ptr CSize    -- ^ @mod_keylen@
         -> IO CInt
 
 -- | Set the key for this cipher object
 foreign import capi safe "botan/ffi.h botan_cipher_set_key"
     botan_cipher_set_key
-        :: BotanCipher      -- ^ cipher
-        -> ConstPtr Word8   -- ^ key
-        -> CSize            -- ^ key_len
+        :: BotanCipher      -- ^ @cipher@
+        -> ConstPtr Word8   -- ^ @key@
+        -> CSize            -- ^ @key_len@
         -> IO CInt
 
 {-
@@ -184,23 +184,23 @@ by botan_cipher_set_key with the original key.
 -}
 foreign import capi safe "botan/ffi.h botan_cipher_reset"
     botan_cipher_reset
-        :: BotanCipher -- ^ cipher
+        :: BotanCipher -- ^ @cipher@
         -> IO CInt
 
 -- | Set the associated data. Will fail if cipher is not an AEAD
 foreign import capi safe "botan/ffi.h botan_cipher_set_associated_data"
     botan_cipher_set_associated_data
-        :: BotanCipher      -- ^ cipher,
-        -> ConstPtr Word8   -- ^ ad
-        -> CSize            -- ^ ad_len
+        :: BotanCipher      -- ^ @cipher@
+        -> ConstPtr Word8   -- ^ @ad@
+        -> CSize            -- ^ @ad_len@
         -> IO CInt
 
 -- | Begin processing a new message using the provided nonce
 foreign import capi safe "botan/ffi.h botan_cipher_start"
     botan_cipher_start
-        :: BotanCipher      -- ^ cipher
-        -> ConstPtr Word8   -- ^ nonce
-        -> CSize            -- ^ nonce_len
+        :: BotanCipher      -- ^ @cipher@
+        -> ConstPtr Word8   -- ^ @nonce@
+        -> CSize            -- ^ @nonce_len@
         -> IO CInt
 
 pattern BOTAN_CIPHER_UPDATE_FLAG_NONE
@@ -212,18 +212,18 @@ pattern BOTAN_CIPHER_UPDATE_FLAG_FINAL  = #const BOTAN_CIPHER_UPDATE_FLAG_FINAL
 -- | Encrypt some data
 foreign import capi safe "botan/ffi.h botan_cipher_update"
     botan_cipher_update
-        :: BotanCipher      -- ^ cipher
-        -> Word32           -- ^ flags
-        -> Ptr Word8        -- ^ output[]
-        -> CSize            -- ^ output_size
-        -> Ptr CSize        -- ^ output_written
-        -> ConstPtr Word8   -- ^ input_bytes[]
-        -> CSize            -- ^ input_size
-        -> Ptr CSize        -- ^ input_consumed
+        :: BotanCipher      -- ^ @cipher@
+        -> Word32           -- ^ @flags@
+        -> Ptr Word8        -- ^ @output[]@
+        -> CSize            -- ^ @output_size@
+        -> Ptr CSize        -- ^ @output_written@
+        -> ConstPtr Word8   -- ^ @input_bytes[]@
+        -> CSize            -- ^ @input_size@
+        -> Ptr CSize        -- ^ @input_consumed@
         -> IO CInt
 
 -- | Reset the key, nonce, AD and all other state on this cipher object
 foreign import capi safe "botan/ffi.h botan_cipher_clear"
     botan_cipher_clear
-        :: BotanCipher -- ^ hash
+        :: BotanCipher -- ^ @hash@
         -> IO CInt

@@ -105,7 +105,7 @@ pattern BOTAN_FFI_ERROR_UNKNOWN_ERROR = #const BOTAN_FFI_ERROR_UNKNOWN_ERROR
 
 foreign import capi safe "botan/ffi.h botan_error_description"
     botan_error_description
-        :: CInt                -- ^ err
+        :: CInt                -- ^ @err@
         -> IO (ConstPtr CChar)
 
 foreign import capi safe "botan/ffi.h botan_error_last_exception_message"

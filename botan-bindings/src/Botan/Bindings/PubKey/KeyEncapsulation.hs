@@ -31,35 +31,35 @@ foreign import capi safe "botan/ffi.h &botan_pk_op_kem_encrypt_destroy"
 
 foreign import capi safe "botan/ffi.h botan_pk_op_kem_encrypt_create"
     botan_pk_op_kem_encrypt_create
-        :: Ptr BotanPKOpKEMEncrypt       -- ^ op
-        -> BotanPubKey                   -- ^ key
-        -> ConstPtr CChar                -- ^ kdf
+        :: Ptr BotanPKOpKEMEncrypt       -- ^ @op@
+        -> BotanPubKey                   -- ^ @key@
+        -> ConstPtr CChar                -- ^ @kdf@
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_pk_op_kem_encrypt_shared_key_length"
     botan_pk_op_kem_encrypt_shared_key_length
-        :: BotanPKOpKEMEncrypt       -- ^ op
-        -> CSize                     -- ^ desired_shared_key_length
-        -> Ptr CSize                 -- ^ output_shared_key_length
+        :: BotanPKOpKEMEncrypt       -- ^ @op@
+        -> CSize                     -- ^ @desired_shared_key_length@
+        -> Ptr CSize                 -- ^ @output_shared_key_length@
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_pk_op_kem_encrypt_encapsulated_key_length"
     botan_pk_op_kem_encrypt_encapsulated_key_length
-        :: BotanPKOpKEMEncrypt       -- ^ op
-        -> Ptr CSize                 -- ^ output_encapsulated_key_length
+        :: BotanPKOpKEMEncrypt       -- ^ @op@
+        -> Ptr CSize                 -- ^ @output_encapsulated_key_length@
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_pk_op_kem_encrypt_create_shared_key"
     botan_pk_op_kem_encrypt_create_shared_key
-        :: BotanPKOpKEMEncrypt       -- ^ op
-        -> BotanRNG                  -- ^ rng
-        -> ConstPtr Word8            -- ^ salt[]
-        -> CSize                     -- ^ salt_len
-        -> CSize                     -- ^ desired_shared_key_len
-        -> Ptr Word8                 -- ^ shared_key[]
-        -> Ptr CSize                 -- ^ shared_key_len
-        -> Ptr Word8                 -- ^ encapsulated_key[]
-        -> Ptr CSize                 -- ^ encapsulated_key_len
+        :: BotanPKOpKEMEncrypt       -- ^ @op@
+        -> BotanRNG                  -- ^ @rng@
+        -> ConstPtr Word8            -- ^ @salt[]@
+        -> CSize                     -- ^ @salt_len@
+        -> CSize                     -- ^ @desired_shared_key_len@
+        -> Ptr Word8                 -- ^ @shared_key[]@
+        -> Ptr CSize                 -- ^ @shared_key_len@
+        -> Ptr Word8                 -- ^ @encapsulated_key[]@
+        -> Ptr CSize                 -- ^ @encapsulated_key_len@
         -> IO CInt
 
 -- | Opaque KEM decrypt struct
@@ -77,26 +77,26 @@ foreign import capi safe "botan/ffi.h &botan_pk_op_kem_decrypt_destroy"
 
 foreign import capi safe "botan/ffi.h botan_pk_op_kem_decrypt_create"
     botan_pk_op_kem_decrypt_create
-        :: Ptr BotanPKOpKEMDecrypt       -- ^ op
-        -> BotanPrivKey                  -- ^ key
-        -> ConstPtr CChar                -- ^ kdf
+        :: Ptr BotanPKOpKEMDecrypt       -- ^ @op@
+        -> BotanPrivKey                  -- ^ @key@
+        -> ConstPtr CChar                -- ^ @kdf@
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_pk_op_kem_decrypt_shared_key_length"
     botan_pk_op_kem_decrypt_shared_key_length
-        :: BotanPKOpKEMDecrypt       -- ^ op
-        -> CSize                     -- ^ desired_shared_key_length
-        -> Ptr CSize                 -- ^ output_shared_key_length
+        :: BotanPKOpKEMDecrypt       -- ^ @op@
+        -> CSize                     -- ^ @desired_shared_key_length@
+        -> Ptr CSize                 -- ^ @output_shared_key_length@
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_pk_op_kem_decrypt_shared_key"
     botan_pk_op_kem_decrypt_shared_key
-        :: BotanPKOpKEMDecrypt       -- ^ op
-        -> ConstPtr Word8            -- ^ salt[]
-        -> CSize                     -- ^ salt_len
-        -> ConstPtr Word8            -- ^ encapsulated_key[]
-        -> CSize                     -- ^ encapsulated_key_len
-        -> CSize                     -- ^ desired_shared_key_len
-        -> Ptr Word8                 -- ^ shared_key[]
-        -> Ptr CSize                 -- ^ shared_key_len
+        :: BotanPKOpKEMDecrypt       -- ^ @op@
+        -> ConstPtr Word8            -- ^ @salt[]@
+        -> CSize                     -- ^ @salt_len@
+        -> ConstPtr Word8            -- ^ @encapsulated_key[]@
+        -> CSize                     -- ^ @encapsulated_key_len@
+        -> CSize                     -- ^ @desired_shared_key_len@
+        -> Ptr Word8                 -- ^ @shared_key[]@
+        -> Ptr CSize                 -- ^ @shared_key_len@
         -> IO CInt

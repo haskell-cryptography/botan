@@ -68,13 +68,13 @@ pattern BOTAN_KDF_SP800_56C           = "SP800-56C"
 -- | Derive a key
 foreign import capi safe "botan/ffi.h botan_kdf"
     botan_kdf
-        :: ConstPtr CChar  -- ^ kdf_algo KDF algorithm, e.g., "SP800-56C"
-        -> Ptr Word8       -- ^ out[] buffer holding the derived key, must be of length out_len
-        -> CSize           -- ^ out_len the desired output length in bytes
-        -> ConstPtr Word8  -- ^ secret[] the secret input
-        -> CSize           -- ^ secret_len size of secret in bytes
-        -> ConstPtr Word8  -- ^ salt[] a diversifier
-        -> CSize           -- ^ salt_len size of salt in bytes
-        -> ConstPtr Word8  -- ^ label[] purpose for the derived keying material
-        -> CSize           -- ^ label_len size of label in bytes
+        :: ConstPtr CChar  -- ^ @kdf_algo@: KDF algorithm, e.g., "SP800-56C"
+        -> Ptr Word8       -- ^ @out[]@: buffer holding the derived key, must be of length out_len
+        -> CSize           -- ^ @out_len@: the desired output length in bytes
+        -> ConstPtr Word8  -- ^ @secret[]@: the secret input
+        -> CSize           -- ^ @secret_len@: size of secret in bytes
+        -> ConstPtr Word8  -- ^ @salt[]@: a diversifier
+        -> CSize           -- ^ @salt_len@: size of salt in bytes
+        -> ConstPtr Word8  -- ^ @label[]@: purpose for the derived keying material
+        -> CSize           -- ^ @label_len@: size of label in bytes
         -> IO CInt         -- ^ 0 on success, a negative value on failure
