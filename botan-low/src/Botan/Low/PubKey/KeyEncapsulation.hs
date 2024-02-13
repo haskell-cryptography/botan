@@ -131,9 +131,9 @@ createKEMEncrypt   :: (Ptr BotanPKOpKEMEncrypt -> IO CInt) -> IO KEMEncrypt
 
 
 kemEncryptCreate
-    :: PubKey           -- ^ @key@
-    -> KDFName          -- ^ @kdf@
-    -> IO KEMEncrypt    -- ^ @op@
+    :: PubKey           -- ^ __key__
+    -> KDFName          -- ^ __kdf__
+    -> IO KEMEncrypt    -- ^ __op__
 kemEncryptCreate pk algo = withPubKey pk $ \ pkPtr -> do
     asCString algo $ \ algoPtr -> do
         createKEMEncrypt $ \ out -> botan_pk_op_kem_encrypt_create
@@ -146,15 +146,15 @@ withKEMEncryptCreate :: PubKey -> KDFName -> (KEMEncrypt -> IO a) -> IO a
 withKEMEncryptCreate = mkWithTemp2 kemEncryptCreate kemEncryptDestroy
 
 kemEncryptSharedKeyLength
-    :: KEMEncrypt   -- ^ @op@
-    -> Int          -- ^ @desired_shared_key_length@
-    -> IO Int       -- ^ @output_shared_key_length@
+    :: KEMEncrypt   -- ^ __op__
+    -> Int          -- ^ __desired_shared_key_length__
+    -> IO Int       -- ^ __output_shared_key_length__
 kemEncryptSharedKeyLength = mkGetSize_csize withKEMEncrypt botan_pk_op_kem_encrypt_shared_key_length
 
 
 kemEncryptEncapsulatedKeyLength
-    :: KEMEncrypt   -- ^ @op@
-    -> IO Int       -- ^ @output_encapsulated_key_length@
+    :: KEMEncrypt   -- ^ __op__
+    -> IO Int       -- ^ __output_encapsulated_key_length__
 kemEncryptEncapsulatedKeyLength = mkGetSize withKEMEncrypt botan_pk_op_kem_encrypt_encapsulated_key_length
 
 -- NOTE: Awkward because of double-query and returning double bytestrings
@@ -163,11 +163,11 @@ kemEncryptEncapsulatedKeyLength = mkGetSize withKEMEncrypt botan_pk_op_kem_encry
 
 
 kemEncryptCreateSharedKey
-    :: KEMEncrypt                           -- ^ @op@
-    -> RNG                                  -- ^ @rng@
-    -> ByteString                           -- ^ @salt[]@
-    -> Int                                  -- ^ @desired_shared_key_len@
-    -> IO (KEMSharedKey,KEMEncapsulatedKey) -- ^ @(shared_key,encapsulated_key)@
+    :: KEMEncrypt                           -- ^ __op__
+    -> RNG                                  -- ^ __rng__
+    -> ByteString                           -- ^ __salt[]__
+    -> Int                                  -- ^ __desired_shared_key_len__
+    -> IO (KEMSharedKey,KEMEncapsulatedKey) -- ^ __(shared_key,encapsulated_key)__
 kemEncryptCreateSharedKey ke rng salt desiredLen = withKEMEncrypt ke $ \ kePtr -> do
     withRNG rng $ \ botanRNG -> do
         asBytesLen salt $ \ saltPtr saltLen -> do
@@ -203,9 +203,9 @@ createKEMDecrypt   :: (Ptr BotanPKOpKEMDecrypt -> IO CInt) -> IO KEMDecrypt
         botan_pk_op_kem_decrypt_destroy
 
 kemDecryptCreate
-    :: PrivKey          -- ^ @key@
-    -> KDFName          -- ^ @kdf@
-    -> IO KEMDecrypt    -- ^ @op@
+    :: PrivKey          -- ^ __key__
+    -> KDFName          -- ^ __kdf__
+    -> IO KEMDecrypt    -- ^ __op__
 kemDecryptCreate sk algo = withPrivKey sk $ \ skPtr -> do
     asCString algo $ \ algoPtr -> do
         createKEMDecrypt $ \ out -> botan_pk_op_kem_decrypt_create
@@ -218,17 +218,17 @@ withKEMDecryptCreate :: PrivKey -> KDFName -> (KEMDecrypt -> IO a) -> IO a
 withKEMDecryptCreate = mkWithTemp2 kemDecryptCreate kemDecryptDestroy
 
 kemDecryptSharedKeyLength
-    :: KEMDecrypt   -- ^ @op@
-    -> Int          -- ^ @desired_shared_key_length@
-    -> IO Int       -- ^ @output_shared_key_length@
+    :: KEMDecrypt   -- ^ __op__
+    -> Int          -- ^ __desired_shared_key_length__
+    -> IO Int       -- ^ __output_shared_key_length__
 kemDecryptSharedKeyLength = mkGetSize_csize withKEMDecrypt botan_pk_op_kem_decrypt_shared_key_length
 
 kemDecryptSharedKey
-    :: KEMDecrypt           -- ^ @op@
-    -> ByteString           -- ^ @salt[]@
-    -> KEMEncapsulatedKey   -- ^ @encapsulated_key[]@
-    -> Int                  -- ^ @desired_shared_key_len@
-    -> IO KEMSharedKey      -- ^ @shared_key[]@
+    :: KEMDecrypt           -- ^ __op__
+    -> ByteString           -- ^ __salt[]__
+    -> KEMEncapsulatedKey   -- ^ __encapsulated_key[]__
+    -> Int                  -- ^ __desired_shared_key_len__
+    -> IO KEMSharedKey      -- ^ __shared_key[]__
 kemDecryptSharedKey kd salt encap desiredLen = withKEMDecrypt kd $ \ kdPtr -> do
     asBytesLen salt $ \ saltPtr saltLen -> do
         asBytesLen encap $ \ encapPtr encapLen -> do

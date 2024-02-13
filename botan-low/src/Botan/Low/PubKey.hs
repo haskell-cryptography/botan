@@ -547,11 +547,11 @@ emsa_none = ""
 
 -- | Create a new private key
 privKeyCreate
-    :: ByteString   -- ^ @algo_name@: something like "RSA" or "ECDSA"
-    -> ByteString   -- ^ @algo_params@: is specific to the algorithm. For RSA, specifies
+    :: ByteString   -- ^ __algo_name__: something like "RSA" or "ECDSA"
+    -> ByteString   -- ^ __algo_params__: is specific to the algorithm. For RSA, specifies
                     --   the modulus bit length. For ECC is the name of the curve.
-    -> RNG          -- ^ @rng@: a random number generator
-    -> IO PrivKey   -- ^ @key@: the new object will be placed here
+    -> RNG          -- ^ __rng__: a random number generator
+    -> IO PrivKey   -- ^ __key__: the new object will be placed here
 privKeyCreate name params rng = asCString name $ \ namePtr -> do
     asCString params $ \ paramsPtr -> do
         withRNG rng $ \ botanRNG -> do
@@ -576,9 +576,9 @@ pattern CheckKeyExpensiveTests = BOTAN_CHECK_KEY_EXPENSIVE_TESTS
 -- TODO: Probably catch -1 (INVALID_INPUT), return Bool
 -- | Check the validity of a private key
 privKeyCheckKey
-    :: PrivKey          -- ^ @key@
-    -> RNG              -- ^ @rng@
-    -> CheckKeyFlags    -- ^ @flags@
+    :: PrivKey          -- ^ __key__
+    -> RNG              -- ^ __rng__
+    -> CheckKeyFlags    -- ^ __flags__
     -> IO ()
 privKeyCheckKey sk rng flags = withPrivKey sk $ \ skPtr -> do
     withRNG rng $ \ botanRNG -> do
@@ -595,9 +595,9 @@ Set password to NULL to indicate no encryption expected
 Starting in 2.8.0, the rng parameter is unused and may be set to null
 -}
 privKeyLoad
-    :: ByteString   -- ^ @bits[]@
-    -> ByteString   -- ^ @password@
-    -> IO PrivKey   -- ^ @key@
+    :: ByteString   -- ^ __bits[]__
+    -> ByteString   -- ^ __password__
+    -> IO PrivKey   -- ^ __key__
 privKeyLoad bits password = asBytesLen bits $ \ bitsPtr bitsLen -> do
     let asCStringNullable str act = if ByteString.null str
         then act nullPtr
@@ -628,9 +628,9 @@ Returns 0 on success and sets
 If some other error occurs a negative integer is returned.
 -}      
 privKeyExport
-    :: PrivKey              -- ^ @key@
-    -> PrivKeyExportFlags   -- ^ @flags@
-    -> IO ByteString        -- ^ @out[]@
+    :: PrivKey              -- ^ __key__
+    -> PrivKeyExportFlags   -- ^ __flags__
+    -> IO ByteString        -- ^ __out[]__
 privKeyExport sk flags = withPrivKey sk $ \ skPtr -> do
     alloca $ \szPtr -> do
         poke szPtr 0
@@ -643,22 +643,22 @@ privKeyExport sk flags = withPrivKey sk $ \ skPtr -> do
 -- TODO:
 -- | View the private key's DER encoding
 -- privKeyViewDER
---         :: BotanPrivKey                         -- ^ @key@
---         -> BotanViewContext ctx                 -- ^ @ctx@
---         -> FunPtr (BotanViewBinCallback ctx)    -- ^ @view@
+--         :: BotanPrivKey                         -- ^ __key__
+--         -> BotanViewContext ctx                 -- ^ __ctx__
+--         -> FunPtr (BotanViewBinCallback ctx)    -- ^ __view__
 --         -> IO CInt
 
 -- TODO:
 -- | View the private key's PEM encoding
 -- privKeyViewPEM
---         :: BotanPrivKey                         -- ^ @key@
---         -> BotanViewContext ctx                 -- ^ @ctx@
---         -> FunPtr (BotanViewStrCallback ctx)    -- ^ @view@
+--         :: BotanPrivKey                         -- ^ __key__
+--         -> BotanViewContext ctx                 -- ^ __ctx__
+--         -> FunPtr (BotanViewStrCallback ctx)    -- ^ __view__
 --         -> IO CInt
 
 privKeyAlgoName
-    :: PrivKey          -- ^ @key@
-    -> IO ByteString    -- ^ @out[]@
+    :: PrivKey          -- ^ __key__
+    -> IO ByteString    -- ^ __out[]__
 privKeyAlgoName = mkGetCString withPrivKey botan_privkey_algo_name
 
 -- TODO:
@@ -700,8 +700,8 @@ createPubKey   :: (Ptr BotanPubKey -> IO CInt) -> IO PubKey
 type PubKeyName = ByteString
 
 pubKeyLoad
-    :: ByteString   -- ^ @bits[]@
-    -> IO PubKey    -- ^ @key@
+    :: ByteString   -- ^ __bits[]__
+    -> IO PubKey    -- ^ __key__
 pubKeyLoad = mkCreateObjectCBytesLen createPubKey botan_pubkey_load
 
 -- WARNING: withFooInit-style limited lifetime functions moved to high-level botan
@@ -709,8 +709,8 @@ withPubKeyLoad :: ByteString -> (PubKey -> IO a) -> IO a
 withPubKeyLoad = mkWithTemp1 pubKeyLoad pubKeyDestroy
 
 privKeyExportPubKey
-    :: PrivKey      -- ^ @in@
-    -> IO PubKey    -- ^ @out@
+    :: PrivKey      -- ^ __in__
+    -> IO PubKey    -- ^ __out__
 privKeyExportPubKey = mkCreateObjectWith createPubKey withPrivKey botan_privkey_export_pubkey
 
 type PubKeyExportFlags = PrivKeyExportFlags
@@ -724,9 +724,9 @@ pattern PubKeyExportPEM = PrivKeyExportPEM
 
 -- NOTE: Different from allocBytesQuerying / INSUFFICIENT_BUFFER_SPACE     
 pubKeyExport
-    :: PubKey               -- ^ @key@
-    -> PubKeyExportFlags    -- ^ @flags@
-    -> IO ByteString        -- ^ @out[]@
+    :: PubKey               -- ^ __key__
+    -> PubKeyExportFlags    -- ^ __flags__
+    -> IO ByteString        -- ^ __out[]__
 pubKeyExport pk flags = withPubKey pk $ \ pkPtr -> do
     alloca $ \szPtr -> do
         poke szPtr 0
@@ -738,14 +738,14 @@ pubKeyExport pk flags = withPubKey pk $ \ pkPtr -> do
 
 
 pubKeyAlgoName
-    :: PubKey           -- ^ @key@
-    -> IO ByteString    -- ^ @out[]@
+    :: PubKey           -- ^ __key__
+    -> IO ByteString    -- ^ __out[]__
 pubKeyAlgoName = mkGetCString withPubKey botan_pubkey_algo_name
 
 pubKeyCheckKey
-    :: PubKey           -- ^ @key@
-    -> RNG              -- ^ @rng@
-    -> CheckKeyFlags    -- ^ @flags@
+    :: PubKey           -- ^ __key__
+    -> RNG              -- ^ __rng__
+    -> CheckKeyFlags    -- ^ __flags__
     -> IO Bool
 pubKeyCheckKey pk rng flags = withPubKey pk $ \ pkPtr -> do
     withRNG rng $ \ botanRNG -> do
@@ -754,14 +754,14 @@ pubKeyCheckKey pk rng flags = withPubKey pk $ \ pkPtr -> do
 -- Annoying - this mixes cint and csize
 --  I need to consolidate getsize / getint
 pubKeyEstimatedStrength
-    :: PubKey   -- ^ @key@
-    -> IO Int   -- ^ @estimate@
+    :: PubKey   -- ^ __key__
+    -> IO Int   -- ^ __estimate__
 pubKeyEstimatedStrength pk = fromIntegral <$> mkGetSize withPubKey botan_pubkey_estimated_strength pk
 
 pubKeyFingerprint
-    :: PubKey           -- ^ @key@
-    -> HashName         -- ^ @hash@
-    -> IO ByteString    -- ^ @out[]@
+    :: PubKey           -- ^ __key__
+    -> HashName         -- ^ __hash__
+    -> IO ByteString    -- ^ __out[]__
 pubKeyFingerprint pk algo = withPubKey pk $ \ pkPtr -> do
     asCString algo $ \ algoPtr -> do
         allocBytesQuerying $ \ outPtr outLen -> botan_pubkey_fingerprint
@@ -772,9 +772,9 @@ pubKeyFingerprint pk algo = withPubKey pk $ \ pkPtr -> do
 
 -- | Get arbitrary named fields from public or private keys
 pubKeyGetField
-    :: MP           -- ^ @output@
-    -> PubKey       -- ^ @key@
-    -> ByteString   -- ^ @field_name@
+    :: MP           -- ^ __output__
+    -> PubKey       -- ^ __key__
+    -> ByteString   -- ^ __field_name__
     -> IO ()
 pubKeyGetField mp pk field = withMP mp $ \ mpPtr -> do
     withPubKey pk $ \ pkPtr -> do
@@ -786,9 +786,9 @@ pubKeyGetField mp pk field = withMP mp $ \ mpPtr -> do
 
 -- | Get arbitrary named fields from public or private keys
 privKeyGetField
-    :: MP           -- ^ @output@
-    -> PrivKey      -- ^ @key@
-    -> ByteString   -- ^ @field_name@
+    :: MP           -- ^ __output__
+    -> PrivKey      -- ^ __key__
+    -> ByteString   -- ^ __field_name__
     -> IO ()
 privKeyGetField mp sk field = withMP mp $ \ mpPtr -> do
     withPrivKey sk $ \ skPtr -> do

@@ -94,11 +94,11 @@ pattern FPEFE1CompatMode = BOTAN_FPE_FLAG_FE1_COMPAT_MODE
 
 -- | Initialize a FE1 FPE context
 fpeInitFE1
-    :: MP           -- ^ @n@
-    -> ByteString   -- ^ @key[]@
-    -> Int          -- ^ @rounds@
-    -> FPEFlags     -- ^ @flags@
-    -> IO FPE       -- ^ @fpe@
+    :: MP           -- ^ __n__
+    -> ByteString   -- ^ __key[]__
+    -> Int          -- ^ __rounds__
+    -> FPEFlags     -- ^ __flags__
+    -> IO FPE       -- ^ __fpe__
 fpeInitFE1 n key rounds flags = withMP n $ \ nPtr -> do
     asBytesLen key $ \ keyPtr keyLen -> do
         createFPE $ \ out -> botan_fpe_fe1_init
@@ -124,9 +124,9 @@ withFPEInitFE1 = mkWithTemp4 fpeInitFE1 fpeDestroy
 --
 -- NOTE: Mutates the MP
 fpeEncrypt
-    :: FPE          -- ^ @fpe@
-    -> MP           -- ^ @x@
-    -> ByteString   -- ^ @tweak[]@
+    :: FPE          -- ^ __fpe__
+    -> MP           -- ^ __x__
+    -> ByteString   -- ^ __tweak[]__
     -> IO ()
 fpeEncrypt fpe mp tweak = do
     withFPE fpe $ \ fpePtr -> do
@@ -145,9 +145,9 @@ fpeEncrypt fpe mp tweak = do
 --
 -- NOTE: Mutates the MP
 fpeDecrypt
-    :: FPE          -- ^ @fpe@
-    -> MP           -- ^ @x@
-    -> ByteString   -- ^ @tweak[]@
+    :: FPE          -- ^ __fpe__
+    -> MP           -- ^ __x__
+    -> ByteString   -- ^ __tweak[]__
     -> IO ()
 fpeDecrypt fpe mp tweak = do
     withFPE fpe $ \ fpePtr -> do

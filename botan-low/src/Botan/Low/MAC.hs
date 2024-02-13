@@ -224,8 +224,8 @@ type MACDigest = ByteString
 
 -- | Initialize a message authentication code object
 macInit
-    :: MACName  -- ^ @mac_name@: name of the hash function, e.g., "HMAC(SHA-384)"
-    -> IO MAC   -- ^ @mac@: mac object
+    :: MACName  -- ^ __mac_name__: name of the hash function, e.g., "HMAC(SHA-384)"
+    -> IO MAC   -- ^ __mac__: mac object
 macInit = mkCreateObjectCString createMAC (\ out name -> botan_mac_init out name 0)
 
 -- WARNING: withFooInit-style limited lifetime functions moved to high-level botan
@@ -234,14 +234,14 @@ withMACInit = mkWithTemp1 macInit macDestroy
 
 -- | Writes the output length of the message authentication code to *output_length
 macOutputLength
-    :: MAC      -- ^ @mac@: mac object
-    -> IO Int   -- ^ @output_length@: output buffer to hold the MAC output length
+    :: MAC      -- ^ __mac__: mac object
+    -> IO Int   -- ^ __output_length__: output buffer to hold the MAC output length
 macOutputLength = mkGetSize withMAC botan_mac_output_length
 
 -- | Sets the key on the MAC
 macSetKey
-    :: MAC          -- ^ @mac@: mac object
-    -> ByteString   -- ^ @key@: buffer holding the key
+    :: MAC          -- ^ __mac__: mac object
+    -> ByteString   -- ^ __key__: buffer holding the key
     -> IO ()
 macSetKey = mkWithObjectSetterCBytesLen withMAC botan_mac_set_key
 
@@ -250,15 +250,15 @@ macSetKey = mkWithObjectSetterCBytesLen withMAC botan_mac_set_key
 --  Other MACs do not require a nonce, and will cause a BadParameterException (-32)
 -- | Sets the nonce on the MAC
 macSetNonce
-    :: MAC          -- ^ @mac@: mac object
-    -> ByteString   -- ^ @nonce@: buffer holding the nonce
+    :: MAC          -- ^ __mac__: mac object
+    -> ByteString   -- ^ __nonce__: buffer holding the nonce
     -> IO ()
 macSetNonce = mkWithObjectSetterCBytesLen withMAC botan_mac_set_nonce
 
 -- | Send more input to the message authentication code
 macUpdate
-    :: MAC          -- ^ @mac@: mac object
-    -> ByteString   -- ^ @buf@: input buffer
+    :: MAC          -- ^ __mac__: mac object
+    -> ByteString   -- ^ __buf__: input buffer
     -> IO ()
 macUpdate = mkWithObjectSetterCBytesLen withMAC botan_mac_update
 
@@ -269,8 +269,8 @@ out[0:botan_mac_output_length()] then reinitializes for computing
 another MAC as if botan_mac_clear had been called.
 -}
 macFinal
-    :: MAC          -- ^ @mac@: mac object
-    -> IO MACDigest -- ^ @out[]@: output buffer
+    :: MAC          -- ^ __mac__: mac object
+    -> IO MACDigest -- ^ __out[]__: output buffer
 macFinal mac = withMAC mac $ \ macPtr -> do
     -- sz <- alloca $ \ szPtr -> do
     --     throwBotanIfNegative_ $ botan_mac_output_length macPtr szPtr
@@ -290,14 +290,14 @@ macClear = mkAction withMAC botan_mac_clear
 
 -- | Get the name of this MAC
 macName
-    :: MAC              -- ^ @mac@: the object to read
-    -> IO ByteString    -- ^ @name@: output buffer
+    :: MAC              -- ^ __mac__: the object to read
+    -> IO ByteString    -- ^ __name__: output buffer
 macName = mkGetCString withMAC botan_mac_name
 
 -- | Get the key length limits of this auth code
 macGetKeyspec
-    :: MAC              -- ^ @mac@: the object to read
-    -> IO (Int,Int,Int) -- ^ @(min,max,mod)@: minimum maximum and modulo keylength of MAC
+    :: MAC              -- ^ __mac__: the object to read
+    -> IO (Int,Int,Int) -- ^ __(min,max,mod)__: minimum maximum and modulo keylength of MAC
 macGetKeyspec = mkGetSizes3 withMAC botan_mac_get_keyspec
 
 -- TODO: MAC does not have a nonce size query, and it relies on per-algorithm knowledgre

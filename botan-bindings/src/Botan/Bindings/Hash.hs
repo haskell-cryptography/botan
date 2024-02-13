@@ -101,47 +101,47 @@ pattern BOTAN_CHECKSUM_CRC32    = "CRC32"
 -- | Initialize a hash function object
 foreign import capi safe "botan/ffi.h botan_hash_init"
     botan_hash_init
-        :: Ptr BotanHash    -- ^ @hash@: hash object
-        -> ConstPtr CChar   -- ^ @hash_name@: name of the hash function, e.g., "SHA-384"
-        -> Word32           -- ^ @flags@: should be 0 in current API revision, all other uses are reserved
+        :: Ptr BotanHash    -- ^ __hash__: hash object
+        -> ConstPtr CChar   -- ^ __hash_name__: name of the hash function, e.g., "SHA-384"
+        -> Word32           -- ^ __flags__: should be 0 in current API revision, all other uses are reserved
                             --   and return BOTAN_FFI_ERROR_BAD_FLAG
         -> IO CInt      
 
 -- | Get the name of this hash function
 foreign import capi safe "botan/ffi.h botan_hash_name"
     botan_hash_name
-        :: BotanHash    -- ^ @hash@: the object to read
-        -> Ptr CChar    -- ^ @name@: output buffer
-        -> Ptr CSize    -- ^ @name_len@: on input, the length of buffer, on success the number of bytes written
+        :: BotanHash    -- ^ __hash__: the object to read
+        -> Ptr CChar    -- ^ __name__: output buffer
+        -> Ptr CSize    -- ^ __name_len__: on input, the length of buffer, on success the number of bytes written
         -> IO CInt
 
 -- | Copy the state of a hash function object
 foreign import capi safe "botan/ffi.h botan_hash_copy_state"
     botan_hash_copy_state
-        :: Ptr BotanHash    -- ^ @dest@: destination hash object
-        -> BotanHash        -- ^ @source@: source hash object
+        :: Ptr BotanHash    -- ^ __dest__: destination hash object
+        -> BotanHash        -- ^ __source__: source hash object
         -> IO CInt          -- ^ 0 on success, a negative value on failure
 
 -- | Writes the output length of the hash function to *output_length
 foreign import capi safe "botan/ffi.h botan_hash_output_length"
     botan_hash_output_length
-        :: BotanHash    -- ^ @hash@: hash object
-        -> Ptr CSize    -- ^ @output_length@: output buffer to hold the hash function output length
+        :: BotanHash    -- ^ __hash__: hash object
+        -> Ptr CSize    -- ^ __output_length__: output buffer to hold the hash function output length
         -> IO CInt      -- ^ 0 on success, a negative value on failure
 
 -- | Writes the block size of the hash function to *block_size
 foreign import capi safe "botan/ffi.h botan_hash_block_size"
     botan_hash_block_size
-        :: BotanHash    -- ^ @hash@: hash object
-        -> Ptr CSize    -- ^ @block_size@: output buffer to hold the hash function block size
+        :: BotanHash    -- ^ __hash__: hash object
+        -> Ptr CSize    -- ^ __block_size__: output buffer to hold the hash function block size
         -> IO CInt      -- ^ 0 on success, a negative value on failure
 
 -- | Send more input to the hash function
 foreign import capi safe "botan/ffi.h botan_hash_update"
     botan_hash_update
-        :: BotanHash        -- ^ @hash@: hash object
-        -> ConstPtr Word8   -- ^ @in@: input buffer
-        -> CSize            -- ^ @in_len@: number of bytes to read from the input buffer
+        :: BotanHash        -- ^ __hash__: hash object
+        -> ConstPtr Word8   -- ^ __in__: input buffer
+        -> CSize            -- ^ __in_len__: number of bytes to read from the input buffer
         -> IO CInt          -- ^ 0 on success, a negative value on failure
 
 {- |
@@ -151,8 +151,8 @@ another digest as if botan_hash_clear had been called.
 -}
 foreign import capi safe "botan/ffi.h botan_hash_final"
     botan_hash_final
-        :: BotanHash    -- ^ @hash@: hash object
-        -> Ptr Word8    -- ^ @out[]@: output buffer
+        :: BotanHash    -- ^ __hash__: hash object
+        -> Ptr Word8    -- ^ __out[]__: output buffer
         -> IO CInt      -- ^ 0 on success, a negative value on failure
 
 {- |
@@ -161,12 +161,12 @@ be computed (with update/final) immediately.
 -}
 foreign import capi safe "botan/ffi.h botan_hash_clear"
     botan_hash_clear
-        :: BotanHash    -- ^ @hash@: hash object
+        :: BotanHash    -- ^ __hash__: hash object
         -> IO CInt      -- 0 on success, a negative value on failure
 
 foreign import capi safe "botan/ffi.h botan_pkcs_hash_id"
     botan_pkcs_hash_id
-        :: ConstPtr CChar -- ^ @hash_name@
-        -> Ptr Word8      -- ^ @pkcs_id[]@
-        -> Ptr CSize      -- ^ @pkcs_id_len@
+        :: ConstPtr CChar -- ^ __hash_name__
+        -> Ptr Word8      -- ^ __pkcs_id[]__
+        -> Ptr CSize      -- ^ __pkcs_id_len__
         -> IO CInt

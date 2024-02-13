@@ -41,22 +41,22 @@ foreign import capi safe "botan/ffi.h &botan_pk_op_verify_destroy"
 -- | Uses the same flags as botan_pk_op_sign_create
 foreign import capi safe "botan/ffi.h botan_pk_op_verify_create"
     botan_pk_op_verify_create
-        :: Ptr BotanPKOpVerify      -- ^ @op@
-        -> BotanPubKey              -- ^ @key@
-        -> ConstPtr CChar           -- ^ @hash_and_padding@
-        -> Word32                   -- ^ @flags@
+        :: Ptr BotanPKOpVerify      -- ^ __op__
+        -> BotanPubKey              -- ^ __key__
+        -> ConstPtr CChar           -- ^ __hash_and_padding__
+        -> Word32                   -- ^ __flags__
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_pk_op_verify_update"
     botan_pk_op_verify_update
-        :: BotanPKOpVerify      -- ^ @op@
-        -> ConstPtr Word8       -- ^ @in[]@
-        -> CSize                -- ^ @in_len@
+        :: BotanPKOpVerify      -- ^ __op__
+        -> ConstPtr Word8       -- ^ __in[]__
+        -> CSize                -- ^ __in_len__
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_pk_op_verify_finish"
     botan_pk_op_verify_finish
-        :: BotanPKOpVerify      -- ^ @op@
-        -> ConstPtr Word8       -- ^ @sig[]@
-        -> CSize                -- ^ @sig_len@
+        :: BotanPKOpVerify      -- ^ __op__
+        -> ConstPtr Word8       -- ^ __sig[]__
+        -> CSize                -- ^ __sig_len__
         -> IO CInt

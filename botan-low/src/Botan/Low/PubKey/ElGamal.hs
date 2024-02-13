@@ -27,10 +27,10 @@ import Botan.Low.RNG
 -- */
 
 privKeyCreateElGamal
-    :: RNG          -- ^ @rng@: initialized PRNG
-    -> Int          -- ^ @pbits@: length of the key in bits. Must be at least 1024
-    -> Int          -- ^ @qbits@: order of the subgroup. Must be at least 160
-    -> IO PrivKey   -- ^ @key@: handler to the resulting key
+    :: RNG          -- ^ __rng__: initialized PRNG
+    -> Int          -- ^ __pbits__: length of the key in bits. Must be at least 1024
+    -> Int          -- ^ __qbits__: order of the subgroup. Must be at least 160
+    -> IO PrivKey   -- ^ __key__: handler to the resulting key
 privKeyCreateElGamal rng pbits qbits = withRNG rng $ \ botanRNG -> do
     createPrivKey $ \ out -> botan_privkey_create_elgamal
         out
@@ -39,15 +39,15 @@ privKeyCreateElGamal rng pbits qbits = withRNG rng $ \ botanRNG -> do
         (fromIntegral qbits)
 
 privKeyLoadElGamal
-    :: MP           -- ^ @p@: prime order of a Z_p group
-    -> MP           -- ^ @g@: group generator
-    -> MP           -- ^ @x@: public key
-    -> IO PrivKey   -- ^ @key@: variable populated with key material
+    :: MP           -- ^ __p__: prime order of a Z_p group
+    -> MP           -- ^ __g__: group generator
+    -> MP           -- ^ __x__: public key
+    -> IO PrivKey   -- ^ __key__: variable populated with key material
 privKeyLoadElGamal = mkPrivKeyLoad3 botan_privkey_load_elgamal
 
 pubKeyLoadElGamal
-    :: MP           -- ^ @p@: prime order of a Z_p group
-    -> MP           -- ^ @g@: group generator
-    -> MP           -- ^ @y@: private key
-    -> IO PubKey    -- ^ @key@: variable populated with key material
+    :: MP           -- ^ __p__: prime order of a Z_p group
+    -> MP           -- ^ __g__: group generator
+    -> MP           -- ^ __y__: private key
+    -> IO PubKey    -- ^ __key__: variable populated with key material
 pubKeyLoadElGamal = mkPubKeyLoad3 botan_pubkey_load_elgamal

@@ -42,29 +42,29 @@ pattern BOTAN_PUBKEY_DER_FORMAT_SIGNATURE = #const BOTAN_PUBKEY_DER_FORMAT_SIGNA
 
 foreign import capi safe "botan/ffi.h botan_pk_op_sign_create"
     botan_pk_op_sign_create
-        :: Ptr BotanPKOpSign      -- ^ @op@
-        -> BotanPrivKey           -- ^ @key@
-        -> ConstPtr CChar         -- ^ @hash_and_padding@
-        -> Word32                 -- ^ @flags@
+        :: Ptr BotanPKOpSign      -- ^ __op__
+        -> BotanPrivKey           -- ^ __key__
+        -> ConstPtr CChar         -- ^ __hash_and_padding__
+        -> Word32                 -- ^ __flags__
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_pk_op_sign_output_length"
     botan_pk_op_sign_output_length
-        :: BotanPKOpSign      -- ^ @op@
-        -> Ptr CSize          -- ^ @olen@
+        :: BotanPKOpSign      -- ^ __op__
+        -> Ptr CSize          -- ^ __olen__
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_pk_op_sign_update"
     botan_pk_op_sign_update
-        :: BotanPKOpSign      -- ^ @op@
-        -> ConstPtr Word8     -- ^ @in[]@
-        -> CSize              -- ^ @in_len@
+        :: BotanPKOpSign      -- ^ __op__
+        -> ConstPtr Word8     -- ^ __in[]__
+        -> CSize              -- ^ __in_len__
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_pk_op_sign_finish"
     botan_pk_op_sign_finish
-        :: BotanPKOpSign      -- ^ @op@
-        -> BotanRNG           -- ^ @rng@
-        -> Ptr Word8          -- ^ @sig[]@
-        -> Ptr CSize          -- ^ @sig_len@
+        :: BotanPKOpSign      -- ^ __op__
+        -> BotanRNG           -- ^ __rng__
+        -> Ptr Word8          -- ^ __sig[]__
+        -> Ptr CSize          -- ^ __sig_len__
         -> IO CInt

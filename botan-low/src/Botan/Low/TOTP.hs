@@ -193,11 +193,11 @@ type TOTPCode = Word32
 --
 -- NOTE: Digits should be 6-8
 totpInit
-    :: ByteString   -- ^ @key[]@
-    -> TOTPHashName -- ^ @hash_algo@
-    -> Int          -- ^ @digits@
-    -> TOTPTimestep -- ^ @time_step@
-    -> IO TOTP      -- ^ @totp@
+    :: ByteString   -- ^ __key[]__
+    -> TOTPHashName -- ^ __hash_algo__
+    -> Int          -- ^ __digits__
+    -> TOTPTimestep -- ^ __time_step__
+    -> IO TOTP      -- ^ __totp__
 totpInit key algo digits timestep = asBytesLen key $ \ keyPtr keyLen -> do
     asCString algo $ \ algoPtr -> do
         createTOTP $ \ out -> botan_totp_init
@@ -214,9 +214,9 @@ withTOTPInit = mkWithTemp4 totpInit totpDestroy
 
 -- | Generate a TOTP code for the provided timestamp
 totpGenerate
-    :: TOTP             -- ^ @totp@: the TOTP object
-    -> TOTPTimestamp    -- ^ @totp_code@: the OTP code will be written here
-    -> IO TOTPCode      -- ^ @timestamp@: the current local timestamp
+    :: TOTP             -- ^ __totp__: the TOTP object
+    -> TOTPTimestamp    -- ^ __totp_code__: the OTP code will be written here
+    -> IO TOTPCode      -- ^ __timestamp__: the current local timestamp
 totpGenerate totp timestamp = withTOTP totp $ \ totpPtr -> do
     alloca $ \ outPtr -> do
         throwBotanIfNegative $ botan_totp_generate totpPtr outPtr timestamp
@@ -224,10 +224,10 @@ totpGenerate totp timestamp = withTOTP totp $ \ totpPtr -> do
 
 -- | Verify a TOTP code
 totpCheck
-    :: TOTP             -- ^ @totp@: the TOTP object
-    -> TOTPCode         -- ^ @totp_code@: the presented OTP
-    -> TOTPTimestamp    -- ^ @timestamp@: the current local timestamp
-    -> Int              -- ^ @acceptable_clock_drift@: specifies the acceptable amount
+    :: TOTP             -- ^ __totp__: the TOTP object
+    -> TOTPCode         -- ^ __totp_code__: the presented OTP
+    -> TOTPTimestamp    -- ^ __timestamp__: the current local timestamp
+    -> Int              -- ^ __acceptable_clock_drift__: specifies the acceptable amount
                         --   of clock drift (in terms of time steps) between the two hosts.
     -> IO Bool
 totpCheck totp code timestamp drift = withTOTP totp $ \ totpPtr -> do

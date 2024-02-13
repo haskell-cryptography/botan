@@ -43,11 +43,11 @@ import Botan.Bindings.Prelude
 -- | Encode some bytes with certain ZFEC parameters.
 foreign import capi safe "botan/ffi.h botan_zfec_encode"
     botan_zfec_encode
-        :: CSize            -- ^ @K@: the number of shares needed for recovery
-        -> CSize            -- ^ @N@: the number of shares generated
-        -> ConstPtr Word8   -- ^ @input@: the data to FEC
-        -> CSize            -- ^ @size@: the length in bytes of input, which must be a multiple of K
-        -> Ptr (Ptr Word8)  -- ^ @outputs@: An out parameter pointing to a fully allocated array of size
+        :: CSize            -- ^ __K__: the number of shares needed for recovery
+        -> CSize            -- ^ __N__: the number of shares generated
+        -> ConstPtr Word8   -- ^ __input__: the data to FEC
+        -> CSize            -- ^ __size__: the length in bytes of input, which must be a multiple of K
+        -> Ptr (Ptr Word8)  -- ^ __outputs__: An out parameter pointing to a fully allocated array of size
                             --   [N][size / K].  For all n in range, an encoded block will be
                             --   written to the memory starting at outputs[n][0].
         -> IO CInt          -- ^ 0 on success, negative on failure
@@ -55,13 +55,13 @@ foreign import capi safe "botan/ffi.h botan_zfec_encode"
 -- | Decode some previously encoded shares using certain ZFEC parameters.
 foreign import capi safe "botan/ffi.h botan_zfec_decode"
     botan_zfec_decode
-        :: CSize                     -- ^ @K@: the number of shares needed for recovery
-        -> CSize                     -- ^ @N@: the total number of shares
-        -> ConstPtr CSize            -- ^ @indexes@: The index into the encoder's outputs for the corresponding
+        :: CSize                     -- ^ __K__: the number of shares needed for recovery
+        -> CSize                     -- ^ __N__: the total number of shares
+        -> ConstPtr CSize            -- ^ __indexes__: The index into the encoder's outputs for the corresponding
                                      --   element of the inputs array. Must be of length K.
-        -> ConstPtr (ConstPtr Word8) -- ^ @inputs@: K previously encoded shares to decode
-        -> CSize                     -- ^ @shareSize@: the length in bytes of each input
-        -> Ptr (Ptr Word8)           -- ^ @outputs@: An out parameter pointing to a fully allocated array of size
+        -> ConstPtr (ConstPtr Word8) -- ^ __inputs__: K previously encoded shares to decode
+        -> CSize                     -- ^ __shareSize__: the length in bytes of each input
+        -> Ptr (Ptr Word8)           -- ^ __outputs__: An out parameter pointing to a fully allocated array of size
                                      --   [K][shareSize].  For all k in range, a decoded block will
                                      --   written to the memory starting at outputs[k][0].
         -> IO CInt                   -- ^ 0 on success, negative on failure

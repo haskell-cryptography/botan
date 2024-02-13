@@ -293,8 +293,8 @@ allHashes = cryptohashes ++ checksums
 type HashDigest = ByteString
 
 hashInit
-    :: HashName -- ^ @hash_name@: name of the hash function, e.g., "SHA-384"
-    -> IO Hash  -- ^ @hash@: hash object
+    :: HashName -- ^ __hash_name__: name of the hash function, e.g., "SHA-384"
+    -> IO Hash  -- ^ __hash__: hash object
 hashInit = mkCreateObjectCString createHash (\ out name -> botan_hash_init out name 0)
 
 -- WARNING: withFooInit-style limited lifetime functions moved to high-level botan
@@ -302,8 +302,8 @@ withHashInit :: HashName -> (Hash -> IO a) -> IO a
 withHashInit = mkWithTemp1 hashInit hashDestroy
 
 hashName
-    :: Hash             -- ^ @hash@: the object to read
-    -> IO HashDigest    -- ^ @name@: output buffer
+    :: Hash             -- ^ __hash__: the object to read
+    -> IO HashDigest    -- ^ __name__: output buffer
 hashName = mkGetCString withHash botan_hash_name
 
 -- NOTE: This does the correct thing - see C++ docs:
@@ -311,35 +311,35 @@ hashName = mkGetCString withHash botan_hash_name
 --  whose internal state matches the current state of this.
 
 hashCopyState
-    :: Hash     -- ^ @source@: source hash object
-    -> IO Hash  -- ^ @dest@: destination hash object
+    :: Hash     -- ^ __source__: source hash object
+    -> IO Hash  -- ^ __dest__: destination hash object
 hashCopyState source = withHash source $ \ sourcePtr -> do
     createHash $ \ dest -> botan_hash_copy_state dest sourcePtr
 
 hashClear
-    :: Hash -- ^ @hash@: hash object
+    :: Hash -- ^ __hash__: hash object
     -> IO ()
 hashClear =  mkAction withHash botan_hash_clear
 
 hashBlockSize
-    :: Hash     -- ^ @hash@: hash object
-    -> IO Int   -- ^ @block_size@: output buffer to hold the hash function block size
+    :: Hash     -- ^ __hash__: hash object
+    -> IO Int   -- ^ __block_size__: output buffer to hold the hash function block size
 hashBlockSize = mkGetSize withHash botan_hash_block_size
 
 hashOutputLength
-    :: Hash     -- ^ @hash@: hash object
-    -> IO Int   -- ^ @block_size@: output buffer to hold the hash function output length
+    :: Hash     -- ^ __hash__: hash object
+    -> IO Int   -- ^ __block_size__: output buffer to hold the hash function output length
 hashOutputLength = mkGetSize withHash botan_hash_output_length
 
 hashUpdate
-    :: Hash         -- ^ @hash@: hash object
-    -> ByteString   -- ^ @in@: input buffer
+    :: Hash         -- ^ __hash__: hash object
+    -> ByteString   -- ^ __in__: input buffer
     -> IO ()
 hashUpdate = mkWithObjectSetterCBytesLen withHash botan_hash_update
 
 hashFinal
-    :: Hash             -- ^ @hash@: hash object
-    -> IO HashDigest    -- ^ @out[]@: output buffer
+    :: Hash             -- ^ __hash__: hash object
+    -> IO HashDigest    -- ^ __out[]__: output buffer
 hashFinal hash = withHash hash $ \ hashPtr -> do
     sz <- hashOutputLength hash
     allocBytes sz $ \ digestPtr -> do
@@ -347,8 +347,8 @@ hashFinal hash = withHash hash $ \ hashPtr -> do
 
 -- TODO:
 -- pkcsHashId
---     :: ByteString       -- ^ @hash_name@
---     -> IO ByteString    -- ^ @pkcs_id[]@
+--     :: ByteString       -- ^ __hash_name__
+--     -> IO ByteString    -- ^ __pkcs_id[]__
 -- pkcsHashId = undefined
 
 

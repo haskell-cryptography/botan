@@ -49,9 +49,9 @@ createEncrypt   :: (Ptr BotanPKOpEncrypt -> IO CInt) -> IO Encrypt
         botan_pk_op_encrypt_destroy
 
 encryptCreate
-    :: PubKey       -- ^ @key@
-    -> EMEName      -- ^ @padding@
-    -> IO Encrypt   -- ^ @op@
+    :: PubKey       -- ^ __key__
+    -> EMEName      -- ^ __padding__
+    -> IO Encrypt   -- ^ __op__
 encryptCreate pk padding = withPubKey pk $ \ pkPtr -> do
     asCString padding $ \ paddingPtr -> do
         createEncrypt $ \ out -> botan_pk_op_encrypt_create
@@ -65,9 +65,9 @@ withEncryptCreate :: PubKey -> EMEName -> (Encrypt -> IO a) -> IO a
 withEncryptCreate = mkWithTemp2 encryptCreate encryptDestroy
 
 encryptOutputLength
-    :: Encrypt  -- ^ @op@
-    -> Int      -- ^ @ptext_len@
-    -> IO Int   -- ^ @ctext_len@
+    :: Encrypt  -- ^ __op__
+    -> Int      -- ^ __ptext_len__
+    -> IO Int   -- ^ __ctext_len__
 encryptOutputLength = mkGetSize_csize withEncrypt botan_pk_op_encrypt_output_length
 
 -- NOTE: This properly takes advantage of szPtr, queries the buffer size - do this elsewhere
@@ -77,10 +77,10 @@ encryptOutputLength = mkGetSize_csize withEncrypt botan_pk_op_encrypt_output_len
 --  This implies that encryptOutputLength may be wrong or hardcoded for SM2 or that we
 --  are not supposed to use curves other than sm2p256v1 - this needs investigating
 encrypt
-    :: Encrypt          -- ^ @op@
-    -> RNG              -- ^ @rng@
-    -> ByteString       -- ^ @plaintext[]@
-    -> IO ByteString    -- ^ @ciphertext[]@
+    :: Encrypt          -- ^ __op__
+    -> RNG              -- ^ __rng__
+    -> ByteString       -- ^ __plaintext[]__
+    -> IO ByteString    -- ^ __ciphertext[]__
 encrypt enc rng ptext = withEncrypt enc $ \ encPtr -> do
     withRNG rng $ \ botanRNG -> do
         asBytesLen ptext $ \ ptextPtr ptextLen -> do

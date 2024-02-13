@@ -4,6 +4,8 @@ import Test.Prelude
 
 import Botan.Low.SRP6
 import Botan.Low.RNG
+import Botan.Low.PubKey
+import Botan.Low.Hash
 
 username :: ByteString
 username = "username"
@@ -15,7 +17,7 @@ salt :: ByteString
 salt = "salt"
 
 -- NOTE: Consolidate with DLGroup
-groupIds :: [GroupId]
+groupIds :: [DLGroupName]
 groupIds =
     [ "ffdhe/ietf/2048"
     , "ffdhe/ietf/3072"
@@ -41,11 +43,11 @@ groupIds =
     , "dsa/botan/3072"
     ]
 
-groupId :: GroupId
+groupId :: DLGroupName
 groupId = head groupIds
 
 -- TODO: Test which hashes work
-hashId :: HashId
+hashId :: HashName
 hashId = "SHA-256"
 
 main :: IO ()

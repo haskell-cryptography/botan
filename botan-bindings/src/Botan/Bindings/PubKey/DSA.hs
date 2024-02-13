@@ -23,11 +23,11 @@ and order of a subgroup 'q'.
 -}
 foreign import capi safe "botan/ffi.h botan_privkey_create_dsa"
     botan_privkey_create_dsa
-        :: Ptr BotanPrivKey    -- ^ @key@: handler to the resulting key
-        -> BotanRNG            -- ^ @rng@: initialized PRNG
-        -> CSize               -- ^ @pbits@: length of the key in bits. Must be between in range (1024, 3072)
+        :: Ptr BotanPrivKey    -- ^ __key__: handler to the resulting key
+        -> BotanRNG            -- ^ __rng__: initialized PRNG
+        -> CSize               -- ^ __pbits__: length of the key in bits. Must be between in range (1024, 3072)
                                --   and multiple of 64. Bit size of the prime 'p'
-        -> CSize               -- ^ @qbits@: qbits order of the subgroup. Must be in range (160, 256) and multiple
+        -> CSize               -- ^ __qbits__: qbits order of the subgroup. Must be in range (160, 256) and multiple
                                --   of 8
         -> IO CInt             -- ^ BOTAN_FFI_SUCCESS Success, `key' initialized with DSA key
                                --   BOTAN_FFI_ERROR_NULL_POINTER  either `key' or `rng' is NULL
@@ -36,18 +36,18 @@ foreign import capi safe "botan/ffi.h botan_privkey_create_dsa"
 
 foreign import capi safe "botan/ffi.h botan_privkey_load_dsa"
     botan_privkey_load_dsa
-        :: Ptr BotanPrivKey    -- ^ @key@
-        -> BotanMP             -- ^ @p@
-        -> BotanMP             -- ^ @q@
-        -> BotanMP             -- ^ @g@
-        -> BotanMP             -- ^ @x@
+        :: Ptr BotanPrivKey    -- ^ __key__
+        -> BotanMP             -- ^ __p__
+        -> BotanMP             -- ^ __q__
+        -> BotanMP             -- ^ __g__
+        -> BotanMP             -- ^ __x__
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_pubkey_load_dsa"
     botan_pubkey_load_dsa
-        :: Ptr BotanPubKey    -- ^ @key@
-        -> BotanMP            -- ^ @p@
-        -> BotanMP            -- ^ @q@
-        -> BotanMP            -- ^ @g@
-        -> BotanMP            -- ^ @y@
+        :: Ptr BotanPubKey    -- ^ __key__
+        -> BotanMP            -- ^ __p__
+        -> BotanMP            -- ^ __q__
+        -> BotanMP            -- ^ __g__
+        -> BotanMP            -- ^ __y__
         -> IO CInt

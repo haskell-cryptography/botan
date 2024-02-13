@@ -64,10 +64,10 @@ pattern StandardFormatSignature = BOTAN_PUBKEY_STD_FORMAT_SIGNATURE
 pattern DERFormatSignature = BOTAN_PUBKEY_DER_FORMAT_SIGNATURE
 
 signCreate
-    :: PrivKey      -- ^ @key@
-    -> EMSAName     -- ^ @hash_and_padding@
-    -> SigningFlags -- ^ @flags@
-    -> IO Sign      -- ^ @op@
+    :: PrivKey      -- ^ __key__
+    -> EMSAName     -- ^ __hash_and_padding__
+    -> SigningFlags -- ^ __flags__
+    -> IO Sign      -- ^ __op__
 signCreate sk algo flags = withPrivKey sk $ \ skPtr -> do
     asCString algo $ \ algoPtr -> do
         createSign $ \ out -> botan_pk_op_sign_create
@@ -81,13 +81,13 @@ withSignCreate :: PrivKey -> EMSAName -> SigningFlags -> (Sign -> IO a) -> IO a
 withSignCreate = mkWithTemp3 signCreate signDestroy
 
 signOutputLength
-    :: Sign     -- ^ @op@
-    -> IO Int   -- ^ @olen@
+    :: Sign     -- ^ __op__
+    -> IO Int   -- ^ __olen__
 signOutputLength = mkGetSize withSign botan_pk_op_sign_output_length
 
 signUpdate
-    :: Sign         -- ^ @op@
-    -> ByteString   -- ^ @in[]@
+    :: Sign         -- ^ __op__
+    -> ByteString   -- ^ __in[]__
     -> IO ()
 -- signUpdate = mkSetBytesLen withSign botan_pk_op_sign_update
 signUpdate = mkWithObjectSetterCBytesLen withSign botan_pk_op_sign_update
@@ -95,9 +95,9 @@ signUpdate = mkWithObjectSetterCBytesLen withSign botan_pk_op_sign_update
 -- TODO: Signature type
 -- NOTE: This function is still highly suspect
 signFinish
-    :: Sign             -- ^ @op@
-    -> RNG              -- ^ @rng@
-    -> IO ByteString    -- ^ @sig[]@
+    :: Sign             -- ^ __op__
+    -> RNG              -- ^ __rng__
+    -> IO ByteString    -- ^ __sig[]__
 signFinish sign rng = withSign sign $ \ signPtr -> do
     withRNG rng $ \ botanRNG -> do
         -- NOTE: Investigation into DER format shows lots of trailing nulls that may need to be trimmed

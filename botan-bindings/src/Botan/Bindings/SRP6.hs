@@ -52,66 +52,66 @@ foreign import capi safe "botan/ffi.h &botan_srp6_server_session_destroy"
 -- | Initialize an SRP-6 server session object
 foreign import capi safe "botan/ffi.h botan_srp6_server_session_init"
     botan_srp6_server_session_init
-        :: Ptr BotanSRP6ServerSession -- ^ @srp6@: SRP-6 server session object
+        :: Ptr BotanSRP6ServerSession -- ^ __srp6__: SRP-6 server session object
         -> IO CInt
 
 -- | SRP-6 Server side step 1: Generate a server B-value
 foreign import capi safe "botan/ffi.h botan_srp6_server_session_step1"
     botan_srp6_server_session_step1
-        :: BotanSRP6ServerSession   -- ^ @srp6@: SRP-6 server session object
-        -> ConstPtr Word8           -- ^ @verifier[]@: the verification value saved from client registration
-        -> CSize                    -- ^ @verifier_len@: SRP-6 verifier value length
-        -> ConstPtr CChar           -- ^ @group_id@: the SRP group id
-        -> ConstPtr CChar           -- ^ @hash_id@: the SRP hash in use
-        -> BotanRNG                 -- ^ @rng_obj@: a random number generator object
-        -> Ptr Word8                -- ^ @B_pub[]@: out buffer to store the SRP-6 B value
-        -> Ptr CSize                -- ^ @B_pub_len@: SRP-6 B value length
+        :: BotanSRP6ServerSession   -- ^ __srp6__: SRP-6 server session object
+        -> ConstPtr Word8           -- ^ __verifier[]__: the verification value saved from client registration
+        -> CSize                    -- ^ __verifier_len__: SRP-6 verifier value length
+        -> ConstPtr CChar           -- ^ __group_id__: the SRP group id
+        -> ConstPtr CChar           -- ^ __hash_id__: the SRP hash in use
+        -> BotanRNG                 -- ^ __rng_obj__: a random number generator object
+        -> Ptr Word8                -- ^ __B_pub[]__: out buffer to store the SRP-6 B value
+        -> Ptr CSize                -- ^ __B_pub_len__: SRP-6 B value length
         -> IO CInt                  -- ^ 0 on success, negative on failure
 
 -- | SRP-6 Server side step 2:  Generate the server shared key
 foreign import capi safe "botan/ffi.h botan_srp6_server_session_step2"
     botan_srp6_server_session_step2
-        :: BotanSRP6ServerSession   -- ^ @srp6@: SRP-6 server session object
-        -> ConstPtr Word8           -- ^ @A[]@: the client's value
-        -> CSize                    -- ^ @A_len@: the client's value length
-        -> Ptr Word8                -- ^ @key[]@: out buffer to store the symmetric key value
-        -> Ptr CSize                -- ^ @key_len@: symmetric key length
+        :: BotanSRP6ServerSession   -- ^ __srp6__: SRP-6 server session object
+        -> ConstPtr Word8           -- ^ __A[]__: the client's value
+        -> CSize                    -- ^ __A_len__: the client's value length
+        -> Ptr Word8                -- ^ __key[]__: out buffer to store the symmetric key value
+        -> Ptr CSize                -- ^ __key_len__: symmetric key length
         -> IO CInt                  -- ^ 0 on success, negative on failure
 
 -- | SRP-6 Client side step 1:  Generate a new SRP-6 verifier
 foreign import capi safe "botan/ffi.h botan_srp6_generate_verifier"
     botan_srp6_generate_verifier
-        :: ConstPtr CChar -- ^ @identifier@: a username or other client identifier
-        -> ConstPtr CChar -- ^ @password@: the secret used to authenticate user
-        -> ConstPtr Word8 -- ^ @salt[]@: a randomly chosen value, at least 128 bits long
-        -> CSize          -- ^ @salt_len@: the length of salt
-        -> ConstPtr CChar -- ^ @group_id@: specifies the shared SRP group
-        -> ConstPtr CChar -- ^ @hash_id@: specifies a secure hash function
-        -> Ptr Word8      -- ^ @verifier[]@: out buffer to store the SRP-6 verifier value
-        -> Ptr CSize      -- ^ @verifier_len@: SRP-6 verifier value length
+        :: ConstPtr CChar -- ^ __identifier__: a username or other client identifier
+        -> ConstPtr CChar -- ^ __password__: the secret used to authenticate user
+        -> ConstPtr Word8 -- ^ __salt[]__: a randomly chosen value, at least 128 bits long
+        -> CSize          -- ^ __salt_len__: the length of salt
+        -> ConstPtr CChar -- ^ __group_id__: specifies the shared SRP group
+        -> ConstPtr CChar -- ^ __hash_id__: specifies a secure hash function
+        -> Ptr Word8      -- ^ __verifier[]__: out buffer to store the SRP-6 verifier value
+        -> Ptr CSize      -- ^ __verifier_len__: SRP-6 verifier value length
         -> IO CInt        -- ^ 0 on success, negative on failure
 
 -- | SRP6a Client side step 2:  Generate a client A-value and the client shared key
 foreign import capi safe "botan/ffi.h botan_srp6_client_agree"
     botan_srp6_client_agree
-        :: ConstPtr CChar -- ^ @username@: the username we are attempting login for
-        -> ConstPtr CChar -- ^ @password@: the password we are attempting to use
-        -> ConstPtr CChar -- ^ @group_id@: specifies the shared SRP group
-        -> ConstPtr CChar -- ^ @hash_id@: specifies a secure hash function
-        -> ConstPtr Word8 -- ^ @salt[]@: is the salt value sent by the server
-        -> CSize          -- ^ @salt_len@: the length of salt
-        -> ConstPtr Word8 -- ^ @uint8_t@: B[] is the server's public value
-        -> CSize          -- ^ @B_len@: is the server's public value length
-        -> BotanRNG       -- ^ @rng_obj@: is a random number generator object
-        -> Ptr Word8      -- ^ @A[]@: out buffer to store the SRP-6 A value
-        -> Ptr CSize      -- ^ @A_len@: SRP-6 A verifier value length
-        -> Ptr Word8      -- ^ @K[]@: out buffer to store the symmetric value
-        -> Ptr CSize      -- ^ @K_len@: symmetric key length
+        :: ConstPtr CChar -- ^ __username__: the username we are attempting login for
+        -> ConstPtr CChar -- ^ __password__: the password we are attempting to use
+        -> ConstPtr CChar -- ^ __group_id__: specifies the shared SRP group
+        -> ConstPtr CChar -- ^ __hash_id__: specifies a secure hash function
+        -> ConstPtr Word8 -- ^ __salt[]__: is the salt value sent by the server
+        -> CSize          -- ^ __salt_len__: the length of salt
+        -> ConstPtr Word8 -- ^ __uint8_t__: B[] is the server's public value
+        -> CSize          -- ^ __B_len__: is the server's public value length
+        -> BotanRNG       -- ^ __rng_obj__: is a random number generator object
+        -> Ptr Word8      -- ^ __A[]__: out buffer to store the SRP-6 A value
+        -> Ptr CSize      -- ^ __A_len__: SRP-6 A verifier value length
+        -> Ptr Word8      -- ^ __K[]__: out buffer to store the symmetric value
+        -> Ptr CSize      -- ^ __K_len__: symmetric key length
         -> IO CInt        -- ^ 0 on success, negative on failure
 
 -- | Return the size, in bytes, of the prime associated with group_id
 foreign import capi safe "botan/ffi.h botan_srp6_group_size"
     botan_srp6_group_size
-        :: ConstPtr CChar -- ^ @group_id@
-        -> Ptr CSize      -- ^ @group_p_bytes@
+        :: ConstPtr CChar -- ^ __group_id__
+        -> Ptr CSize      -- ^ __group_p_bytes__
         -> IO CInt

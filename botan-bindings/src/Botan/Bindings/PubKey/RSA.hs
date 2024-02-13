@@ -18,30 +18,30 @@ import Botan.Bindings.PubKey
 
 foreign import capi safe "botan/ffi.h botan_privkey_load_rsa"
     botan_privkey_load_rsa
-        :: Ptr BotanPrivKey    -- ^ @key@
-        -> BotanMP             -- ^ @p@
-        -> BotanMP             -- ^ @q@
-        -> BotanMP             -- ^ @e@
+        :: Ptr BotanPrivKey    -- ^ __key__
+        -> BotanMP             -- ^ __p__
+        -> BotanMP             -- ^ __q__
+        -> BotanMP             -- ^ __e__
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_privkey_load_rsa_pkcs1"
     botan_privkey_load_rsa_pkcs1
-        :: Ptr BotanPrivKey    -- ^ @key@
-        -> ConstPtr Word8      -- ^ @bits[]@
-        -> CSize               -- ^ @len@
+        :: Ptr BotanPrivKey    -- ^ __key__
+        -> ConstPtr Word8      -- ^ __bits[]__
+        -> CSize               -- ^ __len__
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_privkey_rsa_get_privkey"
     botan_privkey_rsa_get_privkey
-        :: BotanPrivKey    -- ^ @rsa_key@
-        -> Ptr Word8       -- ^ @out[]@
-        -> Ptr CSize       -- ^ @out_len@
-        -> Word32          -- ^ @flags@
+        :: BotanPrivKey    -- ^ __rsa_key__
+        -> Ptr Word8       -- ^ __out[]__
+        -> Ptr CSize       -- ^ __out_len__
+        -> Word32          -- ^ __flags__
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_pubkey_load_rsa"
     botan_pubkey_load_rsa
-        :: Ptr BotanPubKey    -- ^ @key@
-        -> BotanMP            -- ^ @n@
-        -> BotanMP            -- ^ @e@
+        :: Ptr BotanPubKey    -- ^ __key__
+        -> BotanMP            -- ^ __n__
+        -> BotanMP            -- ^ __e__
         -> IO CInt

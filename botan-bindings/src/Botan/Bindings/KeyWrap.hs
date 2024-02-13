@@ -29,24 +29,24 @@ import Botan.Bindings.Prelude
 
 foreign import capi safe "botan/ffi.h botan_nist_kw_enc"
     botan_nist_kw_enc
-        :: ConstPtr CChar -- ^ @cipher_algo@
-        -> CInt           -- ^ @padded@
-        -> ConstPtr Word8 -- ^ @key[]@
-        -> CSize          -- ^ @key_len@
-        -> ConstPtr Word8 -- ^ @kek[]@
-        -> CSize          -- ^ @kek_len@
-        -> Ptr Word8      -- ^ @wrapped_key[]@
-        -> Ptr CSize      -- ^ @wrapped_key_len@
+        :: ConstPtr CChar -- ^ __cipher_algo__
+        -> CInt           -- ^ __padded__
+        -> ConstPtr Word8 -- ^ __key[]__
+        -> CSize          -- ^ __key_len__
+        -> ConstPtr Word8 -- ^ __kek[]__
+        -> CSize          -- ^ __kek_len__
+        -> Ptr Word8      -- ^ __wrapped_key[]__
+        -> Ptr CSize      -- ^ __wrapped_key_len__
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_nist_kw_dec"
     botan_nist_kw_dec
-        :: ConstPtr CChar -- ^ @cipher_algo@
-        -> CInt           -- ^ @padded@
-        -> ConstPtr Word8 -- ^ @wrapped_key[]@
-        -> CSize          -- ^ @wrapped_key_len@
-        -> ConstPtr Word8 -- ^ @kek[]@
-        -> CSize          -- ^ @kek_len@
-        -> Ptr Word8      -- ^ @key[]@
-        -> Ptr CSize      -- ^ @key_len@
+        :: ConstPtr CChar -- ^ __cipher_algo__
+        -> CInt           -- ^ __padded__
+        -> ConstPtr Word8 -- ^ __wrapped_key[]__
+        -> CSize          -- ^ __wrapped_key_len__
+        -> ConstPtr Word8 -- ^ __kek[]__
+        -> CSize          -- ^ __kek_len__
+        -> Ptr Word8      -- ^ __key[]__
+        -> Ptr CSize      -- ^ __key_len__
         -> IO CInt

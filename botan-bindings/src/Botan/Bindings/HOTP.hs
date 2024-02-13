@@ -56,28 +56,28 @@ foreign import capi safe "botan/ffi.h &botan_hotp_destroy"
 -- | Initialize a HOTP instance
 foreign import capi safe "botan/ffi.h botan_hotp_init"
     botan_hotp_init
-        :: Ptr BotanHOTP    -- ^ @hotp@
-        -> ConstPtr Word8   -- ^ @key[]@
-        -> CSize            -- ^ @key_len@
-        -> ConstPtr CChar   -- ^ @hash_algo@
-        -> CSize            -- ^ @digits@
+        :: Ptr BotanHOTP    -- ^ __hotp__
+        -> ConstPtr Word8   -- ^ __key[]__
+        -> CSize            -- ^ __key_len__
+        -> ConstPtr CChar   -- ^ __hash_algo__
+        -> CSize            -- ^ __digits__
         -> IO CInt
 
 
 -- | Generate a HOTP code for the provided counter
 foreign import capi safe "botan/ffi.h botan_hotp_generate"
     botan_hotp_generate
-        :: BotanHOTP    -- ^ @hotp@
-        -> Ptr Word32   -- ^ @hotp_code@
-        -> Word64       -- ^ @hotp_counter@
+        :: BotanHOTP    -- ^ __hotp__
+        -> Ptr Word32   -- ^ __hotp_code__
+        -> Word64       -- ^ __hotp_counter__
         -> IO CInt
 
 -- | Verify a HOTP code
 foreign import capi safe "botan/ffi.h botan_hotp_check"
     botan_hotp_check
-        :: BotanHOTP    -- ^ @hotp@
-        -> Ptr Word64   -- ^ @next_hotp_counter@
-        -> Word32       -- ^ @hotp_code@
-        -> Word64       -- ^ @hotp_counter@
-        -> CSize        -- ^ @resync_range@
+        :: BotanHOTP    -- ^ __hotp__
+        -> Ptr Word64   -- ^ __next_hotp_counter__
+        -> Word32       -- ^ __hotp_code__
+        -> Word64       -- ^ __hotp_counter__
+        -> CSize        -- ^ __resync_range__
         -> IO CInt

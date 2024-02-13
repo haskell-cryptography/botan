@@ -114,9 +114,9 @@ type ZFECShare = (Int, ByteString)
 --
 -- NOTE: The length in bytes of input must be a multiple of K
 zfecEncode
-    :: Int              -- ^ @K@: the number of shares needed for recovery
-    -> Int              -- ^ @N@: the number of shares generated
-    -> ByteString       -- ^ @input@: the data to FEC
+    :: Int              -- ^ __K__: the number of shares needed for recovery
+    -> Int              -- ^ __N__: the number of shares generated
+    -> ByteString       -- ^ __input__: the data to FEC
     -> IO [ZFECShare]   
 zfecEncode k n input = asBytesLen input $ \ inputPtr inputLen -> do
     let shareSize = div (fromIntegral inputLen) k
@@ -139,10 +139,10 @@ zfecEncode k n input = asBytesLen input $ \ inputPtr inputLen -> do
 --
 -- NOTE: There must be at least K shares of equal length
 zfecDecode
-    :: Int              -- ^ @K@: the number of shares needed for recovery
-    -> Int              -- ^ @N@: the total number of shares
-    -> [ZFECShare]      -- ^ @inputs@: K previously encoded shares to decode
-    -> IO ByteString    -- ^ @outputs@: An out parameter pointing to a fully allocated array of size
+    :: Int              -- ^ __K__: the number of shares needed for recovery
+    -> Int              -- ^ __N__: the total number of shares
+    -> [ZFECShare]      -- ^ __inputs__: K previously encoded shares to decode
+    -> IO ByteString    -- ^ __outputs__: An out parameter pointing to a fully allocated array of size
                         --   [N][size / K].  For all n in range, an encoded block will be
                         --   written to the memory starting at outputs[n][0].
 zfecDecode _ _ [] = return ""

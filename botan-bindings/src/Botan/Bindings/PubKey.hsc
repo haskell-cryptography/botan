@@ -220,11 +220,11 @@ pattern BOTAN_MGF_MGF1 = "MGF1"
 -- | Create a new private key
 foreign import capi safe "botan/ffi.h botan_privkey_create"
     botan_privkey_create
-        :: Ptr BotanPrivKey    -- ^ @key@: the new object will be placed here
-        -> ConstPtr CChar      -- ^ @algo_name@: something like "RSA" or "ECDSA"
-        -> ConstPtr CChar      -- ^ @algo_params@: is specific to the algorithm. For RSA, specifies
+        :: Ptr BotanPrivKey    -- ^ __key__: the new object will be placed here
+        -> ConstPtr CChar      -- ^ __algo_name__: something like "RSA" or "ECDSA"
+        -> ConstPtr CChar      -- ^ __algo_params__: is specific to the algorithm. For RSA, specifies
                                --   the modulus bit length. For ECC is the name of the curve.
-        -> BotanRNG            -- ^ @rng@: a random number generator
+        -> BotanRNG            -- ^ __rng__: a random number generator
         -> IO CInt
 
 pattern BOTAN_CHECK_KEY_NORMAL_TESTS
@@ -236,9 +236,9 @@ pattern BOTAN_CHECK_KEY_EXPENSIVE_TESTS = #const BOTAN_CHECK_KEY_EXPENSIVE_TESTS
 -- | Check the validity of a private key
 foreign import capi safe "botan/ffi.h botan_privkey_check_key"
     botan_privkey_check_key
-        :: BotanPrivKey    -- ^ @key@
-        -> BotanRNG        -- ^ @rng@
-        -> Word32          -- ^ @flags@
+        :: BotanPrivKey    -- ^ __key__
+        -> BotanRNG        -- ^ __rng__
+        -> Word32          -- ^ __flags__
         -> IO CInt
 
 {- |
@@ -248,11 +248,11 @@ Starting in 2.8.0, the rng parameter is unused and may be set to null
 -}
 foreign import capi safe "botan/ffi.h botan_privkey_load"
     botan_privkey_load
-        :: Ptr BotanPrivKey    -- ^ @key@
-        -> BotanRNG            -- ^ @rng@
-        -> ConstPtr Word8      -- ^ @bits[]@
-        -> CSize               -- ^ @len@
-        -> ConstPtr CChar      -- ^ @password@
+        :: Ptr BotanPrivKey    -- ^ __key__
+        -> BotanRNG            -- ^ __rng__
+        -> ConstPtr Word8      -- ^ __bits[]__
+        -> CSize               -- ^ __len__
+        -> ConstPtr CChar      -- ^ __password__
         -> IO CInt
 
 pattern BOTAN_PRIVKEY_EXPORT_FLAG_DER
@@ -270,33 +270,33 @@ If some other error occurs a negative integer is returned.
 -}
 foreign import capi safe "botan/ffi.h botan_privkey_export"
     botan_privkey_export
-        :: BotanPrivKey    -- ^ @key@
-        -> Ptr Word8       -- ^ @out[]@
-        -> Ptr CSize       -- ^ @out_len@
-        -> Word32          -- ^ @flags@
+        :: BotanPrivKey    -- ^ __key__
+        -> Ptr Word8       -- ^ __out[]__
+        -> Ptr CSize       -- ^ __out_len__
+        -> Word32          -- ^ __flags__
         -> IO CInt
 
 -- | View the private key's DER encoding
 foreign import capi safe "botan/ffi.h botan_privkey_view_der"
     botan_privkey_view_der
-        :: BotanPrivKey                         -- ^ @key@
-        -> BotanViewContext ctx                 -- ^ @ctx@
-        -> FunPtr (BotanViewBinCallback ctx)    -- ^ @view@
+        :: BotanPrivKey                         -- ^ __key__
+        -> BotanViewContext ctx                 -- ^ __ctx__
+        -> FunPtr (BotanViewBinCallback ctx)    -- ^ __view__
         -> IO CInt
 
 -- | View the private key's PEM encoding
 foreign import capi safe "botan/ffi.h botan_privkey_view_pem"
     botan_privkey_view_pem
-        :: BotanPrivKey                         -- ^ @key@
-        -> BotanViewContext ctx                 -- ^ @ctx@
-        -> FunPtr (BotanViewStrCallback ctx)    -- ^ @view@
+        :: BotanPrivKey                         -- ^ __key__
+        -> BotanViewContext ctx                 -- ^ __ctx__
+        -> FunPtr (BotanViewStrCallback ctx)    -- ^ __view__
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_privkey_algo_name"
     botan_privkey_algo_name
-        :: BotanPrivKey    -- ^ @key@
-        -> Ptr CChar       -- ^ @out[]@
-        -> Ptr CSize       -- ^ @out_len@
+        :: BotanPrivKey    -- ^ __key__
+        -> Ptr CChar       -- ^ __out[]__
+        -> Ptr CSize       -- ^ __out_len__
         -> IO CInt
 
 {- |
@@ -306,30 +306,30 @@ Note: starting in 3.0, the output iterations count is not provided
 -}
 foreign import capi safe "botan/ffi.h botan_privkey_export_encrypted_pbkdf_msec"
     botan_privkey_export_encrypted_pbkdf_msec
-        :: BotanPrivKey    -- ^ @key@
-        -> Ptr Word8       -- ^ @out[]@
-        -> Ptr CSize       -- ^ @out_len@
-        -> BotanRNG        -- ^ @rng@
-        -> ConstPtr CChar  -- ^ @passphrase@
-        -> Word32          -- ^ @pbkdf_msec_runtime@
-        -> Ptr CSize       -- ^ @pbkdf_iterations_out@
-        -> ConstPtr CChar  -- ^ @cipher_algo@
-        -> ConstPtr CChar  -- ^ @pbkdf_algo@
-        -> Word32          -- ^ @flags@
+        :: BotanPrivKey    -- ^ __key__
+        -> Ptr Word8       -- ^ __out[]__
+        -> Ptr CSize       -- ^ __out_len__
+        -> BotanRNG        -- ^ __rng__
+        -> ConstPtr CChar  -- ^ __passphrase__
+        -> Word32          -- ^ __pbkdf_msec_runtime__
+        -> Ptr CSize       -- ^ __pbkdf_iterations_out__
+        -> ConstPtr CChar  -- ^ __cipher_algo__
+        -> ConstPtr CChar  -- ^ __pbkdf_algo__
+        -> Word32          -- ^ __flags__
         -> IO CInt
 
 -- | Export a private key using the specified number of iterations.
 foreign import capi safe "botan/ffi.h botan_privkey_export_encrypted_pbkdf_iter"
     botan_privkey_export_encrypted_pbkdf_iter
-        :: BotanPrivKey    -- ^ @key@
-        -> Ptr Word8       -- ^ @out[]@
-        -> Ptr CSize       -- ^ @out_len@
-        -> BotanRNG        -- ^ @rng@
-        -> ConstPtr CChar  -- ^ @passphrase@
-        -> CSize           -- ^ @pbkdf_iterations@
-        -> ConstPtr CChar  -- ^ @cipher_algo@
-        -> ConstPtr CChar  -- ^ @pbkdf_algo@
-        -> Word32          -- ^ @flags@
+        :: BotanPrivKey    -- ^ __key__
+        -> Ptr Word8       -- ^ __out[]__
+        -> Ptr CSize       -- ^ __out_len__
+        -> BotanRNG        -- ^ __rng__
+        -> ConstPtr CChar  -- ^ __passphrase__
+        -> CSize           -- ^ __pbkdf_iterations__
+        -> ConstPtr CChar  -- ^ __cipher_algo__
+        -> ConstPtr CChar  -- ^ __pbkdf_algo__
+        -> Word32          -- ^ __flags__
         -> IO CInt
 
 {- |
@@ -340,14 +340,14 @@ Set pbkdf_iterations to 0 to use defaults
 -}
 foreign import capi safe "botan/ffi.h botan_privkey_view_encrypted_der"
     botan_privkey_view_encrypted_der
-        :: BotanPrivKey                         -- ^ @key@
-        -> BotanRNG                             -- ^ @rng@
-        -> ConstPtr CChar                       -- ^ @passphrase@
-        -> ConstPtr CChar                       -- ^ @cipher_algo@
-        -> ConstPtr CChar                       -- ^ @pbkdf_algo@
-        -> CSize                                -- ^ @pbkdf_iterations@
-        -> BotanViewContext ctx                 -- ^ @ctx@
-        -> FunPtr (BotanViewBinCallback ctx)    -- ^ @view@
+        :: BotanPrivKey                         -- ^ __key__
+        -> BotanRNG                             -- ^ __rng__
+        -> ConstPtr CChar                       -- ^ __passphrase__
+        -> ConstPtr CChar                       -- ^ __cipher_algo__
+        -> ConstPtr CChar                       -- ^ __pbkdf_algo__
+        -> CSize                                -- ^ __pbkdf_iterations__
+        -> BotanViewContext ctx                 -- ^ __ctx__
+        -> FunPtr (BotanViewBinCallback ctx)    -- ^ __view__
         -> IO CInt
 
 {- |
@@ -357,14 +357,14 @@ Set cipher_algo, pbkdf_algo to NULL to use defaults
 -}
 foreign import capi safe "botan/ffi.h botan_privkey_view_encrypted_der_timed"
     botan_privkey_view_encrypted_der_timed
-        :: BotanPrivKey                         -- ^ @key@
-        -> BotanRNG                             -- ^ @rng@
-        -> ConstPtr CChar                       -- ^ @passphrase@
-        -> ConstPtr CChar                       -- ^ @cipher_algo@
-        -> ConstPtr CChar                       -- ^ @pbkdf_algo@
-        -> CSize                                -- ^ @pbkdf_runtime_msec@
-        -> BotanViewContext ctx                 -- ^ @ctx@
-        -> FunPtr (BotanViewBinCallback ctx)    -- ^ @view@
+        :: BotanPrivKey                         -- ^ __key__
+        -> BotanRNG                             -- ^ __rng__
+        -> ConstPtr CChar                       -- ^ __passphrase__
+        -> ConstPtr CChar                       -- ^ __cipher_algo__
+        -> ConstPtr CChar                       -- ^ __pbkdf_algo__
+        -> CSize                                -- ^ __pbkdf_runtime_msec__
+        -> BotanViewContext ctx                 -- ^ __ctx__
+        -> FunPtr (BotanViewBinCallback ctx)    -- ^ __view__
         -> IO CInt
 
 {- |
@@ -375,14 +375,14 @@ Set pbkdf_iterations to 0 to use defaults
 -}
 foreign import capi safe "botan/ffi.h botan_privkey_view_encrypted_pem"
     botan_privkey_view_encrypted_pem
-        :: BotanPrivKey                         -- ^ @key@
-        -> BotanRNG                             -- ^ @rng@
-        -> ConstPtr CChar                       -- ^ @passphrase@
-        -> ConstPtr CChar                       -- ^ @cipher_algo@
-        -> ConstPtr CChar                       -- ^ @pbkdf_algo@
-        -> CSize                                -- ^ @pbkdf_iterations@
-        -> BotanViewContext ctx                 -- ^ @ctx@
-        -> FunPtr (BotanViewStrCallback ctx)    -- ^ @view@
+        :: BotanPrivKey                         -- ^ __key__
+        -> BotanRNG                             -- ^ __rng__
+        -> ConstPtr CChar                       -- ^ __passphrase__
+        -> ConstPtr CChar                       -- ^ __cipher_algo__
+        -> ConstPtr CChar                       -- ^ __pbkdf_algo__
+        -> CSize                                -- ^ __pbkdf_iterations__
+        -> BotanViewContext ctx                 -- ^ __ctx__
+        -> FunPtr (BotanViewStrCallback ctx)    -- ^ __view__
         -> IO CInt
 
 {- |
@@ -392,21 +392,21 @@ Set cipher_algo, pbkdf_algo to NULL to use defaults
 -}
 foreign import capi safe "botan/ffi.h botan_privkey_view_encrypted_pem_timed"
     botan_privkey_view_encrypted_pem_timed
-        :: BotanPrivKey                         -- ^ @key@
-        -> BotanRNG                             -- ^ @rng@
-        -> ConstPtr CChar                       -- ^ @passphrase@
-        -> ConstPtr CChar                       -- ^ @cipher_algo@
-        -> ConstPtr CChar                       -- ^ @pbkdf_algo@
-        -> CSize                                -- ^ @pbkdf_runtime_msec@
-        -> BotanViewContext ctx                 -- ^ @ctx@
-        -> FunPtr (BotanViewStrCallback ctx)    -- ^ @view@
+        :: BotanPrivKey                         -- ^ __key__
+        -> BotanRNG                             -- ^ __rng__
+        -> ConstPtr CChar                       -- ^ __passphrase__
+        -> ConstPtr CChar                       -- ^ __cipher_algo__
+        -> ConstPtr CChar                       -- ^ __pbkdf_algo__
+        -> CSize                                -- ^ __pbkdf_runtime_msec__
+        -> BotanViewContext ctx                 -- ^ __ctx__
+        -> FunPtr (BotanViewStrCallback ctx)    -- ^ __view__
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_privkey_get_field"
     botan_privkey_get_field
-        :: BotanMP         -- ^ @output@
-        -> BotanPrivKey    -- ^ @key@
-        -> ConstPtr CChar  -- ^ @field_name@
+        :: BotanMP         -- ^ __output__
+        -> BotanPrivKey    -- ^ __key__
+        -> ConstPtr CChar  -- ^ __field_name__
         -> IO CInt
 
 
@@ -425,88 +425,88 @@ foreign import capi safe "botan/ffi.h &botan_pubkey_destroy"
 
 foreign import capi safe "botan/ffi.h botan_privkey_export_pubkey"
     botan_privkey_export_pubkey
-        :: Ptr BotanPubKey    -- ^ @out@
-        -> BotanPrivKey       -- ^ @in@
+        :: Ptr BotanPubKey    -- ^ __out__
+        -> BotanPrivKey       -- ^ __in__
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_pubkey_load"
     botan_pubkey_load
-        :: Ptr BotanPubKey     -- ^ @key@
-        -> ConstPtr Word8      -- ^ @bits[]@
-        -> CSize               -- ^ @len@
+        :: Ptr BotanPubKey     -- ^ __key__
+        -> ConstPtr Word8      -- ^ __bits[]__
+        -> CSize               -- ^ __len__
         -> IO CInt
 
-pattern BOTAN_PUBKEY_EXPORT_FLAG_DER    -- ^ @BOTAN_PRIVKEY_EXPORT_FLAG_DER@ in disguise
-    ,   BOTAN_PUBKEY_EXPORT_FLAG_PEM    -- ^ @BOTAN_PRIVKEY_EXPORT_FLAG_PEM@ in disguise
+pattern BOTAN_PUBKEY_EXPORT_FLAG_DER    -- ^ __BOTAN_PRIVKEY_EXPORT_FLAG_DER__ in disguise
+    ,   BOTAN_PUBKEY_EXPORT_FLAG_PEM    -- ^ __BOTAN_PRIVKEY_EXPORT_FLAG_PEM__ in disguise
     ::  (Eq a, Num a) => a
 pattern BOTAN_PUBKEY_EXPORT_FLAG_DER = BOTAN_PRIVKEY_EXPORT_FLAG_DER
 pattern BOTAN_PUBKEY_EXPORT_FLAG_PEM = BOTAN_PRIVKEY_EXPORT_FLAG_PEM
 
 foreign import capi safe "botan/ffi.h botan_pubkey_export"
     botan_pubkey_export
-        :: BotanPubKey    -- ^ @key@
-        -> Ptr Word8      -- ^ @out[]@
-        -> Ptr CSize      -- ^ @out_len@
-        -> Word32         -- ^ @flags@
+        :: BotanPubKey    -- ^ __key__
+        -> Ptr Word8      -- ^ __out[]__
+        -> Ptr CSize      -- ^ __out_len__
+        -> Word32         -- ^ __flags__
         -> IO CInt
 
 -- | View the public key's DER encoding
 foreign import capi safe "botan/ffi.h botan_pubkey_view_der"
     botan_pubkey_view_der
-        :: BotanPubKey                       -- ^ @key@
-        -> BotanViewContext ctx              -- ^ @ctx@
-        -> FunPtr (BotanViewBinCallback ctx) -- ^ @view@
+        :: BotanPubKey                       -- ^ __key__
+        -> BotanViewContext ctx              -- ^ __ctx__
+        -> FunPtr (BotanViewBinCallback ctx) -- ^ __view__
         -> IO CInt
     
     -- | View the public key's PEM encoding
 foreign import capi safe "botan/ffi.h botan_pubkey_view_pem"
     botan_pubkey_view_pem
-        :: BotanPubKey                       -- ^ @key@
-        -> BotanViewContext ctx              -- ^ @ctx@
-        -> FunPtr (BotanViewStrCallback ctx) -- ^ @view@
+        :: BotanPubKey                       -- ^ __key__
+        -> BotanViewContext ctx              -- ^ __ctx__
+        -> FunPtr (BotanViewStrCallback ctx) -- ^ __view__
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_pubkey_algo_name"
     botan_pubkey_algo_name
-        :: BotanPubKey    -- ^ @key@
-        -> Ptr CChar      -- ^ @out[]@
-        -> Ptr CSize      -- ^ @out_len@
+        :: BotanPubKey    -- ^ __key__
+        -> Ptr CChar      -- ^ __out[]__
+        -> Ptr CSize      -- ^ __out_len__
         -> IO CInt
 
 -- | Returns 0 if key is valid, negative if invalid key or some other error
 foreign import capi safe "botan/ffi.h botan_pubkey_check_key"
     botan_pubkey_check_key
-        :: BotanPubKey    -- ^ @key@
-        -> BotanRNG       -- ^ @rng@
-        -> Word32         -- ^ @flags@
+        :: BotanPubKey    -- ^ __key__
+        -> BotanRNG       -- ^ __rng__
+        -> Word32         -- ^ __flags__
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_pubkey_estimated_strength"
     botan_pubkey_estimated_strength
-        :: BotanPubKey    -- ^ @key@
-        -> Ptr CSize      -- ^ @estimate@
+        :: BotanPubKey    -- ^ __key__
+        -> Ptr CSize      -- ^ __estimate__
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_pubkey_fingerprint"
     botan_pubkey_fingerprint
-        :: BotanPubKey    -- ^ @key@
-        -> ConstPtr CChar -- ^ @hash@
-        -> Ptr Word8      -- ^ @out[]@
-        -> Ptr CSize      -- ^ @out_len@
+        :: BotanPubKey    -- ^ __key__
+        -> ConstPtr CChar -- ^ __hash__
+        -> Ptr Word8      -- ^ __out[]__
+        -> Ptr CSize      -- ^ __out_len__
         -> IO CInt
 
 -- | Get arbitrary named fields from public or private keys
 foreign import capi safe "botan/ffi.h botan_pubkey_get_field"
     botan_pubkey_get_field
-        :: BotanMP        -- ^ @output@
-        -> BotanPubKey    -- ^ @key@
-        -> ConstPtr CChar -- ^ @field_name@
+        :: BotanMP        -- ^ __output__
+        -> BotanPubKey    -- ^ __key__
+        -> ConstPtr CChar -- ^ __field_name__
         -> IO CInt
 
 -- | View the uncompressed public point associated with the key
 foreign import capi safe "botan/ffi.h botan_pubkey_view_ec_public_point"
     botan_pubkey_view_ec_public_point
-        :: BotanPubKey                       -- ^ @key@
-        -> BotanViewContext ctx              -- ^ @ctx@
-        -> FunPtr (BotanViewBinCallback ctx) -- ^ @view@
+        :: BotanPubKey                       -- ^ __key__
+        -> BotanViewContext ctx              -- ^ __ctx__
+        -> FunPtr (BotanViewBinCallback ctx) -- ^ __view__
         -> IO CInt

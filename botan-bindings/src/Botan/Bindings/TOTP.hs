@@ -62,28 +62,28 @@ foreign import capi safe "botan/ffi.h &botan_totp_destroy"
 -- | Initialize a TOTP instance
 foreign import capi safe "botan/ffi.h botan_totp_init"
     botan_totp_init
-    :: Ptr BotanTOTP    -- ^ @totp@
-    -> ConstPtr Word8   -- ^ @key[]@
-    -> CSize            -- ^ @key_len@
-    -> ConstPtr CChar   -- ^ @hash_algo@
-    -> CSize            -- ^ @digits@
-    -> CSize            -- ^ @time_step@
+    :: Ptr BotanTOTP    -- ^ __totp__
+    -> ConstPtr Word8   -- ^ __key[]__
+    -> CSize            -- ^ __key_len__
+    -> ConstPtr CChar   -- ^ __hash_algo__
+    -> CSize            -- ^ __digits__
+    -> CSize            -- ^ __time_step__
     -> IO CInt
 
 -- | Generate a TOTP code for the provided timestamp
 foreign import capi safe "botan/ffi.h botan_totp_generate"
     botan_totp_generate
-    :: BotanTOTP    -- ^ @totp@: the TOTP object
-    -> Ptr Word32   -- ^ @totp_code@: the OTP code will be written here
-    -> Word64       -- ^ @timestamp@: the current local timestamp
+    :: BotanTOTP    -- ^ __totp__: the TOTP object
+    -> Ptr Word32   -- ^ __totp_code__: the OTP code will be written here
+    -> Word64       -- ^ __timestamp__: the current local timestamp
     -> IO CInt
 
 -- | Verify a TOTP code
 foreign import capi safe "botan/ffi.h botan_totp_check"
     botan_totp_check
-    :: BotanTOTP    -- ^ @totp@: the TOTP object
-    -> Word32       -- ^ @totp_code@: the presented OTP
-    -> Word64       -- ^ @timestamp@: the current local timestamp
-    -> CSize        -- ^ @acceptable_clock_drift@: specifies the acceptable amount
+    :: BotanTOTP    -- ^ __totp__: the TOTP object
+    -> Word32       -- ^ __totp_code__: the presented OTP
+    -> Word64       -- ^ __timestamp__: the current local timestamp
+    -> CSize        -- ^ __acceptable_clock_drift__: specifies the acceptable amount
                     --   of clock drift (in terms of time steps) between the two hosts.
     -> IO CInt

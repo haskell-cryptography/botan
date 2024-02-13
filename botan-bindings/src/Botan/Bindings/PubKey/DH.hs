@@ -19,17 +19,17 @@ import Botan.Bindings.PubKey
 -- | Loads Diffie Hellman private key
 foreign import capi safe "botan/ffi.h botan_privkey_load_dh"
     botan_privkey_load_dh
-        :: Ptr BotanPrivKey    -- ^ @key@: variable populated with key material
-        -> BotanMP             -- ^ @p@: prime order of a Z_p group
-        -> BotanMP             -- ^ @g@: group generator
-        -> BotanMP             -- ^ @x@: private key
+        :: Ptr BotanPrivKey    -- ^ __key__: variable populated with key material
+        -> BotanMP             -- ^ __p__: prime order of a Z_p group
+        -> BotanMP             -- ^ __g__: group generator
+        -> BotanMP             -- ^ __x__: private key
         -> IO CInt             -- ^ 0 on success, a negative value on failure
 
 -- | Loads Diffie Hellman public key
 foreign import capi safe "botan/ffi.h botan_pubkey_load_dh"
     botan_pubkey_load_dh
-        :: Ptr BotanPubKey    -- ^ @key@: variable populated with key material
-        -> BotanMP            -- ^ @p@: prime order of a Z_p group
-        -> BotanMP            -- ^ @g@: group generator
-        -> BotanMP            -- ^ @y@: public key
+        :: Ptr BotanPubKey    -- ^ __key__: variable populated with key material
+        -> BotanMP            -- ^ __p__: prime order of a Z_p group
+        -> BotanMP            -- ^ __g__: group generator
+        -> BotanMP            -- ^ __y__: public key
         -> IO CInt            -- ^ 0 on success, a negative value on failure

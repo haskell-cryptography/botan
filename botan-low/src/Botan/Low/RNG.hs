@@ -124,8 +124,8 @@ rng_type has the possible values:
 Set rng_type to null to let the library choose some default.
 -}
 rngInit
-    :: RNGType  -- ^ @rng_type@: type of the rng
-    -> IO RNG   -- ^ @rng@
+    :: RNGType  -- ^ __rng_type__: type of the rng
+    -> IO RNG   -- ^ __rng__
 rngInit = mkCreateObjectCString createRNG botan_rng_init
 
 -- WARNING: withFooInit-style limited lifetime functions moved to high-level botan
@@ -134,17 +134,17 @@ withRNGInit = mkWithTemp1 rngInit rngDestroy
 
 -- | Get random bytes from a random number generator
 rngGet
-    :: RNG              -- ^ @rng@: rng object
-    -> Int              -- ^ @out_len@: number of requested bytes
-    -> IO ByteString    -- ^ @out@: output buffer of size out_len
+    :: RNG              -- ^ __rng__: rng object
+    -> Int              -- ^ __out_len__: number of requested bytes
+    -> IO ByteString    -- ^ __out__: output buffer of size out_len
 rngGet rng len = withRNG rng $ \ botanRNG -> do
     allocBytes len $ \ bytesPtr -> do
         throwBotanIfNegative_ $ botan_rng_get botanRNG bytesPtr (fromIntegral len)
 
 -- | Get random bytes from system random number generator
 systemRNGGet
-    :: Int              -- ^ @out_len@: number of requested bytes
-    -> IO ByteString    -- ^ @out@: output buffer of size out_len
+    :: Int              -- ^ __out_len__: number of requested bytes
+    -> IO ByteString    -- ^ __out__: output buffer of size out_len
 systemRNGGet len = allocBytes len $ \ bytesPtr -> do
     throwBotanIfNegative_ $ botan_system_rng_get bytesPtr (fromIntegral len)
 
@@ -154,17 +154,17 @@ Reseed a random number generator
 Uses the System_RNG as a seed generator.
 -}
 rngReseed
-    :: RNG  -- ^ @rng@: rng object
-    -> Int  -- ^ @bits@: number of bits to reseed with
+    :: RNG  -- ^ __rng__: rng object
+    -> Int  -- ^ __bits__: number of bits to reseed with
     -> IO ()
 rngReseed rng bits = withRNG rng $ \ botanRNG -> do
     throwBotanIfNegative_ $ botan_rng_reseed botanRNG (fromIntegral bits)
 
 -- | Reseed a random number generator
 rngReseedFromRNG
-    :: RNG      -- ^ @rng@: rng object
-    -> RNG      -- ^ @source_rng@: the rng that will be read from
-    -> Int      -- ^ @bits@: number of bits to reseed with
+    :: RNG      -- ^ __rng__: rng object
+    -> RNG      -- ^ __source_rng__: the rng that will be read from
+    -> Int      -- ^ __bits__: number of bits to reseed with
     -> IO ()
 rngReseedFromRNG rng source bits = withRNG rng $ \ botanRNG -> do
     withRNG source $ \ sourcePtr -> do
@@ -172,8 +172,8 @@ rngReseedFromRNG rng source bits = withRNG rng $ \ botanRNG -> do
 
 -- | Add some seed material to a random number generator
 rngAddEntropy
-    :: RNG          -- ^ @rng@: rng object
-    -> ByteString   -- ^ @entropy@: the data to add
+    :: RNG          -- ^ __rng__: rng object
+    -> ByteString   -- ^ __entropy__: the data to add
     -> IO ()
 rngAddEntropy rng bytes = withRNG rng $ \ botanRNG -> do
     asBytesLen bytes $ \ bytesPtr bytesLen -> do

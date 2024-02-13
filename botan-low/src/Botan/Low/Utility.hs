@@ -39,9 +39,9 @@ import Botan.Low.Make (allocBytesQuerying, allocBytesQueryingCString)
 
 -- | Returns 0 if x[0..len] == y[0..len], -1 otherwise.
 constantTimeCompare
-    :: ByteString   -- ^ @x@
-    -> ByteString   -- ^ @y@
-    -> Int          -- ^ @len@
+    :: ByteString   -- ^ __x__
+    -> ByteString   -- ^ __y__
+    -> Int          -- ^ __len__
     -> IO Bool
 constantTimeCompare x y len = do
     asBytesLen x $ \ xPtr xlen -> do
@@ -55,8 +55,8 @@ constantTimeCompare x y len = do
                 _ -> return False
 
 scrubMem
-    :: Ptr a    -- ^ @mem@
-    -> Int      -- ^ @bytes@
+    :: Ptr a    -- ^ __mem__
+    -> Int      -- ^ __bytes__
     -> IO ()
 scrubMem ptr sz = throwBotanIfNegative_ $ botan_scrub_mem (castPtr ptr) (fromIntegral sz)
 
@@ -73,9 +73,9 @@ pattern HexLowerCase = BOTAN_FFI_HEX_LOWER_CASE
 -- DISCUSS: Handling of positive return code / BOTAN_FFI_INVALID_VERIFIER?
 -- DISCUSS: Use of Text.decodeUtf8 - bad, partial function! - but safe here?
 hexEncode
-    :: ByteString           -- ^ @x@
-    -> HexEncodingFlags     -- ^ @flags@
-    -> IO Text              -- ^ @y@
+    :: ByteString           -- ^ __x__
+    -> HexEncodingFlags     -- ^ __flags__
+    -> IO Text              -- ^ __y__
 hexEncode bytes flags =  Text.decodeUtf8 <$> do
     asBytesLen bytes $ \ bytesPtr bytesLen -> do
         allocBytes (fromIntegral $ 2 * bytesLen) $ \ hexPtr -> do
@@ -90,8 +90,8 @@ hexEncode bytes flags =  Text.decodeUtf8 <$> do
 -- DISCUSS: Botan documentation is lacking here
 -- WARNING: Does not actually check that len is a multiple of 2
 hexDecode
-    :: Text             -- ^ @hex_str@
-    -> IO ByteString    -- ^ @out@
+    :: Text             -- ^ __hex_str__
+    -> IO ByteString    -- ^ __out__
 hexDecode txt = do
     asBytesLen (Text.encodeUtf8 txt) $ \ hexPtr hexLen -> do
         allocBytesQuerying $ \ bytesPtr szPtr -> do
@@ -103,8 +103,8 @@ hexDecode txt = do
 
 -- NOTE: Does not check tht base64Len == peek sizePtr
 base64Encode
-    :: ByteString   -- ^ @x@
-    -> IO Text      -- ^ @out@
+    :: ByteString   -- ^ __x__
+    -> IO Text      -- ^ __out__
 base64Encode bytes = Text.decodeUtf8 <$> do
     asBytesLen bytes $ \ bytesPtr bytesLen -> do
         allocBytesQueryingCString $ \ base64Ptr szPtr -> do
@@ -116,8 +116,8 @@ base64Encode bytes = Text.decodeUtf8 <$> do
 
 -- | Ditto everything hexDecode
 base64Decode
-    :: Text             -- ^ @base64_str@
-    -> IO ByteString    -- ^ @out@
+    :: Text             -- ^ __base64_str__
+    -> IO ByteString    -- ^ __out__
 base64Decode txt = do
     asBytesLen (Text.encodeUtf8 txt) $ \ base64Ptr base64Len -> do
         allocBytesQueryingCString $ \ bytesPtr szPtr -> do

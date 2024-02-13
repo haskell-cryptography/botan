@@ -37,25 +37,25 @@ pattern BOTAN_PUBKEY_ENCRYPT_FLAGS_NONE = 0
 
 foreign import capi safe "botan/ffi.h botan_pk_op_encrypt_create"
     botan_pk_op_encrypt_create
-        :: Ptr BotanPKOpEncrypt      -- ^ @op@
-        -> BotanPubKey               -- ^ @key@
-        -> ConstPtr CChar            -- ^ @padding@
-        -> Word32                    -- ^ @flags@
+        :: Ptr BotanPKOpEncrypt      -- ^ __op__
+        -> BotanPubKey               -- ^ __key__
+        -> ConstPtr CChar            -- ^ __padding__
+        -> Word32                    -- ^ __flags__
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_pk_op_encrypt_output_length"
     botan_pk_op_encrypt_output_length
-        :: BotanPKOpEncrypt      -- ^ @op@
-        -> CSize                 -- ^ @ptext_len@
-        -> Ptr CSize             -- ^ @ctext_len@
+        :: BotanPKOpEncrypt      -- ^ __op__
+        -> CSize                 -- ^ __ptext_len__
+        -> Ptr CSize             -- ^ __ctext_len__
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_pk_op_encrypt"
     botan_pk_op_encrypt
-        :: BotanPKOpEncrypt      -- ^ @op@
-        -> BotanRNG              -- ^ @rng@
-        -> Ptr Word8             -- ^ @out[]@
-        -> Ptr CSize             -- ^ @out_len@
-        -> Ptr Word8             -- ^ @plaintext[]@
-        -> CSize                 -- ^ @plaintext_len@
+        :: BotanPKOpEncrypt      -- ^ __op__
+        -> BotanRNG              -- ^ __rng__
+        -> Ptr Word8             -- ^ __out[]__
+        -> Ptr CSize             -- ^ __out_len__
+        -> Ptr Word8             -- ^ __plaintext[]__
+        -> CSize                 -- ^ __plaintext_len__
         -> IO CInt

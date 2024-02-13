@@ -196,10 +196,10 @@ type HOTPCode = Word32
 
 -- NOTE: Digits should be 6-8
 hotpInit
-    :: ByteString   -- ^ @key[]@
-    -> HashName     -- ^ @hash_algo@
-    -> Int          -- ^ @digits@
-    -> IO HOTP      -- ^ @hotp@
+    :: ByteString   -- ^ __key[]__
+    -> HashName     -- ^ __hash_algo__
+    -> Int          -- ^ __digits__
+    -> IO HOTP      -- ^ __hotp__
 hotpInit key algo digits = asBytesLen key $ \ keyPtr keyLen -> do
     asCString algo $ \ algoPtr -> do
         createHOTP $ \ out -> botan_hotp_init 
@@ -215,9 +215,9 @@ withHOTPInit = mkWithTemp3 hotpInit hotpDestroy
 
 -- NOTE: User is responsible for incrementing counter at this level
 hotpGenerate
-    :: HOTP         -- ^ @hotp@
-    -> HOTPCounter  -- ^ @hotp_counter@
-    -> IO HOTPCode  -- ^ @hotp_code@
+    :: HOTP         -- ^ __hotp__
+    -> HOTPCounter  -- ^ __hotp_counter__
+    -> IO HOTPCode  -- ^ __hotp_code__
 hotpGenerate hotp counter = withHOTP hotp $ \ hotpPtr -> do
     alloca $ \ outPtr -> do
         throwBotanIfNegative $ botan_hotp_generate hotpPtr outPtr counter
@@ -229,11 +229,11 @@ hotpGenerate hotp counter = withHOTP hotp $ \ hotpPtr -> do
 --      last successful authentication counter has not changed. ""
 -- NOTE: "Depending on the environment a resync_range of 3 to 10 might be appropriate."
 hotpCheck
-    :: HOTP                     -- ^ @hotp@
-    -> HOTPCode                 -- ^ @hotp_code@
-    -> HOTPCounter              -- ^ @hotp_counter@
-    -> Int                      -- ^ @resync_range@
-    -> IO (Bool, HOTPCounter)   -- ^ @(valid,next_counter)@
+    :: HOTP                     -- ^ __hotp__
+    -> HOTPCode                 -- ^ __hotp_code__
+    -> HOTPCounter              -- ^ __hotp_counter__
+    -> Int                      -- ^ __resync_range__
+    -> IO (Bool, HOTPCounter)   -- ^ __(valid,next_counter)__
 hotpCheck hotp code counter resync = withHOTP hotp $ \ hotpPtr -> do
     alloca $ \ outPtr -> do
         valid <- throwBotanCatchingSuccess $ botan_hotp_check hotpPtr outPtr code counter (fromIntegral resync)

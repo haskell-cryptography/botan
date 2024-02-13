@@ -34,26 +34,26 @@ import Botan.Low.Remake
 
 -- NOTE: Input must be exactly 32 bytes long
 privKeyLoadX25519
-    :: ByteString   -- ^ @privkey[32]@
-    -> IO PrivKey   -- ^ @key@
+    :: ByteString   -- ^ __privkey[32]__
+    -> IO PrivKey   -- ^ __key__
 privKeyLoadX25519 = mkCreateObjectCBytes createPrivKey botan_privkey_load_x25519
 
 -- NOTE: Input must be exactly 32 bytes long
 pubKeyLoadX25519
-    :: ByteString   -- ^ @pubkey[32]@
-    -> IO PubKey    -- ^ @key@
+    :: ByteString   -- ^ __pubkey[32]__
+    -> IO PubKey    -- ^ __key__
 pubKeyLoadX25519 = mkCreateObjectCBytes createPubKey botan_pubkey_load_x25519
 
 privKeyX25519GetPrivKey
-    :: PrivKey          -- ^ @key@
-    -> IO ByteString    -- ^ @output[32]@
+    :: PrivKey          -- ^ __key__
+    -> IO ByteString    -- ^ __output[32]__
 privKeyX25519GetPrivKey sk = withPrivKey sk $ \ skPtr -> do
     allocBytes 32 $ \ outPtr -> do
         throwBotanIfNegative_ $ botan_privkey_x25519_get_privkey skPtr outPtr
 
 pubKeyX25519GetPubKey
-    :: PubKey           -- ^ @key@
-    -> IO ByteString    -- ^ @pubkey[32]@
+    :: PubKey           -- ^ __key__
+    -> IO ByteString    -- ^ __pubkey[32]__
 pubKeyX25519GetPubKey pk = withPubKey pk $ \ pkPtr -> do
     allocBytes 32 $ \ outPtr -> do
         throwBotanIfNegative_ $ botan_pubkey_x25519_get_pubkey pkPtr outPtr

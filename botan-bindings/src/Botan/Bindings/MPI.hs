@@ -31,14 +31,14 @@ foreign import capi safe "botan/ffi.h &botan_mp_destroy"
 -- | Initialize an MPI
 foreign import capi safe "botan/ffi.h botan_mp_init"
     botan_mp_init
-        :: Ptr BotanMP -- ^ @mp@
+        :: Ptr BotanMP -- ^ __mp__
         -> IO CInt
 
 -- | Convert the MPI to a hex string. Writes botan_mp_num_bytes(mp)*2 + 1 bytes
 foreign import capi safe "botan/ffi.h botan_mp_to_hex"
     botan_mp_to_hex
-        :: BotanMP      -- ^ @mp@
-        -> Ptr CChar    -- ^ @out@
+        :: BotanMP      -- ^ __mp__
+        -> Ptr CChar    -- ^ __out__
         -> IO CInt
 
 {- |
@@ -50,37 +50,37 @@ NOTE: Despite the size ptr, this appears to be returning null-terminated CString
 -}
 foreign import capi safe "botan/ffi.h botan_mp_to_str"
     botan_mp_to_str
-        :: BotanMP      -- ^ @mp@
-        -> Word8        -- ^ @base@
-        -> Ptr CChar    -- ^ @out@
-        -> Ptr CSize    -- ^ @out_len@
+        :: BotanMP      -- ^ __mp__
+        -> Word8        -- ^ __base__
+        -> Ptr CChar    -- ^ __out__
+        -> Ptr CSize    -- ^ __out_len__
         -> IO CInt
 
 -- | Set the MPI to zero
 foreign import capi safe "botan/ffi.h botan_mp_clear"
     botan_mp_clear
-        :: BotanMP  -- ^ @mp@
+        :: BotanMP  -- ^ __mp__
         -> IO CInt
 
 -- | Set the MPI value from an int
 foreign import capi safe "botan/ffi.h botan_mp_set_from_int"
     botan_mp_set_from_int
-        :: BotanMP  -- ^ @mp@
-        -> CInt     -- ^ @initial_value@
+        :: BotanMP  -- ^ __mp__
+        -> CInt     -- ^ __initial_value__
         -> IO CInt
 
 -- | Set the MPI value from another MP object
 foreign import capi safe "botan/ffi.h botan_mp_set_from_mp"
     botan_mp_set_from_mp
-        :: BotanMP -- ^ @dest@
-        -> BotanMP -- ^ @source@
+        :: BotanMP -- ^ __dest__
+        -> BotanMP -- ^ __source__
         -> IO CInt
 
 -- | Set the MPI value from a string
 foreign import capi safe "botan/ffi.h botan_mp_set_from_str"
     botan_mp_set_from_str
-        :: BotanMP          -- ^ @dest@
-        -> ConstPtr CChar   -- ^ @str@
+        :: BotanMP          -- ^ __dest__
+        -> ConstPtr CChar   -- ^ __str__
         -> IO CInt
 
 {- |
@@ -89,45 +89,45 @@ For arbitrary being 10 or 16.
 -}
 foreign import capi safe "botan/ffi.h botan_mp_set_from_radix_str"
     botan_mp_set_from_radix_str
-        :: BotanMP          -- ^ @dest@
-        -> ConstPtr CChar   -- ^ @str@
-        -> CSize            -- ^ @radix@
+        :: BotanMP          -- ^ __dest__
+        -> ConstPtr CChar   -- ^ __str__
+        -> CSize            -- ^ __radix__
         -> IO CInt
 
 -- | Return the number of significant bits in the MPI
 foreign import capi safe "botan/ffi.h botan_mp_num_bits"
     botan_mp_num_bits
-        :: BotanMP      -- ^ @n@
-        -> Ptr CSize    -- ^ @bits@
+        :: BotanMP      -- ^ __n__
+        -> Ptr CSize    -- ^ __bits__
         -> IO CInt
 
 -- | Return the number of significant bytes in the MPI
 foreign import capi safe "botan/ffi.h botan_mp_num_bytes"
     botan_mp_num_bytes
-        :: BotanMP      -- ^ @n@
-        -> Ptr CSize    -- ^ @bytes@
+        :: BotanMP      -- ^ __n__
+        -> Ptr CSize    -- ^ __bytes__
         -> IO CInt
 
 -- | Convert the MPI to a big-endian binary string. Writes botan_mp_num_bytes to vec
 foreign import capi safe "botan/ffi.h botan_mp_to_bin"
     botan_mp_to_bin
-        :: BotanMP      -- ^ @mp@
-        -> Ptr Word8    -- ^ @vec[]@
+        :: BotanMP      -- ^ __mp__
+        -> Ptr Word8    -- ^ __vec[]__
         -> IO CInt
 
 -- | Set an MP to the big-endian binary value
 foreign import capi safe "botan/ffi.h botan_mp_from_bin"
     botan_mp_from_bin
-        :: BotanMP          -- ^ @mp@
-        -> ConstPtr Word8   -- ^ @vec[]@
-        -> CSize            -- ^ @vec_len@
+        :: BotanMP          -- ^ __mp__
+        -> ConstPtr Word8   -- ^ __vec[]__
+        -> CSize            -- ^ __vec_len__
         -> IO CInt
 
 -- | Convert the MPI to a uint32_t, if possible. Fails if MPI is negative or too large.
 foreign import capi safe "botan/ffi.h botan_mp_to_uint32"
     botan_mp_to_uint32
-        :: BotanMP      -- ^ @mp@
-        -> Ptr Word32   -- ^ @val@
+        :: BotanMP      -- ^ __mp__
+        -> Ptr Word32   -- ^ __val__
         -> IO CInt
 
 {- |
@@ -137,74 +137,74 @@ to detect negative numbers, botan_mp_is_zero to check for zero.
 -}
 foreign import capi safe "botan/ffi.h botan_mp_is_positive"
     botan_mp_is_positive
-        :: BotanMP -- ^ @mp@
+        :: BotanMP -- ^ __mp__
         -> IO CInt
 
 -- | Return 1 iff mp is less than 0
 foreign import capi safe "botan/ffi.h botan_mp_is_negative"
     botan_mp_is_negative
-        :: BotanMP -- ^ @mp@
+        :: BotanMP -- ^ __mp__
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_mp_flip_sign"
     botan_mp_flip_sign
-        :: BotanMP -- ^ @mp@
+        :: BotanMP -- ^ __mp__
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_mp_is_zero"
     botan_mp_is_zero
-        :: BotanMP -- ^ @mp@
+        :: BotanMP -- ^ __mp__
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_mp_add_u32"
     botan_mp_add_u32
-        :: BotanMP  -- ^ @result@
-        -> BotanMP  -- ^ @x@
-        -> Word32   -- ^ @y@
+        :: BotanMP  -- ^ __result__
+        -> BotanMP  -- ^ __x__
+        -> Word32   -- ^ __y__
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_mp_sub_u32"
     botan_mp_sub_u32
-        :: BotanMP  -- ^ @result@
-        -> BotanMP  -- ^ @x@
-        -> Word32   -- ^ @y@
+        :: BotanMP  -- ^ __result__
+        -> BotanMP  -- ^ __x__
+        -> Word32   -- ^ __y__
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_mp_add"
     botan_mp_add
-        :: BotanMP -- ^ @result@
-        -> BotanMP -- ^ @x@
-        -> BotanMP -- ^ @y@
+        :: BotanMP -- ^ __result__
+        -> BotanMP -- ^ __x__
+        -> BotanMP -- ^ __y__
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_mp_sub"
     botan_mp_sub
-        :: BotanMP -- ^ @result@
-        -> BotanMP -- ^ @x@
-        -> BotanMP -- ^ @y@
+        :: BotanMP -- ^ __result__
+        -> BotanMP -- ^ __x__
+        -> BotanMP -- ^ __y__
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_mp_mul"
     botan_mp_mul
-        :: BotanMP -- ^ @result@
-        -> BotanMP -- ^ @x@
-        -> BotanMP -- ^ @y@
+        :: BotanMP -- ^ __result__
+        -> BotanMP -- ^ __x__
+        -> BotanMP -- ^ __y__
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_mp_div"
     botan_mp_div
-        :: BotanMP -- ^ @quotient@
-        -> BotanMP -- ^ @remainder@
-        -> BotanMP -- ^ @x@
-        -> BotanMP -- ^ @y@
+        :: BotanMP -- ^ __quotient__
+        -> BotanMP -- ^ __remainder__
+        -> BotanMP -- ^ __x__
+        -> BotanMP -- ^ __y__
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_mp_mod_mul"
     botan_mp_mod_mul
-        :: BotanMP -- ^ @result@
-        -> BotanMP -- ^ @x@
-        -> BotanMP -- ^ @y@
-        -> BotanMP -- ^ @mod@
+        :: BotanMP -- ^ __result__
+        -> BotanMP -- ^ __x__
+        -> BotanMP -- ^ __y__
+        -> BotanMP -- ^ __mod__
         -> IO CInt
 
 {- |
@@ -214,8 +214,8 @@ Returns negative number on error
 -}
 foreign import capi safe "botan/ffi.h botan_mp_equal"
     botan_mp_equal
-        :: BotanMP -- ^ @x@
-        -> BotanMP -- ^ @y@
+        :: BotanMP -- ^ __x__
+        -> BotanMP -- ^ __y__
         -> IO CInt
 
 {- |
@@ -225,68 +225,68 @@ Returns negative number on error or zero on success
 -}
 foreign import capi safe "botan/ffi.h botan_mp_cmp"
     botan_mp_cmp
-        :: Ptr CInt -- ^ @result@
-        -> BotanMP  -- ^ @x@
-        -> BotanMP  -- ^ @y@
+        :: Ptr CInt -- ^ __result__
+        -> BotanMP  -- ^ __x__
+        -> BotanMP  -- ^ __y__
         -> IO CInt
 
 -- | Swap two botan_mp_t
 foreign import capi safe "botan/ffi.h botan_mp_swap"
     botan_mp_swap
-        :: BotanMP -- ^ @x@
-        -> BotanMP -- ^ @y@
+        :: BotanMP -- ^ __x__
+        -> BotanMP -- ^ __y__
         -> IO CInt
 
 -- | Return (base^exponent) % modulus 
 foreign import capi safe "botan/ffi.h botan_mp_powmod"
     botan_mp_powmod
-        :: BotanMP -- ^ @result@
-        -> BotanMP -- ^ @base@
-        -> BotanMP -- ^ @exponent@
-        -> BotanMP -- ^ @modulus@
+        :: BotanMP -- ^ __result__
+        -> BotanMP -- ^ __base__
+        -> BotanMP -- ^ __exponent__
+        -> BotanMP -- ^ __modulus__
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_mp_lshift"
     botan_mp_lshift
-        :: BotanMP  -- ^ @result@
-        -> BotanMP  -- ^ @n@
-        -> CSize    -- ^ @shift@
+        :: BotanMP  -- ^ __result__
+        -> BotanMP  -- ^ __n__
+        -> CSize    -- ^ __shift__
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_mp_rshift"
     botan_mp_rshift
-        :: BotanMP  -- ^ @result@
-        -> BotanMP  -- ^ @n@
-        -> CSize    -- ^ @shift@
+        :: BotanMP  -- ^ __result__
+        -> BotanMP  -- ^ __n__
+        -> CSize    -- ^ __shift__
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_mp_mod_inverse"
     botan_mp_mod_inverse
-        :: BotanMP -- ^ @result@
-        -> BotanMP -- ^ @n@
-        -> BotanMP -- ^ @modulus@
+        :: BotanMP -- ^ __result__
+        -> BotanMP -- ^ __n__
+        -> BotanMP -- ^ __modulus__
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_mp_rand_bits"
     botan_mp_rand_bits
-        :: BotanMP  -- ^ @rand_out@
-        -> BotanRNG -- ^ @rng@
-        -> CSize    -- ^ @bits@
+        :: BotanMP  -- ^ __rand_out__
+        -> BotanRNG -- ^ __rng__
+        -> CSize    -- ^ __bits__
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_mp_rand_range"
     botan_mp_rand_range
-        :: BotanMP  -- ^ @rand_out@
-        -> BotanRNG -- ^ @rng@
-        -> BotanMP  -- ^ @lower_bound@
-        -> BotanMP  -- ^ @upper_bound@
+        :: BotanMP  -- ^ __rand_out__
+        -> BotanRNG -- ^ __rng__
+        -> BotanMP  -- ^ __lower_bound__
+        -> BotanMP  -- ^ __upper_bound__
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_mp_gcd"
     botan_mp_gcd
-        :: BotanMP -- ^ @out@
-        -> BotanMP -- ^ @x@
-        -> BotanMP -- ^ @y@
+        :: BotanMP -- ^ __out__
+        -> BotanMP -- ^ __x__
+        -> BotanMP -- ^ __y__
         -> IO CInt
 
 {- |
@@ -296,9 +296,9 @@ Returns negative number on error
 -}
 foreign import capi safe "botan/ffi.h botan_mp_is_prime"
     botan_mp_is_prime
-        :: BotanMP  -- ^ @n@
-        -> BotanRNG -- ^ @rng@
-        -> CSize    -- ^ @test_prob@
+        :: BotanMP  -- ^ __n__
+        -> BotanRNG -- ^ __rng__
+        -> CSize    -- ^ __test_prob__
         -> IO CInt
 
 {- |
@@ -308,20 +308,20 @@ Returns negative number on error
 -}
 foreign import capi safe "botan/ffi.h botan_mp_get_bit"
     botan_mp_get_bit
-        :: BotanMP  -- ^ @n@
-        -> CSize    -- ^ @bit@
+        :: BotanMP  -- ^ __n__
+        -> CSize    -- ^ __bit__
         -> IO CInt
 
 -- | Set the specified bit
 foreign import capi safe "botan/ffi.h botan_mp_set_bit"
     botan_mp_set_bit
-        :: BotanMP  -- ^ @n@
-        -> CSize    -- ^ @bit@
+        :: BotanMP  -- ^ __n__
+        -> CSize    -- ^ __bit__
         -> IO CInt
 
 -- | Clear the specified bit
 foreign import capi safe "botan/ffi.h botan_mp_clear_bit"
     botan_mp_clear_bit
-        :: BotanMP  -- ^ @n@
-        -> CSize    -- ^ @bit@
+        :: BotanMP  -- ^ __n__
+        -> CSize    -- ^ __bit__
         -> IO CInt

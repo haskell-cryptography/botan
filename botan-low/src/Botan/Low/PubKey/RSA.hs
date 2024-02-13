@@ -25,27 +25,27 @@ import Botan.Low.PubKey
 -- */
 
 privKeyLoadRSA
-    :: MP           -- ^ @p@
-    -> MP           -- ^ @q@
-    -> MP           -- ^ @e@
-    -> IO PrivKey   -- ^ @key@
+    :: MP           -- ^ __p__
+    -> MP           -- ^ __q__
+    -> MP           -- ^ __e__
+    -> IO PrivKey   -- ^ __key__
 privKeyLoadRSA = mkPrivKeyLoad3 botan_privkey_load_rsa
 
 privKeyLoadRSA_PKCS1
-    :: ByteString   -- ^ @bits@
-    -> IO PrivKey   -- ^ @key@
+    :: ByteString   -- ^ __bits__
+    -> IO PrivKey   -- ^ __key__
 privKeyLoadRSA_PKCS1 = mkCreateObjectCBytesLen createPrivKey botan_privkey_load_rsa_pkcs1
 
 privKeyRSAGetPrivKey
-    :: PrivKey          -- ^ @rsa_key@
-    -> Word32           -- ^ @flags@
-    -> IO ByteString    -- ^ @out@
+    :: PrivKey          -- ^ __rsa_key__
+    -> Word32           -- ^ __flags__
+    -> IO ByteString    -- ^ __out__
 -- WRONG: privKeyRSAGetPrivKey = mkCreateObjectCBytesLen1 botan_privkey_rsa_get_privkey
 privKeyRSAGetPrivKey = mkWithObjectGetterCBytesLen1 withPrivKey
     $ \ rsa_key flags out out_len -> botan_privkey_rsa_get_privkey rsa_key out out_len flags
 
 pubKeyLoadRSA
-    :: MP           -- ^ @n@
-    -> MP           -- ^ @e@
-    -> IO PubKey    -- ^ @key@
+    :: MP           -- ^ __n__
+    -> MP           -- ^ __e__
+    -> IO PubKey    -- ^ __key__
 pubKeyLoadRSA = mkPubKeyLoad2 botan_pubkey_load_rsa

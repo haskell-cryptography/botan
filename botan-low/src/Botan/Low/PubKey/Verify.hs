@@ -52,10 +52,10 @@ createVerify   :: (Ptr BotanPKOpVerify -> IO CInt) -> IO Verify
 type VerifyAlgo = ByteString
 
 verifyCreate
-    :: PubKey       -- ^ @key@
-    -> EMSAName     -- ^ @hash_and_padding@
-    -> SigningFlags -- ^ @flags@
-    -> IO Verify    -- ^ @op@
+    :: PubKey       -- ^ __key__
+    -> EMSAName     -- ^ __hash_and_padding__
+    -> SigningFlags -- ^ __flags__
+    -> IO Verify    -- ^ __op__
 verifyCreate pk algo flags =  withPubKey pk $ \ pkPtr -> do
     asCString algo $ \ algoPtr -> do
         createVerify $ \ out -> botan_pk_op_verify_create
@@ -69,15 +69,15 @@ withVerifyCreate :: PubKey -> EMSAName -> SigningFlags -> (Verify -> IO a) -> IO
 withVerifyCreate = mkWithTemp3 verifyCreate verifyDestroy
 
 verifyUpdate
-    :: Verify       -- ^ @op@
-    -> ByteString   -- ^ @in[]@
+    :: Verify       -- ^ __op__
+    -> ByteString   -- ^ __in[]__
     -> IO ()
 verifyUpdate = mkWithObjectSetterCBytesLen withVerify botan_pk_op_verify_update
 
 -- TODO: Signature type
 verifyFinish
-    :: Verify       -- ^ @op@
-    -> ByteString   -- ^ @sig[]@
+    :: Verify       -- ^ __op__
+    -> ByteString   -- ^ __sig[]__
     -> IO Bool
 verifyFinish verify sig = withVerify verify $ \ verifyPtr -> do
     asBytesLen sig $ \ sigPtr sigLen -> do

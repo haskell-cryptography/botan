@@ -241,8 +241,8 @@ type BlockCipherCiphertext = ByteString
     
 -- | Initialize a block cipher object
 blockCipherInit
-    :: BlockCipherName  -- ^ @cipher_name@
-    -> IO BlockCipher   -- ^ @bc@
+    :: BlockCipherName  -- ^ __cipher_name__
+    -> IO BlockCipher   -- ^ __bc__
 blockCipherInit = mkCreateObjectCString createBlockCipher botan_block_cipher_init
 
 -- WARNING: withFooInit-style limited lifetime functions moved to high-level botan
@@ -255,7 +255,7 @@ Reinitializes a block cipher
 You must call blockCipherSetKey in order to use the block cipher again.
 -}
 blockCipherClear
-    :: BlockCipher  -- ^ @bc@: The cipher object
+    :: BlockCipher  -- ^ __bc__: The cipher object
     -> IO ()
 blockCipherClear = mkWithObjectAction withBlockCipher botan_block_cipher_clear
 
@@ -265,14 +265,14 @@ Set the key for a block cipher
 Throws an error if the key is not valid.
 -}
 blockCipherSetKey
-    :: BlockCipher      -- ^ @bc@: The cipher object
-    -> BlockCipherKey   -- ^ @key[]@: A cipher key
+    :: BlockCipher      -- ^ __bc__: The cipher object
+    -> BlockCipherKey   -- ^ __key[]__: A cipher key
     -> IO ()
 blockCipherSetKey = mkSetBytesLen withBlockCipher (\ cipher key -> botan_block_cipher_set_key cipher (ConstPtr key))
 
 -- | Return the block size of a block cipher.
 blockCipherBlockSize
-    :: BlockCipher  -- ^ @bc@: The cipher object
+    :: BlockCipher  -- ^ __bc__: The cipher object
     -> IO Int
 blockCipherBlockSize = mkGetIntCode withBlockCipher botan_block_cipher_block_size
 
@@ -282,9 +282,9 @@ Encrypt one or more blocks with a block cipher
 The plaintext length should be a multiple of the block size.
 -}
 blockCipherEncryptBlocks
-    :: BlockCipher              -- ^ @bc@: The cipher object
-    -> ByteString               -- ^ @in[]@: The plaintext
-    -> IO BlockCipherCiphertext -- ^ @out[]@: The ciphertext
+    :: BlockCipher              -- ^ __bc__: The cipher object
+    -> ByteString               -- ^ __in[]__: The plaintext
+    -> IO BlockCipherCiphertext -- ^ __out[]__: The ciphertext
 blockCipherEncryptBlocks blockCipher bytes = withBlockCipher blockCipher $ \ blockCipherPtr -> do
     asBytesLen bytes $ \ bytesPtr bytesLen -> do
         allocBytes (fromIntegral bytesLen) $ \ destPtr -> do
@@ -303,9 +303,9 @@ The ciphertext length should be a multiple of the block size.
 If an incorrect key was set, the content of the decrypted plaintext is unspecified.
 -}
 blockCipherDecryptBlocks
-    :: BlockCipher              -- ^ @bc@: The cipher object
-    -> BlockCipherCiphertext    -- ^ @in[]@: The ciphertext
-    -> IO ByteString            -- ^ @out[]@: The plaintext
+    :: BlockCipher              -- ^ __bc__: The cipher object
+    -> BlockCipherCiphertext    -- ^ __in[]__: The ciphertext
+    -> IO ByteString            -- ^ __out[]__: The plaintext
 blockCipherDecryptBlocks blockCipher bytes = withBlockCipher blockCipher $ \ blockCipherPtr -> do
     asBytesLen bytes $ \ bytesPtr bytesLen -> do
         allocBytes (fromIntegral bytesLen) $ \ destPtr -> do
@@ -322,8 +322,8 @@ Get the name of a block cipher.
 This function is not guaranteed to return the same exact value as used to initialize the context.
 -}
 blockCipherName
-    :: BlockCipher          -- ^ @bc@
-    -> IO BlockCipherName   -- ^ @name@
+    :: BlockCipher          -- ^ __bc__
+    -> IO BlockCipherName   -- ^ __name__
 blockCipherName = mkGetCString withBlockCipher botan_block_cipher_name
 
 {- |
@@ -332,6 +332,6 @@ Get the key specification of a block cipher
 Returns the minimum, maximum, and modulo of valid keys.
 -}
 blockCipherGetKeyspec
-    :: BlockCipher      -- ^ @bc@
-    -> IO (Int,Int,Int) -- ^ @(min,max,mod)@
+    :: BlockCipher      -- ^ __bc__
+    -> IO (Int,Int,Int) -- ^ __(min,max,mod)__
 blockCipherGetKeyspec = mkGetSizes3 withBlockCipher botan_block_cipher_get_keyspec
