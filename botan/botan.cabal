@@ -8,15 +8,15 @@ build-type:     Simple
 description:
     Bindings to the Botan cryptography library
 
-flag no-random
-    description: Disable 'random' package dependency
-    manual: True
-    default: False
+flag mtl
+    default:     True
+    manual:      True
+    description: Enable @mtl@ package dependency.
 
-flag no-mtl
-    description: Disable 'mtl' package dependency
-    manual: True
-    default: False
+flag random
+    default:     True
+    manual:      True
+    description: Enable @random@ package dependency.
 
 source-repository head
   type:     git
@@ -119,15 +119,15 @@ library
         botan-bindings  == 0.0.1.0,
         botan-low       == 0.0.1.0,
         bytestring      >= 0.11 && < 0.13,
-        deepseq         >= 1.4  && < 1.6,
+        deepseq         >= 1.1 && < 2,
         text            >= 1.2  && < 1.3 || >= 2.0 && < 2.2
     -- cc-options:     -Wall
     -- ghc-options:    -Wall -funbox-strict-fields    
-    if !flag(no-mtl)
+    if flag(mtl)
         build-depends:
             mtl         >= 2.2  && < 2.4
         cpp-options: -DHS_BOTAN_HAS_MTL 
-    if !flag(no-random) 
+    if flag(random) 
         build-depends:
             random      >= 1.2  && < 1.3
         cpp-options: -DHS_BOTAN_HAS_RANDOM

@@ -28,7 +28,7 @@ botanFFISupportsAPI version = unsafeDupablePerformIO $ Low.botanFFISupportsAPI v
 
 -- | Returns a free-form string describing the version. The return value is a statically allocated string.
 botanVersionText :: Text
-botanVersionText = unsafeDupablePerformIO $ fmap Text.decodeUtf8Lenient Low.botanVersionString
+botanVersionText = unsafeDupablePerformIO $ fmap Text.decodeUtf8 Low.botanVersionString
 
 -- | Returns the major version of the library
 botanVersionMajor :: Int
