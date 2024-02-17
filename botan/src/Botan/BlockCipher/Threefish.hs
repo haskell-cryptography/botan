@@ -68,10 +68,10 @@ instance HasSecretKey Threefish512 where
 instance (MonadRandomIO m )=> SecretKeyGen Threefish512 m where
 
     newSecretKey :: MonadRandomIO m => m (SecretKey Threefish512)
-    newSecretKey = Threefish512SecretKey <$> newSeed (secretKeySpec @Threefish512)
+    newSecretKey = Threefish512SecretKey <$> newSized (secretKeySpec @Threefish512)
     
     newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey Threefish512))
-    newSecretKeyMaybe i = fmap Threefish512SecretKey <$> newSeedMaybe (secretKeySpec @Threefish512) i
+    newSecretKeyMaybe i = fmap Threefish512SecretKey <$> newSizedMaybe (secretKeySpec @Threefish512) i
 
 instance HasCiphertext Threefish512 where
 

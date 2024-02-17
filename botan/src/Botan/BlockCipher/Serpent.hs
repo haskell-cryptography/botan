@@ -68,10 +68,10 @@ instance HasSecretKey Serpent where
 instance (MonadRandomIO m )=> SecretKeyGen Serpent m where
 
     newSecretKey :: MonadRandomIO m => m (SecretKey Serpent)
-    newSecretKey = SerpentSecretKey <$> newSeed (secretKeySpec @Serpent)
+    newSecretKey = SerpentSecretKey <$> newSized (secretKeySpec @Serpent)
     
     newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey Serpent))
-    newSecretKeyMaybe i = fmap SerpentSecretKey <$> newSeedMaybe (secretKeySpec @Serpent) i
+    newSecretKeyMaybe i = fmap SerpentSecretKey <$> newSizedMaybe (secretKeySpec @Serpent) i
 
 instance HasCiphertext Serpent where
 

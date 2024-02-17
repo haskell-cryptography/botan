@@ -68,10 +68,10 @@ instance HasSecretKey IDEA where
 instance (MonadRandomIO m )=> SecretKeyGen IDEA m where
 
     newSecretKey :: MonadRandomIO m => m (SecretKey IDEA)
-    newSecretKey = IDEASecretKey <$> newSeed (secretKeySpec @IDEA)
+    newSecretKey = IDEASecretKey <$> newSized (secretKeySpec @IDEA)
     
     newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey IDEA))
-    newSecretKeyMaybe i = fmap IDEASecretKey <$> newSeedMaybe (secretKeySpec @IDEA) i
+    newSecretKeyMaybe i = fmap IDEASecretKey <$> newSizedMaybe (secretKeySpec @IDEA) i
 
 instance HasCiphertext IDEA where
 

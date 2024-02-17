@@ -68,10 +68,10 @@ instance HasSecretKey GOST_28147_89 where
 instance (MonadRandomIO m )=> SecretKeyGen GOST_28147_89 m where
 
     newSecretKey :: MonadRandomIO m => m (SecretKey GOST_28147_89)
-    newSecretKey = GOST_28147_89SecretKey <$> newSeed (secretKeySpec @GOST_28147_89)
+    newSecretKey = GOST_28147_89SecretKey <$> newSized (secretKeySpec @GOST_28147_89)
     
     newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey GOST_28147_89))
-    newSecretKeyMaybe i = fmap GOST_28147_89SecretKey <$> newSeedMaybe (secretKeySpec @GOST_28147_89) i
+    newSecretKeyMaybe i = fmap GOST_28147_89SecretKey <$> newSizedMaybe (secretKeySpec @GOST_28147_89) i
 
 instance HasCiphertext GOST_28147_89 where
 

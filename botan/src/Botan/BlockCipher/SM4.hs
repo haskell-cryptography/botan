@@ -68,10 +68,10 @@ instance HasSecretKey SM4 where
 instance (MonadRandomIO m )=> SecretKeyGen SM4 m where
 
     newSecretKey :: MonadRandomIO m => m (SecretKey SM4)
-    newSecretKey = SM4SecretKey <$> newSeed (secretKeySpec @SM4)
+    newSecretKey = SM4SecretKey <$> newSized (secretKeySpec @SM4)
     
     newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey SM4))
-    newSecretKeyMaybe i = fmap SM4SecretKey <$> newSeedMaybe (secretKeySpec @SM4) i
+    newSecretKeyMaybe i = fmap SM4SecretKey <$> newSizedMaybe (secretKeySpec @SM4) i
 
 instance HasCiphertext SM4 where
 

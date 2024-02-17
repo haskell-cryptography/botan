@@ -68,10 +68,10 @@ instance HasSecretKey Noekeon where
 instance (MonadRandomIO m )=> SecretKeyGen Noekeon m where
 
     newSecretKey :: MonadRandomIO m => m (SecretKey Noekeon)
-    newSecretKey = NoekeonSecretKey <$> newSeed (secretKeySpec @Noekeon)
+    newSecretKey = NoekeonSecretKey <$> newSized (secretKeySpec @Noekeon)
     
     newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey Noekeon))
-    newSecretKeyMaybe i = fmap NoekeonSecretKey <$> newSeedMaybe (secretKeySpec @Noekeon) i
+    newSecretKeyMaybe i = fmap NoekeonSecretKey <$> newSizedMaybe (secretKeySpec @Noekeon) i
 
 instance HasCiphertext Noekeon where
 

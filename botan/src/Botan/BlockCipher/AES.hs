@@ -86,10 +86,10 @@ instance HasSecretKey AES128 where
 instance (MonadRandomIO m )=> SecretKeyGen AES128 m where
 
     newSecretKey :: MonadRandomIO m => m (SecretKey AES128)
-    newSecretKey = AES128SecretKey <$> newSeed (secretKeySpec @AES128)
+    newSecretKey = AES128SecretKey <$> newSized (secretKeySpec @AES128)
     
     newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey AES128))
-    newSecretKeyMaybe i = fmap AES128SecretKey <$> newSeedMaybe (secretKeySpec @AES128) i
+    newSecretKeyMaybe i = fmap AES128SecretKey <$> newSizedMaybe (secretKeySpec @AES128) i
 
 instance HasCiphertext AES128 where
 
@@ -170,10 +170,10 @@ instance HasSecretKey AES192 where
 instance (MonadRandomIO m )=> SecretKeyGen AES192 m where
 
     newSecretKey :: MonadRandomIO m => m (SecretKey AES192)
-    newSecretKey = AES192SecretKey <$> newSeed (secretKeySpec @AES192)
+    newSecretKey = AES192SecretKey <$> newSized (secretKeySpec @AES192)
     
     newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey AES192))
-    newSecretKeyMaybe i = fmap AES192SecretKey <$> newSeedMaybe (secretKeySpec @AES192) i
+    newSecretKeyMaybe i = fmap AES192SecretKey <$> newSizedMaybe (secretKeySpec @AES192) i
 
 instance HasCiphertext AES192 where
 
@@ -254,10 +254,10 @@ instance HasSecretKey AES256 where
 instance (MonadRandomIO m )=> SecretKeyGen AES256 m where
 
     newSecretKey :: MonadRandomIO m => m (SecretKey AES256)
-    newSecretKey = AES256SecretKey <$> newSeed (secretKeySpec @AES256)
+    newSecretKey = AES256SecretKey <$> newSized (secretKeySpec @AES256)
     
     newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey AES256))
-    newSecretKeyMaybe i = fmap AES256SecretKey <$> newSeedMaybe (secretKeySpec @AES256) i
+    newSecretKeyMaybe i = fmap AES256SecretKey <$> newSizedMaybe (secretKeySpec @AES256) i
 
 instance HasCiphertext AES256 where
 

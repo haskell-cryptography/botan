@@ -18,8 +18,8 @@ module Botan.Types.Class
 , allSizes
 , defaultSize
 , sizeIsValid
-, newSeed
-, newSeedMaybe
+, newSized
+, newSizedMaybe
 , SecretKey(..)
 , HasSecretKey(..)
 , SecretKeyGen(..)
@@ -196,18 +196,21 @@ defaultSize = maxSize
 -- atLeastSize :: SizeSpecifier -> Int -> Int
 -- atLeastSize = undefined
 
+-- atMostSize :: SizeSpecifier -> Int -> Int
+-- atMostSize = undefined
+
 -- NOTE: Maybe flip this back?
 sizeIsValid :: SizeSpecifier a -> Int -> Bool 
 sizeIsValid (SizeRange mn mx md) sz = mn <= sz && sz <= mx && mod sz md == 0
 sizeIsValid (SizeEnum sizes)     sz = sz `elem` sizes
 sizeIsValid (SizeExact size)     sz = sz == size
 
-newSeed :: (MonadRandomIO m) => SizeSpecifier a -> m ByteString
-newSeed spec = getRandomBytes (defaultSize spec)
+newSized :: (MonadRandomIO m) => SizeSpecifier a -> m ByteString
+newSized spec = getRandomBytes (defaultSize spec)
 
 -- NOTE: Maybe flip this back?
-newSeedMaybe :: (MonadRandomIO m) => SizeSpecifier a -> Int -> m (Maybe ByteString)
-newSeedMaybe spec sz = if sizeIsValid spec sz
+newSizedMaybe :: (MonadRandomIO m) => SizeSpecifier a -> Int -> m (Maybe ByteString)
+newSizedMaybe spec sz = if sizeIsValid spec sz
     then Just <$> getRandomBytes sz
     else return Nothing
 
@@ -272,10 +275,10 @@ instance Show GSecretKey where
 -- requires that SecretKey alg ~ Integer? (Actually some PK stuff may do just that)
 {-
 gnewSecretKey :: MonadRandomIO m => m GSecretKey
-gnewSecretKey = newSeed (secretKeySpec @_)
+gnewSecretKey = newSized (secretKeySpec @_)
 
 gnewSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (GSecretKey)
-gnewSecretKeyMaybe i = newSeedMaybe (secretKeySpec @_) i
+gnewSecretKeyMaybe i = newSizedMaybe (secretKeySpec @_) i
 -}
 
 --

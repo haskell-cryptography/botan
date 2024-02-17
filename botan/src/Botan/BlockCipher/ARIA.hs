@@ -86,10 +86,10 @@ instance HasSecretKey ARIA128 where
 instance (MonadRandomIO m )=> SecretKeyGen ARIA128 m where
 
     newSecretKey :: MonadRandomIO m => m (SecretKey ARIA128)
-    newSecretKey = ARIA128SecretKey <$> newSeed (secretKeySpec @ARIA128)
+    newSecretKey = ARIA128SecretKey <$> newSized (secretKeySpec @ARIA128)
     
     newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey ARIA128))
-    newSecretKeyMaybe i = fmap ARIA128SecretKey <$> newSeedMaybe (secretKeySpec @ARIA128) i
+    newSecretKeyMaybe i = fmap ARIA128SecretKey <$> newSizedMaybe (secretKeySpec @ARIA128) i
 
 instance HasCiphertext ARIA128 where
 
@@ -170,10 +170,10 @@ instance HasSecretKey ARIA192 where
 instance (MonadRandomIO m )=> SecretKeyGen ARIA192 m where
 
     newSecretKey :: MonadRandomIO m => m (SecretKey ARIA192)
-    newSecretKey = ARIA192SecretKey <$> newSeed (secretKeySpec @ARIA192)
+    newSecretKey = ARIA192SecretKey <$> newSized (secretKeySpec @ARIA192)
     
     newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey ARIA192))
-    newSecretKeyMaybe i = fmap ARIA192SecretKey <$> newSeedMaybe (secretKeySpec @ARIA192) i
+    newSecretKeyMaybe i = fmap ARIA192SecretKey <$> newSizedMaybe (secretKeySpec @ARIA192) i
 
 instance HasCiphertext ARIA192 where
 
@@ -254,10 +254,10 @@ instance HasSecretKey ARIA256 where
 instance (MonadRandomIO m )=> SecretKeyGen ARIA256 m where
 
     newSecretKey :: MonadRandomIO m => m (SecretKey ARIA256)
-    newSecretKey = ARIA256SecretKey <$> newSeed (secretKeySpec @ARIA256)
+    newSecretKey = ARIA256SecretKey <$> newSized (secretKeySpec @ARIA256)
     
     newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey ARIA256))
-    newSecretKeyMaybe i = fmap ARIA256SecretKey <$> newSeedMaybe (secretKeySpec @ARIA256) i
+    newSecretKeyMaybe i = fmap ARIA256SecretKey <$> newSizedMaybe (secretKeySpec @ARIA256) i
 
 instance HasCiphertext ARIA256 where
 

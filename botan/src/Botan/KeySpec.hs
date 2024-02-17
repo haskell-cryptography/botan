@@ -32,7 +32,7 @@ keySizeIsValid :: Int -> KeySpec -> Bool
 keySizeIsValid = flip sizeIsValid
 
 newKeyMaybe :: (MonadRandomIO m) => Int -> KeySpec -> m (Maybe ByteString)
-newKeyMaybe = flip newSeedMaybe
+newKeyMaybe = flip newSizedMaybe
 
 newKey :: (MonadRandomIO m) => KeySpec -> m ByteString
-newKey = newSeed
+newKey = newSized

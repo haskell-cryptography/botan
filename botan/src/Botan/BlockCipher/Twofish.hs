@@ -68,10 +68,10 @@ instance HasSecretKey Twofish where
 instance (MonadRandomIO m )=> SecretKeyGen Twofish m where
 
     newSecretKey :: MonadRandomIO m => m (SecretKey Twofish)
-    newSecretKey = TwofishSecretKey <$> newSeed (secretKeySpec @Twofish)
+    newSecretKey = TwofishSecretKey <$> newSized (secretKeySpec @Twofish)
     
     newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey Twofish))
-    newSecretKeyMaybe i = fmap TwofishSecretKey <$> newSeedMaybe (secretKeySpec @Twofish) i
+    newSecretKeyMaybe i = fmap TwofishSecretKey <$> newSizedMaybe (secretKeySpec @Twofish) i
 
 instance HasCiphertext Twofish where
 

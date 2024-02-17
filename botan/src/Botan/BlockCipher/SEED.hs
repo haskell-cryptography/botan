@@ -68,10 +68,10 @@ instance HasSecretKey SEED where
 instance (MonadRandomIO m )=> SecretKeyGen SEED m where
 
     newSecretKey :: MonadRandomIO m => m (SecretKey SEED)
-    newSecretKey = SEEDSecretKey <$> newSeed (secretKeySpec @SEED)
+    newSecretKey = SEEDSecretKey <$> newSized (secretKeySpec @SEED)
     
     newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey SEED))
-    newSecretKeyMaybe i = fmap SEEDSecretKey <$> newSeedMaybe (secretKeySpec @SEED) i
+    newSecretKeyMaybe i = fmap SEEDSecretKey <$> newSizedMaybe (secretKeySpec @SEED) i
 
 instance HasCiphertext SEED where
 

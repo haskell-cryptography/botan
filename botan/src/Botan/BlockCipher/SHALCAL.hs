@@ -68,10 +68,10 @@ instance HasSecretKey SHALCAL2 where
 instance (MonadRandomIO m )=> SecretKeyGen SHALCAL2 m where
 
     newSecretKey :: MonadRandomIO m => m (SecretKey SHALCAL2)
-    newSecretKey = SHALCAL2SecretKey <$> newSeed (secretKeySpec @SHALCAL2)
+    newSecretKey = SHALCAL2SecretKey <$> newSized (secretKeySpec @SHALCAL2)
     
     newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey SHALCAL2))
-    newSecretKeyMaybe i = fmap SHALCAL2SecretKey <$> newSeedMaybe (secretKeySpec @SHALCAL2) i
+    newSecretKeyMaybe i = fmap SHALCAL2SecretKey <$> newSizedMaybe (secretKeySpec @SHALCAL2) i
 
 instance HasCiphertext SHALCAL2 where
 

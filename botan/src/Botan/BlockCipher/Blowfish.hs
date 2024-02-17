@@ -68,10 +68,10 @@ instance HasSecretKey Blowfish where
 instance (MonadRandomIO m )=> SecretKeyGen Blowfish m where
 
     newSecretKey :: MonadRandomIO m => m (SecretKey Blowfish)
-    newSecretKey = BlowfishSecretKey <$> newSeed (secretKeySpec @Blowfish)
+    newSecretKey = BlowfishSecretKey <$> newSized (secretKeySpec @Blowfish)
     
     newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey Blowfish))
-    newSecretKeyMaybe i = fmap BlowfishSecretKey <$> newSeedMaybe (secretKeySpec @Blowfish) i
+    newSecretKeyMaybe i = fmap BlowfishSecretKey <$> newSizedMaybe (secretKeySpec @Blowfish) i
 
 instance HasCiphertext Blowfish where
 

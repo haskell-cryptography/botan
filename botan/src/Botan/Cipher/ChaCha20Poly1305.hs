@@ -80,10 +80,10 @@ instance HasSecretKey ChaCha20Poly1305 where
 instance (MonadRandomIO m )=> SecretKeyGen ChaCha20Poly1305 m where
 
     newSecretKey :: MonadRandomIO m => m (SecretKey ChaCha20Poly1305)
-    newSecretKey = ChaCha20Poly1305SecretKey <$> newSeed (secretKeySpec @ChaCha20Poly1305)
+    newSecretKey = ChaCha20Poly1305SecretKey <$> newSized (secretKeySpec @ChaCha20Poly1305)
     
     newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey ChaCha20Poly1305))
-    newSecretKeyMaybe i = fmap ChaCha20Poly1305SecretKey <$> newSeedMaybe (secretKeySpec @ChaCha20Poly1305) i
+    newSecretKeyMaybe i = fmap ChaCha20Poly1305SecretKey <$> newSizedMaybe (secretKeySpec @ChaCha20Poly1305) i
 
 instance HasNonce ChaCha20Poly1305 where
     
@@ -96,10 +96,10 @@ instance HasNonce ChaCha20Poly1305 where
 instance (MonadRandomIO m )=> NonceGen ChaCha20Poly1305 m where
 
     newNonce :: MonadRandomIO m => m (Nonce ChaCha20Poly1305)
-    newNonce = ChaCha20Poly1305Nonce <$> newSeed (nonceSpec @ChaCha20Poly1305)
+    newNonce = ChaCha20Poly1305Nonce <$> newSized (nonceSpec @ChaCha20Poly1305)
     
     newNonceMaybe :: MonadRandomIO m => Int -> m (Maybe (Nonce ChaCha20Poly1305))
-    newNonceMaybe i = fmap ChaCha20Poly1305Nonce <$> newSeedMaybe (nonceSpec @ChaCha20Poly1305) i
+    newNonceMaybe i = fmap ChaCha20Poly1305Nonce <$> newSizedMaybe (nonceSpec @ChaCha20Poly1305) i
 
 instance HasCiphertext ChaCha20Poly1305 where
 instance HasLazyCiphertext ChaCha20Poly1305 where

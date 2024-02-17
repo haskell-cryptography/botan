@@ -77,10 +77,10 @@ instance HasSecretKey DES where
 instance (MonadRandomIO m )=> SecretKeyGen DES m where
 
     newSecretKey :: MonadRandomIO m => m (SecretKey DES)
-    newSecretKey = DESSecretKey <$> newSeed (secretKeySpec @DES)
+    newSecretKey = DESSecretKey <$> newSized (secretKeySpec @DES)
     
     newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey DES))
-    newSecretKeyMaybe i = fmap DESSecretKey <$> newSeedMaybe (secretKeySpec @DES) i
+    newSecretKeyMaybe i = fmap DESSecretKey <$> newSizedMaybe (secretKeySpec @DES) i
 
 instance HasCiphertext DES where
 
@@ -162,10 +162,10 @@ instance HasSecretKey TripleDES where
 instance (MonadRandomIO m )=> SecretKeyGen TripleDES m where
 
     newSecretKey :: MonadRandomIO m => m (SecretKey TripleDES)
-    newSecretKey = TripleDESSecretKey <$> newSeed (secretKeySpec @TripleDES)
+    newSecretKey = TripleDESSecretKey <$> newSized (secretKeySpec @TripleDES)
     
     newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey TripleDES))
-    newSecretKeyMaybe i = fmap TripleDESSecretKey <$> newSeedMaybe (secretKeySpec @TripleDES) i
+    newSecretKeyMaybe i = fmap TripleDESSecretKey <$> newSizedMaybe (secretKeySpec @TripleDES) i
 
 instance HasCiphertext TripleDES where
 

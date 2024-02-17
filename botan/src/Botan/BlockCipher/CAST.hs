@@ -68,10 +68,10 @@ instance HasSecretKey CAST128 where
 instance (MonadRandomIO m )=> SecretKeyGen CAST128 m where
 
     newSecretKey :: MonadRandomIO m => m (SecretKey CAST128)
-    newSecretKey = CAST128SecretKey <$> newSeed (secretKeySpec @CAST128)
+    newSecretKey = CAST128SecretKey <$> newSized (secretKeySpec @CAST128)
     
     newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey CAST128))
-    newSecretKeyMaybe i = fmap CAST128SecretKey <$> newSeedMaybe (secretKeySpec @CAST128) i
+    newSecretKeyMaybe i = fmap CAST128SecretKey <$> newSizedMaybe (secretKeySpec @CAST128) i
 
 instance HasCiphertext CAST128 where
 
