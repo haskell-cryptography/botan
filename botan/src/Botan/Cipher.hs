@@ -24,22 +24,25 @@ module Botan.Cipher
 
 -- * Idiomatic interface
 
--- ** Data type
-  Cipher(..)
-, CipherMode(..)
-, CBCPadding(..)
+-- ** Cipher data type
+ Cipher(..)
+
+-- ** AEAD data type
 , AEAD(..)
--- , AEADMode(..)
+, aead
+, unsafeAEAD
+, isAEAD
 
 -- ** Enumerations
 
-, allCiphers
-, cipherModes
+, ciphers
+, cbcPaddings
 , aeads
 
 -- ** Associated types
 , CipherKey(..)
 , CipherNonce(..)
+, CBCPadding(..)
 , AEADAssociatedData(..)
 
 -- ** Accessors
@@ -114,7 +117,22 @@ module Botan.Cipher
 , finalizeClearCipher
 
 -- ** Algorithm references
+
+, cbc
+, cbcWith
+, cfb
+, cfbWith
+, xts
 , chaCha20Poly1305
+, gcm
+, gcmWith
+, ocb
+, ocbWith
+, eax
+, eaxWith
+, siv
+, ccm
+, ccmWith
 
 ) where
 
@@ -128,6 +146,8 @@ import Botan.Prelude
 import qualified Data.ByteString as ByteString
 import qualified Data.ByteString.Lazy as Lazy
 import Botan.RNG
+
+import Data.Maybe
 
 -- WARNING: Some notes are incorrect or out of date. Proceed with caution
 
@@ -157,19 +177,27 @@ import Botan.RNG
 -- Idiomatic interface
 --
 
--- Data type
+-- Cipher data type
 
--- NOTE: For EAX and GCM, any length nonces are allowed. OCB allows any value between 8 and 15 bytes.
+-- NOTE: For GCM, EAX, SIV, any length nonces are allowed.
+-- NOTE: "GCM is defined for the tag sizes 4, 8, 12 - 16 bytes" but may actually accept any 1-16
+-- NOTE: Botan Docs: EAX: "Supports 128-bit, 256-bit and 512-bit block ciphers."
+--  Note that that is currently all block ciphers (at least, those with default values)
+-- NOTE: CCM is not an online algorithm:
+--  > CCM is not an "on-line" authenticated encryption with associated data (AEAD), in that the length of the message (and associated data) must be known in advance.
+-- NOTE: SIV is not an online algorithm:
+--  > [SIV] modes process the plaintext blocks twice (once for authentication, then for encryption), and hence they are two-pass
+--  https://csrc.nist.gov/CSRC/media/Events/lightweight-cryptography-workshop-2020/documents/papers/structural-classification-lwc2020.pdf
 data Cipher
-    = CipherMode CipherMode
-    -- | AE AE -- SEE: Note about botan's lack of AE
-    | AEAD AEAD
-    deriving (Eq, Show)
-
-data CipherMode
     = CBC BlockCipher CBCPadding
     | CFB BlockCipher Int -- Feedback bits size, default is 8 * block size
     | XTS BlockCipher
+    | ChaCha20Poly1305
+    | GCM BlockCipher128 Int -- Tag size, default is 16
+    | OCB BlockCipher128 Int -- Tag size, default is 16
+    | EAX BlockCipher Int -- Tag size, default is block size
+    | SIV BlockCipher128
+    | CCM BlockCipher128 Int Int -- Tag size and L, default tag size is 16 and L is 3
     deriving (Eq, Show)
 
 -- CBC Padding - does this have use elsewhere?
@@ -182,37 +210,39 @@ data CBCPadding
     | NoPadding
     deriving (Eq, Show)
 
--- NOTE: "GCM is defined for the tag sizes 4, 8, 12 - 16 bytes" but may actually accept any 1-16
--- NOTE: Wiki: "Both GCM and GMAC can accept initialization vectors of arbitrary length." - untested
--- NOTE: Wiki: "GCM uses a block cipher with block size 128 bits" - not all block ciphers are supported
--- NOTE: RFC 7253 - The OCB Authenticated-Encryption Algorithm
---  "The blockcipher must have a 128-bit blocksize.""
--- NOTE: Wiki, RFC 7253, Botan docs: GCM, OCB, SIV, CCM: "Requires a 128-bit block cipher."
--- NOTE: Botan Docs: EAX: "Supports 128-bit, 256-bit and 512-bit block ciphers."
---  Note that that is currently all block ciphers (at least, those with default values)
--- NOTE: CCM is not an online algorithm:
---  > CCM is not an "on-line" authenticated encryption with associated data (AEAD), in that the length of the message (and associated data) must be known in advance.
--- NOTE: SIV is not an online algorithm:
---  > [SIV] modes process the plaintext blocks twice (once for authentication, then for encryption), and hence they are two-pass
---  https://csrc.nist.gov/CSRC/media/Events/lightweight-cryptography-workshop-2020/documents/papers/structural-classification-lwc2020.pdf
---  
-data AEAD
-    = ChaCha20Poly1305
-    | GCM BlockCipher {- TODO: BlockCipher128 -} Int -- Tag size, default is 16
-    | OCB BlockCipher {- TODO: BlockCipher128 -} Int -- Tag size, default is 16
-    | EAX BlockCipher Int -- Tag size, default is block size
-    | SIV BlockCipher {- TODO: BlockCipher128 -}
-    | CCM BlockCipher {- TODO: BlockCipher128 -} Int Int -- Tag size and L, default tag size is 16 and L is 3
+-- TODO: AE data type? Unnecessary if considering AEAD?
+
+-- AEAD data type
+
+newtype AEAD = MkAEAD { unAEAD :: Cipher }
     deriving (Eq, Show)
+
+aead :: Cipher -> Maybe AEAD
+aead c@(ChaCha20Poly1305)   = Just $ MkAEAD c
+aead c@(GCM _ _)            = Just $ MkAEAD c
+aead c@(OCB _ _)            = Just $ MkAEAD c
+aead c@(EAX _ _)            = Just $ MkAEAD c
+aead c@(SIV _)              = Just $ MkAEAD c
+aead c@(CCM _ _ _)          = Just $ MkAEAD c
+aead _                      = Nothing
+
+unsafeAEAD :: Cipher -> AEAD
+unsafeAEAD = MkAEAD
+
+isAEAD :: Cipher -> Bool
+isAEAD = isJust . aead
 
 -- Enumerations
 
-cipherModes = concat
-    [ [ CBC bc pd                            | bc <- allBlockCiphers, pd <- cbcPaddings ]
-    , [ CFB bc (8 * blockCipherBlockSize bc) | bc <- allBlockCiphers ]
-    , [ XTS bc                               | bc <- allBlockCiphers ]
+ciphers :: [ Cipher ]
+ciphers = concat
+    [ [ CBC bc pd                               | bc <- blockCiphers, pd <- cbcPaddings ]
+    , [ CFB bc (8 * blockCipherBlockSize bc)    | bc <- blockCiphers ]
+    , [ XTS bc                                  | bc <- blockCiphers ]
+    , fmap unAEAD aeads
     ]
 
+cbcPaddings :: [ CBCPadding ]
 cbcPaddings =
     [ PKCS7
     , OneAndZeros
@@ -222,16 +252,15 @@ cbcPaddings =
     , NoPadding
     ]
 
-aeads = concat
+aeads :: [ AEAD ]
+aeads = fmap MkAEAD $ concat
     [ [ ChaCha20Poly1305 ]
-    , [ GCM bc 16                        | bc <- fmap BlockCipher128 blockCipher128s ]
-    , [ OCB bc 16                        | bc <- fmap BlockCipher128 blockCipher128s ]
-    , [ EAX bc (blockCipherBlockSize bc) | bc <- blockCiphers ] -- WARNING: Why just blockCiphers, why not allBlockCiphers? INHERITED - see Botan.Low.Cipher.aeads
-    , [ SIV bc                           | bc <- fmap BlockCipher128 blockCipher128s ]
-    , [ CCM bc 16 3                      | bc <- fmap BlockCipher128 blockCipher128s ]
+    , [ GCM bc 16                               | bc <- blockCipher128s ]
+    , [ OCB bc 16                               | bc <- blockCipher128s ]
+    , [ EAX bc (blockCipherBlockSize bc)        | bc <- blockCiphers ]
+    , [ SIV bc                                  | bc <- blockCipher128s ]
+    , [ CCM bc 16 3                             | bc <- blockCipher128s ]
     ]
-
-allCiphers = fmap CipherMode cipherModes ++ fmap AEAD aeads
 
 -- Associated types
 
@@ -260,13 +289,15 @@ type AEADAssociatedData = ByteString
 -- Accessors
 
 cipherName :: Cipher -> Low.CipherName
-cipherName (CipherMode mode) = cipherModeName mode
-cipherName (AEAD aead) = aeadName aead
-
-cipherModeName :: CipherMode -> Low.CipherName
-cipherModeName (CBC bc padding)    = Low.cbcMode (blockCipherName bc) (cbcPaddingName padding)
-cipherModeName (CFB bc fsz)        = Low.cfbModeWith (blockCipherName bc) fsz
-cipherModeName (XTS bc)            = Low.xtsMode (blockCipherName bc)
+cipherName (CBC bc padding)     = Low.cbcMode (blockCipherName bc) (cbcPaddingName padding)
+cipherName (CFB bc fsz)         = Low.cfbModeWith (blockCipherName bc) fsz
+cipherName (XTS bc)             = Low.xtsMode (blockCipherName bc)
+cipherName ChaCha20Poly1305     = Low.chaCha20Poly1305
+cipherName (GCM bc128 tsz)      = Low.gcmModeWith (blockCipher128Name bc128) tsz
+cipherName (OCB bc128 tsz)      = Low.ocbModeWith (blockCipher128Name bc128) tsz
+cipherName (EAX bc tsz)         = Low.eaxModeWith (blockCipherName bc) tsz
+cipherName (SIV bc128)          = Low.sivMode (blockCipher128Name bc128)
+cipherName (CCM bc128 tsz l)    = Low.ccmModeWith (blockCipher128Name bc128) tsz l
 
 cbcPaddingName :: CBCPadding -> ByteString
 cbcPaddingName PKCS7        = Low.PKCS7
@@ -277,23 +308,18 @@ cbcPaddingName CTS          = Low.CTS
 cbcPaddingName NoPadding    = Low.NoPadding
 
 aeadName :: AEAD -> Low.CipherName
-aeadName ChaCha20Poly1305   = Low.chaCha20Poly1305
-aeadName (GCM bc tsz)       = Low.gcmModeWith (blockCipherName bc) tsz
-aeadName (OCB bc tsz)       = Low.ocbModeWith (blockCipherName bc) tsz
-aeadName (EAX bc tsz)       = Low.eaxModeWith (blockCipherName bc) tsz
-aeadName (SIV bc)           = Low.sivMode (blockCipherName bc)
-aeadName (CCM bc tsz l)     = Low.ccmModeWith (blockCipherName bc) tsz l
+aeadName = cipherName . unAEAD
 
 cipherKeySpec :: Cipher -> CipherKeySpec
-cipherKeySpec (CipherMode (CBC bc _)) = blockCipherKeySpec bc
-cipherKeySpec (CipherMode (CFB bc _)) = blockCipherKeySpec bc
-cipherKeySpec (CipherMode (XTS bc))   = monoMapKeySpec (*2) $ blockCipherKeySpec bc
-cipherKeySpec (AEAD ChaCha20Poly1305) = keySpec 32 32 1
-cipherKeySpec (AEAD (GCM bc128 _))    = blockCipherKeySpec bc128
-cipherKeySpec (AEAD (OCB bc128 _))    = blockCipherKeySpec bc128
-cipherKeySpec (AEAD (EAX bc _))       = blockCipherKeySpec bc
-cipherKeySpec (AEAD (SIV bc128))      = monoMapKeySpec (*2) $ blockCipherKeySpec bc128
-cipherKeySpec (AEAD (CCM bc128 _ _))  = blockCipherKeySpec bc128
+cipherKeySpec (CBC bc _)        = blockCipherKeySpec bc
+cipherKeySpec (CFB bc _)        = blockCipherKeySpec bc
+cipherKeySpec (XTS bc)          = monoMapKeySpec (*2) $ blockCipherKeySpec bc
+cipherKeySpec ChaCha20Poly1305  = keySpec 32 32 1
+cipherKeySpec (GCM bc128 _)     = blockCipher128KeySpec bc128
+cipherKeySpec (OCB bc128 _)     = blockCipher128KeySpec bc128
+cipherKeySpec (EAX bc _)        = blockCipherKeySpec bc
+cipherKeySpec (SIV bc128)       = monoMapKeySpec (*2) $ blockCipher128KeySpec bc128
+cipherKeySpec (CCM bc128 _ _)   = blockCipher128KeySpec bc128
 -- NOTE: Extracted from inspecting:
 {-
 generateCipherKeySpecs :: IO ()
@@ -317,12 +343,12 @@ generateCipherKeySpecs = do
 -}
 
 cipherDefaultNonceSize :: Cipher -> Int
-cipherDefaultNonceSize (CipherMode (CBC bc _)) = blockCipherBlockSize bc
-cipherDefaultNonceSize (CipherMode (CFB bc _)) = blockCipherBlockSize bc
-cipherDefaultNonceSize (CipherMode (XTS bc))   = blockCipherBlockSize bc
+cipherDefaultNonceSize (CBC bc _) = blockCipherBlockSize bc
+cipherDefaultNonceSize (CFB bc _) = blockCipherBlockSize bc
+cipherDefaultNonceSize (XTS bc)   = blockCipherBlockSize bc
 -- NOTE: This is the value at current, and matches the default in botan,
--- presumably because 12 is valid for all AEAD nonces 
-cipherDefaultNonceSize (AEAD _)                = 12
+-- presumably because 12 is valid for all remaining cipher / AEAD nonces 
+cipherDefaultNonceSize _          = 12
 -- NOTE: Extracted from inspecting:
 {-
 generateCipherDefaultNonceLengths :: IO ()
@@ -344,18 +370,19 @@ generateCipherDefaultNonceLengths = do
 -- TODO: Make NonceSpec? generalize to RangeSpec?
 
 -- NOTE: We've capped the length at 512, but they could be potentially unbounded
--- Also this is inefficient compared to cipherNonceLengthIsValid, as it actually
--- calculates the list of valid lengths, which may be large or unbounded
+internalMaximumCipherNonceSize :: Int
+internalMaximumCipherNonceSize = 1024
+
 cipherNonceSizeIsValid :: Int -> Cipher -> Bool
-cipherNonceSizeIsValid n (CipherMode (CBC bc _)) = n == blockCipherBlockSize bc
-cipherNonceSizeIsValid n (CipherMode (CFB bc _)) = n == blockCipherBlockSize bc
-cipherNonceSizeIsValid n (CipherMode (XTS bc))   = 1 <= n && n <= blockCipherBlockSize bc -- Always [ 1 .. 16 ]
-cipherNonceSizeIsValid n (AEAD ChaCha20Poly1305) = n `elem` [ 8, 12, 24 ]
-cipherNonceSizeIsValid n (AEAD (GCM _ _))        = 1 <= n && n <= 512 -- True if unbounded
-cipherNonceSizeIsValid n (AEAD (OCB bc128 _))    = 1 <= n && n <= blockCipherBlockSize bc128 - 1 -- Always [ 1 .. 15 ]
-cipherNonceSizeIsValid n (AEAD (EAX _ _))        = 1 <= n && n <= 512 -- True if unbounded
-cipherNonceSizeIsValid n (AEAD (SIV _))          = 1 <= n && n <= 512 -- True if unbounded
-cipherNonceSizeIsValid n (AEAD (CCM _ _ _))      = n == 12
+cipherNonceSizeIsValid n (CBC bc _)         = n == blockCipherBlockSize bc
+cipherNonceSizeIsValid n (CFB bc _)         = n == blockCipherBlockSize bc
+cipherNonceSizeIsValid n (XTS bc)           = 1 <= n && n <= blockCipherBlockSize bc -- Always [ 1 .. 16 ]
+cipherNonceSizeIsValid n chaCha20Poly1305   = n `elem` [ 8, 12, 24 ]
+cipherNonceSizeIsValid n (GCM _ _)          = 1 <= n && n <= internalMaximumCipherNonceSize -- True if unbounded
+cipherNonceSizeIsValid n (OCB bc128 _)      = 1 <= n && n <= blockCipherBlockSize (unBlockCipher128 bc128) - 1 -- Always [ 1 .. 15 ]
+cipherNonceSizeIsValid n (EAX _ _)          = 1 <= n && n <= internalMaximumCipherNonceSize -- True if unbounded
+cipherNonceSizeIsValid n (SIV _)            = 1 <= n && n <= internalMaximumCipherNonceSize -- True if unbounded
+cipherNonceSizeIsValid n (CCM _ _ _)        = n == 12
 -- NOTE: Extracted from inspecting:
 {-
 generateCipherNonceLengths :: IO ()
@@ -375,16 +402,15 @@ generateCipherNonceLengths = do
 -}
 
 cipherTagSize :: Cipher -> Maybe Int
-cipherTagSize (CipherMode _) = Nothing
-cipherTagSize (AEAD aead) = Just $ aeadTagSize aead
-
-aeadTagSize :: AEAD -> Int
-aeadTagSize ChaCha20Poly1305  = 16
-aeadTagSize (GCM _ tsz)       = tsz
-aeadTagSize (OCB _ tsz)       = tsz
-aeadTagSize (EAX _ tsz)       = tsz
-aeadTagSize (SIV bc)          = 16
-aeadTagSize (CCM _ tsz l)     = tsz
+cipherTagSize (CBC bc _)        = Nothing
+cipherTagSize (CFB bc _)        = Nothing
+cipherTagSize (XTS bc)          = Nothing
+cipherTagSize chaCha20Poly1305  = Just 16
+cipherTagSize (GCM _ tsz)       = Just tsz
+cipherTagSize (OCB _ tsz)       = Just tsz
+cipherTagSize (EAX _ tsz)       = Just tsz
+cipherTagSize (SIV _)           = Just 16
+cipherTagSize (CCM _ tsz _)     = Just tsz
 -- NOTE: Extracted / confirmed from inspecting:
 {-
 generateCipherTagLength :: IO ()
@@ -403,17 +429,20 @@ generateCipherTagLength = do
         : each
 -}
 
+aeadTagSize :: AEAD -> Int
+aeadTagSize = fromJust . cipherTagSize .  unAEAD
+
 cipherUpdateGranularity :: Cipher -> Int
-cipherUpdateGranularity (CipherMode (CBC bc CTS))   = 2 * blockCipherBlockSize bc
-cipherUpdateGranularity (CipherMode (CBC bc _))     = blockCipherBlockSize bc
-cipherUpdateGranularity (CipherMode (CFB bc _))     = blockCipherBlockSize bc
-cipherUpdateGranularity (CipherMode (XTS bc))       = 2 * blockCipherBlockSize bc
-cipherUpdateGranularity (AEAD ChaCha20Poly1305)     = 1
-cipherUpdateGranularity (AEAD (GCM bc128 _))        = blockCipherBlockSize bc128 -- always 16
-cipherUpdateGranularity (AEAD (OCB bc128 _))        = blockCipherBlockSize bc128 -- always 16
-cipherUpdateGranularity (AEAD (EAX _ _))            = 1
-cipherUpdateGranularity (AEAD (SIV _))              = 1
-cipherUpdateGranularity (AEAD (CCM _ _ _))          = 1
+cipherUpdateGranularity (CBC bc CTS)        = 2 * blockCipherBlockSize bc
+cipherUpdateGranularity (CBC bc _)          = blockCipherBlockSize bc
+cipherUpdateGranularity (CFB bc _)          = blockCipherBlockSize bc
+cipherUpdateGranularity (XTS bc)            = 2 * blockCipherBlockSize bc
+cipherUpdateGranularity ChaCha20Poly1305    = 1
+cipherUpdateGranularity (GCM bc128 _)       = blockCipherBlockSize (unBlockCipher128 bc128) -- always 16
+cipherUpdateGranularity (OCB bc128 _)       = blockCipherBlockSize (unBlockCipher128 bc128) -- always 16
+cipherUpdateGranularity (EAX _ _)           = 1
+cipherUpdateGranularity (SIV _)             = 1
+cipherUpdateGranularity (CCM _ _ _)         = 1
 -- NOTE: Extracted / confirmed from inspecting:
 {-
 generateCipherUpdateGranularity :: IO ()
@@ -479,7 +508,7 @@ cipherDecryptLazy = undefined
 -- TODO: Wrap in Maybe
 aeadEncrypt :: AEAD -> CipherKey -> CipherNonce -> AEADAssociatedData -> ByteString -> Ciphertext
 aeadEncrypt c k n ad msg = unsafePerformIO $ do
-    ctx <- newCipher (AEAD c) CipherEncrypt
+    ctx <- newCipher (unAEAD c) CipherEncrypt
     setCipherKey ctx k
     setAEADAssociatedData ctx ad
     startCipher ctx n
@@ -488,7 +517,7 @@ aeadEncrypt c k n ad msg = unsafePerformIO $ do
 
 aeadDecrypt ::  AEAD -> CipherKey -> CipherNonce -> AEADAssociatedData -> Ciphertext -> Maybe ByteString
 aeadDecrypt c k n ad ct = unsafePerformIO $ do
-    ctx <- newCipher (AEAD c) CipherDecrypt
+    ctx <- newCipher (unAEAD c) CipherDecrypt
     setCipherKey ctx k
     setAEADAssociatedData ctx ad
     startCipher ctx n
@@ -656,5 +685,54 @@ finalizeClearCipher c msg = finalizeCipher c msg <* clearCipher c
 -- Algorithm references
 --
 
+-- TODO: Maybe replace foo / fooWith terminology: fooDefault / foo?
+
+cbc :: BlockCipher -> Cipher
+cbc bc  = cbcWith bc PKCS7
+
+cbcWith :: BlockCipher -> CBCPadding -> Cipher
+cbcWith = CBC
+
+cfb :: BlockCipher -> Cipher
+cfb bc = cfbWith bc (8 * blockCipherBlockSize bc)
+
+-- Feedback bits size, default is 8 * block size
+cfbWith :: BlockCipher -> Int -> Cipher
+cfbWith = CFB
+
+xts :: BlockCipher -> Cipher
+xts = XTS
+
 chaCha20Poly1305 :: Cipher
-chaCha20Poly1305 = AEAD ChaCha20Poly1305
+chaCha20Poly1305 = ChaCha20Poly1305
+
+gcm :: BlockCipher128 -> Cipher
+gcm bc = gcmWith bc 16
+
+-- Tag size, default is 16
+gcmWith :: BlockCipher128 -> Int -> Cipher
+gcmWith = GCM
+
+ocb :: BlockCipher128 -> Cipher
+ocb bc = ocbWith bc 16
+
+-- Tag size, default is 16
+ocbWith :: BlockCipher128 -> Int -> Cipher
+ocbWith = OCB
+
+eax :: BlockCipher -> Cipher
+eax bc = eaxWith bc (blockCipherBlockSize bc)
+
+-- Tag size, default is block size
+eaxWith :: BlockCipher -> Int -> Cipher
+eaxWith = EAX
+
+siv :: BlockCipher128 -> Cipher
+siv = SIV
+
+ccm :: BlockCipher128 -> Cipher
+ccm bc = ccmWith bc 16 3
+
+ -- Tag size and L, default tag size is 16 and L is 3
+ccmWith :: BlockCipher128 -> Int -> Int -> Cipher
+ccmWith = CCM
