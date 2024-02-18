@@ -165,8 +165,8 @@ data MAC
 -- Enumerations
 
 allMACs = concat
-    [ [ CMAC bc | bc <- allBlockCiphers ]
-    , [ GMAC bc | bc <- allBlockCiphers ] -- Requires a nonce
+    [ [ CMAC bc | bc <- blockCiphers ]
+    , [ GMAC bc | bc <- blockCiphers ] -- Requires a nonce
     , [ HMAC h  | h  <- Cryptohash <$> cryptohashes ]
     , [ Poly1305
       , SipHash 2 4
