@@ -58,10 +58,13 @@ sha3 @512 "Fee fi fo fum!"
 sha3 "Fee fi fo fum!" :: SHA3_512Digest
 sha3 "Fee fi fo fum!" :: SHA3Digest 512
 sha3 "Fee fi fo fum!" :: Digest (SHA3 512)
+sha3 "Fee fi fo fum!" :: Digest SHA3_512
 hash @(SHA3 512) "Fee fi fo fum!"
+hash @SHA3_512 "Fee fi fo fum!"
 hash "Fee fi fo fum!" :: SHA3_512Digest
 hash "Fee fi fo fum!" :: SHA3Digest 512
 hash "Fee fi fo fum!" :: Digest (SHA3 512)
+hash "Fee fi fo fum!" :: Digest SHA3_512
 -- 03a240a26674994a...
 ```
 

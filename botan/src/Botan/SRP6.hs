@@ -384,7 +384,7 @@ instance (MonadIO m) => SRP6Client' (SRP6ClientT' m) where
 -- TODO: Elide group, hash, salt, and handshake for extreme convenience
 
 newClient :: (MonadRandomIO m) => ByteString -> m SRP6ClientSession'
-newClient ident = newClientWith ident MODP_SRP_4096 (Cryptohash $ SHA2 SHA512)
+newClient ident = newClientWith ident MODP_SRP_4096 sha2_512
 
 newClientWith :: (MonadRandomIO m) => ByteString -> SRP6Group -> SRP6Hash -> m SRP6ClientSession'
 newClientWith ident group hash = do

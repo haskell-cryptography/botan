@@ -51,7 +51,7 @@ module Botan.MAC
 
 -- ** Enumerations
 
-, allMACs
+, macs
 
 -- ** Associated types
 , MACKeySpec
@@ -153,7 +153,7 @@ data MAC
     = CMAC BlockCipher  -- NOTE: This is actually OMAC a CMAC variant
     -- | CBC_MAC BlockCipher  -- No longer supported (possibly due to security issues) 
     | GMAC BlockCipher      -- Requires a nonce "GMAC can accept initialization vectors of arbitrary length"
-    | HMAC Hash -- Must be a (CS)Hash, and not a Checksum
+    | HMAC CryptoHash -- Must be a (CS)Hash, and not a Checksum
     -- New in 3.2
     -- | KMAC_128 Int -- Output length
     -- | KMAC_256 Int -- Output length
@@ -164,10 +164,10 @@ data MAC
     
 -- Enumerations
 
-allMACs = concat
+macs = concat
     [ [ CMAC bc | bc <- blockCiphers ]
     , [ GMAC bc | bc <- blockCiphers ] -- Requires a nonce
-    , [ HMAC h  | h  <- Cryptohash <$> cryptohashes ]
+    , [ HMAC h  | h  <- cryptoHashes ]
     , [ Poly1305
       , SipHash 2 4
       , X9_19_MAC
@@ -194,7 +194,7 @@ type MACDigest = ByteString
 macName :: MAC -> ByteString
 macName (CMAC bc)       = Low.cmac (blockCipherName bc)
 macName (GMAC bc)       = Low.gmac (blockCipherName bc)
-macName (HMAC h)        = Low.hmac (hashName h)
+macName (HMAC h)        = Low.hmac (hashName (unCryptoHash h))
 macName Poly1305        = Low.Poly1305
 macName (SipHash ir fr) = Low.sipHash ir fr
 macName X9_19_MAC       = Low.X9_19_MAC
@@ -232,7 +232,7 @@ generateMACKeySpec = do
 macDigestLength :: MAC -> Int
 macDigestLength (CMAC bc)     = blockCipherBlockSize bc
 macDigestLength (GMAC _)      = 16    -- Always 16
-macDigestLength (HMAC h)      = hashDigestSize h
+macDigestLength (HMAC h)      = hashDigestSize (unCryptoHash h)
 macDigestLength Poly1305      = 16
 -- TODO: Check more variants
 macDigestLength (SipHash 2 4) = 8
@@ -438,7 +438,7 @@ cmac = CMAC
 -- gmac :: BlockCipher -> MAC
 -- gmac = undefined
 
-hmac :: Hash -> MAC
+hmac :: CryptoHash -> MAC
 hmac = HMAC
 
 -- kmac :: Int -> Maybe MAC
@@ -448,9 +448,13 @@ hmac = HMAC
 poly1305 :: MAC
 poly1305 = Poly1305
 
+sipHash :: MAC
+sipHash = sipHashWith 2 4
+
 -- NOTE: I'm pretty sure any positive values are valid
-sipHash :: Int -> Int -> Maybe MAC
-sipHash r f = Just $ SipHash r f
+-- though maybe needs to be divisible by 2? Research
+sipHashWith :: Int -> Int -> MAC
+sipHashWith r f = SipHash r f
  
 x9_19_mac :: MAC
 x9_19_mac = X9_19_MAC

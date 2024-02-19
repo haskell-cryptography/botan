@@ -198,7 +198,7 @@ data Cipher
     | EAX BlockCipher Int -- Tag size, default is block size
     | SIV BlockCipher128
     | CCM BlockCipher128 Int Int -- Tag size and L, default tag size is 16 and L is 3
-    deriving (Eq, Show)
+    deriving (Eq, Ord, Show)
 
 -- CBC Padding - does this have use elsewhere?
 data CBCPadding
@@ -208,14 +208,14 @@ data CBCPadding
     | ESP   -- NOTE: RFC 4304
     | CTS   -- NOTE: Ciphertext stealing
     | NoPadding
-    deriving (Eq, Show)
+    deriving (Eq, Ord, Show)
 
 -- TODO: AE data type? Unnecessary if considering AEAD?
 
 -- AEAD data type
 
 newtype AEAD = MkAEAD { unAEAD :: Cipher }
-    deriving (Eq, Show)
+    deriving (Eq, Ord, Show)
 
 aead :: Cipher -> Maybe AEAD
 aead c@(ChaCha20Poly1305)   = Just $ MkAEAD c

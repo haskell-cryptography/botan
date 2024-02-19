@@ -169,7 +169,7 @@ data BlockCipher
     | Threefish512
     -- | Cascade BlockCipher BlockCipher
     -- | Lion HashSpec StreamCipher Int
-    deriving (Show, Eq)
+    deriving (Eq, Ord, Show)
 
 -- NOTE: An enumeration of all block ciphers, assuming default values if any parameters exist
 -- TODO: Maybe rename supportedBlockCiphers? Repeat pattern elsewhere?
@@ -202,7 +202,7 @@ blockCiphers =
 -- 128-bit block cipher type
 
 newtype BlockCipher128 = MkBlockCipher128 { unBlockCipher128 :: BlockCipher }
-    deriving (Eq, Show)
+    deriving (Eq, Ord, Show)
 
 blockCipher128 :: BlockCipher -> Maybe BlockCipher128
 blockCipher128 bc@AES128        = Just $ MkBlockCipher128 bc
@@ -565,6 +565,8 @@ gost_28147_89 = GOST_28147_89
 
 idea :: BlockCipher
 idea = IDEA
+
+-- 128-bit block cipher type
 
 aes128 :: BlockCipher
 aes128 = AES128

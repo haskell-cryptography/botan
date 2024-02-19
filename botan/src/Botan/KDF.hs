@@ -62,7 +62,7 @@ kdfName (TLS_12_PRF h)          = Low.tls_12_prf (hashName h)      -- "TLS-12-PR
 -- NOTE: Many hashes do not throw an error for this KDF but are not necessarily correct
 -- kdfName (X9_42_PRF h)           = "X9.42-PRF(" <> hashName h <> ")"
 -- Only SHA-1 is valid for X9_42_PRF according to the source
-kdfName X9_42_PRF               = Low.x9_42_prf (hashName $ Cryptohash SHA1)        --"X9.42-PRF(SHA-1)"
+kdfName X9_42_PRF               = Low.x9_42_prf (hashName SHA1)        --"X9.42-PRF(SHA-1)"
 kdfName (SP800_108_Counter h)   = Low.sp800_108_counter (hashName h)   -- "SP800-108-Counter(HMAC(" <> hashName h <> "))"
 kdfName (SP800_108_Feedback h)  = Low.sp800_108_feedback (hashName h)  -- "SP800-108-Feedback(HMAC(" <> hashName h <> "))"
 kdfName (SP800_108_Pipeline h)  = Low.sp800_108_pipeline (hashName h)  -- "SP800-108-Pipeline(HMAC(" <> hashName h <> "))"
