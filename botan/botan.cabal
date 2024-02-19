@@ -5,8 +5,24 @@ license:        BSD-3-Clause
 author:         Leo D.
 maintainer:     leo@apotheca.io
 build-type:     Simple
+category:       Cryptography
+synopsis:       High-level Botan bindings
 description:
-    Bindings to the Botan cryptography library
+
+    Welcome to botan
+
+    High-level bindings to the [Botan](https://botan.randombit.net/) cryptography library.
+
+    > Botan's goal is to be the best option for cryptography in C++ by offering the
+    > tools necessary to implement a range of practical systems, such as TLS protocol,
+    > X.509 certificates, modern AEAD ciphers, PKCS#11 and TPM hardware support,
+    > password hashing, and post quantum crypto schemes.
+
+    For more information, see the [README on Github](https://github.com/apotheca/botan)
+
+extra-doc-files:
+    README.md
+    CHANGELOG.md
 
 flag mtl
     default:     True
@@ -113,6 +129,8 @@ library
         Botan.ZFEC
     other-modules:
         Botan.Prelude
+        Paths_botan
+    autogen-modules:
         Paths_botan
     build-depends:
         base            >= 4 && < 5,
