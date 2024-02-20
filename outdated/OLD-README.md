@@ -5,7 +5,7 @@ Low-level Haskell bindings for the Botan cryptography library
 These are bindings to Botan's [low-level C89 FFI module](https://botan.randombit.net/handbook/api_ref/ffi.html), which should pair excellently with Haskell's own `CApiFFI` - see [here](https://downloads.haskell.org/ghc/9.0.1/docs/html/users_guide/exts/ffi.html?highlight=capiffi#extension-CApiFFI) for more details.
 
 - [Devlog](https://discourse.haskell.org/t/botan-bindings-devlog/6855?u=apothecalabs)
-- [Github](https://github.com/apotheca/botan) - see a bug? [Open a ticket!](https://github.com/apotheca/botan/issues/new)
+- [Github](https://github.com/haskellfoundation/botan) - see a bug? [Open a ticket!](https://github.com/haskellfoundation/botan/issues/new)
 
 ## Installing Botan
 

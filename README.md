@@ -2,7 +2,7 @@
 
 <!-- TODO: Badges: hackage)  -->
 
-![CI](https://github.com/apotheca/botan/actions/workflows/CI.yml/badge.svg)
+![CI](https://github.com/haskellfoundation/botan/actions/workflows/CI.yml/badge.svg)
 
 `botan` is a set of Haskell bindings for the [Botan](https://botan.randombit.net/) cryptography library.
 
@@ -12,7 +12,7 @@
 
 This project has received support from the [Haskell Foundation](https://haskell.foundation/), and was made possible through funding provided by [Mercury](https://mercury.com/).
 
-<a href="https://mercury.com/" alt="Mercury"><img src="https://github.com/apotheca/botan/blob/main/contributors/mercury.svg" width="320"></a>
+<a href="https://mercury.com/" alt="Mercury"><img src="https://github.com/haskellfoundation/botan/blob/main/contributors/mercury.svg" width="320"></a>
 
 # Navigation
 
@@ -232,7 +232,7 @@ You will need to add `botan` as a package dependency in order to use it.
 ```
 source-repository-package
     type: git
-    location: git://github.com/apotheca/botan.git
+    location: git://github.com/haskellfoundation/botan.git
     tag: [commit-hash]
 ```
 -->
@@ -269,7 +269,7 @@ This package is not yet available on stackage, so you'll have to add the repo to
 
 ```
 extra-deps:
-- github: apotheca/botan
+- github: haskellfoundation/botan
   commit: [commit-hash]
 ```
 
@@ -1185,7 +1185,7 @@ The version will say `unreleased` if it is properly pointing to our built Botan.
 There are several resources for this project that might be helpful:
 
 - **[Devlog](https://discourse.haskell.org/t/botan-bindings-devlog/6855?u=apothecalabs)** for project status and updates.
-- **[GitHub](https://github.com/apotheca/botan)** for Haskell source code, issues, and pull requests.
+- **[GitHub](https://github.com/haskellfoundation/botan)** for Haskell source code, issues, and pull requests.
 - **[Upstream C++ Github](https://github.com/apotheca/botan-upstream)** experimental fork of Botan C++
 - **[Proposal](https://github.com/haskellfoundation/tech-proposals/pull/57)** Haskell Foundation funding proposal submission thread.
 
@@ -1199,7 +1199,7 @@ As well, there are resources for the original Botan C++ library:
 
 # License
 
-This project is licensed under the [BSD 3-Clause License](https://github.com/apotheca/botan/blob/main/LICENSE) and is free, open-source software.
+This project is licensed under the [BSD 3-Clause License](https://github.com/haskellfoundation/botan/blob/main/LICENSE) and is free, open-source software.
 
 # Contributing
 
@@ -1213,7 +1213,7 @@ See a bug?
 
 2. Write down the steps required to reproduce the issue
 
-3. Report the issue by [opening a ticket!](https://github.com/apotheca/botan/issues/new)
+3. Report the issue by [opening a ticket!](https://github.com/haskellfoundation/botan/issues/new)
 
 ## Assist in Development
 
@@ -1222,7 +1222,7 @@ Want to help?
 1. Fork or clone the repo, and create a new branch:
 
 ```shell
-git checkout https://github.com/apotheca/botan -b some_new_branch
+git checkout https://github.com/haskellfoundation/botan -b some_new_branch
 ```
 
 2. Make your changes, and test them

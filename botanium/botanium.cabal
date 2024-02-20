@@ -10,7 +10,7 @@ description:
 
 source-repository head
   type:     git
-  location: https://github.com/apotheca/botan.git
+  location: https://github.com/haskellfoundation/botan.git
 
 library
     hs-source-dirs:   src

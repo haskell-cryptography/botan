@@ -18,7 +18,7 @@ description:
     > X.509 certificates, modern AEAD ciphers, PKCS#11 and TPM hardware support,
     > password hashing, and post quantum crypto schemes.
 
-    For more information, see the [README on Github](https://github.com/apotheca/botan)
+    For more information, see the [README on Github](https://github.com/haskellfoundation/botan)
 
 -- NOTE: Use data-files instead, if this is inappropriate
 -- NOTE: This causes a soft error:
@@ -36,7 +36,7 @@ extra-doc-files:
 
 source-repository head
   type:     git
-  location: https://github.com/apotheca/botan.git
+  location: https://github.com/haskellfoundation/botan.git
 
 flag XFFI
     description: Enable experimental / upstream ffi support

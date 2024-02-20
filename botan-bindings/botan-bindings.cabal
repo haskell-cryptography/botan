@@ -18,7 +18,7 @@ description:
     > X.509 certificates, modern AEAD ciphers, PKCS#11 and TPM hardware support,
     > password hashing, and post quantum crypto schemes.
 
-    For more information, see the [README on Github](https://github.com/apotheca/botan)
+    For more information, see the [README on Github](https://github.com/haskellfoundation/botan)
 
 extra-doc-files:
     README.md
@@ -33,7 +33,7 @@ tested-with:
 
 source-repository head
     type:     git
-    location: https://github.com/apotheca/botan.git
+    location: https://github.com/haskellfoundation/botan.git
 
 flag pkg-config
   default:     True
