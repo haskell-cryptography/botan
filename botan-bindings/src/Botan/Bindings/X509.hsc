@@ -126,7 +126,7 @@ foreign import capi safe "botan/ffi.h botan_x509_cert_view_public_key_bits"
     botan_x509_cert_view_public_key_bits
         :: BotanX509Cert                        -- ^ __cert__
         -> BotanViewContext ctx                 -- ^ __ctx__
-        -> FunPtr (BotanViewBinCallback ctx)    -- ^ __view__
+        -> BotanViewBinCallback ctx             -- ^ __view__
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_x509_cert_get_public_key"
@@ -164,7 +164,7 @@ foreign import capi safe "botan/ffi.h botan_x509_cert_view_as_string"
     botan_x509_cert_view_as_string
         :: BotanX509Cert                        -- ^ __cert__
         -> BotanViewContext ctx                 -- ^ __ctx__
-        -> FunPtr (BotanViewStrCallback ctx)    -- ^ __view__
+        -> BotanViewStrCallback ctx             -- ^ __view__
         -> IO CInt
 
 pattern NO_CONSTRAINTS
