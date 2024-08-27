@@ -281,7 +281,7 @@ foreign import capi safe "botan/ffi.h botan_privkey_view_der"
     botan_privkey_view_der
         :: BotanPrivKey                         -- ^ __key__
         -> BotanViewContext ctx                 -- ^ __ctx__
-        -> FunPtr (BotanViewBinCallback ctx)    -- ^ __view__
+        -> BotanViewBinCallback ctx             -- ^ __view__
         -> IO CInt
 
 -- | View the private key's PEM encoding
@@ -289,7 +289,7 @@ foreign import capi safe "botan/ffi.h botan_privkey_view_pem"
     botan_privkey_view_pem
         :: BotanPrivKey                         -- ^ __key__
         -> BotanViewContext ctx                 -- ^ __ctx__
-        -> FunPtr (BotanViewStrCallback ctx)    -- ^ __view__
+        -> BotanViewStrCallback ctx             -- ^ __view__
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_privkey_algo_name"
@@ -347,7 +347,7 @@ foreign import capi safe "botan/ffi.h botan_privkey_view_encrypted_der"
         -> ConstPtr CChar                       -- ^ __pbkdf_algo__
         -> CSize                                -- ^ __pbkdf_iterations__
         -> BotanViewContext ctx                 -- ^ __ctx__
-        -> FunPtr (BotanViewBinCallback ctx)    -- ^ __view__
+        -> BotanViewBinCallback ctx             -- ^ __view__
         -> IO CInt
 
 {- |
@@ -364,7 +364,7 @@ foreign import capi safe "botan/ffi.h botan_privkey_view_encrypted_der_timed"
         -> ConstPtr CChar                       -- ^ __pbkdf_algo__
         -> CSize                                -- ^ __pbkdf_runtime_msec__
         -> BotanViewContext ctx                 -- ^ __ctx__
-        -> FunPtr (BotanViewBinCallback ctx)    -- ^ __view__
+        -> BotanViewBinCallback ctx             -- ^ __view__
         -> IO CInt
 
 {- |
@@ -382,7 +382,7 @@ foreign import capi safe "botan/ffi.h botan_privkey_view_encrypted_pem"
         -> ConstPtr CChar                       -- ^ __pbkdf_algo__
         -> CSize                                -- ^ __pbkdf_iterations__
         -> BotanViewContext ctx                 -- ^ __ctx__
-        -> FunPtr (BotanViewStrCallback ctx)    -- ^ __view__
+        -> BotanViewStrCallback ctx             -- ^ __view__
         -> IO CInt
 
 {- |
@@ -399,7 +399,7 @@ foreign import capi safe "botan/ffi.h botan_privkey_view_encrypted_pem_timed"
         -> ConstPtr CChar                       -- ^ __pbkdf_algo__
         -> CSize                                -- ^ __pbkdf_runtime_msec__
         -> BotanViewContext ctx                 -- ^ __ctx__
-        -> FunPtr (BotanViewStrCallback ctx)    -- ^ __view__
+        -> BotanViewStrCallback ctx             -- ^ __view__
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_privkey_get_field"
@@ -455,7 +455,7 @@ foreign import capi safe "botan/ffi.h botan_pubkey_view_der"
     botan_pubkey_view_der
         :: BotanPubKey                       -- ^ __key__
         -> BotanViewContext ctx              -- ^ __ctx__
-        -> FunPtr (BotanViewBinCallback ctx) -- ^ __view__
+        -> BotanViewBinCallback ctx          -- ^ __view__
         -> IO CInt
     
     -- | View the public key's PEM encoding
@@ -463,7 +463,7 @@ foreign import capi safe "botan/ffi.h botan_pubkey_view_pem"
     botan_pubkey_view_pem
         :: BotanPubKey                       -- ^ __key__
         -> BotanViewContext ctx              -- ^ __ctx__
-        -> FunPtr (BotanViewStrCallback ctx) -- ^ __view__
+        -> BotanViewStrCallback ctx          -- ^ __view__
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_pubkey_algo_name"
@@ -508,5 +508,5 @@ foreign import capi safe "botan/ffi.h botan_pubkey_view_ec_public_point"
     botan_pubkey_view_ec_public_point
         :: BotanPubKey                       -- ^ __key__
         -> BotanViewContext ctx              -- ^ __ctx__
-        -> FunPtr (BotanViewBinCallback ctx) -- ^ __view__
+        -> BotanViewBinCallback ctx          -- ^ __view__
         -> IO CInt

@@ -56,7 +56,7 @@ foreign import capi safe "botan/ffi.h botan_pk_op_key_agreement_view_public"
     botan_pk_op_key_agreement_view_public
         :: BotanPrivKey                         -- ^ __key__
         -> BotanViewContext ctx                 -- ^ __ctx__
-        -> FunPtr (BotanViewBinCallback ctx)    -- ^ __view__
+        -> BotanViewBinCallback ctx             -- ^ __view__
         -> IO CInt
 
 foreign import capi safe "botan/ffi.h botan_pk_op_key_agreement_size"
