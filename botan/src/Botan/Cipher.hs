@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -Wno-overlapping-patterns #-}
+
 {-|
 Module      : Botan.Low.Cipher
 Description : Symmetric cipher modes

@@ -141,3 +141,32 @@ library
             Botan.Bindings.X509.Path
             Botan.Bindings.X509.Store
         cpp-options: -DXFFI
+
+--library x509
+--  if !flag(xffi)
+--    buildable: False
+--
+--  visibility:      private
+--  hs-source-dirs:  src
+--  exposed-modules:
+--    Botan.Bindings.X509.CA
+--    Botan.Bindings.X509.CRL
+--    Botan.Bindings.X509.CSR
+--    Botan.Bindings.X509.DN
+--    Botan.Bindings.X509.Extensions
+--    Botan.Bindings.X509.Options
+--    Botan.Bindings.X509.Path
+--    Botan.Bindings.X509.Store
+--
+--    -- Botan.Bindings.X509.OCSP
+--  cpp-options:     -DXFFI
+--
+--  if flag(pkg-config)
+--    -- NB: pkg-config is available on windows as well when using msys2
+--    pkgconfig-depends: botan-3 >=3.0.0
+--
+--  else
+--    extra-libraries: botan-3
+--
+--  build-depends:
+--    , base                 <5
