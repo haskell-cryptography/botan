@@ -56,8 +56,7 @@ jobs:
           - { os: windows-latest, shell: "C:/msys64/usr/bin/bash.exe -e {0}" }
           - { os: ubuntu-latest, shell: bash }
           - { os: macos-latest, shell: bash }
-        #ghc-version: ["9.2", "9.4", "9.6", "9.8", "9.10", "9.12"]
-        ghc-version: ["9.6"]
+        ghc-version: ["9.2", "9.4", "9.6", "9.8", "9.10", "9.12"]
         cabal-version: ["3.12"]
         botan-version: ["3.9.0"]
         #include:
