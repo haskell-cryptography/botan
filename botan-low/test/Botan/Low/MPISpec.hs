@@ -308,13 +308,15 @@ main = hspec $ do
         r `shouldBe` 64
         pass
     it "can compute the modular inverse" $ do
-        r <- mpInit
+        result <- mpInit
         x <- mpInit
-        mpSetFromInt x 512
+        mpSetFromInt x 29
         mod <- mpInit
-        mpSetFromInt mod 29
-        mpModInverse r x mod
-        -- TODO: Actually check more than just being bound
+        mpSetFromInt mod 65535
+        -- x needs to be smaller than mod
+        mpModInverse result x mod
+        r <- mpToWord32 result
+        r `shouldBe` 13559
         pass
     it "can generate a number of random bits" $ do
         mp <- mpInit
