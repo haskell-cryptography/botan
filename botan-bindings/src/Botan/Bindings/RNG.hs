@@ -44,11 +44,11 @@ Initialize a random number generator object
 rng_type has the possible values:
 
     - "system": system RNG
-    
+
     - "user": userspace RNG
-    
+
     - "user-threadsafe": userspace RNG, with internal locking
-    
+
     - "rdrand": directly read RDRAND
 
 Set rng_type to null to let the library choose some default.

@@ -113,12 +113,12 @@ cipherDecrypt = Cipher.cipherDecrypt
 -- -- NOTE: Ciphertext would include auth tag
 -- -- NOTE: Botan cannot actually fulfill `pkEncrypt` because it must use `MonadRandomIO` instead.
 -- --  SEE: 'generating' variants
--- pkEncrypt :: PublicKey pk -> PrivateKey pk -> Nonce pk -> ByteString -> Ciphertext pk 
+-- pkEncrypt :: PublicKey pk -> PrivateKey pk -> Nonce pk -> ByteString -> Ciphertext pk
 -- pkDecrypt :: PublicKey pk -> PrivateKey pk -> Nonce pk -> Ciphertext pk -> Maybe ByteString
 
--- sign :: PrivateKey pk -> ByteString -> Signature pk	
+-- sign :: PrivateKey pk -> ByteString -> Signature pk
 -- verifySignature :: PublicKey pk -> Signature pk -> ByteString -> Bool
--- signed :: PrivateKey pk -> ByteString -> Signed pk	
+-- signed :: PrivateKey pk -> ByteString -> Signed pk
 -- openSigned :: PublicKey pk -> Signed pk -> Maybe ByteString
 
 -- streamCipherStream :: SecretKey sc -> Nonce sc -> Int -> Ciphertext sc

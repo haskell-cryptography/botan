@@ -35,8 +35,8 @@ privKeyCreateDSA rng pbits qbits = withRNG rng $ \ botanRNG -> do
         botanRNG
         (fromIntegral pbits)
         (fromIntegral qbits)
-        
-privKeyLoadDSA 
+
+privKeyLoadDSA
     :: MP           -- ^ __p__
     -> MP           -- ^ __q__
     -> MP           -- ^ __g__

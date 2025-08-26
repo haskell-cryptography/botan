@@ -117,7 +117,7 @@ zfecEncode
     :: Int              -- ^ __K__: the number of shares needed for recovery
     -> Int              -- ^ __N__: the number of shares generated
     -> ByteString       -- ^ __input__: the data to FEC
-    -> IO [ZFECShare]   
+    -> IO [ZFECShare]
 zfecEncode k n input = asBytesLen input $ \ inputPtr inputLen -> do
     let shareSize = div (fromIntegral inputLen) k
     allocaBytes (n * shareSize) $ \ outPtr -> do
@@ -134,7 +134,7 @@ zfecEncode k n input = asBytesLen input $ \ inputPtr inputLen -> do
             return $!! zip [0..(n-1)] shares
 
 -- TODO: Throw a fit if shares are not equal length, not k shares
-    
+
 -- | Decode some previously encoded shares using certain ZFEC parameters.
 --
 -- NOTE: There must be at least K shares of equal length

@@ -61,7 +61,7 @@ getThreefish512LazyCiphertext (Threefish512LazyCiphertext bs) = bs
 type Threefish512LazyCiphertext = LazyCiphertext Threefish512
 
 instance HasSecretKey Threefish512 where
-    
+
     secretKeySpec :: SizeSpecifier (SecretKey Threefish512)
     secretKeySpec = coerceSizeSpec $ Botan.blockCipherKeySpec Botan.threefish512
 
@@ -69,7 +69,7 @@ instance (MonadRandomIO m )=> SecretKeyGen Threefish512 m where
 
     newSecretKey :: MonadRandomIO m => m (SecretKey Threefish512)
     newSecretKey = Threefish512SecretKey <$> newSized (secretKeySpec @Threefish512)
-    
+
     newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey Threefish512))
     newSecretKeyMaybe i = fmap Threefish512SecretKey <$> newSizedMaybe (secretKeySpec @Threefish512) i
 

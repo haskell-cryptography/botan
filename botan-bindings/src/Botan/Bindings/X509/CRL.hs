@@ -23,7 +23,7 @@ foreign import ccall unsafe botan_x509_crl_is_revoked :: X509CRLPtr -> X509CertP
 -}
 
 foreign import ccall unsafe botan_x509_crl_get_revoked
-    :: Ptr X509CRLEntryPtr -> Ptr CSize 
+    :: Ptr X509CRLEntryPtr -> Ptr CSize
     -> X509CRLPtr
     -> IO BotanErrorCode
 
@@ -101,7 +101,7 @@ foreign import ccall unsafe botan_x509_crl_revoke_cert
     -> X509CertPtr
     -> Word32   -- Reason
     -> IO BotanErrorCode
-    
+
 --
 -- Certificate Revocation List Entry
 --

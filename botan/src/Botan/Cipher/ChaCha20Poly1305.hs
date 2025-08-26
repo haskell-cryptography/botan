@@ -73,7 +73,7 @@ getChaCha20Poly1305LazyCiphertext (ChaCha20Poly1305LazyCiphertext bs) = bs
 type ChaCha20Poly1305LazyCiphertext = LazyCiphertext ChaCha20Poly1305
 
 instance HasSecretKey ChaCha20Poly1305 where
-    
+
     secretKeySpec :: SizeSpecifier (SecretKey ChaCha20Poly1305)
     secretKeySpec = coerceSizeSpec $ Botan.cipherKeySpec Botan.chaCha20Poly1305
 
@@ -81,12 +81,12 @@ instance (MonadRandomIO m )=> SecretKeyGen ChaCha20Poly1305 m where
 
     newSecretKey :: MonadRandomIO m => m (SecretKey ChaCha20Poly1305)
     newSecretKey = ChaCha20Poly1305SecretKey <$> newSized (secretKeySpec @ChaCha20Poly1305)
-    
+
     newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey ChaCha20Poly1305))
     newSecretKeyMaybe i = fmap ChaCha20Poly1305SecretKey <$> newSizedMaybe (secretKeySpec @ChaCha20Poly1305) i
 
 instance HasNonce ChaCha20Poly1305 where
-    
+
     nonceSpec :: SizeSpecifier (Nonce ChaCha20Poly1305)
     -- nonceSpec = coerceSizeSpec $ Botan.cipherNonce Botan.chaCha20Poly1305
     -- Taken from: cipherNonceSizeIsValid n (AEAD ChaCha20Poly1305) = n `elem` [ 8, 12, 24 ]
@@ -97,7 +97,7 @@ instance (MonadRandomIO m )=> NonceGen ChaCha20Poly1305 m where
 
     newNonce :: MonadRandomIO m => m (Nonce ChaCha20Poly1305)
     newNonce = ChaCha20Poly1305Nonce <$> newSized (nonceSpec @ChaCha20Poly1305)
-    
+
     newNonceMaybe :: MonadRandomIO m => Int -> m (Maybe (Nonce ChaCha20Poly1305))
     newNonceMaybe i = fmap ChaCha20Poly1305Nonce <$> newSizedMaybe (nonceSpec @ChaCha20Poly1305) i
 

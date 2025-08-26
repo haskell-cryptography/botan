@@ -24,7 +24,7 @@ A module for the common task of random number generation.
 #-}
 
 module Botan.RNG
-( 
+(
 
 -- * Random Number Generators
 -- $introduction
@@ -386,7 +386,7 @@ instance RNG' RNG where
 --      - reseeding (adding entropy that gets mixed with the curent state)
 -- NOTE: NIST DRBG standards support this use of terminology
 --  https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-90Ar1.pdf
---  - Seed = "Verb: To acquire bits with sufficient entropy for the desired security strength. 
+--  - Seed = "Verb: To acquire bits with sufficient entropy for the desired security strength.
 --    These bits will be used as input to a DRBG mechanism to determine a portion of the initial internal state."
 --  - Reseed = "Verb: To acquire additional bits that will affect the internal state of the DRBG mechanism."
 
@@ -450,7 +450,7 @@ class RNG' gen where
 -- NOTE: Where possible, prefer `gen -> (a, gen)` as with MonadState `s -> (a, s)`
 class PRNG' gen where
 
-    generatePseudoRandomBytes'   :: Int -> gen -> (ByteString, gen) 
+    generatePseudoRandomBytes'   :: Int -> gen -> (ByteString, gen)
 
 -- class PRNG' gen => Reseedable' gen where
 
@@ -474,7 +474,7 @@ class PRNG' gen where
 
 -- AsRandomGenerator
 newtype CSPRNG' gen
-    = MkCSPRNG' 
+    = MkCSPRNG'
     -- { runCSPRNG' :: PRNG' gen => MVar gen
     { runCSPRNG' :: MVar gen
     }

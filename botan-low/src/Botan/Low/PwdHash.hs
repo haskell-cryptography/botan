@@ -30,7 +30,7 @@ module Botan.Low.PwdHash
 , pattern Bcrypt_PBKDF
 , pattern OpenPGP_S2K
 , openPGP_S2K
-    
+
 ) where
 
 import qualified Data.ByteString as ByteString

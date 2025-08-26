@@ -59,7 +59,7 @@ encryptCreate pk padding = withPubKey pk $ \ pkPtr -> do
             pkPtr
             (ConstPtr paddingPtr)
             0
-            
+
 -- WARNING: withFooInit-style limited lifetime functions moved to high-level botan
 withEncryptCreate :: PubKey -> EMEName -> (Encrypt -> IO a) -> IO a
 withEncryptCreate = mkWithTemp2 encryptCreate encryptDestroy

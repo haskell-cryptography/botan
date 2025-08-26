@@ -271,7 +271,7 @@ type Skein512Salt = ByteString  -- Must not contain ")", can contain "," if esca
 defaultHashLength = 128
 
 hashes :: [ Hash ]
-hashes = 
+hashes =
     [ BLAKE2b defaultHashLength
     , GOST_34_11
     , Keccak1600_224

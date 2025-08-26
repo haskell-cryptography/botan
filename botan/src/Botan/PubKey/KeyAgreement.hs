@@ -82,7 +82,7 @@ testECDH = do
     rng <- newRNGCtx
     (pka, ska) <- newECDHKeyPair rng
     (pkb, skb) <- newECDHKeyPair rng
-    -- ecdh k1 p2 == ecdh k2 p1 
+    -- ecdh k1 p2 == ecdh k2 p1
     print "making a"
     ctxa <- Low.keyAgreementCreate ska "KDF2(SHA-256)"
     print "making b"

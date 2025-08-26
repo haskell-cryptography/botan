@@ -90,7 +90,7 @@ main = hspec $ do
         it "x509CertStoreFindCertByPubkeySHA1" $ do
             -- NOTE: Need a cert and the privkey it was signed with to do this
             -- inMem <- mkInMemStore
-            -- x509CertStoreFindCertByPubkeySHA1 inMem 
+            -- x509CertStoreFindCertByPubkeySHA1 inMem
             pending :: IO ()
         it "x509CertStoreFindCertByRawSubjectDNSHA256" $ do
             -- NOTE: Need a cert and the subjectDN

@@ -238,7 +238,7 @@ type BlockCipherKey = ByteString
 
 -- | A block cipher ciphertext
 type BlockCipherCiphertext = ByteString
-    
+
 -- | Initialize a block cipher object
 blockCipherInit
     :: BlockCipherName  -- ^ __cipher_name__

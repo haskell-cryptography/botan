@@ -21,7 +21,7 @@ import Botan.Low.KDF
 --  Many do accept HMAC(hash) as an argument instead of just hash
 --  It is not yet known which if any MACs work aside from HMAC (eg whether anything with CMAC, GMAC does) due to non-exhaustive
 --  enumeration of MACs in their own tests.
---  SP800 KDFs fail with InvalidKeyLengthException for X9.19-MAC, Poly1305, SipHash(2,4) 
+--  SP800 KDFs fail with InvalidKeyLengthException for X9.19-MAC, Poly1305, SipHash(2,4)
 --  except for SP800-56A which fails with NotImplementedException
 --  TODO: Exhaustive algorithm testing (see Botan.KDF notes)
 

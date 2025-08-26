@@ -42,4 +42,4 @@ foreign import ccall unsafe botan_x509_create_self_signed_cert
     -> Ptr CChar
     -> RNGPtr
     -> IO BotanErrorCode
-    
+

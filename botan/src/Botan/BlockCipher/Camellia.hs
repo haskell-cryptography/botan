@@ -79,7 +79,7 @@ getCamellia128LazyCiphertext (Camellia128LazyCiphertext bs) = bs
 type Camellia128LazyCiphertext = LazyCiphertext Camellia128
 
 instance HasSecretKey Camellia128 where
-    
+
     secretKeySpec :: SizeSpecifier (SecretKey Camellia128)
     secretKeySpec = coerceSizeSpec $ Botan.blockCipherKeySpec Botan.camellia128
 
@@ -87,7 +87,7 @@ instance (MonadRandomIO m )=> SecretKeyGen Camellia128 m where
 
     newSecretKey :: MonadRandomIO m => m (SecretKey Camellia128)
     newSecretKey = Camellia128SecretKey <$> newSized (secretKeySpec @Camellia128)
-    
+
     newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey Camellia128))
     newSecretKeyMaybe i = fmap Camellia128SecretKey <$> newSizedMaybe (secretKeySpec @Camellia128) i
 
@@ -163,7 +163,7 @@ getCamellia192LazyCiphertext (Camellia192LazyCiphertext bs) = bs
 type Camellia192LazyCiphertext = LazyCiphertext Camellia192
 
 instance HasSecretKey Camellia192 where
-    
+
     secretKeySpec :: SizeSpecifier (SecretKey Camellia192)
     secretKeySpec = coerceSizeSpec $ Botan.blockCipherKeySpec Botan.camellia192
 
@@ -171,7 +171,7 @@ instance (MonadRandomIO m )=> SecretKeyGen Camellia192 m where
 
     newSecretKey :: MonadRandomIO m => m (SecretKey Camellia192)
     newSecretKey = Camellia192SecretKey <$> newSized (secretKeySpec @Camellia192)
-    
+
     newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey Camellia192))
     newSecretKeyMaybe i = fmap Camellia192SecretKey <$> newSizedMaybe (secretKeySpec @Camellia192) i
 
@@ -247,7 +247,7 @@ getCamellia256LazyCiphertext (Camellia256LazyCiphertext bs) = bs
 type Camellia256LazyCiphertext = LazyCiphertext Camellia256
 
 instance HasSecretKey Camellia256 where
-    
+
     secretKeySpec :: SizeSpecifier (SecretKey Camellia256)
     secretKeySpec = coerceSizeSpec $ Botan.blockCipherKeySpec Botan.camellia256
 
@@ -255,7 +255,7 @@ instance (MonadRandomIO m )=> SecretKeyGen Camellia256 m where
 
     newSecretKey :: MonadRandomIO m => m (SecretKey Camellia256)
     newSecretKey = Camellia256SecretKey <$> newSized (secretKeySpec @Camellia256)
-    
+
     newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey Camellia256))
     newSecretKeyMaybe i = fmap Camellia256SecretKey <$> newSizedMaybe (secretKeySpec @Camellia256) i
 

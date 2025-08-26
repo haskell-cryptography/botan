@@ -86,11 +86,11 @@ Small rant: CString is a bit of a mess
 - Different names for different types (peek vs pack, useAs vs with)
     - Data.ByteString
         - packCString :: CString -> IO ByteString
-        - useAsCString :: ByteString -> (CString -> IO a) -> IO a 
+        - useAsCString :: ByteString -> (CString -> IO a) -> IO a
     - Text
     - Foreign.C.String
         - peekCString :: CString -> IO String
-        - withCString :: String -> (CString -> IO a) -> IO a 
+        - withCString :: String -> (CString -> IO a) -> IO a
 -}
 
 {-
@@ -125,7 +125,7 @@ type CBytes = Ptr Word8
 -- peekCBytes :: CBytes -> Int -> IO ByteString
 -- peekCBytes = undefined
 
-withCBytes :: ByteString -> (CBytes -> IO a) -> IO a 
+withCBytes :: ByteString -> (CBytes -> IO a) -> IO a
 withCBytes bs act = ByteString.useAsCStringLen bs (\ (ptr,_) -> act (castPtr ptr))
 
 type CBytesLen = (Ptr Word8, Int)
@@ -141,7 +141,7 @@ withCBytesLen bs act = ByteString.useAsCStringLen bs (\ (ptr,len) -> act (castPt
 
 {-
 type ConstCString       = ConstPtr CChar
-type ConstCStringLen    = (ConstPtr CChar, Int) 
+type ConstCStringLen    = (ConstPtr CChar, Int)
 
 type ConstCBytes    = ConstPtr Word8
 type ConstCBytesLen = (ConstPtr Word8, Int)

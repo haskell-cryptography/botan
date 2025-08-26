@@ -13,7 +13,7 @@ rngs =
     , UserThreadsafeRNG
     , RDRandRNG -- NOTES: Not available on all processors
     ]
-    
+
 main :: IO ()
 main = hspec $ do
     it "systemRNGGet" $ do

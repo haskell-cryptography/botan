@@ -11,7 +11,7 @@ Generate and validate Bcrypt password hashes
 -}
 
 module Botan.Bcrypt
-( 
+(
 
 -- * Bcrypt
 -- $introduction
@@ -52,7 +52,7 @@ Bcrypt is an adaptive password-hashing algorithm designed to protect against bru
 rainbow table attacks. It contains a work factor that may be increased to increase resistance
 as computing power increases.
 
-Bcrypt produces digests suitable for secure storage and validation. 
+Bcrypt produces digests suitable for secure storage and validation.
 
 Bcrypt is designed to be an expensive operation, and can block for some time. It also performs
 this same operation upon validation.

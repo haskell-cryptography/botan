@@ -23,7 +23,7 @@ module Botan.Low.PubKey.KeyAgreement
 , keyAgreementDestroy
 , keyAgreementExportPublic
 , keyAgreementSize
-, keyAgreement 
+, keyAgreement
 
 ) where
 
@@ -80,9 +80,9 @@ First, Alice and Bob generate their private keys:
 > import Botan.Low.KDF
 > rng <- rngInit "system"
 > -- Alice creates her private key
-> alicePrivKey <- privKeyCreate ECDH Secp521r1 rng 
+> alicePrivKey <- privKeyCreate ECDH Secp521r1 rng
 > -- Bob creates his private key
-> bobPrivKey <-  privKeyCreate ECDH Secp521r1 rng 
+> bobPrivKey <-  privKeyCreate ECDH Secp521r1 rng
 
 Then, they exchange their public keys using any channel, private or public:
 

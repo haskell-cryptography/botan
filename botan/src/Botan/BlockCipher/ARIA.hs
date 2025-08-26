@@ -79,7 +79,7 @@ getARIA128LazyCiphertext (ARIA128LazyCiphertext bs) = bs
 type ARIA128LazyCiphertext = LazyCiphertext ARIA128
 
 instance HasSecretKey ARIA128 where
-    
+
     secretKeySpec :: SizeSpecifier (SecretKey ARIA128)
     secretKeySpec = coerceSizeSpec $ Botan.blockCipherKeySpec Botan.aria128
 
@@ -87,7 +87,7 @@ instance (MonadRandomIO m )=> SecretKeyGen ARIA128 m where
 
     newSecretKey :: MonadRandomIO m => m (SecretKey ARIA128)
     newSecretKey = ARIA128SecretKey <$> newSized (secretKeySpec @ARIA128)
-    
+
     newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey ARIA128))
     newSecretKeyMaybe i = fmap ARIA128SecretKey <$> newSizedMaybe (secretKeySpec @ARIA128) i
 
@@ -163,7 +163,7 @@ getARIA192LazyCiphertext (ARIA192LazyCiphertext bs) = bs
 type ARIA192LazyCiphertext = LazyCiphertext ARIA192
 
 instance HasSecretKey ARIA192 where
-    
+
     secretKeySpec :: SizeSpecifier (SecretKey ARIA192)
     secretKeySpec = coerceSizeSpec $ Botan.blockCipherKeySpec Botan.aria192
 
@@ -171,7 +171,7 @@ instance (MonadRandomIO m )=> SecretKeyGen ARIA192 m where
 
     newSecretKey :: MonadRandomIO m => m (SecretKey ARIA192)
     newSecretKey = ARIA192SecretKey <$> newSized (secretKeySpec @ARIA192)
-    
+
     newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey ARIA192))
     newSecretKeyMaybe i = fmap ARIA192SecretKey <$> newSizedMaybe (secretKeySpec @ARIA192) i
 
@@ -247,7 +247,7 @@ getARIA256LazyCiphertext (ARIA256LazyCiphertext bs) = bs
 type ARIA256LazyCiphertext = LazyCiphertext ARIA256
 
 instance HasSecretKey ARIA256 where
-    
+
     secretKeySpec :: SizeSpecifier (SecretKey ARIA256)
     secretKeySpec = coerceSizeSpec $ Botan.blockCipherKeySpec Botan.aria256
 
@@ -255,7 +255,7 @@ instance (MonadRandomIO m )=> SecretKeyGen ARIA256 m where
 
     newSecretKey :: MonadRandomIO m => m (SecretKey ARIA256)
     newSecretKey = ARIA256SecretKey <$> newSized (secretKeySpec @ARIA256)
-    
+
     newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey ARIA256))
     newSecretKeyMaybe i = fmap ARIA256SecretKey <$> newSizedMaybe (secretKeySpec @ARIA256) i
 

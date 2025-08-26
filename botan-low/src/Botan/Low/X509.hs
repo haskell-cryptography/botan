@@ -183,7 +183,7 @@ x509CertGetAuthorityKeyId
     -> IO ByteString    -- ^ __out[]__
 x509CertGetAuthorityKeyId = mkGetBytes withX509Cert botan_x509_cert_get_authority_key_id
 
-x509CertGetSubjectKeyId 
+x509CertGetSubjectKeyId
     :: X509Cert         -- ^ __cert__
     -> IO ByteString    -- ^ __out[]__
 x509CertGetSubjectKeyId = mkGetBytes withX509Cert botan_x509_cert_get_subject_key_id
@@ -369,8 +369,8 @@ createX509CRL   :: (Ptr BotanX509CRL -> IO CInt) -> IO X509CRL
     = mkBindings MkBotanX509CRL runBotanX509CRL MkX509CRL getX509CRLForeignPtr botan_x509_crl_destroy
 
 x509CRLLoad
-    :: ByteString   -- ^ __crl_bits[]__        
-    -> IO X509CRL   -- ^ __crl_obj__        
+    :: ByteString   -- ^ __crl_bits[]__
+    -> IO X509CRL   -- ^ __crl_obj__
 x509CRLLoad = mkCreateObjectCBytesLen createX509CRL botan_x509_crl_load
 
 x509CRLLoadFile

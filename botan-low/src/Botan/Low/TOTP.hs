@@ -67,7 +67,7 @@ import Botan.Low.Remake
 Botan implements the HOTP and TOTP schemes from RFC 4226 and 6238.
 
 Since the range of possible OTPs is quite small, applications must
-rate limit OTP authentication attempts to some small number per 
+rate limit OTP authentication attempts to some small number per
 second. Otherwise an attacker could quickly try all 1000000 6-digit
 OTPs in a brief amount of time.
 
@@ -137,7 +137,7 @@ unauthenticated / requested connection:
 
 The server authenticator receives the authentication response, and performs
 a check of the key, with an acceptable clock drift in steps, in case the client
-and server are slightly desynchronized. 
+and server are slightly desynchronized.
 
 > -- serverClientCode <- didreceiveMFAAuthenticationResponse
 > (serverTimestamp :: TOTPTimestamp) <- round <$> getPOSIXTime
@@ -169,7 +169,7 @@ createTOTP   :: (Ptr BotanTOTP -> IO CInt) -> IO TOTP
 
 type TOTPHashName = HashName
 
-pattern TOTP_SHA1 
+pattern TOTP_SHA1
     ,   TOTP_SHA256
     ,   TOTP_SHA512
     ::  TOTPHashName

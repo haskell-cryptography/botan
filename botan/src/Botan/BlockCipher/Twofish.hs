@@ -61,7 +61,7 @@ getTwofishLazyCiphertext (TwofishLazyCiphertext bs) = bs
 type TwofishLazyCiphertext = LazyCiphertext Twofish
 
 instance HasSecretKey Twofish where
-    
+
     secretKeySpec :: SizeSpecifier (SecretKey Twofish)
     secretKeySpec = coerceSizeSpec $ Botan.blockCipherKeySpec Botan.twofish
 
@@ -69,7 +69,7 @@ instance (MonadRandomIO m )=> SecretKeyGen Twofish m where
 
     newSecretKey :: MonadRandomIO m => m (SecretKey Twofish)
     newSecretKey = TwofishSecretKey <$> newSized (secretKeySpec @Twofish)
-    
+
     newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey Twofish))
     newSecretKeyMaybe i = fmap TwofishSecretKey <$> newSizedMaybe (secretKeySpec @Twofish) i
 

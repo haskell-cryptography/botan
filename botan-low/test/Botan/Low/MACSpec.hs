@@ -71,7 +71,7 @@ main = hspec $ testSuite macsAndNonceSzs (chars . fst) $ \ (h,nonceSz) -> do
         pass
     -- it "has a nonce spec" $ do
     it "can set the nonce" $ do
-        if nonceSz > 0 
+        if nonceSz > 0
             then do
                 ctx <- macInit h
                 (_,mx,_) <- macGetKeyspec ctx
@@ -85,7 +85,7 @@ main = hspec $ testSuite macsAndNonceSzs (chars . fst) $ \ (h,nonceSz) -> do
         (_,mx,_) <- macGetKeyspec ctx
         k <- systemRNGGet mx
         macSetKey ctx k
-        if nonceSz > 0 
+        if nonceSz > 0
             then do
                 n <- systemRNGGet nonceSz
                 macSetNonce ctx n
@@ -98,7 +98,7 @@ main = hspec $ testSuite macsAndNonceSzs (chars . fst) $ \ (h,nonceSz) -> do
         (_,mx,_) <- macGetKeyspec ctx
         k <- systemRNGGet mx
         macSetKey ctx k
-        if nonceSz > 0 
+        if nonceSz > 0
             then do
                 n <- systemRNGGet nonceSz
                 macSetNonce ctx n
@@ -110,7 +110,7 @@ main = hspec $ testSuite macsAndNonceSzs (chars . fst) $ \ (h,nonceSz) -> do
         (_,mx,_) <- macGetKeyspec ctx
         k <- systemRNGGet mx
         macSetKey ctx k
-        if nonceSz > 0 
+        if nonceSz > 0
             then do
                 n <- systemRNGGet nonceSz
                 macSetNonce ctx n
@@ -122,7 +122,7 @@ main = hspec $ testSuite macsAndNonceSzs (chars . fst) $ \ (h,nonceSz) -> do
         (_,mx,_) <- macGetKeyspec ctx
         k <- systemRNGGet mx
         macSetKey ctx k
-        if nonceSz > 0 
+        if nonceSz > 0
             then do
                 n <- systemRNGGet nonceSz
                 macSetNonce ctx n

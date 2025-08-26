@@ -61,7 +61,7 @@ getCAST128LazyCiphertext (CAST128LazyCiphertext bs) = bs
 type CAST128LazyCiphertext = LazyCiphertext CAST128
 
 instance HasSecretKey CAST128 where
-    
+
     secretKeySpec :: SizeSpecifier (SecretKey CAST128)
     secretKeySpec = coerceSizeSpec $ Botan.blockCipherKeySpec Botan.cast128
 
@@ -69,7 +69,7 @@ instance (MonadRandomIO m )=> SecretKeyGen CAST128 m where
 
     newSecretKey :: MonadRandomIO m => m (SecretKey CAST128)
     newSecretKey = CAST128SecretKey <$> newSized (secretKeySpec @CAST128)
-    
+
     newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey CAST128))
     newSecretKeyMaybe i = fmap CAST128SecretKey <$> newSizedMaybe (secretKeySpec @CAST128) i
 

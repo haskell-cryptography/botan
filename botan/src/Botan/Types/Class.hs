@@ -200,7 +200,7 @@ defaultSize = maxSize
 -- atMostSize = undefined
 
 -- NOTE: Maybe flip this back?
-sizeIsValid :: SizeSpecifier a -> Int -> Bool 
+sizeIsValid :: SizeSpecifier a -> Int -> Bool
 sizeIsValid (SizeRange mn mx md) sz = mn <= sz && sz <= mx && mod sz md == 0
 sizeIsValid (SizeEnum sizes)     sz = sz `elem` sizes
 sizeIsValid (SizeExact size)     sz = sz == size
@@ -269,7 +269,7 @@ instance Show GSecretKey where
 -- NOTE: Cannot do g- / default implementation of new keys since we do not yet
 -- have the secret key constructor.
 -- We also need the algorithm-specific key spec for gnewSecretKey and gnewSecretKeyMaybe.
--- Being unable to do this isn't necessarily bad, just requires more boilerplate - 
+-- Being unable to do this isn't necessarily bad, just requires more boilerplate -
 -- the benefit being that the implementation of SecretKey is entirely opaque
 -- and thus free to be whatever it wants. For example, what if an backing implementation
 -- requires that SecretKey alg ~ Integer? (Actually some PK stuff may do just that)
@@ -411,7 +411,7 @@ instance Show GLazyCiphertext where
 
 
 -- newtype Block (n :: Nat) = MkBlock ByteString
-    
+
 -- class IsBlockSize n where
 
 -- data family BlockSize alg

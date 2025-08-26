@@ -15,7 +15,7 @@ repeatedly to encrypt an entire message.
 
 module Botan.Low.Cipher
 (
- 
+
 -- * Cipher
 -- $introduction
 
@@ -152,7 +152,7 @@ To ensure that the key is not leaked, we should generate a new nonce for every e
 To encrypt a message, it must be a multiple of the block size. If the cipher was an aead, the authentication tag will automatically be included in the ciphertext
 
 > -- Rarely, some cipher modes require that the message size be aligned to the block size
-> -- Consult algorithm-specific documentation if this occurs. 
+> -- Consult algorithm-specific documentation if this occurs.
 > message = "I smell the blood of an Englishman!"
 > cipherStart encrypter nonce
 > ciphertext <- cipherEncrypt encrypter message
@@ -229,13 +229,13 @@ pattern ESP         = BOTAN_CBC_PADDING_ESP
 pattern CTS         = BOTAN_CBC_PADDING_CTS
 pattern NoPadding   = BOTAN_CBC_PADDING_NO_PADDING
 
-cbcMode :: BlockCipherName -> CBCPaddingName -> CipherName 
+cbcMode :: BlockCipherName -> CBCPaddingName -> CipherName
 cbcMode bc padding = bc // BOTAN_CIPHER_MODE_CBC // padding
 
-cfbMode :: BlockCipherName -> CipherName 
+cfbMode :: BlockCipherName -> CipherName
 cfbMode bc = bc // BOTAN_CIPHER_MODE_CFB
 
-cfbModeWith :: BlockCipherName -> Int -> CipherName 
+cfbModeWith :: BlockCipherName -> Int -> CipherName
 cfbModeWith bc feedbackSz = cfbMode bc /$ showBytes feedbackSz
 
 xtsMode :: BlockCipherName -> CipherName
@@ -415,7 +415,7 @@ cipherSetKey = mkWithObjectSetterCBytesLen withCipher botan_cipher_set_key
 -- |Reset the message specific state for this cipher.
 --  Without resetting the keys, this resets the nonce, and any state
 --  associated with any message bits that have been processed so far.
---  
+--
 --  It is conceptually equivalent to calling botan_cipher_clear followed
 --  by botan_cipher_set_key with the original key.
 cipherReset
@@ -505,7 +505,7 @@ cipherEstimateOutputLength ctx flags input = do
     t <- cipherGetTagLength ctx
     if flags == BOTAN_CIPHER_INIT_FLAG_ENCRYPT
         then return (o + u + t)
-        else return (o + u - t) -- TODO: Maybe just 'o'... 
+        else return (o + u - t) -- TODO: Maybe just 'o'...
 
 -- NOTE: Offset must be a valid length of the input so far processed
 -- NOTE: If (estimated) outputLength input + offset == outputLength (input + offset) then

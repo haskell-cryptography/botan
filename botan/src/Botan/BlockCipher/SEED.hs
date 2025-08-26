@@ -61,7 +61,7 @@ getSEEDLazyCiphertext (SEEDLazyCiphertext bs) = bs
 type SEEDLazyCiphertext = LazyCiphertext SEED
 
 instance HasSecretKey SEED where
-    
+
     secretKeySpec :: SizeSpecifier (SecretKey SEED)
     secretKeySpec = coerceSizeSpec $ Botan.blockCipherKeySpec Botan.seed
 
@@ -69,7 +69,7 @@ instance (MonadRandomIO m )=> SecretKeyGen SEED m where
 
     newSecretKey :: MonadRandomIO m => m (SecretKey SEED)
     newSecretKey = SEEDSecretKey <$> newSized (secretKeySpec @SEED)
-    
+
     newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey SEED))
     newSecretKeyMaybe i = fmap SEEDSecretKey <$> newSizedMaybe (secretKeySpec @SEED) i
 

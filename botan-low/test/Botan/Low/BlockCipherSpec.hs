@@ -64,5 +64,5 @@ main = hspec $ testSuite allBlockCiphers chars $ \ bc -> do
         msg <- systemRNGGet $ bsz * 10
         encmsg <- blockCipherEncryptBlocks ctx msg
         decmsg <- blockCipherDecryptBlocks ctx encmsg
-        decmsg `shouldBe` msg 
+        decmsg `shouldBe` msg
         pass

@@ -171,7 +171,7 @@ kemEncryptCreateSharedKey
 kemEncryptCreateSharedKey ke rng salt desiredLen = withKEMEncrypt ke $ \ kePtr -> do
     withRNG rng $ \ botanRNG -> do
         asBytesLen salt $ \ saltPtr saltLen -> do
-            alloca $ \ sharedSzPtr -> do 
+            alloca $ \ sharedSzPtr -> do
                 alloca $ \ encapSzPtr -> do
                     sharedSz <- kemEncryptSharedKeyLength ke desiredLen
                     encapSz <-  kemEncryptEncapsulatedKeyLength ke

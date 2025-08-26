@@ -18,7 +18,7 @@ as a mobile phone.
 Botan implements the HOTP and TOTP schemes from RFC 4226 and 6238.
 
 Since the range of possible OTPs is quite small, applications must
-rate limit OTP authentication attempts to some small number per 
+rate limit OTP authentication attempts to some small number per
 second. Otherwise an attacker could quickly try all 1000000 6-digit
 OTPs in a brief amount of time.
 

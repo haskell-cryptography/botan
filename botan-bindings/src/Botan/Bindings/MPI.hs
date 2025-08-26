@@ -237,7 +237,7 @@ foreign import capi safe "botan/ffi.h botan_mp_swap"
         -> BotanMP -- ^ __y__
         -> IO CInt
 
--- | Return (base^exponent) % modulus 
+-- | Return (base^exponent) % modulus
 foreign import capi safe "botan/ffi.h botan_mp_powmod"
     botan_mp_powmod
         :: BotanMP -- ^ __result__

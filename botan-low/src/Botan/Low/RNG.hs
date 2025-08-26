@@ -11,7 +11,7 @@ Pseudo-random number generation.
 -}
 
 module Botan.Low.RNG
-( 
+(
 
 -- * Random number generators
 -- $introduction
