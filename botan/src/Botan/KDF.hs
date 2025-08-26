@@ -41,7 +41,7 @@ data KDF
     | SP800_108_Feedback Hash
     | SP800_108_Pipeline Hash
     | SP800_56A Hash
-    | SP800_56C Hash 
+    | SP800_56C Hash
     deriving (Show, Eq)
 
 -- TODO: | SP800_108 SP800_108_Mode MAC
@@ -50,7 +50,7 @@ data SP800_108_Mode
     = Counter
     | Feedback
     | Pipeline
-    
+
 kdfName :: KDF -> KDFName
 kdfName (HKDF h)                = Low.hkdf (hashName h)            -- "HKDF(" <> hashName h <> ")"
 kdfName (HKDF_Extract h)        = Low.hkdf_extract (hashName h)    -- "HKDF-Extract(" <> hashName h <> ")"

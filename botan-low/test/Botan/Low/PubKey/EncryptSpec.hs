@@ -31,7 +31,7 @@ main = hspec $ testSuite pks pkTestName $ \ (pk, param, padding) -> do
         privKey <- privKeyCreate pk param rng
         pubKey <- privKeyExportPubKey privKey
         ctx <- encryptCreate pubKey padding
-        _ <- encryptOutputLength ctx 128 
+        _ <- encryptOutputLength ctx 128
         pass
     it "encrypt" $ do
         rng <- rngInit "system"

@@ -17,7 +17,7 @@ module Botan.Low.PubKey.Decrypt
 , decryptCreate
 , decryptDestroy
 , decryptOutputLength
-, decrypt  
+, decrypt
 
 ) where
 

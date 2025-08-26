@@ -26,7 +26,7 @@ type BotanViewBinFn ctx
     ->  ConstPtr Word8          -- ^ __data__: the binary data
     ->  CSize                   -- ^ __len__: the length of data in bytes
     ->  CInt
-    
+
 type BotanViewBinCallback ctx = FunPtr (BotanViewBinFn ctx)
 
 -- NOTE: "Wrapper stubs can't be used with CApiFFI."

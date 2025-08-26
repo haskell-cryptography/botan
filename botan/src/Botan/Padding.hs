@@ -26,8 +26,8 @@ data Pad
     = BitPadding        -- ISO/IEC 9797-1 Padding Method 2, | (...)1 0000 0000 |
     | TBC               -- Trailing Bit Complement, | (...1) 0000 | or | (...0) 1111 |
     | BytePadding       --  | (...) FF 00 00 |
-    | ANSI_X9_23        -- ANSI X9.23, see also CBCPadding.X9_23 / EME.X9_23 
-    | ISO_10126         -- ISO 10126 (withdrawn) pad with random bytes, set last byte to padding byte count. 
+    | ANSI_X9_23        -- ANSI X9.23, see also CBCPadding.X9_23 / EME.X9_23
+    | ISO_10126         -- ISO 10126 (withdrawn) pad with random bytes, set last byte to padding byte count.
     | PKCS_7            -- PKCS#7, see also CBCPadding.PKCS7 / EME.PKCS7
     | ISO_IEC_7816_4    -- ISO/IEC 7816-4, | (...) 80 00 00 |, equivalent to BitPadding for bytes
     | ZeroPadding       -- | (...) 00 00 00 |
@@ -62,12 +62,12 @@ padZeroPadding i = undefined
 
 -- NOTE: (padCount,finalLength)
 padTo :: Int -> Int -> (Int,Int)
-padTo from to = (count, length) where 
+padTo from to = (count, length) where
     count = to - from
     length = to
 
 padMul :: Int -> Int -> (Int,Int)
-padMul from mul = (count, length) where 
+padMul from mul = (count, length) where
     (count,length,_) = padBlockMul from mul
 
 padBlockMul :: Int -> Int -> (Int, Int, Int)
@@ -78,7 +78,7 @@ padBlockMul from blockSz = (count,length,blocks) where
         else (blockSz - m, from + count, d + 1)
 
 padBy :: Int -> Int -> (Int,Int)
-padBy from by = (count, length) where 
+padBy from by = (count, length) where
     count = by
     length = from + by
 

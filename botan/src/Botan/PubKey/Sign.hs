@@ -167,7 +167,7 @@ data SignAlgo
 {- REFACTORING STAB 1 -}
 
 data PKSignAlgo'
-    = RSASign' EMSA 
+    = RSASign' EMSA
     | SM2Sign' ByteString Hash
     | DSASign' Hash
     | ECDSASign' Hash

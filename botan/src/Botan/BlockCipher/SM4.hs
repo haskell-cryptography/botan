@@ -61,7 +61,7 @@ getSM4LazyCiphertext (SM4LazyCiphertext bs) = bs
 type SM4LazyCiphertext = LazyCiphertext SM4
 
 instance HasSecretKey SM4 where
-    
+
     secretKeySpec :: SizeSpecifier (SecretKey SM4)
     secretKeySpec = coerceSizeSpec $ Botan.blockCipherKeySpec Botan.sm4
 
@@ -69,7 +69,7 @@ instance (MonadRandomIO m )=> SecretKeyGen SM4 m where
 
     newSecretKey :: MonadRandomIO m => m (SecretKey SM4)
     newSecretKey = SM4SecretKey <$> newSized (secretKeySpec @SM4)
-    
+
     newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey SM4))
     newSecretKeyMaybe i = fmap SM4SecretKey <$> newSizedMaybe (secretKeySpec @SM4) i
 

@@ -26,14 +26,14 @@ hashFinal), the internal state is reset to begin hashing a new message.
 -}
 
 module Botan.Low.Hash
-( 
-    
+(
+
 -- * Hashing
 -- $introduction
 
 -- * Usage
 -- $usage
- 
+
   Hash(..)
 , HashName(..)
 , HashDigest(..)
@@ -233,7 +233,7 @@ pattern CRC24           = BOTAN_CHECKSUM_CRC24
 pattern CRC32           = BOTAN_CHECKSUM_CRC32
 
 cryptohashes :: [HashName]
-cryptohashes = 
+cryptohashes =
     [ BLAKE2b
     -- , "BLAKE2b(128)"
     -- , "BLAKE2b(256)"
@@ -282,7 +282,7 @@ cryptohashes =
 -- hashStrategies :: [HashName]
 -- hashStrategies = undefined
 
-checksums = 
+checksums =
     [ Adler32
     , CRC24
     , CRC32

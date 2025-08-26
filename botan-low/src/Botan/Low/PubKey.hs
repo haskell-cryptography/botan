@@ -174,7 +174,7 @@ module Botan.Low.PubKey
 , mkPubKeyLoad2_name
 , mkPubKeyLoad3
 , mkPubKeyLoad4
-    
+
 ) where
 
 import qualified Data.ByteString as ByteString
@@ -272,7 +272,7 @@ Verify a message:
 -- Associated types
 
 type PKPaddingName = ByteString
-    
+
 -- /*
 -- * Public/private key creation, import, ...
 -- */
@@ -519,7 +519,7 @@ WARNING: Name is not completely accurate, may be changed to PKSignParams
 -}
 type EMSAName = ByteString
 
--- emsa_rsa :: 
+-- emsa_rsa ::
 
 emsa_emsa4 :: HashName -> EMSAName
 emsa_emsa4 h = "EMSA4(" <> h <> ")"
@@ -543,7 +543,7 @@ emsa_sm2SignParam uid h = uid <> "," <> h
 -- emsa_dilithium
 
 emsa_none :: EMSAName
-emsa_none = ""        
+emsa_none = ""
 
 -- | Create a new private key
 privKeyCreate
@@ -626,7 +626,7 @@ On output *out_len is number of bytes written (or required)
 If out is not big enough no output is written, *out_len is set and 1 is returned
 Returns 0 on success and sets
 If some other error occurs a negative integer is returned.
--}      
+-}
 privKeyExport
     :: PrivKey              -- ^ __key__
     -> PrivKeyExportFlags   -- ^ __flags__
@@ -670,7 +670,7 @@ privKeyAlgoName = mkGetCString withPrivKey botan_privkey_algo_name
 --     -> ByteString   -- Cipher algo
 --     -> ByteString   -- PBKDF algo
 --     -> Word32       -- Flags
---     -> IO ByteString 
+--     -> IO ByteString
 -- privKeyExportEncryptedPBKDFMsec = undefined
 
 -- TODO:
@@ -682,7 +682,7 @@ privKeyAlgoName = mkGetCString withPrivKey botan_privkey_algo_name
 --     -> ByteString   -- Cipher algo
 --     -> ByteString   -- PBKDF algo
 --     -> Word32       -- Flags
---     -> IO ByteString 
+--     -> IO ByteString
 -- privKeyExportEncryptedPBKDFIter = undefined
 
 newtype PubKey = MkPubKey { getPubKeyForeignPtr :: ForeignPtr BotanPubKeyStruct }
@@ -722,7 +722,7 @@ pattern PubKeyExportDER
 pattern PubKeyExportDER = PrivKeyExportDER
 pattern PubKeyExportPEM = PrivKeyExportPEM
 
--- NOTE: Different from allocBytesQuerying / INSUFFICIENT_BUFFER_SPACE     
+-- NOTE: Different from allocBytesQuerying / INSUFFICIENT_BUFFER_SPACE
 pubKeyExport
     :: PubKey               -- ^ __key__
     -> PubKeyExportFlags    -- ^ __flags__

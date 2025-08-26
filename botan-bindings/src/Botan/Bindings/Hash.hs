@@ -105,7 +105,7 @@ foreign import capi safe "botan/ffi.h botan_hash_init"
         -> ConstPtr CChar   -- ^ __hash_name__: name of the hash function, e.g., "SHA-384"
         -> Word32           -- ^ __flags__: should be 0 in current API revision, all other uses are reserved
                             --   and return BOTAN_FFI_ERROR_BAD_FLAG
-        -> IO CInt      
+        -> IO CInt
 
 -- | Get the name of this hash function
 foreign import capi safe "botan/ffi.h botan_hash_name"

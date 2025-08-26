@@ -46,7 +46,7 @@ pattern BOTAN_KDF_HKDF
     ,   BOTAN_KDF_SP800_56A
     ,   BOTAN_KDF_SP800_56C
     :: (Eq a, IsString a) => a
-    
+
 -- NOTE: All KDFs take a HashName or HMAC(HashName) as an argument
 pattern BOTAN_KDF_HKDF                = "HKDF"
 pattern BOTAN_KDF_HKDF_EXTRACT        = "HKDF-Extract"

@@ -12,7 +12,7 @@ privKeyLoadSM2
     -> ByteString   -- ^ __curve_name__
     -> IO PrivKey   -- ^ __key__
 privKeyLoadSM2 = mkPrivKeyLoad1_name botan_privkey_load_sm2
- 
+
 pubKeyLoadSM2
     :: MP           -- ^ __public_x__
     -> MP           -- ^ __public_y__

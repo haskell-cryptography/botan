@@ -2,7 +2,7 @@ module Main where
 
 import Test.Prelude
 
-import Botan.Low.MPI 
+import Botan.Low.MPI
 import Botan.Low.RNG
 import Botan.Low.PubKey
 import Botan.Low.PubKey.ElGamal

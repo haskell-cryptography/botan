@@ -49,7 +49,7 @@ md5Lazy = hashLazy
 
 -- newtype instance MutableCtx MD5 = MD5Ctx
 --     { getMD5Ctx :: Botan.MutableHash }
-    
+
 -- -- TODO: Rename MutableMD5?
 -- type MD5Ctx = MutableCtx MD5
 
@@ -62,7 +62,7 @@ md5Lazy = hashLazy
 --     hashUpdate (MD5Ctx ctx) = Botan.updateHash ctx
 
 --     hashUpdates :: MD5Ctx -> [ByteString] -> m ()
---     hashUpdates (MD5Ctx ctx) = Botan.updateHashChunks ctx 
+--     hashUpdates (MD5Ctx ctx) = Botan.updateHashChunks ctx
 
 --     hashFinalize :: MD5Ctx -> m (Digest MD5)
 --     hashFinalize (MD5Ctx ctx) = MD5Digest <$> Botan.finalizeHash ctx

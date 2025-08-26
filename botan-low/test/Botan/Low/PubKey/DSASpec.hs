@@ -2,7 +2,7 @@ module Main where
 
 import Test.Prelude
 
-import Botan.Low.MPI 
+import Botan.Low.MPI
 import Botan.Low.RNG
 import Botan.Low.PubKey
 import Botan.Low.PubKey.DSA
@@ -47,7 +47,7 @@ pubKeyField pubKey field = do
     mp <- mpInit
     pubKeyGetField mp pubKey field
     return mp
-    
+
 -- NOTE: Fields are
 --  DLGroup PubKey: p, q, g, y
 --  DLGroup PrivKey: p, q, g, x, y

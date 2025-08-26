@@ -65,7 +65,7 @@ createByteString sz f = ByteString.create sz (f . castPtr)
 
 --
 
--- type NewObject      object botan = botan -> IO object 
+-- type NewObject      object botan = botan -> IO object
 -- type WithObject     object botan = (forall a . object -> (botan -> IO a) -> IO a)
 -- type DestroyObject  object botan = object -> IO ()
 -- type CreateObject   object botan = (Ptr botan -> IO CInt) -> IO object
@@ -81,7 +81,7 @@ rngDestroy  :: RNG -> IO ()
 createRNG   :: (Ptr BotanRNG -> IO CInt) -> IO RNG
 (newRNG, withRNG, rngDestroy, createRNG, _)
     = mkBindings MkBotanRNG runBotanRNG MkRNG getRNGForeignPtr botan_rng_destroy
-    
+
 rngInit :: RNGType -> IO RNG
 rngInit name = asCString name $ \ namePtr -> do
     createRNG $ \ outPtr -> botan_rng_init outPtr (ConstPtr namePtr)
@@ -205,7 +205,7 @@ mkCreateObjectCBytesLen1 createObject init bytes a = withCBytesLen bytes $ \ (cb
 {-
 Action
 -}
- 
+
 -- TODO: Rename mkAction
 mkWithObjectAction
     :: (forall a . object -> (botan -> IO a) -> IO a)
@@ -250,7 +250,7 @@ Setters
 -}
 
 -- TODO: Rename mkSetterCString
-mkWithObjectSetterCString 
+mkWithObjectSetterCString
     :: (forall a . object -> (botan -> IO a) -> IO a)
     -> (botan -> ConstPtr CChar -> IO BotanErrorCode)
     -> object

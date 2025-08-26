@@ -108,7 +108,7 @@ looks up the verfier, generates a server key (a SRP6 'B' value), and sends
 it back to the client:
 
 > -- rng <- rngInit UserRNG
-> session <- srp6ServerSessionInit 
+> session <- srp6ServerSessionInit
 > -- (verifier, salt, group, hash) <- lookupUser identifier
 > serverKey <- srp6ServerSessionStep1 session verifier group hash rng
 
@@ -241,7 +241,7 @@ srp6ServerSessionStep2 srp6 a = withSRP6ServerSession srp6 $ \ srp6Ptr -> do
             outPtr
             outLen
 
--- | SRP-6 Client side step 1:  Generate a new SRP-6 verifier  
+-- | SRP-6 Client side step 1:  Generate a new SRP-6 verifier
 srp6GenerateVerifier
     :: Identifier       -- ^ __identifier__: a username or other client identifier
     -> Password         -- ^ __password__: the secret used to authenticate user
@@ -283,7 +283,7 @@ srp6ClientAgree identifier password groupId hashId salt b rng = do
                     asBytesLen salt $ \ saltPtr saltLen -> do
                         asBytesLen b $ \ bPtr bLen -> do
                             withRNG rng $ \ botanRNG -> do
-                                alloca $ \ aSzPtr -> do 
+                                alloca $ \ aSzPtr -> do
                                     alloca $ \ kSzPtr -> do
                                         -- Query sizes
                                         -- TODO: Actually ensure expected error (insufficient buffer space)

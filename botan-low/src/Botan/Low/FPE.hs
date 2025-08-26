@@ -118,7 +118,7 @@ withFPEInitFE1 = mkWithTemp4 fpeInitFE1 fpeDestroy
 -- fpeEncrypt fpe mp tweak = do
 --     mp' <- mpCopy mp
 --     fpeEncrypt fpe mp' tweak
---     return mp 
+--     return mp
 
 -- | Encrypt the 'x' value in-place
 --
@@ -139,7 +139,7 @@ fpeEncrypt fpe mp tweak = do
 -- fpeDecrypt fpe mp tweak = do
 --     mp' <- mpCopy mp
 --     fpeDecrypt fpe mp' tweak
---     return mp 
+--     return mp
 
 -- | Decrypt the 'x' value in-place
 --

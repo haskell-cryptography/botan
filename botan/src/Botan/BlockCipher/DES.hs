@@ -70,7 +70,7 @@ getDESLazyCiphertext (DESLazyCiphertext bs) = bs
 type DESLazyCiphertext = LazyCiphertext DES
 
 instance HasSecretKey DES where
-    
+
     secretKeySpec :: SizeSpecifier (SecretKey DES)
     secretKeySpec = coerceSizeSpec $ Botan.blockCipherKeySpec Botan.des
 
@@ -78,7 +78,7 @@ instance (MonadRandomIO m )=> SecretKeyGen DES m where
 
     newSecretKey :: MonadRandomIO m => m (SecretKey DES)
     newSecretKey = DESSecretKey <$> newSized (secretKeySpec @DES)
-    
+
     newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey DES))
     newSecretKeyMaybe i = fmap DESSecretKey <$> newSizedMaybe (secretKeySpec @DES) i
 
@@ -155,7 +155,7 @@ getTripleDESLazyCiphertext (TripleDESLazyCiphertext bs) = bs
 type TripleDESLazyCiphertext = LazyCiphertext TripleDES
 
 instance HasSecretKey TripleDES where
-    
+
     secretKeySpec :: SizeSpecifier (SecretKey TripleDES)
     secretKeySpec = coerceSizeSpec $ Botan.blockCipherKeySpec Botan.tripleDES
 
@@ -163,7 +163,7 @@ instance (MonadRandomIO m )=> SecretKeyGen TripleDES m where
 
     newSecretKey :: MonadRandomIO m => m (SecretKey TripleDES)
     newSecretKey = TripleDESSecretKey <$> newSized (secretKeySpec @TripleDES)
-    
+
     newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey TripleDES))
     newSecretKeyMaybe i = fmap TripleDESSecretKey <$> newSizedMaybe (secretKeySpec @TripleDES) i
 

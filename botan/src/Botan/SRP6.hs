@@ -116,7 +116,7 @@ let pass = "burger"
 (salt, verifier) <- generateSRP6ClientSecrets group hash user pass
 -- Authentication (client has requested a connection)
 -- Server looks up their verifier, generates a server key, and sends it back
-session <- newSRP6ServerSession 
+session <- newSRP6ServerSession
 serverKey <- generateSRP6ServerKey group hash session verifier
 -- Client receives server key, and generates a client key and (client) session key
 (clientKey, clientSessionKey) <- generateSRP6ClientKeys group hash user pass salt serverKey
@@ -153,7 +153,7 @@ let hash = Cryptohash $ SHA2 SHA512
 let user = "bob"
 let pass = "burger"
 (salt, verifier) <- generateSRP6ClientSecrets group hash user pass
-session <- newSRP6ServerSession 
+session <- newSRP6ServerSession
 serverKey <- generateSRP6ServerKey group hash session verifier
 (clientKey, clientSessionKey) <- generateSRP6ClientKeys group hash user pass salt serverKey
 serverSessionKey <- generateSRP6SessionKey session clientKey

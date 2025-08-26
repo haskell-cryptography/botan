@@ -168,7 +168,7 @@ privKeyField pk field = unsafePerformIO $ do
     mp <- mpInit
     -- TODO: Return nothing on catch error
     Low.privKeyGetField mp pk field
-    return $ Just mp 
+    return $ Just mp
 {-# NOINLINE privKeyField #-}
 
 -- Accessory functions
@@ -188,7 +188,7 @@ exportPrivKey pk fmt = unsafePerformIO $ Low.privKeyExport pk (pkExportFormatFla
 {-# NOINLINE exportPrivKey #-}
 
 exportPrivKeyPubKey :: PrivKey -> PubKey
-exportPrivKeyPubKey pk = unsafePerformIO $ Low.privKeyExportPubKey pk 
+exportPrivKeyPubKey pk = unsafePerformIO $ Low.privKeyExportPubKey pk
 {-# NOINLINE exportPrivKeyPubKey #-}
 
 checkPrivKey :: (MonadRandomIO m) => PrivKey -> Bool -> m Bool
@@ -225,7 +225,7 @@ pubKeyField pk field = unsafePerformIO $ do
     mp <- mpInit
     -- TODO: Return nothing on catch error
     Low.pubKeyGetField mp pk field
-    return $ Just mp 
+    return $ Just mp
 {-# NOINLINE pubKeyField #-}
 
 estimatedPubKeyStrength :: PubKey -> Int
@@ -314,9 +314,9 @@ pkName (DH _)           = Low.DH            -- "DH"
 pkName (ECDH _)         = Low.ECDH          -- "ECDH"
 pkName Curve25519       = Low.Curve25519    -- "Curve25519"
 -- New in 3.x?
-pkName Dilithium        = Low.Dilithium   -- "Dilithium-6x5-r3"   -- TODO: Find full listing in doxygen 
-pkName Kyber            = Low.Kyber       -- "Kyber-1024-r3"      -- TODO: Find full listing in doxygen 
--- pkName SPHINCSPlus      = "SPHINCS+"  -- Doesn't work :/      -- TODO: Find full listing in doxygen 
+pkName Dilithium        = Low.Dilithium   -- "Dilithium-6x5-r3"   -- TODO: Find full listing in doxygen
+pkName Kyber            = Low.Kyber       -- "Kyber-1024-r3"      -- TODO: Find full listing in doxygen
+-- pkName SPHINCSPlus      = "SPHINCS+"  -- Doesn't work :/      -- TODO: Find full listing in doxygen
 pkName McEliece         = Low.McEliece
 
 pkParams :: PK -> PKParams

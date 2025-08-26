@@ -262,7 +262,7 @@ newBlockCipherKey :: (MonadRandomIO m) => BlockCipher -> m BlockCipherKey
 newBlockCipherKey = newKey . blockCipherKeySpec
 
 newBlockCipherKeyMaybe :: (MonadRandomIO m) => Int -> BlockCipher -> m (Maybe BlockCipherKey)
-newBlockCipherKeyMaybe sz bc = newKeyMaybe sz (blockCipherKeySpec bc) 
+newBlockCipherKeyMaybe sz bc = newKeyMaybe sz (blockCipherKeySpec bc)
 
 type BlockCipherText = ByteString
 -- TODO:

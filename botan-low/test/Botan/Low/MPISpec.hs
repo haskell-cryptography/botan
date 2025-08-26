@@ -17,7 +17,7 @@ main = hspec $ do
     it "can set the value from an int" $ do
         mp <- mpInit
         mpSetFromInt mp 512
-        pass 
+        pass
     it "can set the value from another reference" $ do
         mp <- mpInit
         mpSetFromInt mp 512
@@ -46,7 +46,7 @@ main = hspec $ do
         mpClear mp
         zero <- mpInit
         mpSetFromInt zero 0
-        isClear <- mpEqual mp zero 
+        isClear <- mpEqual mp zero
         isClear `shouldBe` True
         pass
     it "can copy the value to a new reference" $ do

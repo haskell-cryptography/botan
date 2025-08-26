@@ -51,7 +51,7 @@ import Data.ByteString.Internal as ByteString
 `bcrypt` is a password-hashing algorithm designed to protect your passwords
 against hackers using an expensive key setup phase. Instead of storing a user's
 password in plaintext in the database, the server may instead generate a salted
-bcrypt digest upon signup, and verify it upon login. 
+bcrypt digest upon signup, and verify it upon login.
 
 The `bcrypt` implementation provided by `botan` generates a random salt for you
 automatically. A work factor of 12 or greater is recommended.
@@ -64,8 +64,8 @@ To generate a bcrypt digest:
 
 > import Botan.Low.RNG
 > import Botan.Low.Bcrypt
-> 
-> -- The user has sent us a username and password in order to sign up 
+>
+> -- The user has sent us a username and password in order to sign up
 > onUserSignup :: ByteString -> ByteString -> IO ()
 > onUserSignup username password = do
 >     rng <- rngInit "user"
@@ -76,7 +76,7 @@ To validate a bcrypt digest:
 
 > import Botan.Low.RNG
 > import Botan.Low.Bcrypt
-> 
+>
 > -- The user has sent us a username and password in order to log in
 > onUserLogin :: ByteString -> ByteString -> IO Bool
 > onUserLogin username password = do

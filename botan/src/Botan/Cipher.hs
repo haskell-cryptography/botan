@@ -272,7 +272,7 @@ newCipherKey :: (MonadRandomIO m) => Cipher -> m CipherKey
 newCipherKey = newKey . cipherKeySpec
 
 newCipherKeyMaybe :: (MonadRandomIO m) => Int -> Cipher -> m (Maybe CipherKey)
-newCipherKeyMaybe sz bc = newKeyMaybe sz (cipherKeySpec bc) 
+newCipherKeyMaybe sz bc = newKeyMaybe sz (cipherKeySpec bc)
 
 type CipherNonce = ByteString
 
@@ -347,7 +347,7 @@ cipherDefaultNonceSize (CBC bc _) = blockCipherBlockSize bc
 cipherDefaultNonceSize (CFB bc _) = blockCipherBlockSize bc
 cipherDefaultNonceSize (XTS bc)   = blockCipherBlockSize bc
 -- NOTE: This is the value at current, and matches the default in botan,
--- presumably because 12 is valid for all remaining cipher / AEAD nonces 
+-- presumably because 12 is valid for all remaining cipher / AEAD nonces
 cipherDefaultNonceSize _          = 12
 -- NOTE: Extracted from inspecting:
 {-
@@ -467,7 +467,7 @@ cipherIdealUpdateGranularity cipher = unsafePerformIO $ do
     Low.cipherGetIdealUpdateGranularity ctx
 {-# NOINLINE cipherIdealUpdateGranularity #-}
 -- NOTE: This is machine-dependent, but should stay consistent per-machine
--- so we do this instead of inlining the values  
+-- so we do this instead of inlining the values
 
 cipherOutputLength :: Cipher -> CipherDirection -> Int -> Int
 cipherOutputLength c dir n = unsafePerformIO $ do
@@ -550,7 +550,7 @@ data CipherDirection
     = CipherEncrypt
     | CipherDecrypt
     deriving (Eq, Ord, Show)
-    
+
 cipherDirectionFlags :: CipherDirection -> Low.CipherInitFlags
 cipherDirectionFlags CipherEncrypt = Low.Encrypt
 cipherDirectionFlags CipherDecrypt = Low.Decrypt
@@ -612,7 +612,7 @@ getCipherEstimateOutputLength ctx input = do
     t <- getCipherTagSize ctx
     if mutableCipherDirection ctx == CipherEncrypt
         then return (o + u + t)
-        else return (o + u - t) -- TODO: Maybe just 'o'... 
+        else return (o + u - t) -- TODO: Maybe just 'o'...
 
 -- NOTE: Supposed to be an upper bound, may not always be valid? - needs checking
 {-# WARNING getCipherOutputLength "Needs to be confirmed accurate, use getCipherEstimateOutputLength" #-}

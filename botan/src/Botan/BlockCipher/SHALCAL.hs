@@ -61,7 +61,7 @@ getSHALCAL2LazyCiphertext (SHALCAL2LazyCiphertext bs) = bs
 type SHALCAL2LazyCiphertext = LazyCiphertext SHALCAL2
 
 instance HasSecretKey SHALCAL2 where
-    
+
     secretKeySpec :: SizeSpecifier (SecretKey SHALCAL2)
     secretKeySpec = coerceSizeSpec $ Botan.blockCipherKeySpec Botan.shalcal2
 
@@ -69,7 +69,7 @@ instance (MonadRandomIO m )=> SecretKeyGen SHALCAL2 m where
 
     newSecretKey :: MonadRandomIO m => m (SecretKey SHALCAL2)
     newSecretKey = SHALCAL2SecretKey <$> newSized (secretKeySpec @SHALCAL2)
-    
+
     newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey SHALCAL2))
     newSecretKeyMaybe i = fmap SHALCAL2SecretKey <$> newSizedMaybe (secretKeySpec @SHALCAL2) i
 

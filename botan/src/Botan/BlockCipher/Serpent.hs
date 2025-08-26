@@ -61,7 +61,7 @@ getSerpentLazyCiphertext (SerpentLazyCiphertext bs) = bs
 type SerpentLazyCiphertext = LazyCiphertext Serpent
 
 instance HasSecretKey Serpent where
-    
+
     secretKeySpec :: SizeSpecifier (SecretKey Serpent)
     secretKeySpec = coerceSizeSpec $ Botan.blockCipherKeySpec Botan.serpent
 
@@ -69,7 +69,7 @@ instance (MonadRandomIO m )=> SecretKeyGen Serpent m where
 
     newSecretKey :: MonadRandomIO m => m (SecretKey Serpent)
     newSecretKey = SerpentSecretKey <$> newSized (secretKeySpec @Serpent)
-    
+
     newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey Serpent))
     newSecretKeyMaybe i = fmap SerpentSecretKey <$> newSizedMaybe (secretKeySpec @Serpent) i
 

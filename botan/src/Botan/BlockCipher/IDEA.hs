@@ -61,7 +61,7 @@ getIDEALazyCiphertext (IDEALazyCiphertext bs) = bs
 type IDEALazyCiphertext = LazyCiphertext IDEA
 
 instance HasSecretKey IDEA where
-    
+
     secretKeySpec :: SizeSpecifier (SecretKey IDEA)
     secretKeySpec = coerceSizeSpec $ Botan.blockCipherKeySpec Botan.idea
 
@@ -69,7 +69,7 @@ instance (MonadRandomIO m )=> SecretKeyGen IDEA m where
 
     newSecretKey :: MonadRandomIO m => m (SecretKey IDEA)
     newSecretKey = IDEASecretKey <$> newSized (secretKeySpec @IDEA)
-    
+
     newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey IDEA))
     newSecretKeyMaybe i = fmap IDEASecretKey <$> newSizedMaybe (secretKeySpec @IDEA) i
 

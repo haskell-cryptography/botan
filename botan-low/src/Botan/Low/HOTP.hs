@@ -67,7 +67,7 @@ import Botan.Low.Remake
 Botan implements the HOTP and TOTP schemes from RFC 4226 and 6238.
 
 Since the range of possible OTPs is quite small, applications must
-rate limit OTP authentication attempts to some small number per 
+rate limit OTP authentication attempts to some small number per
 second. Otherwise an attacker could quickly try all 1000000 6-digit
 OTPs in a brief amount of time.
 
@@ -107,7 +107,7 @@ was selected at random.
 > -- TODO: Use random:System.Random.Stateful.Uniform instead of MPI in `botan`
 > (hi :: Word32) <- mpInit >>= \ w -> mpRandBits w rng 32 >> mpToWord32 w
 > (lo :: Word32) <- mpInit >>= \ w -> mpRandBits w rng 32 >> mpToWord32 w
-> (counter :: Word64) = shiftL (fromIntegral hi) 32 `xor` fromIntegral lo 
+> (counter :: Word64) = shiftL (fromIntegral hi) 32 `xor` fromIntegral lo
 
 The client and server authenticators are now in a shared state, and any login
 attempts from a new device may be authenticated using HOTP as MFA.
@@ -175,7 +175,7 @@ createHOTP   :: (Ptr BotanHOTP -> IO CInt) -> IO HOTP
 
 type HOTPHashName = HashName
 
-pattern HOTP_SHA1 
+pattern HOTP_SHA1
     ,   HOTP_SHA256
     ,   HOTP_SHA512
     ::  HOTPHashName
@@ -202,7 +202,7 @@ hotpInit
     -> IO HOTP      -- ^ __hotp__
 hotpInit key algo digits = asBytesLen key $ \ keyPtr keyLen -> do
     asCString algo $ \ algoPtr -> do
-        createHOTP $ \ out -> botan_hotp_init 
+        createHOTP $ \ out -> botan_hotp_init
             out
             (ConstPtr keyPtr)
             keyLen

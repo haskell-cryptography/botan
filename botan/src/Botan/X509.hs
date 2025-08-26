@@ -56,7 +56,7 @@ data KeyConstraint
     deriving (Eq)
 
 allKeyConstraints :: [KeyConstraint]
-allKeyConstraints = 
+allKeyConstraints =
     [ DigitalSignature
     , NonRepudiation
     , KeyEncipherment

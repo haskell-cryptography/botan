@@ -28,7 +28,7 @@ keySizes = allSizes
 validKeySize :: KeySpec -> Int
 validKeySize = defaultSize
 
-keySizeIsValid :: Int -> KeySpec -> Bool 
+keySizeIsValid :: Int -> KeySpec -> Bool
 keySizeIsValid = flip sizeIsValid
 
 newKeyMaybe :: (MonadRandomIO m) => Int -> KeySpec -> m (Maybe ByteString)

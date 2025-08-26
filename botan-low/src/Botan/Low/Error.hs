@@ -304,7 +304,7 @@ data InvalidObjectException
 instance Exception InvalidObjectException where
     toException = toBotanException
     fromException = fromBotanException
-    
+
 data UnknownException
     = UnknownException BotanErrorCode ErrorMessage CallStack
     deriving (Show)

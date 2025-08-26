@@ -79,7 +79,7 @@ getAES128LazyCiphertext (AES128LazyCiphertext bs) = bs
 type AES128LazyCiphertext = LazyCiphertext AES128
 
 instance HasSecretKey AES128 where
-    
+
     secretKeySpec :: SizeSpecifier (SecretKey AES128)
     secretKeySpec = coerceSizeSpec $ Botan.blockCipherKeySpec Botan.aes128
 
@@ -87,7 +87,7 @@ instance (MonadRandomIO m )=> SecretKeyGen AES128 m where
 
     newSecretKey :: MonadRandomIO m => m (SecretKey AES128)
     newSecretKey = AES128SecretKey <$> newSized (secretKeySpec @AES128)
-    
+
     newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey AES128))
     newSecretKeyMaybe i = fmap AES128SecretKey <$> newSizedMaybe (secretKeySpec @AES128) i
 
@@ -163,7 +163,7 @@ getAES192LazyCiphertext (AES192LazyCiphertext bs) = bs
 type AES192LazyCiphertext = LazyCiphertext AES192
 
 instance HasSecretKey AES192 where
-    
+
     secretKeySpec :: SizeSpecifier (SecretKey AES192)
     secretKeySpec = coerceSizeSpec $ Botan.blockCipherKeySpec Botan.aes192
 
@@ -171,7 +171,7 @@ instance (MonadRandomIO m )=> SecretKeyGen AES192 m where
 
     newSecretKey :: MonadRandomIO m => m (SecretKey AES192)
     newSecretKey = AES192SecretKey <$> newSized (secretKeySpec @AES192)
-    
+
     newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey AES192))
     newSecretKeyMaybe i = fmap AES192SecretKey <$> newSizedMaybe (secretKeySpec @AES192) i
 
@@ -247,7 +247,7 @@ getAES256LazyCiphertext (AES256LazyCiphertext bs) = bs
 type AES256LazyCiphertext = LazyCiphertext AES256
 
 instance HasSecretKey AES256 where
-    
+
     secretKeySpec :: SizeSpecifier (SecretKey AES256)
     secretKeySpec = coerceSizeSpec $ Botan.blockCipherKeySpec Botan.aes256
 
@@ -255,7 +255,7 @@ instance (MonadRandomIO m )=> SecretKeyGen AES256 m where
 
     newSecretKey :: MonadRandomIO m => m (SecretKey AES256)
     newSecretKey = AES256SecretKey <$> newSized (secretKeySpec @AES256)
-    
+
     newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey AES256))
     newSecretKeyMaybe i = fmap AES256SecretKey <$> newSizedMaybe (secretKeySpec @AES256) i
 

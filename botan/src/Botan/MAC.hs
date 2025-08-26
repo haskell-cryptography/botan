@@ -151,7 +151,7 @@ import qualified Botan.Bindings.MAC as Low
 
 data MAC
     = CMAC BlockCipher  -- NOTE: This is actually OMAC a CMAC variant
-    -- | CBC_MAC BlockCipher  -- No longer supported (possibly due to security issues) 
+    -- | CBC_MAC BlockCipher  -- No longer supported (possibly due to security issues)
     | GMAC BlockCipher      -- Requires a nonce "GMAC can accept initialization vectors of arbitrary length"
     | HMAC CryptoHash -- Must be a (CS)Hash, and not a Checksum
     -- New in 3.2
@@ -161,7 +161,7 @@ data MAC
     | SipHash Int Int       -- Number of input and finalization rounds
     | X9_19_MAC
     deriving (Eq, Show)
-    
+
 -- Enumerations
 
 macs = concat
@@ -420,7 +420,7 @@ updateFinalizeClearMAC mm bs = updateFinalizeMAC mm bs <* clearMAC mm
 --
 
 -- = CMAC BlockCipher  -- NOTE: This is actually OMAC a CMAC variant
--- -- | CBC_MAC BlockCipher  -- No longer supported (possibly due to security issues) 
+-- -- | CBC_MAC BlockCipher  -- No longer supported (possibly due to security issues)
 -- | GMAC BlockCipher      -- Requires a nonce "GMAC can accept initialization vectors of arbitrary length"
 -- | HMAC Hash -- Must be a (CS)Hash, and not a Checksum
 -- -- New in 3.2
@@ -455,6 +455,6 @@ sipHash = sipHashWith 2 4
 -- though maybe needs to be divisible by 2? Research
 sipHashWith :: Int -> Int -> MAC
 sipHashWith r f = SipHash r f
- 
+
 x9_19_mac :: MAC
 x9_19_mac = X9_19_MAC

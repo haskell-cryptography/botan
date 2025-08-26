@@ -30,7 +30,7 @@ x509PathRestrictionsCreate require_rev minimum_key_strength ocsp_all_intermediat
                 (fromIntegral minimum_key_strength)
                 (fromBool ocsp_all_intermediates)
                 max_ocsp_age
-                trustedStorePtr    
+                trustedStorePtr
             )
             botan_x509_path_restrictions_destroy
 

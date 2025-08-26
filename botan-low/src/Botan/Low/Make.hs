@@ -30,7 +30,7 @@ Helper types
 -}
 
 type WithPtr typ ptr = (forall a . typ -> (ptr -> IO a) -> IO a)
--- NOTE: WithPtr typ ptr ~ typ -> Codensity IO ptr 
+-- NOTE: WithPtr typ ptr ~ typ -> Codensity IO ptr
 --  where: type Codensity m a = forall b . (a -> m b) -> m b
 -- TODO: Refine further per:
 --  https://discourse.haskell.org/t/questions-about-ffi-foreignptr-and-opaque-types/6914/21?u=apothecalabs
@@ -120,7 +120,7 @@ mkInit_name
     -> ByteString -> IO typ
 mkInit_name constr init destroy name = do
     alloca $ \ outPtr -> do
-        asCString name $ \ namePtr -> do 
+        asCString name $ \ namePtr -> do
             throwBotanIfNegative_ $ init outPtr namePtr
         out <- peek outPtr
         foreignPtr <- newForeignPtr destroy out
@@ -133,7 +133,7 @@ mkInit_name_flags
     -> ByteString -> Word32 -> IO typ
 mkInit_name_flags constr init destroy name flags = do
     alloca $ \ outPtr -> do
-        asCString name $ \ namePtr -> do 
+        asCString name $ \ namePtr -> do
             throwBotanIfNegative_ $ init outPtr namePtr flags
         out <- peek outPtr
         foreignPtr <- newForeignPtr destroy out
@@ -146,7 +146,7 @@ mkInit_bytes
     -> Destructor struct
     -> ByteString -> IO typ
 mkInit_bytes constr init destroy bytes = do
-    asBytes bytes $ \ bytesPtr -> do 
+    asBytes bytes $ \ bytesPtr -> do
         alloca $ \ outPtr -> do
             throwBotanIfNegative_ $ init outPtr bytesPtr
             out <- peek outPtr
@@ -159,7 +159,7 @@ mkInit_bytes_len
     -> Destructor struct
     -> ByteString -> IO typ
 mkInit_bytes_len constr init destroy bytes = do
-    asBytesLen bytes $ \ bytesPtr bytesLen -> do 
+    asBytesLen bytes $ \ bytesPtr bytesLen -> do
         alloca $ \ outPtr -> do
             throwBotanIfNegative_ $ init outPtr bytesPtr bytesLen
             out <- peek outPtr
@@ -289,7 +289,7 @@ mkGetSizes3 withPtr get typ = withPtr typ $ \ typPtr -> do
 
 -- NOTE: Get...Code nomenclature signifies that we get the desired return value
 --  from the error code error code, eg they use something other than throwBotanIfNegative_
---      
+--
 
 
 type GetSuccessCode ptr = ptr -> IO BotanErrorCode
@@ -396,7 +396,7 @@ mkSetCString
     -> SetCString ptr
     -> typ -> ByteString -> IO ()
 mkSetCString withPtr set typ cstring = withPtr typ $ \ typPtr -> do
-    asCString cstring $ \ cstringPtr -> do 
+    asCString cstring $ \ cstringPtr -> do
         throwBotanIfNegative_ $ set typPtr cstringPtr
 
 mkSetCString_csize
@@ -404,7 +404,7 @@ mkSetCString_csize
     -> SetCString_csize ptr
     -> typ -> ByteString -> Int -> IO ()
 mkSetCString_csize withPtr set typ cstring sz = withPtr typ $ \ typPtr -> do
-    asCString cstring $ \ cstringPtr -> do 
+    asCString cstring $ \ cstringPtr -> do
         throwBotanIfNegative_ $ set typPtr cstringPtr (fromIntegral sz)
 
 type SetBytesLen ptr = ptr -> Ptr Word8 -> CSize -> IO BotanErrorCode
@@ -414,7 +414,7 @@ mkSetBytesLen
     -> SetBytesLen ptr
     -> typ -> ByteString -> IO ()
 mkSetBytesLen withPtr set typ bytes = withPtr typ $ \ typPtr -> do
-    asBytesLen bytes $ \ bytesPtr bytesLen -> do 
+    asBytesLen bytes $ \ bytesPtr bytesLen -> do
         throwBotanIfNegative_ $ set typPtr bytesPtr bytesLen
 
 -- EXPERIMENTAL

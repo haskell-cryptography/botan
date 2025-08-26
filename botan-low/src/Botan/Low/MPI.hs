@@ -52,7 +52,7 @@ module Botan.Low.MPI
 , mpIsPrime
 , mpGetBit
 , mpSetBit
-, mpClearBit  
+, mpClearBit
 
 ) where
 
@@ -107,7 +107,7 @@ mpToHex mp = withMP mp $ \ mpPtr -> do
 
 mpToStr :: MP -> Int -> IO ByteString
 mpToStr mp base = withMP mp $ \ mpPtr -> do
-    allocBytesQueryingCString $ \ bytesPtr szPtr -> 
+    allocBytesQueryingCString $ \ bytesPtr szPtr ->
         botan_mp_to_str mpPtr (fromIntegral base) bytesPtr szPtr
 
 mpClear :: MP -> IO ()

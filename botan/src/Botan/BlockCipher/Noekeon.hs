@@ -61,7 +61,7 @@ getNoekeonLazyCiphertext (NoekeonLazyCiphertext bs) = bs
 type NoekeonLazyCiphertext = LazyCiphertext Noekeon
 
 instance HasSecretKey Noekeon where
-    
+
     secretKeySpec :: SizeSpecifier (SecretKey Noekeon)
     secretKeySpec = coerceSizeSpec $ Botan.blockCipherKeySpec Botan.noekeon
 
@@ -69,7 +69,7 @@ instance (MonadRandomIO m )=> SecretKeyGen Noekeon m where
 
     newSecretKey :: MonadRandomIO m => m (SecretKey Noekeon)
     newSecretKey = NoekeonSecretKey <$> newSized (secretKeySpec @Noekeon)
-    
+
     newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey Noekeon))
     newSecretKeyMaybe i = fmap NoekeonSecretKey <$> newSizedMaybe (secretKeySpec @Noekeon) i
 
