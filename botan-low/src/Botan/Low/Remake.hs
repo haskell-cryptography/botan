@@ -174,15 +174,16 @@ mkCreateObjectCString1
 mkCreateObjectCString1 createObject init str a = withCString str $ \ cstr -> do
     createObject $ \ outPtr -> init outPtr (ConstPtr cstr) a
 
--- TODO: Rename mkCreateCBytes
+-- | You probably want mkCreateObjectCBytesLen; this is for functions that
+-- expect a bytestring of known exact length.
 mkCreateObjectCBytes
     :: ((Ptr botan -> IO CInt) -> IO object)
     -> (Ptr botan -> ConstPtr Word8 -> IO CInt)
     -> ByteString
     -> IO object
+-- TODO: Rename mkCreateCBytes
 mkCreateObjectCBytes createObject init bytes = withCBytes bytes $ \ cbytes -> do
     createObject $ \ out -> init out (ConstPtr cbytes)
-{-# WARNING mkCreateObjectCBytes "You probably want mkCreateObjectCBytesLen; this is for functions that expect a bytestring of known exact length." #-}
 
 -- TODO: Rename mkCreateCBytesLen
 mkCreateObjectCBytesLen

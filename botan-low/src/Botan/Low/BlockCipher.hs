@@ -293,7 +293,6 @@ blockCipherEncryptBlocks blockCipher bytes = withBlockCipher blockCipher $ \ blo
                 (ConstPtr bytesPtr)
                 destPtr
                 bytesLen
-{-# WARNING blockCipherEncryptBlocks "The plaintext length should be a multiple of the block size." #-}
 
 {- |
 Decrypt one or more blocks with a block cipher.
@@ -314,7 +313,6 @@ blockCipherDecryptBlocks blockCipher bytes = withBlockCipher blockCipher $ \ blo
                 (ConstPtr bytesPtr)
                 destPtr
                 bytesLen
-{-# WARNING blockCipherDecryptBlocks "The ciphertext length should be a multiple of the block size." #-}
 
 {- |
 Get the name of a block cipher.

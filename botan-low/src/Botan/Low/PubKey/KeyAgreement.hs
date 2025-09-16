@@ -171,7 +171,8 @@ keyAgreementSize
     -> IO Int       -- ^ __out_len__
 keyAgreementSize = mkGetSize withKeyAgreement botan_pk_op_key_agreement_size
 
-{-# WARNING keyAgreement "This function was leaking memory and causing crashes. Please observe carefully and report any future leaks." #-}
+-- | TODO: This function was leaking memory and causing crashes. Please observe
+-- carefully and report any future leaks. See issue #35.
 keyAgreement
     :: KeyAgreement     -- ^ __op__
     -> ByteString       -- ^ __out[]__

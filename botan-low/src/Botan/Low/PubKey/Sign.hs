@@ -92,12 +92,16 @@ signUpdate
 -- signUpdate = mkSetBytesLen withSign botan_pk_op_sign_update
 signUpdate = mkWithObjectSetterCBytesLen withSign botan_pk_op_sign_update
 
--- TODO: Signature type
--- NOTE: This function is still highly suspect
+-- | Finish signing
+--
+-- Depending on the algorithm, signatures produced using StandardFormatSignature
+-- may have trailing null bytes.
 signFinish
     :: Sign             -- ^ __op__
     -> RNG              -- ^ __rng__
     -> IO ByteString    -- ^ __sig[]__
+-- TODO: Signature type
+-- NOTE: This function is still highly suspect
 signFinish sign rng = withSign sign $ \ signPtr -> do
     withRNG rng $ \ botanRNG -> do
         -- NOTE: Investigation into DER format shows lots of trailing nulls that may need to be trimmed
@@ -120,7 +124,6 @@ signFinish sign rng = withSign sign $ \ signPtr -> do
                 throwBotanIfNegative_ $ botan_pk_op_sign_finish signPtr botanRNG sigPtr szPtr
                 peek szPtr
         return $!! ByteString.take (fromIntegral sz') bytes
-{-# WARNING signFinish "Depending on the algorithm, signatures produced using StandardFormatSignature may have trailing null bytes." #-}
 
 -- /**
 -- * Signature Scheme Utility Functions
