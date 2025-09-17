@@ -199,3 +199,24 @@ jobs:
         TASTY_TIMEOUT: "5m"
       run: |
         cabal test all -j1 --test-show-details=direct
+
+  ################################################################################
+  # Lint with fix-whitespace
+  ################################################################################
+  whitespace:
+    name: "Fix whitespace"
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Download fix-whitespace
+        run: |
+          curl -L -o fix-whitespace https://github.com/agda/fix-whitespace/releases/download/v0.1/fix-whitespace-0.1-linux.binary
+          chmod a+x fix-whitespace
+
+      - name: Check whitespace
+        run: |
+          export PATH="$PWD:$PATH"
+          CHECK=true ./scripts/format-fix-whitespace.sh
