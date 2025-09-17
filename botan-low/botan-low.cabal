@@ -1,6 +1,6 @@
 cabal-version:      3.0
 name:               botan-low
-version:            0.0.1.0
+version:            0.0.2.0
 synopsis:           Low-level Botan bindings
 description:
   Welcome to botan-low
@@ -51,7 +51,7 @@ source-repository this
   type:     git
   location: https://github.com/haskellfoundation/botan
   subdir:   botan-low
-  tag:      botan-low-0.0.1.0
+  tag:      botan-low-0.0.2.0
 
 flag XFFI
   description: Enable experimental / upstream ffi support
@@ -117,11 +117,11 @@ library
 
   autogen-modules:    Paths_botan_low
   build-depends:
-    , base            >=4.16    && <4.22
-    , botan-bindings  ==0.0.1.0
-    , bytestring      >=0.11    && <0.13
-    , deepseq         >=1.1     && <2
-    , text            >=1.2     && <1.3  || >=2.0 && <2.2
+    , base            >=4.16 && <4.22
+    , botan-bindings  ^>=0.0 || ^>=0.1
+    , bytestring      >=0.11 && <0.13
+    , deepseq         >=1.1  && <2
+    , text            >=1.2  && <1.3   || >=2.0 && <2.2
 
   if flag(xffi)
     -- Botan.Low.X509.OCSP
