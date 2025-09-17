@@ -275,10 +275,13 @@ pattern CRLSign = CRL_SIGN
 pattern EncipherOnly = ENCIPHER_ONLY
 pattern DecipherOnly = DECIPHER_ONLY
 
-{-# WARNING x509CertAllowedUsage "Unexplained function, best-guess implementation" #-}
+-- |
+--
 -- NOTE: This function lacks documentation, and it is unknown whether this is
---  setting a value (as implied by Z-botan), or whether it is using either
---  a negative error or INVALID_IDENTIFIER to return a bool
+-- setting a value (as implied by Z-botan), or whether it is using either
+-- a negative error or INVALID_IDENTIFIER to return a bool.
+--
+-- Note: unexplained function, best-guess implementation
 x509CertAllowedUsage
     :: X509Cert             -- ^ __cert__
     -> X509KeyConstraints   -- ^ __key_usage__
@@ -286,10 +289,11 @@ x509CertAllowedUsage
 x509CertAllowedUsage cert usage = withX509Cert cert $ \ certPtr -> do
     throwBotanCatchingSuccess $ botan_x509_cert_allowed_usage certPtr usage
 
-{-# WARNING x509CertHostnameMatch "Unexplained function, best-guess implementation" #-}
 {- |
 Check if the certificate matches the specified hostname via alternative name or CN match.
 RFC 5280 wildcards also supported.
+
+Note: unexplained function, best-guess implementation
 -}
 x509CertHostnameMatch
     :: X509Cert     -- ^ __cert__

@@ -71,6 +71,11 @@ openPGP_S2K h = OpenPGP_S2K /$ h
 
 -- NOTE: Should passphrase be Text or ByteString? Text is implied by use of const char*
 --  as well as the non-null context implied by passphrase_len == 0. ByteString for now.
+
+-- | Password hash
+--
+-- 'pwdhash' and 'pwdhashTimed'\'s parameter order may be inconsistent.  See
+-- botan-low\/test\/Botan\/Low\/PwdHashSpec.hs for more information.
 pwdhash
     :: PBKDFName        -- ^ __algo__: PBKDF algorithm, e.g., "Scrypt" or "PBKDF2(SHA-256)"
     -> Int              -- ^ __param1__: the first PBKDF algorithm parameter
@@ -95,10 +100,11 @@ pwdhash algo p1 p2 p3 outLen passphrase salt = allocBytes outLen $ \ outPtr -> d
                     passphraseLen
                     (ConstPtr saltPtr)
                     saltLen
-{-# WARNING pwdhash "pwdhash and pwdhashTimed's parameter order may be inconsistent. See botan-low/test/Botan/Low/PwdHashSpec.hs for more information." #-}
 
-
-
+-- | Timed password hash
+--
+-- 'pwdhash' and 'pwdhashTimed'\'s parameter order may be inconsistent. See
+-- botan-low\/test\/Botan\/Low\/PwdHashSpec.hs for more information.
 pwdhashTimed
     :: PBKDFName                    -- ^ __algo__: PBKDF algorithm, e.g., "Scrypt" or "PBKDF2(SHA-256)"
     -> Int                          -- ^ __msec__: the desired runtime in milliseconds
@@ -127,4 +133,3 @@ pwdhashTimed algo msec outLen passphrase salt = alloca $ \ p1Ptr -> alloca $ \ p
     p2 <- fromIntegral <$> peek p2Ptr
     p3 <- fromIntegral <$> peek p3Ptr
     return (p1,p2,p3,out)
-{-# WARNING pwdhashTimed "pwdhash and pwdhashTimed's parameter order may be inconsistent. See botan-low/test/Botan/Low/PwdHashSpec.hs for more information." #-}

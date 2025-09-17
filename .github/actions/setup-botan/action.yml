@@ -1,0 +1,144 @@
+name: "Set up Botan"
+description: "Build and install a specific Botan version from source"
+inputs:
+  # TODO: for now, users have to provide full botan versions in
+  # 'inputs.botan-version'. It would be nice if we could handle incomplete botan
+  # versions too, like haskell-actions/setup does for GHC and Cabal versions. If
+  # I pass in only a MAJOR version (e.g. 3), then I'd want it to resolve this
+  # the greatest MINOR and PATCH version (e.g., 3.8.1). Likewise, if I pass in
+  # only a MAJOR and MINOR version (e.g., 3.8.1), then I'd want it to resolve
+  # this to the greatest PATCH version (e.g., 3.8.1). See issue #37.
+  botan-version:
+    required: true
+    description: "Botan version"
+  run-tests:
+    required: false
+    description: "Run Botan tests before installing"
+runs:
+  using: composite
+  steps:
+  - name: 📥 Checkout Botan repository
+    uses: actions/checkout@v5
+    with:
+      repository: randombit/botan
+      path: ./tmp-botan
+      ref: ${{ inputs.botan-version }}
+
+  # The use of ccache/sccache drastically improves build times. The running time
+  # of the setup-botan action went from 10-20 minutes to ~1-2 minute at the time
+  # of writing this comment.
+  - name: 💾 Cache using ccache/sccache
+    uses: hendrikmuhs/ccache-action@v1.2
+    with:
+      create-symlink: true
+      # Use sccache on Windows, otherwise use ccache
+      variant: ${{ runner.os == 'Windows' && 'sccache' || 'ccache' }}
+      key: setup-botan-${{ runner.os }}-Botan-${{ inputs.botan-version }}
+      evict-old-files: 'job'
+      max-size: 50M
+
+  ### Build ###
+  #
+  # We only build the static and dynamic libraries and the executable, but not
+  # the documentation. If tests are configured to run by setting
+  # 'inputs.run-tests', then the tests are built as well.
+
+  - name: "🛠️ [Unix]: Build Botan"
+    if: ${{ runner.os == 'Linux' || runner.os == 'MacOS' }}
+    shell: sh
+    working-directory: ./tmp-botan
+    run: |
+      python3 ./configure.py \
+        --compiler-cache=ccache \
+        --build-targets=static,shared,cli${{ inputs.run-tests == 'true' && ',tests' || '' }} \
+        --without-documentation
+      make
+
+  # Note: on Windows we assume the caller of the action is using MSYS2 with the
+  # MINGW64 environment. We could make the action more general purpose, but then
+  # we should make a few things configurable, like the shell and install
+  # directory. For now, assuming MSYS2/MINGW64 is the most straightforward thing
+  # to do.
+  - name: "🛠️ [Windows]: Build Botan"
+    if: ${{ runner.os == 'Windows' }}
+    shell: C:/msys64/usr/bin/bash.exe -e '{0}'
+    working-directory: ./tmp-botan
+    run: |
+      python3 ./configure.py --cc=gcc --os=mingw \
+        --compiler-cache=sccache \
+        --build-targets=static,shared,cli${{ inputs.run-tests == 'true' && ',tests' || '' }} \
+        --without-documentation \
+        --prefix="C:\msys64\mingw64"
+      make
+
+  ### Run tests ###
+
+  - name: "🛠️ [Unix]: Run tests"
+    if: ${{ inputs.run-tests == 'true' && (runner.os == 'Linux' || runner.os == 'MacOS') }}
+    shell: sh
+    working-directory: ./tmp-botan
+    run: |
+      make check
+
+  # TODO: on Windows, 'make check' will fail to start running the tests because
+  # of wrong backwards/forward slashes in paths and calling the test executable
+  # the wrong way. More precisely, 'make check' will run:
+  #
+  # > ./botan-test.exe --data-dir=.\src\tests/data
+  #
+  # Where it should be running:
+  #
+  # > ./botan-test --data-dir=./src/tests/data
+  #
+  # This might be because we are using bash where 'make check' is expecting a
+  # different shell, maybe? See issue #39.
+  - name: "🛠️ [Windows]: Run tests"
+    if: ${{ inputs.run-tests == 'true' && runner.os == 'Windows' }}
+    shell: C:/msys64/usr/bin/bash.exe -e '{0}'
+    working-directory: ./tmp-botan
+    run: |
+      make check
+
+  ### Install ###
+  #
+  # The install script can be run with debug logging enabled, but as far as we
+  # can see you would have to run the script manually instead of via make. That
+  # is, replace ...
+  #
+  # > make install
+  #
+  # ... by ...
+  #
+  # > python3 ./src/scripts/install.py --verbose --build-dir="build"
+
+  - name: "🛠️ [Unix]: Install Botan"
+    if: ${{ runner.os == 'Linux' || runner.os == 'MacOS' }}
+    shell: sh
+    working-directory: ./tmp-botan
+    run: |
+      sudo make install
+
+      # check install directories
+      ls -la /usr/local/bin
+      ls -la /usr/local/lib
+      ls -la /usr/local/include
+
+      # check that the Botan executable runs successfully
+      which botan
+      botan --version
+
+  - name: "🛠️ [Windows]: Install Botan"
+    if: ${{ runner.os == 'Windows' }}
+    shell: C:/msys64/usr/bin/bash.exe -e '{0}'
+    working-directory: ./tmp-botan
+    run: |
+      make install
+
+      # check install directories
+      ls -la C:/msys64/mingw64/bin
+      ls -la C:/msys64/mingw64/lib
+      ls -la C:/msys64/mingw64/include
+
+      # check that the Botan executable runs successfully
+      which botan
+      botan --version

@@ -1,3 +1,6 @@
+-- TODO: properly fix this warning. See issue #36.
+{-# OPTIONS_GHC -Wno-overlapping-patterns #-}
+
 {-|
 Module      : Botan.Low.Cipher
 Description : Symmetric cipher modes

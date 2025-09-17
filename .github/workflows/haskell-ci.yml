@@ -1,0 +1,201 @@
+name: Haskell CI
+
+on:
+  push:
+    branches:
+    - "main"
+  pull_request:
+  merge_group:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  ################################################################################
+  # Build
+  ################################################################################
+  build:
+    runs-on: ${{ matrix.sys.os }}
+    timeout-minutes: 60
+
+    defaults:
+      run:
+        shell: ${{ matrix.sys.shell }}
+
+    strategy:
+      fail-fast: false
+      # Picking matrix combinations is tricky as it's a trade-off: on the one
+      # hand we want to test as many interesting combinations as possible, but
+      # on the other hand we don't want combinatorial explosion. We strike a
+      # balance as follows:
+      #
+      # * Build and test with all combinations of OS/GHC/Cabal, but with a fixed
+      #   Botan version, preferably the latest version which is currently
+      #   Botan-3.9.0.
+      #
+      # * Build and test with all Botan versions, but with a fixed OS/GHC/Cabal
+      #   combination, preferably Linux/GHC-9.6/Cabal-3.12
+      #
+      # TODO: ideally, we would be able to detect automatically that the matrix
+      # should be updated to include newer Botan versions (or GHC versions for
+      # that matter). The setup-botan action already contains a TODO that would
+      # allow us to specify incomplete Botan versions like 3 and 3.8 that would
+      # then automatically be resolved to the greatest complete versions, e.g.,
+      # 3.9.0 and 3.8.1. Similarly, haskell-actions/setup@v2 allows specifying
+      # incomplete GHC and Cabal versions that are resolved to complete
+      # versions. However, if a new Botan MAJOR and/or MINOR version is released
+      # (or a new GHC major version), then we would want to include it as a new
+      # matrix combination while keeping the older combinations. Automatic
+      # resolving does not solve this. See issue #40.
+      matrix:
+        sys:
+          - { os: windows-latest, shell: "C:/msys64/usr/bin/bash.exe -e {0}" }
+          - { os: ubuntu-latest, shell: bash }
+          - { os: macos-latest, shell: bash }
+        ghc-version: ["9.2", "9.4", "9.6", "9.8", "9.10", "9.12"]
+        cabal-version: ["3.12"]
+        botan-version: ["3.9.0"]
+        include:
+        - sys: { os: ubuntu-latest, shell: bash }
+          ghc-version: "9.6"
+          cabal-version: "3.12"
+          botan-version: "3.0.0"
+        - sys: { os: ubuntu-latest, shell: bash }
+          ghc-version: "9.6"
+          cabal-version: "3.12"
+          botan-version: "3.1.1"
+        - sys: { os: ubuntu-latest, shell: bash }
+          ghc-version: "9.6"
+          cabal-version: "3.12"
+          botan-version: "3.2.0"
+        - sys: { os: ubuntu-latest, shell: bash }
+          ghc-version: "9.6"
+          cabal-version: "3.12"
+          botan-version: "3.3.0"
+        - sys: { os: ubuntu-latest, shell: bash }
+          ghc-version: "9.6"
+          cabal-version: "3.12"
+          botan-version: "3.4.0"
+        - sys: { os: ubuntu-latest, shell: bash }
+          ghc-version: "9.6"
+          cabal-version: "3.12"
+          botan-version: "3.5.0"
+        - sys: { os: ubuntu-latest, shell: bash }
+          ghc-version: "9.6"
+          cabal-version: "3.12"
+          botan-version: "3.6.1"
+        - sys: { os: ubuntu-latest, shell: bash }
+          ghc-version: "9.6"
+          cabal-version: "3.12"
+          botan-version: "3.7.1"
+        - sys: { os: ubuntu-latest, shell: bash }
+          ghc-version: "9.6"
+          cabal-version: "3.12"
+          botan-version: "3.8.1"
+
+    steps:
+    - name: 📥 Checkout repository
+      uses: actions/checkout@v5
+
+    - name: 🛠️ Setup Haskell
+      id: setup-haskell
+      uses:  haskell-actions/setup@v2
+      with:
+        ghc-version: ${{ matrix.ghc-version }}
+        cabal-version: ${{ matrix.cabal-version }}
+
+    - name: "🛠️ [Linux]: Update environment variables"
+      if: ${{ runner.os == 'Linux' }}
+      run: |
+        echo "LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
+
+    - name: "🛠️ [Windows]: Install system dependencies, update environment variables"
+      if: ${{ runner.os == 'Windows' }}
+      run: |
+        echo "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS=1" >> $GITHUB_ENV
+        echo "PKG_CONFIG_ALLOW_SYSTEM_LIBS=1"   >> $GITHUB_ENV
+        ghcup run -m -- pacman --noconfirm -S mingw-w64-x86_64-pkg-config
+        echo "C:/msys64/mingw64/bin" >> "$GITHUB_PATH"
+
+    - name: 🛠️ Setup Botan
+      uses: ./.github/actions/setup-botan
+      # Time out this step. If it's taking too long to finish, something is
+      # wrong with the setup-botan action. Maybe it's compiling too many things?
+      timeout-minutes: 30
+      with:
+        botan-version: ${{ matrix.botan-version }}
+
+    # TODO: should we set the C compiler options so that (some) warnings are
+    # also interpreted as errors, like we set -Werror for GHC? See issue #38.
+    - name: 🛠️ Configure
+      run: |
+        cabal configure \
+          --enable-tests \
+          --enable-benchmarks \
+          --disable-documentation \
+          ${{ runner.os == 'Windows' && '--extra-prog-path=C:/msys64/mingw64/bin' }} \
+          ${{ runner.os == 'Windows' && '--extra-include-dirs=C:/msys64/mingw64/include' }} \
+          ${{ runner.os == 'Windows' && '--extra-lib-dirs=C:/msys64/mingw64/lib' }} \
+          --constraint="botan-bindings +pkg-config" \
+          --ghc-options="-Werror"
+        cat "cabal.project.local"
+
+    # This step will generate a dist-newstyle/cache/plan.json file. This file is
+    # hashed and the resulting hash is included in the cache key. Any changes in
+    # the build plan, for example due to changed dependencies, will therefore
+    # create new caches.
+    - name: 💾 Generate Cabal plan
+      run: |
+        cabal build all --dry-run
+
+    - name: 💾 Restore cache
+      uses: actions/cache/restore@v4
+      id: restore-cabal-cache
+      env:
+        key: build-botan-${{ runner.os }}-ghc-${{ steps.setup-haskell.outputs.ghc-version }}-cabal-${{ steps.setup-haskell.outputs.cabal-version }}-Botan-${{ matrix.botan-version }}
+      with:
+        path: ${{ steps.setup-haskell.outputs.cabal-store }}
+        key: ${{ env.key }}-plan-${{ hashFiles('dist-newstyle/cache/plan.json') }}
+        # We allow restoring caches with outdated build plans. An upside to this
+        # is that changing the build plan does not require rebuilding all
+        # dependencies, because it is likely that not all dependencies changed.
+        # A downside of this is that the caches are cumulative (in size): new
+        # dependencies are built and installed in the cabal store, but old
+        # dependencies are never deleted. As a result, caches have to be reset
+        # every once in a while when they become too large, for example by
+        # changing the env.key value.
+        #
+        # NOTE: it would be nice if we could automatically garbage collect old
+        # unused dependencies to combat that the size of caches increase over
+        # time, if it turns out to be useful to do so. We recall there being a
+        # custom action out on GitHub somewhere that would do this garbage
+        # collection for us.
+        restore-keys: ${{ env.key }}-
+
+    - name: 🛠️ Build Cabal dependencies
+      run: |
+        cabal build all --only-dependencies
+
+    - name: 💾 Save cache
+      uses: actions/cache/save@v4
+      if: ${{ steps.restore-cabal-cache.outputs.cache-hit != 'true' }}
+      with:
+        path: ${{ steps.setup-haskell.outputs.cabal-store }}
+        key: ${{ steps.restore-cabal-cache.outputs.cache-primary-key }}
+
+    - name: 🏗️ Build
+      run: |
+        cabal build all
+
+    - name: 🧪 Test
+      id: test
+      env:
+        # Most tests in the repositoy use hspec instead of Tasty, but we make
+        # sure to include a timeout for Tasty tests regardless.
+        TASTY_TIMEOUT: "5m"
+      run: |
+        cabal test all -j1 --test-show-details=direct

@@ -37,8 +37,10 @@ longtext = ByteString.concat $ replicate 10000 $ plaintext
 cryptonHash :: ByteString -> Crypton.Digest Crypton.SHA3_512
 cryptonHash = Crypton.hash
 
-botanHash :: ByteString -> IO Botan.HashDigest
-botanHash = Botan.hashWithName "SHA-3(512)"
+-- TODO: hashWithName is not exposed from Botan.Low.Hash. See issue #34.
+{- botanHash :: ByteString -> IO Botan.HashDigest
+   botanHash = Botan.hashWithName "SHA-3(512)"
+-}
 
 main :: IO ()
 main = defaultMain
@@ -60,11 +62,13 @@ main = defaultMain
             , bench "plaintext" $ nf cryptonHash plaintext
             , bench "longtext" $ nf cryptonHash longtext
             ]
-        , bgroup "Botan"
+        -- TODO: hashWithName is not exposed from Botan.Low.Hash. See issue #34.
+        {- , bgroup "Botan"
             [ bench "password"  $ nfIO $ botanHash password
             , bench "plaintext" $ nfIO $ botanHash plaintext
             , bench "longtext" $ nfIO $ botanHash longtext
             ]
+        -}
         ]
     ]
 

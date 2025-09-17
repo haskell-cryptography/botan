@@ -1,3 +1,11 @@
+{-# LANGUAGE CPP #-}
+
+#if defined(MIN_VERSION_GLASGOW_HASKELL)
+#if MIN_VERSION_GLASGOW_HASKELL(9,8,0,0)
+{-# OPTIONS_GHC -Wwarn=x-partial #-}
+#endif
+#endif
+
 module Main where
 
 import Test.Prelude
