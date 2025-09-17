@@ -1,9 +1,10 @@
 {-|
 Module      : Botan.Bindings.FPE
 Description : Format Preserving Encryption
-Copyright   : (c) Leo D, 2023
+Copyright   : (c) 2023-2024, Apotheca Labs
+              (c) 2024-2025, Haskell Foundation
 License     : BSD-3-Clause
-Maintainer  : leo@apotheca.io
+Maintainer  : joris@well-typed.com, leo@apotheca.io
 Stability   : experimental
 Portability : POSIX
 
@@ -54,7 +55,7 @@ foreign import capi safe "botan/ffi.h &botan_fpe_destroy"
     botan_fpe_destroy
         :: FinalizerPtr BotanFPEStruct
 
-pattern BOTAN_FPE_FLAG_NONE 
+pattern BOTAN_FPE_FLAG_NONE
     ,   BOTAN_FPE_FLAG_FE1_COMPAT_MODE
     ::  (Eq a, Num a) => a
 
