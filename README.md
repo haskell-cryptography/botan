@@ -1,8 +1,10 @@
 # Welcome to botan
 
-<!-- TODO: Badges: hackage)  -->
-
-![CI](https://github.com/haskellfoundation/botan/actions/workflows/CI.yml/badge.svg)
+[![Hackage: botan-bindings](https://img.shields.io/hackage/v/botan-bindings?label=Hackage:%20botan-bindings)](https://hackage.haskell.org/package/botan-bindings)
+[![Hackage: botan-low](https://img.shields.io/hackage/v/botan-low?label=Hackage:%20botan-low)](https://hackage.haskell.org/package/botan-low)
+[![Hackage: botan](https://img.shields.io/hackage/v/botan?label=Hackage:%20botan)](https://hackage.haskell.org/package/botan)
+[![Build](https://img.shields.io/github/actions/workflow/status/haskell-cryptography/botan/ci.yml?label=Build)](https://github.com/haskell-cryptography/botan/actions/workflows/ci.yml)
+[![Haddocks](https://img.shields.io/badge/documentation-Haddocks-purple)](https://haskell-cryptography.github.io/botan/)
 
 `botan` is a set of Haskell bindings for the [Botan](https://botan.randombit.net/) cryptography library.
 
@@ -68,7 +70,7 @@ These bindings provide the following features:
 - ZFEC forward error correction
 
 > NOTE: This project includes efforts to expand this subset of features through a fork of the Botan C++ library - see [Enabling experimental support](#Enabling-experimental-support) for more details. This fork will be contributed back to the original library when it becomes sufficiently stable.
-    
+
 </details>
 
 # Installation
@@ -90,7 +92,7 @@ pacman -S botan
 # or maybe
 pacman -S botan3
 ```
-    
+
 </details>
 
 <details><summary>Debian</summary>
@@ -312,7 +314,7 @@ main = do
 
 <details><summary>Botan.Low.Bcrypt</summary>
 
-`bcrypt` is a password-hashing algorithm designed to protect your passwords against hackers using an expensive key setup phase. Instead of storing a user's password in plaintext in the database, the server may instead generate a salted bcrypt digest upon signup, and verify it upon login. 
+`bcrypt` is a password-hashing algorithm designed to protect your passwords against hackers using an expensive key setup phase. Instead of storing a user's password in plaintext in the database, the server may instead generate a salted bcrypt digest upon signup, and verify it upon login.
 
 The `bcrypt` implementation provided by `botan` generates a random salt for you automatically. A work factor of 12 or greater is recommended.
 
@@ -322,7 +324,7 @@ To generate a bcrypt digest:
 import Botan.Low.RNG
 import Botan.Low.Bcrypt
 
--- The user has sent us a username and password in order to sign up 
+-- The user has sent us a username and password in order to sign up
 onUserSignup :: ByteString -> ByteString -> IO ()
 onUserSignup username password = do
     rng <- rngInit "user"
@@ -441,7 +443,7 @@ To encrypt a message, it must be a multiple of the block size. If the cipher was
 
 ```haskell
 -- Rarely, some cipher modes require that the message size be aligned to the block size
--- Consult algorithm-specific documentation if this occurs. 
+-- Consult algorithm-specific documentation if this occurs.
 message = "I smell the blood of an Englishman!"
 cipherStart encrypter nonce
 ciphertext <- cipherEncrypt encrypter message
@@ -543,7 +545,7 @@ sharedSecret <- systemRNGGet 16
 -- TODO: Use random:System.Random.Stateful.Uniform instead of MPI in `botan`
 (hi :: Word32) <- mpInit >>= \ w -> mpRandBits w rng 32 >> mpToWord32 w
 (lo :: Word32) <- mpInit >>= \ w -> mpRandBits w rng 32 >> mpToWord32 w
-(counter :: Word64) = shiftL (fromIntegral hi) 32 `xor` fromIntegral lo 
+(counter :: Word64) = shiftL (fromIntegral hi) 32 `xor` fromIntegral lo
 ```
 
 The client and server authenticators are now in a shared state, and any login
@@ -782,9 +784,9 @@ import Botan.Low.Hash
 import Botan.Low.KDF
 rng <- rngInit "system"
 -- Alice creates her private key
-alicePrivKey <- privKeyCreate ECDH Secp521r1 rng 
+alicePrivKey <- privKeyCreate ECDH Secp521r1 rng
 -- Bob creates his private key
-bobPrivKey <-  privKeyCreate ECDH Secp521r1 rng 
+bobPrivKey <-  privKeyCreate ECDH Secp521r1 rng
 ```
 
 Then, they exchange their public keys using any channel, private or public:
@@ -933,7 +935,7 @@ it back to the client:
 
 ```haskell
 -- rng <- rngInit UserRNG
-session <- srp6ServerSessionInit 
+session <- srp6ServerSessionInit
 -- (verifier, salt, group, hash) <- lookupUser identifier
 serverKey <- srp6ServerSessionStep1 session verifier group hash rng
 ```
@@ -1065,7 +1067,7 @@ unauthenticated / requested connection:
 
 The server authenticator receives the authentication response, and performs
 a check of the key, with an acceptable clock drift in steps, in case the client
-and server are slightly desynchronized. 
+and server are slightly desynchronized.
 
 ```haskell
 -- serverClientCode <- didreceiveMFAAuthenticationResponse
@@ -1170,7 +1172,7 @@ stack build TARGET --flag XFFI --extra-include-dirs $BOTAN_OUT/include --extra-l
 To check that you've done everything correctly, you can run the following:
 
 ```
-import Botan.Bindings.Version 
+import Botan.Bindings.Version
 import Foreign.C.String
 import Prelude
 botan_version_string >>= peekCString
@@ -1203,11 +1205,11 @@ This project is licensed under the [BSD 3-Clause License](https://github.com/has
 
 # Contributing
 
-There are several ways to contribute to the development of this project, and we are happy to receive any bug reports, fixes, documentation, and any other improvements to this project. 
+There are several ways to contribute to the development of this project, and we are happy to receive any bug reports, fixes, documentation, and any other improvements to this project.
 
 ## Reporting Bugs
 
-See a bug? 
+See a bug?
 
 1. Describe the issue
 
