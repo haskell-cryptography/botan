@@ -200,6 +200,29 @@ jobs:
       run: |
         cabal test all -j1 --test-show-details=direct
 
+  ################################################################################
+  # Lint with cabal-fmt
+  ################################################################################
+  lint-cabal-fmt:
+    name: Lint with cabal-fmt
+    runs-on: ubuntu-latest
+    steps:
+    - name: 📥 Checkout repository
+      uses: actions/checkout@v5
+
+    - name: 🛠️ Setup cabal-fmt
+      uses: intersectMBO/lsm-tree/.github/actions/setup-cabal-fmt@main
+      with:
+        cabal-fmt-version: "0.1.12"
+        ghc-version: "9.6"
+        cabal-version: "3.12"
+        # The index-state is fixed to enable caching and ensure that the version
+        # regardless of the current state of Hackage head.
+        # If you want a newer version of cabal-fmt, use a more recent time.
+        hackage-index-state: "2025-09-15T11:44:03Z"
+
+    - name: 🎗️ Lint with cabal-fmt
+      run: ./scripts/format-cabal-fmt.sh && git diff --exit-code
 
   ################################################################################
   # Lint with cabal
