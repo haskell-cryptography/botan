@@ -1,9 +1,10 @@
 {-|
 Module      : Botan.Bindings.Verify
 Description : Signature Verification
-Copyright   : (c) Leo D, 2023
+Copyright   : (c) 2023-2024, Apotheca Labs
+              (c) 2024-2025, Haskell Foundation
 License     : BSD-3-Clause
-Maintainer  : leo@apotheca.io
+Maintainer  : joris@well-typed.com, leo@apotheca.io
 Stability   : experimental
 Portability : POSIX
 -}
@@ -17,7 +18,7 @@ module Botan.Bindings.PubKey.Verify
 , botan_pk_op_verify_create
 , botan_pk_op_verify_update
 , botan_pk_op_verify_finish
-, pattern BOTAN_PUBKEY_STD_FORMAT_SIGNATURE 
+, pattern BOTAN_PUBKEY_STD_FORMAT_SIGNATURE
 , pattern BOTAN_PUBKEY_DER_FORMAT_SIGNATURE
 ) where
 

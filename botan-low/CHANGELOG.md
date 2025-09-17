@@ -10,7 +10,8 @@
   in conjunction with `-Werror`. What would help is that since `ghc-9.12`,
   warnings can be assigned to categories, and those categories can be ignored
   more granularly. However, we support `ghc` versions down to and including
-  `ghc-9.2`, so warning categories are not an option for now. The affected functions are:
+  `ghc-9.2`, so warning categories are not an option for now. The affected
+  functions are:
 
   - `blockCipherEncryptBlocks`
   - `blockCipherDecryptBlocks`
@@ -21,6 +22,9 @@
   - `x509CertHostnameMatch`
   - `keyAgreement`
   - `signFinish`
+* PATCH: include a license file (with copyright info)
+* PATCH: make dependency bounds on `base` tighter. Now they coincide with the
+  `tested-with` versions of GHC.
 
 ## 0.0.1.0 - 2024-02-13
 

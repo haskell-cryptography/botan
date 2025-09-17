@@ -1,9 +1,10 @@
 {-|
 Module      : Botan.Bindings.PubKey
 Description : Public key cryptography
-Copyright   : (c) Leo D, 2023
+Copyright   : (c) 2023-2024, Apotheca Labs
+              (c) 2024-2025, Haskell Foundation
 License     : BSD-3-Clause
-Maintainer  : leo@apotheca.io
+Maintainer  : joris@well-typed.com, leo@apotheca.io
 Stability   : experimental
 Portability : POSIX
 
@@ -457,7 +458,7 @@ foreign import capi safe "botan/ffi.h botan_pubkey_view_der"
         -> BotanViewContext ctx              -- ^ __ctx__
         -> BotanViewBinCallback ctx          -- ^ __view__
         -> IO CInt
-    
+
     -- | View the public key's PEM encoding
 foreign import capi safe "botan/ffi.h botan_pubkey_view_pem"
     botan_pubkey_view_pem

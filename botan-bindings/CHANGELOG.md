@@ -8,6 +8,9 @@
 * BREAKING: Fix a few FFI bindings that have `FunPtr`s in their type where they
   should not. This is considered a breaking change because the types of the FFI
   bindings were changed as a result.
+* PATCH: include a license file (with copyright info)
+* PATCH: make dependency bounds on `base` tighter. Now they coincide with the
+  `tested-with` versions of GHC.
 
 ## 0.0.1.0 -- 2024-02-13
 

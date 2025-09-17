@@ -1,143 +1,136 @@
-cabal-version:  3.0
-name:           botan-bindings
-version:        0.0.1.0
-license:        BSD-3-Clause
-author:         Leo D.
-maintainer:     leo@apotheca.io
-build-type:     Simple
-category:       Cryptography
-synopsis:       Raw Botan bindings
+cabal-version:   3.0
+name:            botan-bindings
+version:         0.0.1.0
+synopsis:        Raw Botan bindings
 description:
+  Welcome to botan-bindings
 
-    Welcome to botan-bindings
+  Raw bindings to the [Botan](https://botan.randombit.net/) cryptography library.
 
-    Raw bindings to the [Botan](https://botan.randombit.net/) cryptography library.
+  > Botan's goal is to be the best option for cryptography in C++ by offering the
+  > tools necessary to implement a range of practical systems, such as TLS protocol,
+  > X.509 certificates, modern AEAD ciphers, PKCS#11 and TPM hardware support,
+  > password hashing, and post quantum crypto schemes.
 
-    > Botan's goal is to be the best option for cryptography in C++ by offering the
-    > tools necessary to implement a range of practical systems, such as TLS protocol,
-    > X.509 certificates, modern AEAD ciphers, PKCS#11 and TPM hardware support,
-    > password hashing, and post quantum crypto schemes.
+  For more information, see the [README on Github](https://github.com/haskellfoundation/botan)
 
-    For more information, see the [README on Github](https://github.com/haskellfoundation/botan)
+author:          Leo D.
+maintainer:      joris@well-typed.com, leo@apotheca.io
+license:         BSD-3-Clause
+license-file:    LICENSE
+copyright:
+  Copyright (c) 2023-2024, Apotheca Labs
+  Copyright (c) 2024-2025, Haskell Foundation
 
+build-type:      Simple
+category:        Cryptography
 extra-doc-files:
-    README.md
-    CHANGELOG.md
+  CHANGELOG.md
+  README.md
 
-tested-with:
-    -- GHC == 9.0.2,
-    GHC == 9.2.8,
-    GHC == 9.4.7,
-    GHC == 9.6.3,
-    GHC == 9.8.1
+tested-with:     GHC ==9.2 || ==9.4 || ==9.6 || ==9.8 || ==9.10 || ==9.12
 
 source-repository head
-    type:     git
-    location: https://github.com/haskellfoundation/botan.git
+  type:     git
+  location: https://github.com/haskellfoundation/botan
+  subdir:   botan-bindings
+
+source-repository this
+  type:     git
+  location: https://github.com/haskellfoundation/botan
+  subdir:   botan-bindings
+  tag:      botan-bindings-0.0.1.0
 
 flag pkg-config
   default:     True
   manual:      False
   description: Use @pkg-config(1)@ to locate foreign @botan-3@ library.
 
--- TODO: Probably need a custom Setup.hs for building Botan's C++ / Makefile
---  Would be good to tie this into the extended botan.
--- SEE: https://discourse.haskell.org/t/botan-bindings-devlog/6855/129
--- flag bundled-c-botan
---   default:     False
---   manual:      True
---   description: Use the bundled botan-3 C/C++ sources.
---                For GHCJS and WASM this is the default.
-
 flag XFFI
-    description: Enable experimental / upstream ffi support
-    manual: True
-    default: False
+  description: Enable experimental / upstream ffi support
+  manual:      True
+  default:     False
 
 library
-    hs-source-dirs:   src
-    default-language: Haskell2010
-    default-extensions:
-        DeriveDataTypeable
-        DerivingStrategies
-        GeneralizedNewtypeDeriving
-        NoImplicitPrelude
-        OverloadedStrings
-        PatternSynonyms
-        RoleAnnotations
-        ScopedTypeVariables
-        StandaloneKindSignatures
+  hs-source-dirs:     src
+  default-language:   Haskell2010
+  default-extensions:
+    DeriveDataTypeable
+    DerivingStrategies
+    GeneralizedNewtypeDeriving
+    NoImplicitPrelude
+    OverloadedStrings
+    PatternSynonyms
+    RoleAnnotations
+    ScopedTypeVariables
+    StandaloneKindSignatures
+
+  exposed-modules:
+    Botan.Bindings.Bcrypt
+    Botan.Bindings.BlockCipher
+    Botan.Bindings.Cipher
+    Botan.Bindings.Error
+    Botan.Bindings.FPE
+    Botan.Bindings.Hash
+    Botan.Bindings.HOTP
+    Botan.Bindings.KDF
+    Botan.Bindings.KeyWrap
+    Botan.Bindings.MAC
+    Botan.Bindings.MPI
+    Botan.Bindings.Prelude
+    Botan.Bindings.PubKey
+    Botan.Bindings.PubKey.Decrypt
+    Botan.Bindings.PubKey.DH
+    Botan.Bindings.PubKey.DSA
+    Botan.Bindings.PubKey.ECDH
+    Botan.Bindings.PubKey.ECDSA
+    Botan.Bindings.PubKey.Ed25519
+    Botan.Bindings.PubKey.ElGamal
+    Botan.Bindings.PubKey.Encrypt
+    Botan.Bindings.PubKey.KeyAgreement
+    Botan.Bindings.PubKey.KeyEncapsulation
+    Botan.Bindings.PubKey.RSA
+    Botan.Bindings.PubKey.Sign
+    Botan.Bindings.PubKey.SM2
+    Botan.Bindings.PubKey.Verify
+    Botan.Bindings.PubKey.X25519
+    Botan.Bindings.PwdHash
+    Botan.Bindings.RNG
+    Botan.Bindings.SRP6
+    Botan.Bindings.TOTP
+    Botan.Bindings.Utility
+    Botan.Bindings.Version
+    Botan.Bindings.View
+    Botan.Bindings.X509
+    Botan.Bindings.ZFEC
+
+  other-modules:      Paths_botan_bindings
+  autogen-modules:    Paths_botan_bindings
+  build-depends:
+    , base        >=4.16 && <4.22
+    , bytestring  >=0.11 && <0.13
+
+  includes:           botan/ffi.h
+
+  if flag(pkg-config)
+    -- NB: pkg-config is available on windows as well when using msys2
+    pkgconfig-depends: botan-3 >=3.0.0
+
+  else
+    extra-libraries: botan-3
+
+  ghc-options:        -Wall -Wno-name-shadowing
+
+  if flag(xffi)
+    -- Botan.Bindings.X509.OCSP
     exposed-modules:
-        Botan.Bindings.Bcrypt
-        Botan.Bindings.BlockCipher
-        Botan.Bindings.Cipher
-        Botan.Bindings.Error
-        Botan.Bindings.FPE
-        Botan.Bindings.Hash
-        Botan.Bindings.HOTP
-        Botan.Bindings.KDF
-        Botan.Bindings.KeyWrap
-        Botan.Bindings.MAC
-        Botan.Bindings.MPI
-        Botan.Bindings.Prelude
-        Botan.Bindings.PubKey
-        Botan.Bindings.PubKey.Decrypt
-        Botan.Bindings.PubKey.DH
-        Botan.Bindings.PubKey.DSA
-        Botan.Bindings.PubKey.ECDH
-        Botan.Bindings.PubKey.ECDSA
-        Botan.Bindings.PubKey.Ed25519
-        Botan.Bindings.PubKey.ElGamal
-        Botan.Bindings.PubKey.Encrypt
-        Botan.Bindings.PubKey.KeyAgreement
-        Botan.Bindings.PubKey.KeyEncapsulation
-        Botan.Bindings.PubKey.RSA
-        Botan.Bindings.PubKey.Sign
-        Botan.Bindings.PubKey.SM2
-        Botan.Bindings.PubKey.Verify
-        Botan.Bindings.PubKey.X25519
-        Botan.Bindings.PwdHash
-        Botan.Bindings.RNG
-        Botan.Bindings.SRP6
-        Botan.Bindings.TOTP
-        Botan.Bindings.Utility
-        Botan.Bindings.Version
-        Botan.Bindings.View
-        Botan.Bindings.X509
-        Botan.Bindings.ZFEC
-    other-modules:
-        Paths_botan_bindings
-    autogen-modules:
-        Paths_botan_bindings
-    build-depends:
-        base        >= 4 && < 5,
-        bytestring  >= 0.11 && < 0.13,
-    includes:
-        botan/ffi.h
-    -- TODO Pt2: Bundle a complete copy of the Botan C/C++ source.
-    -- if flag(bundled-c-botan) || impl(ghcjs) || os(ghcjs) || arch(wasm32)
-    --     c-sources:      ...
-    --     cxx-sources:      ...
-    --     include-dirs:   ...
-    -- else
-    -- TODO: Indent after bundling Botan C/C++ source.
-    if flag(pkg-config)
-        -- NB: pkg-config is available on windows as well when using msys2
-        pkgconfig-depends: botan-3 >= 3.0.0
-    else
-        extra-libraries: botan-3
-    -- END TODO: Indent
-    -- cc-options:     -Wall
-    ghc-options: -Wall -Wno-name-shadowing
-    if flag(XFFI)
-        exposed-modules:
-            Botan.Bindings.X509.CA
-            Botan.Bindings.X509.CSR
-            Botan.Bindings.X509.CRL
-            Botan.Bindings.X509.DN
-            Botan.Bindings.X509.Extensions
-            -- Botan.Bindings.X509.OCSP
-            Botan.Bindings.X509.Options
-            Botan.Bindings.X509.Path
-            Botan.Bindings.X509.Store
-        cpp-options: -DXFFI
+      Botan.Bindings.X509.CA
+      Botan.Bindings.X509.CRL
+      Botan.Bindings.X509.CSR
+      Botan.Bindings.X509.DN
+      Botan.Bindings.X509.Extensions
+      Botan.Bindings.X509.Options
+      Botan.Bindings.X509.Path
+      Botan.Bindings.X509.Store
+
+    cpp-options:     -DXFFI

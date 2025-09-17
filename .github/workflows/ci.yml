@@ -1,4 +1,4 @@
-name: Haskell CI
+name: CI
 
 on:
   push:
@@ -199,3 +199,69 @@ jobs:
         TASTY_TIMEOUT: "5m"
       run: |
         cabal test all -j1 --test-show-details=direct
+
+  ################################################################################
+  # Lint with cabal-fmt
+  ################################################################################
+  lint-cabal-fmt:
+    name: Lint with cabal-fmt
+    runs-on: ubuntu-latest
+    steps:
+    - name: 📥 Checkout repository
+      uses: actions/checkout@v5
+
+    - name: 🛠️ Setup cabal-fmt
+      uses: intersectMBO/lsm-tree/.github/actions/setup-cabal-fmt@main
+      with:
+        cabal-fmt-version: "0.1.12"
+        ghc-version: "9.6"
+        cabal-version: "3.12"
+        # The index-state is fixed to enable caching and ensure that the version
+        # regardless of the current state of Hackage head.
+        # If you want a newer version of cabal-fmt, use a more recent time.
+        hackage-index-state: "2025-09-15T11:44:03Z"
+
+    - name: 🎗️ Lint with cabal-fmt
+      run: ./scripts/format-cabal-fmt.sh && git diff --exit-code
+
+  ################################################################################
+  # Lint with cabal
+  ################################################################################
+  lint-cabal:
+    name: Lint with cabal
+    runs-on: ubuntu-latest
+    steps:
+    - name: 📥 Checkout repository
+      uses: actions/checkout@v5
+
+    - name: 🛠️ Setup Haskell
+      id: setup-haskell
+      uses:  haskell-actions/setup@v2
+      with:
+        ghc-version: "9.6"
+        cabal-version: "3.12"
+        cabal-update: false
+
+    - name: 🎗️ Lint with cabal
+      run: ./scripts/lint-cabal.sh
+
+  ################################################################################
+  # Lint with fix-whitespace
+  ################################################################################
+  whitespace:
+    name: "Fix whitespace"
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Download fix-whitespace
+        run: |
+          curl -L -o fix-whitespace https://github.com/agda/fix-whitespace/releases/download/v0.1/fix-whitespace-0.1-linux.binary
+          chmod a+x fix-whitespace
+
+      - name: Check whitespace
+        run: |
+          export PATH="$PWD:$PATH"
+          CHECK=true ./scripts/format-fix-whitespace.sh

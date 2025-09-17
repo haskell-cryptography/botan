@@ -1,151 +1,164 @@
-cabal-version:  3.0
-name:           botan
-version:        0.0.1.0
-license:        BSD-3-Clause
-author:         Leo D.
-maintainer:     leo@apotheca.io
-build-type:     Simple
-category:       Cryptography
-synopsis:       High-level Botan bindings
+cabal-version:   3.0
+name:            botan
+version:         0.0.1.0
+synopsis:        High-level Botan bindings
 description:
+  Welcome to botan
 
-    Welcome to botan
+  High-level bindings to the [Botan](https://botan.randombit.net/) cryptography library.
 
-    High-level bindings to the [Botan](https://botan.randombit.net/) cryptography library.
+  > Botan's goal is to be the best option for cryptography in C++ by offering the
+  > tools necessary to implement a range of practical systems, such as TLS protocol,
+  > X.509 certificates, modern AEAD ciphers, PKCS#11 and TPM hardware support,
+  > password hashing, and post quantum crypto schemes.
 
-    > Botan's goal is to be the best option for cryptography in C++ by offering the
-    > tools necessary to implement a range of practical systems, such as TLS protocol,
-    > X.509 certificates, modern AEAD ciphers, PKCS#11 and TPM hardware support,
-    > password hashing, and post quantum crypto schemes.
+  For more information, see the [README on Github](https://github.com/haskellfoundation/botan)
 
-    For more information, see the [README on Github](https://github.com/haskellfoundation/botan)
+author:          Leo D.
+maintainer:      joris@well-typed.com, leo@apotheca.io
+license:         BSD-3-Clause
+license-file:    LICENSE
+copyright:
+  Copyright (c) 2023-2024, Apotheca Labs
+  Copyright (c) 2024-2025, Haskell Foundation
 
+build-type:      Simple
+category:        Cryptography
 extra-doc-files:
-    README.md
-    CHANGELOG.md
+  CHANGELOG.md
+  README.md
+
+tested-with:     GHC ==9.2 || ==9.4 || ==9.6 || ==9.8 || ==9.10 || ==9.12
 
 flag mtl
-    default:     True
-    manual:      True
-    description: Enable @mtl@ package dependency.
+  default:     True
+  manual:      True
+  description: Enable @mtl@ package dependency.
 
 flag random
-    default:     True
-    manual:      True
-    description: Enable @random@ package dependency.
+  default:     True
+  manual:      True
+  description: Enable @random@ package dependency.
 
 source-repository head
   type:     git
-  location: https://github.com/haskellfoundation/botan.git
+  location: https://github.com/haskellfoundation/botan
+  subdir:   botan
+
+source-repository this
+  type:     git
+  location: https://github.com/haskellfoundation/botan
+  subdir:   botan
+  tag:      botan-0.0.1.0
 
 library
-    hs-source-dirs:   src
-    default-language: Haskell2010
-    default-extensions:
-        ConstraintKinds
-        DataKinds
-        DefaultSignatures
-        DerivingStrategies
-        FlexibleContexts
-        FlexibleInstances
-        GeneralizedNewtypeDeriving
-        InstanceSigs
-        MultiParamTypeClasses 
-        NoImplicitPrelude
-        OverloadedStrings
-        PatternSynonyms
-        ScopedTypeVariables
-        TypeApplications
-        TypeFamilies
-        TypeOperators
-        TupleSections
-    exposed-modules:
-        Botan.Easy
-        Botan.Bcrypt
-        Botan.BlockCipher
-        Botan.BlockCipher.AES
-        Botan.BlockCipher.ARIA
-        Botan.BlockCipher.Blowfish
-        Botan.BlockCipher.Camellia
-        Botan.BlockCipher.CAST
-        Botan.BlockCipher.Class
-        Botan.BlockCipher.DES
-        Botan.BlockCipher.GOST
-        Botan.BlockCipher.IDEA
-        Botan.BlockCipher.Noekeon
-        Botan.BlockCipher.Serpent
-        Botan.BlockCipher.SHALCAL
-        Botan.BlockCipher.SM4
-        Botan.BlockCipher.Threefish
-        Botan.BlockCipher.Twofish
-        Botan.Checksum.Adler
-        Botan.Checksum.CRC
-        Botan.Cipher
-        Botan.Cipher.ChaCha20Poly1305
-        Botan.Cipher.Class
-        Botan.Error
-        Botan.Hash
-        Botan.Hash.BLAKE
-        Botan.Hash.Class
-        Botan.Hash.GOST
-        Botan.Hash.Keccak
-        Botan.Hash.MD4
-        Botan.Hash.MD5
-        Botan.Hash.RIPEMD
-        Botan.Hash.SHA1
-        Botan.Hash.SHA2
-        Botan.Hash.SHA3
-        Botan.Hash.Skein
-        Botan.Hash.SHAKE
-        Botan.Hash.SM3
-        Botan.Hash.Streebog
-        Botan.Hash.Whirlpool
-        Botan.HOTP
-        Botan.KDF
-        Botan.KeySpec
-        Botan.KeyWrap
-        Botan.MAC
-        Botan.MAC.Class
-        Botan.MAC.CMAC
-        Botan.OneTimeAuth.Class
-        Botan.OneTimeAuth.Poly1305
-        -- NOTE: Botan does not directly expose padding
-        -- Botan.Padding
-        Botan.PubKey
-        Botan.PubKey.Decrypt
-        Botan.PubKey.Encrypt
-        Botan.PubKey.Load
-        Botan.PubKey.KeyAgreement
-        Botan.PubKey.KeyEncapsulation
-        Botan.PubKey.Sign
-        Botan.PubKey.Verify
-        Botan.PwdHash
-        Botan.RNG
-        Botan.SRP6
-        Botan.Types.Class
-        Botan.Utility
-        Botan.Version
-        Botan.X509
-        Botan.ZFEC
-    other-modules:
-        Botan.Prelude
-        Paths_botan
-    autogen-modules:
-        Paths_botan
-    build-depends:
-        base            >= 4 && < 5,
-        botan-bindings  == 0.0.1.0,
-        botan-low       == 0.0.1.0,
-        bytestring      >= 0.11 && < 0.13,
-        deepseq         >= 1.1 && < 2,
-        text            >= 1.2  && < 1.3 || >= 2.0 && < 2.2
-    -- cc-options:     -Wall
-    -- ghc-options:    -Wall -funbox-strict-fields    
-    if flag(mtl)
-        build-depends:
-            mtl         >= 2.2  && < 2.4
-        cpp-options: -DHS_BOTAN_HAS_MTL 
-    if flag(random) 
-        build-depends:
-            random      >= 1.2  && < 1.3
-        cpp-options: -DHS_BOTAN_HAS_RANDOM
+  hs-source-dirs:     src
+  default-language:   Haskell2010
+  default-extensions:
+    ConstraintKinds
+    DataKinds
+    DefaultSignatures
+    DerivingStrategies
+    FlexibleContexts
+    FlexibleInstances
+    GeneralizedNewtypeDeriving
+    InstanceSigs
+    MultiParamTypeClasses
+    NoImplicitPrelude
+    OverloadedStrings
+    PatternSynonyms
+    ScopedTypeVariables
+    TupleSections
+    TypeApplications
+    TypeFamilies
+    TypeOperators
+
+  -- NOTE: Botan does not directly expose padding
+  -- Botan.Padding
+  exposed-modules:
+    Botan.Bcrypt
+    Botan.BlockCipher
+    Botan.BlockCipher.AES
+    Botan.BlockCipher.ARIA
+    Botan.BlockCipher.Blowfish
+    Botan.BlockCipher.Camellia
+    Botan.BlockCipher.CAST
+    Botan.BlockCipher.Class
+    Botan.BlockCipher.DES
+    Botan.BlockCipher.GOST
+    Botan.BlockCipher.IDEA
+    Botan.BlockCipher.Noekeon
+    Botan.BlockCipher.Serpent
+    Botan.BlockCipher.SHALCAL
+    Botan.BlockCipher.SM4
+    Botan.BlockCipher.Threefish
+    Botan.BlockCipher.Twofish
+    Botan.Checksum.Adler
+    Botan.Checksum.CRC
+    Botan.Cipher
+    Botan.Cipher.ChaCha20Poly1305
+    Botan.Cipher.Class
+    Botan.Easy
+    Botan.Error
+    Botan.Hash
+    Botan.Hash.BLAKE
+    Botan.Hash.Class
+    Botan.Hash.GOST
+    Botan.Hash.Keccak
+    Botan.Hash.MD4
+    Botan.Hash.MD5
+    Botan.Hash.RIPEMD
+    Botan.Hash.SHA1
+    Botan.Hash.SHA2
+    Botan.Hash.SHA3
+    Botan.Hash.SHAKE
+    Botan.Hash.Skein
+    Botan.Hash.SM3
+    Botan.Hash.Streebog
+    Botan.Hash.Whirlpool
+    Botan.HOTP
+    Botan.KDF
+    Botan.KeySpec
+    Botan.KeyWrap
+    Botan.MAC
+    Botan.MAC.Class
+    Botan.MAC.CMAC
+    Botan.OneTimeAuth.Class
+    Botan.OneTimeAuth.Poly1305
+    Botan.PubKey
+    Botan.PubKey.Decrypt
+    Botan.PubKey.Encrypt
+    Botan.PubKey.KeyAgreement
+    Botan.PubKey.KeyEncapsulation
+    Botan.PubKey.Load
+    Botan.PubKey.Sign
+    Botan.PubKey.Verify
+    Botan.PwdHash
+    Botan.RNG
+    Botan.SRP6
+    Botan.Types.Class
+    Botan.Utility
+    Botan.Version
+    Botan.X509
+    Botan.ZFEC
+
+  other-modules:
+    Botan.Prelude
+    Paths_botan
+
+  autogen-modules:    Paths_botan
+  build-depends:
+    , base            >=4.16    && <4.22
+    , botan-bindings  ==0.0.1.0
+    , botan-low       ==0.0.1.0
+    , bytestring      >=0.11    && <0.13
+    , deepseq         >=1.1     && <2
+    , text            >=1.2     && <1.3  || >=2.0 && <2.2
+
+  if flag(mtl)
+    build-depends: mtl >=2.2 && <2.4
+    cpp-options:   -DHS_BOTAN_HAS_MTL
+
+  if flag(random)
+    build-depends: random >=1.2 && <1.3
+    cpp-options:   -DHS_BOTAN_HAS_RANDOM
