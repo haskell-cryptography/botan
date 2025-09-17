@@ -107,9 +107,8 @@ library
     , deepseq         >=1.1     && <2
     , text            >=1.2     && <1.3  || >=2.0 && <2.2
 
-  -- cc-options:     -Wall
-  -- ghc-options:    -Wall -funbox-strict-fields
   if flag(xffi)
+    -- Botan.Low.X509.OCSP
     exposed-modules:
       Botan.Low.X509.CA
       Botan.Low.X509.CRL
@@ -120,80 +119,7 @@ library
       Botan.Low.X509.Path
       Botan.Low.X509.Store
 
-    -- Botan.Low.X509.OCSP
     cpp-options:     -DXFFI
-
--- test-suite botan-low-tests
---     type:             exitcode-stdio-1.0
---     main-is:          Spec.hs
---     hs-source-dirs:   test/
---     build-depends:
---         base,
---         botan-bindings,
---         botan-low,
---         bytestring,
---         directory,
---         hspec,
---         QuickCheck,
---         text
---     other-modules:
---         -- Botan.Low.BcryptSpec
---         Botan.Low.BlockCipherSpec
---         Botan.Low.CipherSpec
---         Botan.Low.FPESpec
---         Botan.Low.HashSpec
---         Botan.Low.HOTPSpec
---         Botan.Low.KDFSpec
---         Botan.Low.KeyWrapSpec
---         Botan.Low.MACSpec
---         Botan.Low.MPISpec
---         -- Botan.Low.PBKDFSpec
---         Botan.Low.PubKeySpec
---         Botan.Low.PubKey.DecryptSpec
---         Botan.Low.PubKey.DHSpec
---         Botan.Low.PubKey.DSASpec
---         Botan.Low.PubKey.ECDHSpec
---         Botan.Low.PubKey.ECDSASpec
---         Botan.Low.PubKey.Ed25519Spec
---         Botan.Low.PubKey.ElGamalSpec
---         Botan.Low.PubKey.EncryptSpec
---         Botan.Low.PubKey.KeyAgreementSpec
---         Botan.Low.PubKey.KeyEncapsulationSpec
---         Botan.Low.PubKey.RSASpec
---         Botan.Low.PubKey.SignSpec
---         Botan.Low.PubKey.SM2Spec
---         Botan.Low.PubKey.VerifySpec
---         Botan.Low.PubKey.X25519Spec
---         Botan.Low.PwdHashSpec
---         Botan.Low.RNGSpec
---         -- Botan.Low.ScryptSpec
---         Botan.Low.SRP6Spec
---         Botan.Low.TOTPSpec
---         Botan.Low.UtilitySpec
---         Botan.Low.X509Spec
---         Botan.Low.ZFECSpec
---         Test.Prelude
---         Paths_botan_low
---     --   ghc-options:
---     default-language: Haskell2010
---     default-extensions:
---         NoImplicitPrelude
---         OverloadedStrings
---     -- NOTE: hspec-discover fails to respect the XFFI flag, and it tries
---     --  to begin loading modules that should not be built. Eg:
---     --      Could not find module ‘Botan.Low.X509.Store’
---     -- if flag(XFFI)
---     --     other-modules:
---     --         Botan.Low.X509.CASpec
---     --         Botan.Low.X509.CSRSpec
---     --         Botan.Low.X509.CRLSpec
---     --         Botan.Low.X509.DNSpec
---     --         Botan.Low.X509.ExtensionsSpec
---     --         -- Botan.Low.X509.OCSPSpec
---     --         Botan.Low.X509.OptionsSpec
---     --         Botan.Low.X509.PathSpec
---     --         Botan.Low.X509.StoreSpec
---     --     cpp-options: -DXFFI
 
 --
 -- Unit tests

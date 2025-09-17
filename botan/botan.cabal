@@ -59,6 +59,8 @@ library
     TypeFamilies
     TypeOperators
 
+  -- NOTE: Botan does not directly expose padding
+  -- Botan.Padding
   exposed-modules:
     Botan.Bcrypt
     Botan.BlockCipher
@@ -126,8 +128,6 @@ library
     Botan.X509
     Botan.ZFEC
 
-  -- NOTE: Botan does not directly expose padding
-  -- Botan.Padding
   other-modules:
     Botan.Prelude
     Paths_botan
@@ -141,8 +141,6 @@ library
     , deepseq         >=1.1     && <2
     , text            >=1.2     && <1.3  || >=2.0 && <2.2
 
-  -- cc-options:     -Wall
-  -- ghc-options:    -Wall -funbox-strict-fields    
   if flag(mtl)
     build-depends: mtl >=2.2 && <2.4
     cpp-options:   -DHS_BOTAN_HAS_MTL
