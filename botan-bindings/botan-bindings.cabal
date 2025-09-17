@@ -1,6 +1,6 @@
 cabal-version:   3.0
 name:            botan-bindings
-version:         0.0.1.0
+version:         0.1.0.0
 synopsis:        Raw Botan bindings
 description:
   Welcome to botan-bindings
@@ -39,7 +39,7 @@ source-repository this
   type:     git
   location: https://github.com/haskellfoundation/botan
   subdir:   botan-bindings
-  tag:      botan-bindings-0.0.1.0
+  tag:      botan-bindings-0.1.0.0
 
 flag pkg-config
   default:     True

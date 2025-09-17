@@ -1,6 +1,6 @@
 # Changelog
 
-## ?.?.?.? -- ????-??-??
+## 0.0.2.0 -- 2025-09-17
 
 * PATCH: update the changelog to change the release date of version 0.0.1.0 from
   2024-02-05 to 2024-02-13.
