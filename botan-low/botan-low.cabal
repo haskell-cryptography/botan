@@ -1,11 +1,6 @@
 cabal-version:      3.0
 name:               botan-low
 version:            0.0.1.0
-license:            BSD-3-Clause
-author:             Leo D.
-maintainer:         leo@apotheca.io
-build-type:         Simple
-category:           Cryptography
 synopsis:           Low-level Botan bindings
 description:
   Welcome to botan-low
@@ -18,6 +13,17 @@ description:
   > password hashing, and post quantum crypto schemes.
 
   For more information, see the [README on Github](https://github.com/haskellfoundation/botan)
+
+author:             Leo D.
+maintainer:         joris@well-typed.com, leo@apotheca.io
+license:            BSD-3-Clause
+license-file:       LICENSE
+copyright:
+  Copyright (c) 2023-2024, Apotheca Labs
+  Copyright (c) 2024-2025, Haskell Foundation
+
+build-type:         Simple
+category:           Cryptography
 
 -- NOTE: Use data-files instead, if this is inappropriate
 -- NOTE: This causes a soft error:
@@ -33,9 +39,19 @@ extra-doc-files:
   CHANGELOG.md
   README.md
 
+tested-with:
+  GHC ==9.2 || ==9.4 || ==9.6 || ==9.8 || ==9.10 || ==9.12
+
 source-repository head
   type:     git
-  location: https://github.com/haskellfoundation/botan.git
+  location: https://github.com/haskellfoundation/botan
+  subdir:   botan-low
+
+source-repository this
+  type:     git
+  location: https://github.com/haskellfoundation/botan
+  subdir:   botan-low
+  tag:      botan-low-0.0.1.0
 
 flag XFFI
   description: Enable experimental / upstream ffi support
@@ -101,7 +117,7 @@ library
 
   autogen-modules:    Paths_botan_low
   build-depends:
-    , base            >=4       && <5
+    , base            >=4.16    && <4.22
     , botan-bindings  ==0.0.1.0
     , bytestring      >=0.11    && <0.13
     , deepseq         >=1.1     && <2

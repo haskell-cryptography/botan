@@ -1,11 +1,6 @@
 cabal-version:   3.0
 name:            botan-bindings
 version:         0.0.1.0
-license:         BSD-3-Clause
-author:          Leo D.
-maintainer:      leo@apotheca.io
-build-type:      Simple
-category:        Cryptography
 synopsis:        Raw Botan bindings
 description:
   Welcome to botan-bindings
@@ -19,15 +14,32 @@ description:
 
   For more information, see the [README on Github](https://github.com/haskellfoundation/botan)
 
+author:          Leo D.
+maintainer:      joris@well-typed.com, leo@apotheca.io
+license:         BSD-3-Clause
+license-file:    LICENSE
+copyright:
+  Copyright (c) 2023-2024, Apotheca Labs
+  Copyright (c) 2024-2025, Haskell Foundation
+
+build-type:      Simple
+category:        Cryptography
 extra-doc-files:
   CHANGELOG.md
   README.md
 
-tested-with:     GHC ==9.2.8 || ==9.4.7 || ==9.6.3 || ==9.8.1
+tested-with:     GHC ==9.2 || ==9.4 || ==9.6 || ==9.8 || ==9.10 || ==9.12
 
 source-repository head
   type:     git
-  location: https://github.com/haskellfoundation/botan.git
+  location: https://github.com/haskellfoundation/botan
+  subdir:   botan-bindings
+
+source-repository this
+  type:     git
+  location: https://github.com/haskellfoundation/botan
+  subdir:   botan-bindings
+  tag:      botan-bindings-0.0.1.0
 
 flag pkg-config
   default:     True
@@ -95,7 +107,7 @@ library
   other-modules:      Paths_botan_bindings
   autogen-modules:    Paths_botan_bindings
   build-depends:
-    , base        >=4    && <5
+    , base        >=4.16 && <4.22
     , bytestring  >=0.11 && <0.13
 
   includes:           botan/ffi.h
