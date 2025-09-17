@@ -200,6 +200,28 @@ jobs:
       run: |
         cabal test all -j1 --test-show-details=direct
 
+
+  ################################################################################
+  # Lint with cabal
+  ################################################################################
+  lint-cabal:
+    name: Lint with cabal
+    runs-on: ubuntu-latest
+    steps:
+    - name: 📥 Checkout repository
+      uses: actions/checkout@v5
+
+    - name: 🛠️ Setup Haskell
+      id: setup-haskell
+      uses:  haskell-actions/setup@v2
+      with:
+        ghc-version: "9.6"
+        cabal-version: "3.12"
+        cabal-update: false
+
+    - name: 🎗️ Lint with cabal
+      run: ./scripts/lint-cabal.sh
+
   ################################################################################
   # Lint with fix-whitespace
   ################################################################################

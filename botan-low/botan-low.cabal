@@ -210,6 +210,8 @@ test-suite botan-low-bcrypt-tests
     other-modules:
         Test.Prelude
         Paths_botan_low
+    autogen-modules:
+        Paths_botan_low
     default-language: Haskell2010
     default-extensions:
         NoImplicitPrelude
@@ -228,6 +230,8 @@ test-suite botan-low-block-cipher-tests
         QuickCheck
     other-modules:
         Test.Prelude
+        Paths_botan_low
+    autogen-modules:
         Paths_botan_low
     default-language: Haskell2010
     default-extensions:
@@ -250,6 +254,8 @@ test-suite botan-low-cipher-tests
     other-modules:
         Test.Prelude
         Paths_botan_low
+    autogen-modules:
+        Paths_botan_low
     default-language: Haskell2010
     default-extensions:
         NoImplicitPrelude
@@ -268,6 +274,8 @@ test-suite botan-low-fpe-tests
         QuickCheck
     other-modules:
         Test.Prelude
+        Paths_botan_low
+    autogen-modules:
         Paths_botan_low
     default-language: Haskell2010
     default-extensions:
@@ -288,6 +296,8 @@ test-suite botan-low-hash-tests
     other-modules:
         Test.Prelude
         Paths_botan_low
+    autogen-modules:
+        Paths_botan_low
     default-language: Haskell2010
     default-extensions:
         NoImplicitPrelude
@@ -306,6 +316,8 @@ test-suite botan-low-hotp-tests
         QuickCheck
     other-modules:
         Test.Prelude
+        Paths_botan_low
+    autogen-modules:
         Paths_botan_low
     default-language: Haskell2010
     default-extensions:
@@ -326,6 +338,8 @@ test-suite botan-low-kdf-tests
     other-modules:
         Test.Prelude
         Paths_botan_low
+    autogen-modules:
+        Paths_botan_low
     default-language: Haskell2010
     default-extensions:
         NoImplicitPrelude
@@ -344,6 +358,8 @@ test-suite botan-low-keywrap-tests
         QuickCheck
     other-modules:
         Test.Prelude
+        Paths_botan_low
+    autogen-modules:
         Paths_botan_low
     default-language: Haskell2010
     default-extensions:
@@ -364,6 +380,8 @@ test-suite botan-low-mac-tests
     other-modules:
         Test.Prelude
         Paths_botan_low
+    autogen-modules:
+        Paths_botan_low
     default-language: Haskell2010
     default-extensions:
         NoImplicitPrelude
@@ -383,6 +401,8 @@ test-suite botan-low-mpi-tests
     other-modules:
         Test.Prelude
         Paths_botan_low
+    autogen-modules:
+        Paths_botan_low
     default-language: Haskell2010
     default-extensions:
         NoImplicitPrelude
@@ -401,6 +421,8 @@ test-suite botan-low-pubkey-tests
         QuickCheck
     other-modules:
         Test.Prelude
+        Paths_botan_low
+    autogen-modules:
         Paths_botan_low
     default-language: Haskell2010
     default-extensions:
@@ -423,6 +445,8 @@ test-suite botan-low-pubkey-decrypt-tests
     other-modules:
         Test.Prelude
         Paths_botan_low
+    autogen-modules:
+        Paths_botan_low
     default-language: Haskell2010
     default-extensions:
         NoImplicitPrelude
@@ -441,6 +465,8 @@ test-suite botan-low-pubkey-dh-tests
         QuickCheck
     other-modules:
         Test.Prelude
+        Paths_botan_low
+    autogen-modules:
         Paths_botan_low
     default-language: Haskell2010
     default-extensions:
@@ -463,6 +489,8 @@ test-suite botan-low-pubkey-dsa-tests
     other-modules:
         Test.Prelude
         Paths_botan_low
+    autogen-modules:
+        Paths_botan_low
     default-language: Haskell2010
     default-extensions:
         NoImplicitPrelude
@@ -481,6 +509,8 @@ test-suite botan-low-pubkey-ecdh-tests
         QuickCheck
     other-modules:
         Test.Prelude
+        Paths_botan_low
+    autogen-modules:
         Paths_botan_low
     default-language: Haskell2010
     default-extensions:
@@ -501,6 +531,8 @@ test-suite botan-low-pubkey-ecdsa-tests
     other-modules:
         Test.Prelude
         Paths_botan_low
+    autogen-modules:
+        Paths_botan_low
     default-language: Haskell2010
     default-extensions:
         NoImplicitPrelude
@@ -520,6 +552,8 @@ test-suite botan-low-pubkey-ed25519-tests
     other-modules:
         Test.Prelude
         Paths_botan_low
+    autogen-modules:
+        Paths_botan_low
     default-language: Haskell2010
     default-extensions:
         NoImplicitPrelude
@@ -538,6 +572,8 @@ test-suite botan-low-pubkey-elgamal-tests
         QuickCheck
     other-modules:
         Test.Prelude
+        Paths_botan_low
+    autogen-modules:
         Paths_botan_low
     default-language: Haskell2010
     default-extensions:
@@ -560,6 +596,8 @@ test-suite botan-low-pubkey-encrypt-tests
     other-modules:
         Test.Prelude
         Paths_botan_low
+    autogen-modules:
+        Paths_botan_low
     default-language: Haskell2010
     default-extensions:
         NoImplicitPrelude
@@ -578,6 +616,8 @@ test-suite botan-low-pubkey-keyagreement-tests
         QuickCheck
     other-modules:
         Test.Prelude
+        Paths_botan_low
+    autogen-modules:
         Paths_botan_low
     default-language: Haskell2010
     default-extensions:
@@ -598,6 +638,8 @@ test-suite botan-low-pubkey-keyencapsulation-tests
     other-modules:
         Test.Prelude
         Paths_botan_low
+    autogen-modules:
+        Paths_botan_low
     default-language: Haskell2010
     default-extensions:
         NoImplicitPrelude
@@ -616,6 +658,8 @@ test-suite botan-low-pubkey-rsa-tests
         QuickCheck
     other-modules:
         Test.Prelude
+        Paths_botan_low
+    autogen-modules:
         Paths_botan_low
     default-language: Haskell2010
     default-extensions:
@@ -636,6 +680,8 @@ test-suite botan-low-pubkey-sign-tests
     other-modules:
         Test.Prelude
         Paths_botan_low
+    autogen-modules:
+        Paths_botan_low
     default-language: Haskell2010
     default-extensions:
         NoImplicitPrelude
@@ -654,6 +700,8 @@ test-suite botan-low-pubkey-sm2-tests
         QuickCheck
     other-modules:
         Test.Prelude
+        Paths_botan_low
+    autogen-modules:
         Paths_botan_low
     default-language: Haskell2010
     default-extensions:
@@ -674,6 +722,8 @@ test-suite botan-low-pubkey-verify-tests
     other-modules:
         Test.Prelude
         Paths_botan_low
+    autogen-modules:
+        Paths_botan_low
     default-language: Haskell2010
     default-extensions:
         NoImplicitPrelude
@@ -692,6 +742,8 @@ test-suite botan-low-pubkey-x25519-tests
         QuickCheck
     other-modules:
         Test.Prelude
+        Paths_botan_low
+    autogen-modules:
         Paths_botan_low
     default-language: Haskell2010
     default-extensions:
@@ -716,6 +768,8 @@ test-suite botan-low-pwdhash-tests
     other-modules:
         Test.Prelude
         Paths_botan_low
+    autogen-modules:
+        Paths_botan_low
     default-language: Haskell2010
     default-extensions:
         NoImplicitPrelude
@@ -738,6 +792,8 @@ test-suite botan-low-rng-tests
     other-modules:
         Test.Prelude
         Paths_botan_low
+    autogen-modules:
+        Paths_botan_low
     default-language: Haskell2010
     default-extensions:
         NoImplicitPrelude
@@ -759,6 +815,8 @@ test-suite botan-low-srp6-tests
     other-modules:
         Test.Prelude
         Paths_botan_low
+    autogen-modules:
+        Paths_botan_low
     default-language: Haskell2010
     default-extensions:
         NoImplicitPrelude
@@ -777,6 +835,8 @@ test-suite botan-low-totp-tests
         QuickCheck
     other-modules:
         Test.Prelude
+        Paths_botan_low
+    autogen-modules:
         Paths_botan_low
     default-language: Haskell2010
     default-extensions:
@@ -797,6 +857,8 @@ test-suite botan-low-utility-tests
     other-modules:
         Test.Prelude
         Paths_botan_low
+    autogen-modules:
+        Paths_botan_low
     default-language: Haskell2010
     default-extensions:
         NoImplicitPrelude
@@ -816,6 +878,8 @@ test-suite botan-low-x509-tests
     other-modules:
         Test.Prelude
         Paths_botan_low
+    autogen-modules:
+        Paths_botan_low
     default-language: Haskell2010
     default-extensions:
         NoImplicitPrelude
@@ -834,6 +898,8 @@ test-suite botan-low-zfec-tests
         QuickCheck
     other-modules:
         Test.Prelude
+        Paths_botan_low
+    autogen-modules:
         Paths_botan_low
     default-language: Haskell2010
     default-extensions:
