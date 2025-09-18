@@ -642,7 +642,7 @@ privKeyExport sk flags = withPrivKey sk $ \ skPtr -> do
             throwBotanIfNegative_ $ botan_privkey_export skPtr bytesPtr szPtr flags
 
 -- TODO:
--- | View the private key's DER encoding
+-- View the private key's DER encoding
 -- privKeyViewDER
 --         :: BotanPrivKey                         -- ^ __key__
 --         -> BotanViewContext ctx                 -- ^ __ctx__
@@ -650,7 +650,7 @@ privKeyExport sk flags = withPrivKey sk $ \ skPtr -> do
 --         -> IO CInt
 
 -- TODO:
--- | View the private key's PEM encoding
+-- View the private key's PEM encoding
 -- privKeyViewPEM
 --         :: BotanPrivKey                         -- ^ __key__
 --         -> BotanViewContext ctx                 -- ^ __ctx__
