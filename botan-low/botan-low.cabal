@@ -53,11 +53,6 @@ source-repository this
   subdir:   botan-low
   tag:      botan-low-0.0.2.0
 
-flag XFFI
-  description: Enable experimental / upstream ffi support
-  manual:      True
-  default:     False
-
 library
   hs-source-dirs:     src
   default-language:   Haskell2010
@@ -122,20 +117,6 @@ library
     , bytestring      >=0.11 && <0.13
     , deepseq         >=1.1  && <2
     , text            >=1.2  && <1.3   || >=2.0 && <2.2
-
-  if flag(xffi)
-    -- Botan.Low.X509.OCSP
-    exposed-modules:
-      Botan.Low.X509.CA
-      Botan.Low.X509.CRL
-      Botan.Low.X509.CSR
-      Botan.Low.X509.DN
-      Botan.Low.X509.Extensions
-      Botan.Low.X509.Options
-      Botan.Low.X509.Path
-      Botan.Low.X509.Store
-
-    cpp-options:     -DXFFI
 
 --
 -- Unit tests
