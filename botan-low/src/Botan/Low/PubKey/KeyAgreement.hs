@@ -30,14 +30,14 @@ module Botan.Low.PubKey.KeyAgreement
 
 import qualified Data.ByteString as ByteString
 
-import Botan.Bindings.PubKey.KeyAgreement
+import           Botan.Bindings.PubKey.KeyAgreement
 
-import Botan.Low.Error
-import Botan.Low.KDF
-import Botan.Low.Make
-import Botan.Low.Prelude
-import Botan.Low.PubKey
-import Botan.Low.Remake
+import           Botan.Low.Error
+import           Botan.Low.KDF
+import           Botan.Low.Make
+import           Botan.Low.Prelude
+import           Botan.Low.PubKey
+import           Botan.Low.Remake
 
 {- $introduction
 

@@ -15,8 +15,8 @@ Generate and validate Bcrypt password hashes
 
 module Botan.Bindings.Bcrypt where
 
-import Botan.Bindings.Prelude
-import Botan.Bindings.RNG
+import           Botan.Bindings.Prelude
+import           Botan.Bindings.RNG
 
 -- TODO: Maybe move to Botan.Low.Bcrypt
 pattern BOTAN_BCRYPT_WORK_FACTOR_FAST

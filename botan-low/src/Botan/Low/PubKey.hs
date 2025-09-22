@@ -181,18 +181,18 @@ module Botan.Low.PubKey
 import qualified Data.ByteString as ByteString
 import qualified Data.ByteString.Unsafe as ByteString
 
-import Botan.Bindings.MPI
-import Botan.Bindings.PubKey
-import Botan.Bindings.RNG
+import           Botan.Bindings.MPI
+import           Botan.Bindings.PubKey
+import           Botan.Bindings.RNG
 
-import Botan.Low.Error
-import Botan.Low.Hash
-import Botan.Low.Make
-import Botan.Low.MPI
-import Botan.Low.Prelude
-import Botan.Low.Remake
-import Botan.Low.RNG
-import Botan.Low.View
+import           Botan.Low.Error
+import           Botan.Low.Hash
+import           Botan.Low.Make
+import           Botan.Low.MPI
+import           Botan.Low.Prelude
+import           Botan.Low.Remake
+import           Botan.Low.RNG
+import           Botan.Low.View
 
 {- $introduction
 

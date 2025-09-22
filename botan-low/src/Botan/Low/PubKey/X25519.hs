@@ -13,16 +13,16 @@ module Botan.Low.PubKey.X25519 where
 
 import qualified Data.ByteString as ByteString
 
-import Botan.Bindings.PubKey
+import           Botan.Bindings.PubKey
 
-import Botan.Bindings.PubKey.X25519
+import           Botan.Bindings.PubKey.X25519
 
-import Botan.Low.Error
-import Botan.Low.Make
-import Botan.Low.MPI
-import Botan.Low.Prelude
-import Botan.Low.PubKey
-import Botan.Low.Remake
+import           Botan.Low.Error
+import           Botan.Low.Make
+import           Botan.Low.MPI
+import           Botan.Low.Prelude
+import           Botan.Low.PubKey
+import           Botan.Low.Remake
 
 -- /*
 -- * Algorithm specific key operations: X25519

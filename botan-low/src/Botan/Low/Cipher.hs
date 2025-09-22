@@ -100,15 +100,15 @@ module Botan.Low.Cipher
 
 import qualified Data.ByteString as ByteString
 
-import Botan.Bindings.Cipher
+import           Botan.Bindings.Cipher
 
-import Botan.Low.BlockCipher
-import Botan.Low.Error
-import Botan.Low.Make
-import Botan.Low.Prelude
-import Botan.Low.Remake
+import           Botan.Low.BlockCipher
+import           Botan.Low.Error
+import           Botan.Low.Make
+import           Botan.Low.Prelude
+import           Botan.Low.Remake
 
-import Botan.Low.RNG
+import           Botan.Low.RNG
 
 {- $introduction
 

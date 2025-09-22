@@ -13,10 +13,10 @@ Portability : POSIX
 
 module Botan.Bindings.PubKey.DSA where
 
-import Botan.Bindings.MPI
-import Botan.Bindings.Prelude
-import Botan.Bindings.PubKey
-import Botan.Bindings.RNG
+import           Botan.Bindings.MPI
+import           Botan.Bindings.Prelude
+import           Botan.Bindings.PubKey
+import           Botan.Bindings.RNG
 
 {- |
 Generates DSA key pair. Gives to a caller control over key length

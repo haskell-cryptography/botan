@@ -113,20 +113,20 @@ module Botan.MAC
 
 ) where
 
-import Data.Foldable
+import           Data.Foldable
 
-import qualified Data.ByteString.Lazy as Lazy
 import qualified Data.ByteString as ByteString
+import qualified Data.ByteString.Lazy as Lazy
 
 import qualified Botan.Low.MAC as Low
 
-import Botan.BlockCipher
-import Botan.KeySpec
-import Botan.Hash
-import Botan.RNG
-import Botan.Prelude
-import Botan.Error (SomeBotanException(SomeBotanException))
 import qualified Botan.Bindings.MAC as Low
+import           Botan.BlockCipher
+import           Botan.Error (SomeBotanException (SomeBotanException))
+import           Botan.Hash
+import           Botan.KeySpec
+import           Botan.Prelude
+import           Botan.RNG
 
 -- NOTE: MAC has no state copy unlike Hash
 
@@ -201,12 +201,12 @@ macName (SipHash ir fr) = Low.sipHash ir fr
 macName X9_19_MAC       = Low.X9_19_MAC
 
 macKeySpec :: MAC -> KeySpec
-macKeySpec (CMAC bc)        = blockCipherKeySpec bc
-macKeySpec (GMAC bc)        = blockCipherKeySpec bc
-macKeySpec (HMAC h)         = keySpec 0 4096 1
-macKeySpec Poly1305         = keySpec 32 32 1
-macKeySpec (SipHash 2 4)    = keySpec 16 16 1
-macKeySpec X9_19_MAC        = keySpec 8 16 8
+macKeySpec (CMAC bc)     = blockCipherKeySpec bc
+macKeySpec (GMAC bc)     = blockCipherKeySpec bc
+macKeySpec (HMAC h)      = keySpec 0 4096 1
+macKeySpec Poly1305      = keySpec 32 32 1
+macKeySpec (SipHash 2 4) = keySpec 16 16 1
+macKeySpec X9_19_MAC     = keySpec 8 16 8
 -- NOTE: Extracted from inspecting:
 {-
 generateMACKeySpec :: IO ()
@@ -293,8 +293,8 @@ gmac _ _ _ _ = error "Expected GMAC"
 -- Tagged mutable context
 
 data MutableMAC = MkMutableMAC
-    { mutableMACType    :: MAC
-    , mutableMACCtx     :: Low.MAC
+    { mutableMACType :: MAC
+    , mutableMACCtx  :: Low.MAC
     }
 
 -- Destructor

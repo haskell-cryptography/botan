@@ -15,7 +15,7 @@ Derive a key from a passphrase
 
 module Botan.Bindings.PwdHash where
 
-import Botan.Bindings.Prelude
+import           Botan.Bindings.Prelude
 
 pattern BOTAN_PBKDF_PBKDF2
     ,   BOTAN_PBKDF_SCRYPT

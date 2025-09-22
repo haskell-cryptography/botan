@@ -1,11 +1,11 @@
 module Botan.Low.PubKey.ECDSA where
 
-import Botan.Bindings.PubKey
-import Botan.Bindings.PubKey.ECDSA
+import           Botan.Bindings.PubKey
+import           Botan.Bindings.PubKey.ECDSA
 
-import Botan.Low.MPI
-import Botan.Low.Prelude
-import Botan.Low.PubKey
+import           Botan.Low.MPI
+import           Botan.Low.Prelude
+import           Botan.Low.PubKey
 
 privKeyLoadECDSA
     :: MP           -- ^ __scalar__

@@ -1,9 +1,9 @@
 module Main where
 
-import Test.Prelude
+import           Test.Prelude
 
-import Botan.Low.RNG
-import Botan.Low.Bcrypt
+import           Botan.Low.Bcrypt
+import           Botan.Low.RNG
 
 password :: ByteString
 password = "Fee fi fo fum!"

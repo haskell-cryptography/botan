@@ -1,9 +1,9 @@
 module Main where
 
-import Test.Prelude
+import           Test.Prelude
 
-import Botan.Low.MPI
-import Botan.Low.RNG
+import           Botan.Low.MPI
+import           Botan.Low.RNG
 
 -- NOTE: These unit tests are mostly checking that the functions are bound correctly.
 --  These are kind of crappy and repetative, but that also exposes what needs to be done

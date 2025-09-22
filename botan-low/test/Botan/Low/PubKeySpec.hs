@@ -1,10 +1,10 @@
 module Main where
 
-import Test.Prelude
+import           Test.Prelude
 
-import Botan.Low.MPI
-import Botan.Low.RNG
-import Botan.Low.PubKey
+import           Botan.Low.MPI
+import           Botan.Low.PubKey
+import           Botan.Low.RNG
 
 ecGroup :: ByteString
 ecGroup = "secp256r1"
@@ -57,39 +57,39 @@ ecGroupPubFields = [ "public_x", "public_y", "base_x", "base_y", "p", "a", "b", 
 dlGroupPrivFields = [ "p", "q", "g", "x", "y" ]
 dlGroupPubFields = [ "p", "q", "g", "y" ]
 
-privKeyFields "RSA"         = [ "p", "q", "d", "n", "e"] -- TODO: Check
-privKeyFields "SM2"         = ecGroupPrivFields
-privKeyFields "ElGamal"     = dlGroupPrivFields
-privKeyFields "DSA"         = dlGroupPrivFields
-privKeyFields "ECDSA"       = ecGroupPrivFields
-privKeyFields "ECKCDSA"     = ecGroupPrivFields
-privKeyFields "ECGDSA"      = ecGroupPrivFields
-privKeyFields "GOST-34.10"  = ecGroupPrivFields
-privKeyFields "Ed25519"     = [] -- TODO
-privKeyFields "XMSS"        = [] -- TODO
-privKeyFields "DH"          = dlGroupPrivFields
-privKeyFields "ECDH"        = ecGroupPrivFields
-privKeyFields "Curve25519"  = [] -- TODO
-privKeyFields "Dilithium"   = [] -- TODO
-privKeyFields "Kyber"       = [] -- TODO
-privKeyFields "McEliece"    = [] -- TODO
+privKeyFields "RSA"        = [ "p", "q", "d", "n", "e"] -- TODO: Check
+privKeyFields "SM2"        = ecGroupPrivFields
+privKeyFields "ElGamal"    = dlGroupPrivFields
+privKeyFields "DSA"        = dlGroupPrivFields
+privKeyFields "ECDSA"      = ecGroupPrivFields
+privKeyFields "ECKCDSA"    = ecGroupPrivFields
+privKeyFields "ECGDSA"     = ecGroupPrivFields
+privKeyFields "GOST-34.10" = ecGroupPrivFields
+privKeyFields "Ed25519"    = [] -- TODO
+privKeyFields "XMSS"       = [] -- TODO
+privKeyFields "DH"         = dlGroupPrivFields
+privKeyFields "ECDH"       = ecGroupPrivFields
+privKeyFields "Curve25519" = [] -- TODO
+privKeyFields "Dilithium"  = [] -- TODO
+privKeyFields "Kyber"      = [] -- TODO
+privKeyFields "McEliece"   = [] -- TODO
 
-pubKeyFields "RSA"         = [ "n", "e" ]
-pubKeyFields "SM2"         = ecGroupPubFields
-pubKeyFields "ElGamal"     = dlGroupPubFields
-pubKeyFields "DSA"         = dlGroupPubFields
-pubKeyFields "ECDSA"       = ecGroupPubFields
-pubKeyFields "ECKCDSA"     = ecGroupPubFields
-pubKeyFields "ECGDSA"      = ecGroupPubFields
-pubKeyFields "GOST-34.10"  = ecGroupPubFields
-pubKeyFields "Ed25519"     = [] -- TODO
-pubKeyFields "XMSS"        = [] -- TODO
-pubKeyFields "DH"          = dlGroupPubFields
-pubKeyFields "ECDH"        = ecGroupPubFields
-pubKeyFields "Curve25519"  = [] -- TODO
-pubKeyFields "Dilithium"   = [] -- TODO
-pubKeyFields "Kyber"       = [] -- TODO
-pubKeyFields "McEliece"    = [] -- TODO
+pubKeyFields "RSA"        = [ "n", "e" ]
+pubKeyFields "SM2"        = ecGroupPubFields
+pubKeyFields "ElGamal"    = dlGroupPubFields
+pubKeyFields "DSA"        = dlGroupPubFields
+pubKeyFields "ECDSA"      = ecGroupPubFields
+pubKeyFields "ECKCDSA"    = ecGroupPubFields
+pubKeyFields "ECGDSA"     = ecGroupPubFields
+pubKeyFields "GOST-34.10" = ecGroupPubFields
+pubKeyFields "Ed25519"    = [] -- TODO
+pubKeyFields "XMSS"       = [] -- TODO
+pubKeyFields "DH"         = dlGroupPubFields
+pubKeyFields "ECDH"       = ecGroupPubFields
+pubKeyFields "Curve25519" = [] -- TODO
+pubKeyFields "Dilithium"  = [] -- TODO
+pubKeyFields "Kyber"      = [] -- TODO
+pubKeyFields "McEliece"   = [] -- TODO
 
 -- NOTE: These tests are going to be very slow if we create new keys every time
 main :: IO ()

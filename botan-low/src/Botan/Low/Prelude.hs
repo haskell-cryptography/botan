@@ -41,29 +41,30 @@ module Botan.Low.Prelude
 
 -- Re-exported modules
 
-import Prelude
+import           Prelude
 
-import Control.Monad
-import Control.Exception
-import Control.DeepSeq
+import           Control.DeepSeq
+import           Control.Exception
+import           Control.Monad
 
-import Data.ByteString (ByteString)
-import Data.String (IsString(..))
-import Data.Text (Text)
+import           Data.ByteString (ByteString)
+import           Data.String (IsString (..))
+import           Data.Text (Text)
 
-import Data.Word
+import           Data.Word
 
-import System.IO
+import           System.IO
 
-import Foreign.C.String hiding (peekCString, peekCStringLen, withCString, withCStringLen)
-import Foreign.C.Types
-import Foreign.ForeignPtr
-import Foreign.Marshal.Alloc
-import Foreign.Marshal.Array
-import Foreign.Ptr
-import Foreign.Storable
+import           Foreign.C.String hiding (peekCString, peekCStringLen,
+                     withCString, withCStringLen)
+import           Foreign.C.Types
+import           Foreign.ForeignPtr
+import           Foreign.Marshal.Alloc
+import           Foreign.Marshal.Array
+import           Foreign.Ptr
+import           Foreign.Storable
 
-import GHC.Stack
+import           GHC.Stack
 
 -- Other Imports
 
@@ -75,7 +76,7 @@ import qualified Data.ByteString.Char8 as Char8
 
 import qualified Data.Text.Encoding as Text
 
-import Botan.Bindings.Prelude (ConstPtr(..))
+import           Botan.Bindings.Prelude (ConstPtr (..))
 
 {-
 Small rant: CString is a bit of a mess

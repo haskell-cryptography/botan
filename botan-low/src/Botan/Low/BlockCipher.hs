@@ -82,12 +82,12 @@ module Botan.Low.BlockCipher
 
 import qualified Data.ByteString as ByteString
 
-import Botan.Bindings.BlockCipher
+import           Botan.Bindings.BlockCipher
 
-import Botan.Low.Error
-import Botan.Low.Make
-import Botan.Low.Prelude
-import Botan.Low.Remake
+import           Botan.Low.Error
+import           Botan.Low.Make
+import           Botan.Low.Prelude
+import           Botan.Low.Remake
 
 {- $introduction
 

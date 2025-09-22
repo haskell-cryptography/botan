@@ -1,10 +1,10 @@
 module Main where
 
-import Test.Prelude
+import           Test.Prelude
 
-import Botan.Low.PubKey
-import Botan.Low.PubKey.Sign
-import Botan.Low.RNG
+import           Botan.Low.PubKey
+import           Botan.Low.PubKey.Sign
+import           Botan.Low.RNG
 
 ecGroup :: ByteString
 ecGroup = "secp256r1"

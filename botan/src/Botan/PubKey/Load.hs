@@ -66,12 +66,12 @@ import qualified Botan.Low.PubKey.RSA as Low
 import qualified Botan.Low.PubKey.SM2 as Low
 import qualified Botan.Low.PubKey.X25519 as Low
 
-import Botan.Error
-import Botan.Prelude
-import Botan.PubKey
-import Botan.RNG
+import           Botan.Error
+import           Botan.Prelude
+import           Botan.PubKey
+import           Botan.RNG
 
-import Botan.Low.MPI
+import           Botan.Low.MPI
 
 -- DH
 

@@ -12,8 +12,8 @@ import qualified Data.Text as Text
 import qualified Botan.Hash as Botan
 import qualified Botan.Utility as Botan
 
-import Botan.Hash.Class
-import Botan.Prelude
+import           Botan.Hash.Class
+import           Botan.Prelude
 
 -- RIPEMD160 type
 

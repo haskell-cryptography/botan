@@ -1,11 +1,11 @@
 module Main where
 
-import Test.Prelude
+import           Test.Prelude
 
-import Botan.Low.MPI
-import Botan.Low.RNG
-import Botan.Low.PubKey
-import Botan.Low.PubKey.RSA
+import           Botan.Low.MPI
+import           Botan.Low.PubKey
+import           Botan.Low.PubKey.RSA
+import           Botan.Low.RNG
 
 rsaSizes = [ "2048" ]
 

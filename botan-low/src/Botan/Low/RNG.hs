@@ -42,12 +42,12 @@ module Botan.Low.RNG
 
 import qualified Data.ByteString as ByteString
 
-import Botan.Bindings.RNG
+import           Botan.Bindings.RNG
 
-import Botan.Low.Error ( throwBotanIfNegative_ )
-import Botan.Low.Make ( mkWithTemp1 )
-import Botan.Low.Remake
-import Botan.Low.Prelude
+import           Botan.Low.Error (throwBotanIfNegative_)
+import           Botan.Low.Make (mkWithTemp1)
+import           Botan.Low.Prelude
+import           Botan.Low.Remake
 
 {- $introduction
 

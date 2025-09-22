@@ -35,11 +35,11 @@ import qualified Data.Text as Text
 import qualified Botan.BlockCipher as Botan
 import qualified Botan.Utility as Botan
 
-import Botan.Prelude hiding (Ciphertext, LazyCiphertext)
+import           Botan.Prelude hiding (Ciphertext, LazyCiphertext)
 
-import Botan.BlockCipher.Class
-import Botan.Types.Class
-import Botan.RNG
+import           Botan.BlockCipher.Class
+import           Botan.RNG
+import           Botan.Types.Class
 
 -- ARIA128 type
 

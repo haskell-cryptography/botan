@@ -1,11 +1,11 @@
 module Botan.Low.PubKey.SM2 where
 
-import Botan.Bindings.PubKey
-import Botan.Bindings.PubKey.SM2
+import           Botan.Bindings.PubKey
+import           Botan.Bindings.PubKey.SM2
 
-import Botan.Low.MPI
-import Botan.Low.Prelude
-import Botan.Low.PubKey
+import           Botan.Low.MPI
+import           Botan.Low.Prelude
+import           Botan.Low.PubKey
 
 privKeyLoadSM2
     :: MP           -- ^ __scalar__

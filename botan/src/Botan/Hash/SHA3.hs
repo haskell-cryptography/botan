@@ -22,13 +22,13 @@ module Botan.Hash.SHA3
 , sha3_512Lazy
 ) where
 
-import GHC.TypeLits
+import           GHC.TypeLits
 
-import Data.Maybe
-import Data.Proxy
+import           Data.Maybe
+import           Data.Proxy
 
-import Data.Type.Bool
-import Data.Type.Equality
+import           Data.Type.Bool
+import           Data.Type.Equality
 
 import qualified Data.ByteString as ByteString
 import qualified Data.ByteString.Lazy as Lazy
@@ -37,8 +37,8 @@ import qualified Data.Text as Text
 import qualified Botan.Hash as Botan
 import qualified Botan.Utility as Botan
 
-import Botan.Hash.Class
-import Botan.Prelude
+import           Botan.Hash.Class
+import           Botan.Prelude
 
 -- SHA3 type
 

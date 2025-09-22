@@ -1,11 +1,11 @@
 module Botan.X509 where
 
-import Botan.Prelude
+import           Botan.Prelude
 
-import Data.Bits
+import           Data.Bits
 
 import qualified Botan.Low.X509 as Low
-import Data.List (nub)
+import           Data.List (nub)
 
 -- TODO: Use https://botan.randombit.net/handbook/api_ref/x509.html
 --  to fill in the blanks, or write a new C FFI for Botan C++ X509
@@ -73,12 +73,12 @@ allConstraints = KeyConstraints allKeyConstraints
 
 instance Semigroup KeyConstraint where
   (<>) :: KeyConstraint -> KeyConstraint -> KeyConstraint
-  (<>) NoConstraints        kc                      = kc
-  (<>) kc                   NoConstraints           = kc
-  (<>) (KeyConstraints a)   (KeyConstraints b)      = KeyConstraints $ nub $ a ++ b
-  (<>) (KeyConstraints kcs) kc                      = KeyConstraints (kc:kcs)
-  (<>) kc                   (KeyConstraints kcs)    = KeyConstraints (kc:kcs)
-  (<>) a                    b                       = KeyConstraints [a,b]
+  (<>) NoConstraints        kc                   = kc
+  (<>) kc                   NoConstraints        = kc
+  (<>) (KeyConstraints a)   (KeyConstraints b)   = KeyConstraints $ nub $ a ++ b
+  (<>) (KeyConstraints kcs) kc                   = KeyConstraints (kc:kcs)
+  (<>) kc                   (KeyConstraints kcs) = KeyConstraints (kc:kcs)
+  (<>) a                    b                    = KeyConstraints [a,b]
 
 instance Monoid KeyConstraint where
 

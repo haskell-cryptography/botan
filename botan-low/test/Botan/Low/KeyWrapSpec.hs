@@ -1,12 +1,12 @@
 module Main where
 
-import Test.Prelude
+import           Test.Prelude
 
-import Botan.Low.BlockCipher
+import           Botan.Low.BlockCipher
 
-import Botan.Low.RNG
+import           Botan.Low.RNG
 
-import Botan.Low.KeyWrap
+import           Botan.Low.KeyWrap
 
 kwKey :: ByteString
 kwKey = "This key *must* be a multiple of 8 bytes"

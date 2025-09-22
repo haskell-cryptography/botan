@@ -1,10 +1,10 @@
 module Main where
 
-import Test.Prelude
+import           Test.Prelude
 
-import Botan.Low.PubKey
-import Botan.Low.PubKey.KeyAgreement
-import Botan.Low.RNG
+import           Botan.Low.PubKey
+import           Botan.Low.PubKey.KeyAgreement
+import           Botan.Low.RNG
 
 -- TODO: More thorough test with different KDFs and curves / groups
 pks :: [(ByteString, ByteString)]

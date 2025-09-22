@@ -142,16 +142,16 @@ module Botan.Cipher
 
 import qualified Botan.Low.Cipher as Low
 
-import Botan.BlockCipher
-import Botan.Error
-import Botan.KeySpec
-import Botan.Prelude
+import           Botan.BlockCipher
+import           Botan.Error
+import           Botan.KeySpec
+import           Botan.Prelude
 
+import           Botan.RNG
 import qualified Data.ByteString as ByteString
 import qualified Data.ByteString.Lazy as Lazy
-import Botan.RNG
 
-import Data.Maybe
+import           Data.Maybe
 
 -- WARNING: Some notes are incorrect or out of date. Proceed with caution
 
@@ -222,13 +222,13 @@ newtype AEAD = MkAEAD { unAEAD :: Cipher }
     deriving (Eq, Ord, Show)
 
 aead :: Cipher -> Maybe AEAD
-aead c@(ChaCha20Poly1305)   = Just $ MkAEAD c
-aead c@(GCM _ _)            = Just $ MkAEAD c
-aead c@(OCB _ _)            = Just $ MkAEAD c
-aead c@(EAX _ _)            = Just $ MkAEAD c
-aead c@(SIV _)              = Just $ MkAEAD c
-aead c@(CCM _ _ _)          = Just $ MkAEAD c
-aead _                      = Nothing
+aead c@(ChaCha20Poly1305) = Just $ MkAEAD c
+aead c@(GCM _ _)          = Just $ MkAEAD c
+aead c@(OCB _ _)          = Just $ MkAEAD c
+aead c@(EAX _ _)          = Just $ MkAEAD c
+aead c@(SIV _)            = Just $ MkAEAD c
+aead c@(CCM _ _ _)        = Just $ MkAEAD c
+aead _                    = Nothing
 
 unsafeAEAD :: Cipher -> AEAD
 unsafeAEAD = MkAEAD
@@ -304,12 +304,12 @@ cipherName (SIV bc128)          = Low.sivMode (blockCipher128Name bc128)
 cipherName (CCM bc128 tsz l)    = Low.ccmModeWith (blockCipher128Name bc128) tsz l
 
 cbcPaddingName :: CBCPadding -> ByteString
-cbcPaddingName PKCS7        = Low.PKCS7
-cbcPaddingName OneAndZeros  = Low.OneAndZeros
-cbcPaddingName X9_23        = Low.X9_23
-cbcPaddingName ESP          = Low.ESP
-cbcPaddingName CTS          = Low.CTS
-cbcPaddingName NoPadding    = Low.NoPadding
+cbcPaddingName PKCS7       = Low.PKCS7
+cbcPaddingName OneAndZeros = Low.OneAndZeros
+cbcPaddingName X9_23       = Low.X9_23
+cbcPaddingName ESP         = Low.ESP
+cbcPaddingName CTS         = Low.CTS
+cbcPaddingName NoPadding   = Low.NoPadding
 
 aeadName :: AEAD -> Low.CipherName
 aeadName = cipherName . unAEAD
@@ -406,15 +406,15 @@ generateCipherNonceLengths = do
 -}
 
 cipherTagSize :: Cipher -> Maybe Int
-cipherTagSize (CBC bc _)        = Nothing
-cipherTagSize (CFB bc _)        = Nothing
-cipherTagSize (XTS bc)          = Nothing
-cipherTagSize chaCha20Poly1305  = Just 16
-cipherTagSize (GCM _ tsz)       = Just tsz
-cipherTagSize (OCB _ tsz)       = Just tsz
-cipherTagSize (EAX _ tsz)       = Just tsz
-cipherTagSize (SIV _)           = Just 16
-cipherTagSize (CCM _ tsz _)     = Just tsz
+cipherTagSize (CBC bc _)       = Nothing
+cipherTagSize (CFB bc _)       = Nothing
+cipherTagSize (XTS bc)         = Nothing
+cipherTagSize chaCha20Poly1305 = Just 16
+cipherTagSize (GCM _ tsz)      = Just tsz
+cipherTagSize (OCB _ tsz)      = Just tsz
+cipherTagSize (EAX _ tsz)      = Just tsz
+cipherTagSize (SIV _)          = Just 16
+cipherTagSize (CCM _ tsz _)    = Just tsz
 -- NOTE: Extracted / confirmed from inspecting:
 {-
 generateCipherTagLength :: IO ()
@@ -536,9 +536,9 @@ aeadDecrypt c k n ad ct = unsafePerformIO $ do
 -- Tagged mutable context
 
 data MutableCipher = MkMutableCipher
-    { mutableCipherType         :: Cipher
-    , mutableCipherDirection    :: CipherDirection
-    , mutableCipherCtx          :: Low.Cipher
+    { mutableCipherType      :: Cipher
+    , mutableCipherDirection :: CipherDirection
+    , mutableCipherCtx       :: Low.Cipher
     -- , mutableCipherProcessed    :: Int
     }
 
@@ -567,7 +567,7 @@ data CipherUpdate
 
 cipherUpdateFlags :: CipherUpdate -> Low.CipherUpdateFlags
 cipherUpdateFlags CipherUpdate = Low.CipherUpdate
-cipherUpdateFlags CipherFinal = Low.CipherFinal
+cipherUpdateFlags CipherFinal  = Low.CipherFinal
 
 -- Initializers
 

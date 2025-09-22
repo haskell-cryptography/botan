@@ -13,10 +13,10 @@ Portability : POSIX
 
 module Botan.Bindings.PubKey.ElGamal where
 
-import Botan.Bindings.MPI
-import Botan.Bindings.Prelude
-import Botan.Bindings.PubKey
-import Botan.Bindings.RNG
+import           Botan.Bindings.MPI
+import           Botan.Bindings.Prelude
+import           Botan.Bindings.PubKey
+import           Botan.Bindings.RNG
 
 {- |
 Generates ElGamal key pair. Caller has a control over key length

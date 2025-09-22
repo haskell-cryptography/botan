@@ -80,21 +80,21 @@ module Botan.Low.X509
 import qualified Data.ByteString as ByteString
 import qualified Data.ByteString.Char8 as Char8
 
-import Botan.Bindings.PubKey
-import Botan.Bindings.X509
+import           Botan.Bindings.PubKey
+import           Botan.Bindings.X509
 
-import Botan.Low.Hash (HashName(..))
+import           Botan.Low.Hash (HashName (..))
 
-import Botan.Low.Error
-import Botan.Low.Make
-import Botan.Low.Prelude
-import Botan.Low.PubKey
-import Botan.Low.Remake
-import Data.Maybe (fromMaybe)
-import Data.ByteString (packCString)
+import           Botan.Low.Error
+import           Botan.Low.Make
+import           Botan.Low.Prelude
+import           Botan.Low.PubKey
+import           Botan.Low.PubKey (createPubKey)
+import           Botan.Low.Remake
+import           Botan.Low.Remake (mkCreateObjectCBytesLen)
+import           Data.ByteString (packCString)
+import           Data.Maybe (fromMaybe)
 import qualified Foreign.C.String as String (withCString)
-import Botan.Low.Remake (mkCreateObjectCBytesLen)
-import Botan.Low.PubKey (createPubKey)
 
 -- TODO: Use *.Make module to ensure consistency
 

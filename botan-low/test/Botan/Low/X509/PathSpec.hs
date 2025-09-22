@@ -2,13 +2,13 @@ module Botan.Low.X509.PathSpec
 ( spec
 ) where
 
-import Test.Prelude
+import           Test.Prelude
 
-import Botan.Low.X509
-import Botan.Low.X509.Path
-import Botan.Low.X509.Store
+import           Botan.Low.X509
+import           Botan.Low.X509.Path
+import           Botan.Low.X509.Store
 
-import Foreign.Ptr
+import           Foreign.Ptr
 
 -- TODO: Generate a real cert, this will definitely fail validation
 --  since I've just copied it yet again

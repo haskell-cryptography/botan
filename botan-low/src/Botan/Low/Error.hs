@@ -67,15 +67,15 @@ module Botan.Low.Error
 , handleBotan
 ) where
 
-import Data.Typeable
+import           Data.Typeable
 
-import Botan.Bindings.Error
+import           Botan.Bindings.Error
 
-import Botan.Low.Prelude
+import           Botan.Low.Prelude
 
-import qualified Data.ByteString        as ByteString
-import qualified Data.ByteString.Char8  as Char8
-import qualified Data.Text              as Text
+import qualified Data.ByteString as ByteString
+import qualified Data.ByteString.Char8 as Char8
+import qualified Data.Text as Text
 
 -- | Botan error code data type
 type BotanErrorCode = CInt

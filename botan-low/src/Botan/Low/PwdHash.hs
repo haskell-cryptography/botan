@@ -36,13 +36,13 @@ module Botan.Low.PwdHash
 
 import qualified Data.ByteString as ByteString
 
-import Botan.Bindings.PwdHash
+import           Botan.Bindings.PwdHash
 
-import Botan.Low.Hash
-import Botan.Low.MAC
-import Botan.Low.Error
-import Botan.Low.Make
-import Botan.Low.Prelude
+import           Botan.Low.Error
+import           Botan.Low.Hash
+import           Botan.Low.MAC
+import           Botan.Low.Make
+import           Botan.Low.Prelude
 
 type PBKDFName = ByteString
 

@@ -39,7 +39,7 @@ size.
 
 module Botan.Bindings.ZFEC where
 
-import Botan.Bindings.Prelude
+import           Botan.Bindings.Prelude
 
 -- | Encode some bytes with certain ZFEC parameters.
 foreign import capi safe "botan/ffi.h botan_zfec_encode"

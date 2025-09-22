@@ -2,12 +2,12 @@ module Botan.Low.X509.OptionsSpec
 ( spec
 ) where
 
-import Test.Prelude
+import           Test.Prelude
 
-import Data.Bits
+import           Data.Bits
 
-import Botan.Low.X509
-import Botan.Low.X509.Options
+import           Botan.Low.X509
+import           Botan.Low.X509.Options
 
 main :: IO ()
 main = hspec $ do

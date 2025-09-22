@@ -1,13 +1,13 @@
 module Main where
 
-import Test.Prelude
+import           Test.Prelude
 
-import Botan.Low.FPE
-import Botan.Bindings.FPE
-import Botan.Low.MPI
-import Botan.Low.RNG
+import           Botan.Bindings.FPE
+import           Botan.Low.FPE
+import           Botan.Low.MPI
+import           Botan.Low.RNG
 
-import Botan.Low.Error
+import           Botan.Low.Error
 
 -- NOTE: FPE operations encrypt/decrypt integers less than n
 nStr :: ByteString

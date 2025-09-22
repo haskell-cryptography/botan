@@ -2,8 +2,8 @@ module Botan.Low.Make where
 
 import qualified Data.ByteString as ByteString
 
-import Botan.Low.Error
-import Botan.Low.Prelude
+import           Botan.Low.Error
+import           Botan.Low.Prelude
 
 {-
 Basic botan type template

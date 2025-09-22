@@ -13,8 +13,8 @@ Portability : POSIX
 
 module Botan.Bindings.MPI where
 
-import Botan.Bindings.Prelude
-import Botan.Bindings.RNG
+import           Botan.Bindings.Prelude
+import           Botan.Bindings.RNG
 
 -- | Opaque MP struct
 data {-# CTYPE "botan/ffi.h" "struct botan_mp_struct" #-} BotanMPStruct

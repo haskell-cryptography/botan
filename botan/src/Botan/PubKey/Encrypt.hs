@@ -44,10 +44,10 @@ import qualified Data.ByteString as ByteString
 
 import qualified Botan.Low.PubKey.Encrypt as Low
 
-import Botan.Error
-import Botan.Prelude
-import Botan.PubKey
-import Botan.RNG
+import           Botan.Error
+import           Botan.Prelude
+import           Botan.PubKey
+import           Botan.RNG
 
 {- $introduction
 

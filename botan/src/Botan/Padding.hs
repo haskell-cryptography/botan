@@ -14,8 +14,8 @@ module Botan.Padding where
 --  botanium.Utils.alignMod / floorMod / ceilMod
 --  Botan.Low.Prelude.paddingInfo
 
-import Botan.Hash
-import Botan.Prelude
+import           Botan.Hash
+import           Botan.Prelude
 
 data Padding
     = Pad Pad

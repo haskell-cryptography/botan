@@ -8,13 +8,13 @@ module Botan.Version
 , botanVersionDatestamp
 ) where
 
-import System.IO.Unsafe
+import           System.IO.Unsafe
 
 import qualified Botan.Low.Version as Low
 
 import qualified Data.Text.Encoding as Text
 
-import Botan.Prelude
+import           Botan.Prelude
 
 -- https://botan.randombit.net/handbook/api_ref/ffi.html#versioning
 

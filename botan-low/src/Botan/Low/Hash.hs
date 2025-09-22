@@ -95,14 +95,14 @@ module Botan.Low.Hash
 
 import qualified Data.ByteString as ByteString
 
-import System.IO.Unsafe
+import           System.IO.Unsafe
 
-import Botan.Bindings.Hash
+import           Botan.Bindings.Hash
 
-import Botan.Low.Error
-import Botan.Low.Make
-import Botan.Low.Prelude
-import Botan.Low.Remake
+import           Botan.Low.Error
+import           Botan.Low.Make
+import           Botan.Low.Prelude
+import           Botan.Low.Remake
 
 {- $introduction
 

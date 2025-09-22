@@ -34,8 +34,8 @@ as a plaintext password would be.
 
 module Botan.Bindings.SRP6 where
 
-import Botan.Bindings.Prelude
-import Botan.Bindings.RNG
+import           Botan.Bindings.Prelude
+import           Botan.Bindings.RNG
 
 -- | Opaque SRP-6 server session struct
 data {-# CTYPE "botan/ffi.h" "struct botan_srp6_server_session_struct" #-} BotanSRP6ServerSessionStruct

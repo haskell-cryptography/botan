@@ -50,13 +50,13 @@ module Botan.Low.FPE
 
 import qualified Data.ByteString as ByteString
 
-import Botan.Bindings.FPE
+import           Botan.Bindings.FPE
 
-import Botan.Low.Error
-import Botan.Low.Make
-import Botan.Low.MPI
-import Botan.Low.Prelude
-import Botan.Low.Remake
+import           Botan.Low.Error
+import           Botan.Low.Make
+import           Botan.Low.MPI
+import           Botan.Low.Prelude
+import           Botan.Low.Remake
 
 -- NOTE: This module lacks documentation, and is not mentioned in the FFI bindings.
 --  It is mentioned in the C++ docs, but the construction significantly differs.

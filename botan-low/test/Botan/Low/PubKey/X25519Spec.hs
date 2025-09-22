@@ -1,10 +1,10 @@
 module Main where
 
-import Test.Prelude
+import           Test.Prelude
 
-import Botan.Low.RNG
-import Botan.Low.PubKey
-import Botan.Low.PubKey.X25519
+import           Botan.Low.PubKey
+import           Botan.Low.PubKey.X25519
+import           Botan.Low.RNG
 
 main :: IO ()
 main = hspec $ do

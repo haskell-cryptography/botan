@@ -1,10 +1,10 @@
 module Main where
 
-import Test.Prelude
+import           Test.Prelude
 
-import Botan.Low.PubKey
-import Botan.Low.PubKey.Encrypt
-import Botan.Low.RNG
+import           Botan.Low.PubKey
+import           Botan.Low.PubKey.Encrypt
+import           Botan.Low.RNG
 
 -- NOTE: SM2 encrypt fails with InsufficientBufferSpace unless sm2p256v1 is used as the
 --  curve when creating the key (but creating the key and the encryption context do not fail)

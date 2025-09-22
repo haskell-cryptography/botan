@@ -12,7 +12,7 @@ Portability : POSIX
 {-# LANGUAGE CApiFFI #-}
 
 module Botan.Bindings.RNG where
-import Botan.Bindings.Prelude
+import           Botan.Bindings.Prelude
 
 -- | Opaque RNG struct
 data {-# CTYPE "botan/ffi.h" "struct botan_rng_struct" #-} BotanRNGStruct

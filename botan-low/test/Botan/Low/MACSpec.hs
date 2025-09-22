@@ -1,11 +1,11 @@
 module Main where
 
-import Test.Prelude
+import           Test.Prelude
 
-import Botan.Bindings.MAC
-import Botan.Low.MAC
+import           Botan.Bindings.MAC
+import           Botan.Low.MAC
 
-import Botan.Low.RNG
+import           Botan.Low.RNG
 
 -- NOTE: Full testing of all algorithms will require botan ADT types instead
 -- of names, to be able to query for acceptable key and nonce parameters

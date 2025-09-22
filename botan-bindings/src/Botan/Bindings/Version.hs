@@ -13,7 +13,7 @@ Portability : POSIX
 
 module Botan.Bindings.Version where
 
-import Botan.Bindings.Prelude
+import           Botan.Bindings.Prelude
 
 foreign import capi safe "botan/ffi.h botan_ffi_api_version"
     botan_ffi_api_version :: IO Word32

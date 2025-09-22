@@ -1,0 +1,58 @@
+steps:
+  - simple_align:
+      cases: always
+      top_level_patterns: always
+      records: always
+      multi_way_if: always
+  - imports:
+      align: global
+      list_align: with_module_name
+      pad_module_names: false
+      long_list_align: inline
+      empty_list_align: inherit
+      list_padding: 4
+      separate_lists: true
+      space_surround: false
+      post_qualify: false
+      group_imports: false
+      group_rules:
+          - match: "."
+  - language_pragmas:
+      style: vertical
+      align: true
+      remove_redundant: true
+      language_prefix: LANGUAGE
+  - trailing_whitespace: {}
+columns: 80
+newline: native
+language_extensions:
+  - BangPatterns
+  - ConstraintKinds
+  - DataKinds
+  - DefaultSignatures
+  - DeriveDataTypeable
+  - DeriveGeneric
+  - ExistentialQuantification
+  - FlexibleContexts
+  - FlexibleInstances
+  - FunctionalDependencies
+  - GADTs
+  - GeneralizedNewtypeDeriving
+  - LambdaCase
+  - MultiParamTypeClasses
+  - MultiWayIf
+  - NoImplicitPrelude
+  - OverloadedStrings
+  - PatternSynonyms
+  - PolyKinds
+  - RecordWildCards
+  - ScopedTypeVariables
+  - StandaloneDeriving
+  - TemplateHaskell
+  - TupleSections
+  - TypeApplications
+  - TypeFamilies
+  - ViewPatterns
+  - ExplicitNamespaces
+cabal: false
+exit_code: error_on_format

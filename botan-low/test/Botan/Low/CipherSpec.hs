@@ -2,15 +2,15 @@
 
 module Main where
 
-import Test.Prelude
+import           Test.Prelude
 
 import qualified Data.ByteString as ByteString
 import qualified Data.ByteString.Char8 as Char8
 
-import Botan.Bindings.Cipher
-import Botan.Low.BlockCipher
-import Botan.Low.Cipher
-import Botan.Low.RNG
+import           Botan.Bindings.Cipher
+import           Botan.Low.BlockCipher
+import           Botan.Low.Cipher
+import           Botan.Low.RNG
 
 showBytes :: (Show a) => a -> ByteString
 showBytes = Char8.pack . show

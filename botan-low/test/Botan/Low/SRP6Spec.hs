@@ -8,12 +8,12 @@
 
 module Main where
 
-import Test.Prelude
+import           Test.Prelude
 
-import Botan.Low.SRP6
-import Botan.Low.RNG
-import Botan.Low.PubKey
-import Botan.Low.Hash
+import           Botan.Low.Hash
+import           Botan.Low.PubKey
+import           Botan.Low.RNG
+import           Botan.Low.SRP6
 
 username :: ByteString
 username = "username"

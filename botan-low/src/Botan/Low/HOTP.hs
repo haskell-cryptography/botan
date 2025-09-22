@@ -51,13 +51,13 @@ module Botan.Low.HOTP
 
 import qualified Data.ByteString as ByteString
 
-import Botan.Bindings.HOTP
-import Botan.Low.Hash
+import           Botan.Bindings.HOTP
+import           Botan.Low.Hash
 
-import Botan.Low.Error
-import Botan.Low.Make
-import Botan.Low.Prelude
-import Botan.Low.Remake
+import           Botan.Low.Error
+import           Botan.Low.Make
+import           Botan.Low.Prelude
+import           Botan.Low.Remake
 
 -- NOTE: RFC 4226
 -- NOTE: I think this *only* takes SHA-2, specificaly "SHA-256" and "SHA-512",

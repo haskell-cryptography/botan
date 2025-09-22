@@ -31,7 +31,7 @@ still use different keys in the two contexts.
 
 module Botan.Bindings.KDF where
 
-import Botan.Bindings.Prelude
+import           Botan.Bindings.Prelude
 
 pattern BOTAN_KDF_HKDF
     ,   BOTAN_KDF_HKDF_EXTRACT

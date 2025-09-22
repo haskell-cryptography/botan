@@ -28,12 +28,12 @@ module Botan.Low.Remake
 , mkWithObjectSetterCBytesLen
 ) where
 
-import Botan.Low.Prelude
-import Botan.Low.Error
+import           Botan.Low.Error
+import           Botan.Low.Prelude
 
 import qualified Data.ByteString.Internal as ByteString
 
-import Botan.Low.Make (allocBytesQuerying)
+import           Botan.Low.Make (allocBytesQuerying)
 
 -- ByteString Helpers
 

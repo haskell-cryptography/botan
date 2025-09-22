@@ -1,11 +1,11 @@
 module Botan.PwdHash where
 
-import Botan.Low.PwdHash (PBKDFName(..))
+import           Botan.Low.PwdHash (PBKDFName (..))
 import qualified Botan.Low.PwdHash as Low
 
-import Botan.Hash
-import Botan.MAC
-import Botan.Prelude
+import           Botan.Hash
+import           Botan.MAC
+import           Botan.Prelude
 
 -- NOTE: I suspect that there is an implicit random generator access going on
 --  under the hood, so these are to be relegated to MonadRandomIO, even though
@@ -60,13 +60,13 @@ pbkdfName (OpenPGP_S2K h _) = Low.openPGP_S2K (hashName h)
 type PBKDFParams = (Int,Int,Int)
 
 pbkdfParams :: PBKDF -> PBKDFParams
-pbkdfParams (PBKDF2 _ i)        = (i, 0, 0)
-pbkdfParams (Scrypt n r p)      = (n, r, p)
-pbkdfParams (Argon2d i m p)     = (i, m, p)
-pbkdfParams (Argon2i i m p)     = (i, m, p)
-pbkdfParams (Argon2id i m p)    = (i, m, p)
-pbkdfParams (Bcrypt i)          = (i, 0, 0)
-pbkdfParams (OpenPGP_S2K _ i)   = (i, 0, 0)
+pbkdfParams (PBKDF2 _ i)      = (i, 0, 0)
+pbkdfParams (Scrypt n r p)    = (n, r, p)
+pbkdfParams (Argon2d i m p)   = (i, m, p)
+pbkdfParams (Argon2i i m p)   = (i, m, p)
+pbkdfParams (Argon2id i m p)  = (i, m, p)
+pbkdfParams (Bcrypt i)        = (i, 0, 0)
+pbkdfParams (OpenPGP_S2K _ i) = (i, 0, 0)
 
 pbkdfParamsNone :: PBKDFParams
 pbkdfParamsNone = (0,0,0)

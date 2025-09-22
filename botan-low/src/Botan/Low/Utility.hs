@@ -21,20 +21,20 @@ module Botan.Low.Utility
 , base64Decode
 ) where
 
-import Data.Bool
+import           Data.Bool
 
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
 
 import qualified Data.ByteString as ByteString
 
-import System.IO.Unsafe
+import           System.IO.Unsafe
 
-import Botan.Bindings.Utility
+import           Botan.Bindings.Utility
 
-import Botan.Low.Error
-import Botan.Low.Prelude
-import Botan.Low.Make (allocBytesQuerying, allocBytesQueryingCString)
+import           Botan.Low.Error
+import           Botan.Low.Make (allocBytesQuerying, allocBytesQueryingCString)
+import           Botan.Low.Prelude
 
 -- NOTE: Use of Text is unique here - leave for Text for `botan`
 

@@ -1,10 +1,10 @@
 module Main where
 
-import Test.Prelude
+import           Test.Prelude
 
 import qualified Data.ByteString as ByteString
 
-import Botan.Low.RNG
+import           Botan.Low.RNG
 
 rngs :: [RNGType]
 rngs =

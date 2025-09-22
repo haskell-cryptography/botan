@@ -1,10 +1,10 @@
 module Main where
 
-import Test.Prelude
+import           Test.Prelude
 
-import Botan.Low.X509
+import           Botan.Low.X509
 
-import Paths_botan_low
+import           Paths_botan_low
 
 -- NOTE: Taken from https://fm4dd.com/openssl/certexamples.shtm
 testCert :: ByteString

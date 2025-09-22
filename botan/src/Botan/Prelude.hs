@@ -38,30 +38,30 @@ module Botan.Prelude
 
 -- Re-exported modules
 
-import Prelude
+import           Prelude
 
-import Control.Applicative
-import Control.Monad
-import Control.Monad.IO.Class
-import Control.Exception
-import Control.DeepSeq
+import           Control.Applicative
+import           Control.DeepSeq
+import           Control.Exception
+import           Control.Monad
+import           Control.Monad.IO.Class
 
 
-import Data.Bits
+import           Data.Bits
 
-import Data.ByteString (ByteString)
-import Data.Text (Text)
+import           Data.ByteString (ByteString)
+import           Data.Text (Text)
 
-import Data.Foldable
+import           Data.Foldable
 
-import Data.Word
+import           Data.Word
 
-import System.IO
-import System.IO.Unsafe
+import           System.IO
+import           System.IO.Unsafe
 
-import GHC.Stack
+import           GHC.Stack
 
-import Data.IORef
+import           Data.IORef
 
 -- Internal imports
 
@@ -189,5 +189,5 @@ nameBytes (NameFn name args) = name <> "(" <> inner <> ")" where
 splitBlocks :: Int -> ByteString -> [ByteString]
 splitBlocks blockSize = go where
     go bytes =  case ByteString.splitAt blockSize bytes of
-        (block,"")      -> [block]
-        (block,rest)    -> block : go rest
+        (block,"")   -> [block]
+        (block,rest) -> block : go rest

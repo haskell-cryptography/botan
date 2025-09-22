@@ -7,8 +7,8 @@ module Botan.MAC.CMAC
 , newCMACKey
 ) where
 
-import Data.Maybe
-import Data.Proxy
+import           Data.Maybe
+import           Data.Proxy
 
 import qualified Data.ByteString as ByteString
 import qualified Data.ByteString.Lazy as Lazy
@@ -18,12 +18,12 @@ import qualified Botan.BlockCipher as Botan
 import qualified Botan.MAC as Botan
 import qualified Botan.Utility as Botan
 
-import Botan.BlockCipher.AES
-import Botan.BlockCipher.Class
-import Botan.MAC.Class
-import Botan.Prelude
+import           Botan.BlockCipher.AES
+import           Botan.BlockCipher.Class
+import           Botan.MAC.Class
+import           Botan.Prelude
 
-import Botan.RNG
+import           Botan.RNG
 
 -- CMAC type
 

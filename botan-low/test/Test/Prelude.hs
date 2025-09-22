@@ -12,18 +12,18 @@ module Test.Prelude
 , anyBotanException
 ) where
 
-import Prelude
+import           Prelude
 
-import Test.Hspec
-import Test.QuickCheck
+import           Test.Hspec
+import           Test.QuickCheck
 
-import Control.Monad
+import           Control.Monad
 
-import Data.ByteString (ByteString)
+import           Data.ByteString (ByteString)
 import qualified Data.ByteString as ByteString
 import qualified Data.ByteString.Char8 as Char8
 
-import Botan.Low.Error
+import           Botan.Low.Error
 
 chars :: ByteString -> [Char]
 chars = Char8.unpack
@@ -31,8 +31,8 @@ chars = Char8.unpack
 splitBlocks :: Int -> ByteString -> [ByteString]
 splitBlocks blockSize = go where
     go bytes =  case ByteString.splitAt blockSize bytes of
-        (block,"")      -> [block]
-        (block,rest)    -> block : go rest
+        (block,"")   -> [block]
+        (block,rest) -> block : go rest
 
 testSuite :: [t] -> (t -> String) -> (t -> SpecWith a) -> SpecWith a
 testSuite tests testName runTest = forM_ tests $ \ test -> describe (testName test) (runTest test)

@@ -1,11 +1,11 @@
 module Main where
 
-import Test.Prelude
+import           Test.Prelude
 
 import qualified Data.ByteString as ByteString
 
 -- import Botan.Low.Hash
-import Botan.Low.KDF
+import           Botan.Low.KDF
 
 --  NOTE: Many of these tests fail because different kdfs / macs / hashes have different requirements
 --  such as input or output lengths.

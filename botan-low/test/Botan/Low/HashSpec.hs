@@ -1,12 +1,12 @@
 module Main where
 
-import Test.Prelude
+import           Test.Prelude
 
-import qualified Data.ByteString.Char8 as Char8
 import qualified Data.ByteString as ByteString
+import qualified Data.ByteString.Char8 as Char8
 
-import Botan.Bindings.Hash
-import Botan.Low.Hash
+import           Botan.Bindings.Hash
+import           Botan.Low.Hash
 
 message = "Fee fi fo fum! I smell the blood of an Englishman!"
 

@@ -13,8 +13,8 @@ Portability : POSIX
 
 module Botan.Bindings.PubKey.Ed25519 where
 
-import Botan.Bindings.Prelude
-import Botan.Bindings.PubKey
+import           Botan.Bindings.Prelude
+import           Botan.Bindings.PubKey
 
 foreign import capi safe "botan/ffi.h botan_privkey_load_ed25519"
     botan_privkey_load_ed25519
