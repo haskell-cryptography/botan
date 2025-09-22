@@ -1,5 +1,21 @@
 # Changelog
 
+## ?.?.?.? -- ????-??-??
+
+* BREAKING: remove experimental FFI code related to `x509`. This code might be
+  restored in some form in the future, but as of now it does not compile any
+  more, so it is removed. The modules that are removed are:
+  - `Botan.Low.X509.CA`
+  - `Botan.Low.X509.CRL`
+  - `Botan.Low.X509.CSR`
+  - `Botan.Low.X509.DN`
+  - `Botan.Low.X509.Extensions`
+  - `Botan.Low.X509.Options`
+  - `Botan.Low.X509.Path`
+  - `Botan.Low.X509.Store`
+* BREAKING: remove the `XFFI` cabal flag. It has no effect now that the
+  experimental `x509` code is moved.
+
 ## 0.0.2.0 -- 2025-09-17
 
 * PATCH: update the changelog to change the release date of version 0.0.1.0 from

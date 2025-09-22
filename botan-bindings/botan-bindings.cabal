@@ -46,11 +46,6 @@ flag pkg-config
   manual:      False
   description: Use @pkg-config(1)@ to locate foreign @botan-3@ library.
 
-flag XFFI
-  description: Enable experimental / upstream ffi support
-  manual:      True
-  default:     False
-
 library
   hs-source-dirs:     src
   default-language:   Haskell2010
@@ -120,17 +115,3 @@ library
     extra-libraries: botan-3
 
   ghc-options:        -Wall -Wno-name-shadowing
-
-  if flag(xffi)
-    -- Botan.Bindings.X509.OCSP
-    exposed-modules:
-      Botan.Bindings.X509.CA
-      Botan.Bindings.X509.CRL
-      Botan.Bindings.X509.CSR
-      Botan.Bindings.X509.DN
-      Botan.Bindings.X509.Extensions
-      Botan.Bindings.X509.Options
-      Botan.Bindings.X509.Path
-      Botan.Bindings.X509.Store
-
-    cpp-options:     -DXFFI

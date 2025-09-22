@@ -1,5 +1,22 @@
 # Changelog
 
+## ?.?.?.? -- ????-??-??
+
+* BREAKING: remove experimental FFI code related to `x509`. This code might be
+  restored in some form in the future, but as of now it does not compile any
+  more, so it is removed. The modules that are removed are:
+  - `Botan.Bindings.X509.CA`
+  - `Botan.Bindings.X509.CRL`
+  - `Botan.Bindings.X509.CSR`
+  - `Botan.Bindings.X509.DN`
+  - `Botan.Bindings.X509.Extensions`
+  - `Botan.Bindings.X509.OCSP`
+  - `Botan.Bindings.X509.Options`
+  - `Botan.Bindings.X509.Path`
+  - `Botan.Bindings.X509.Store`
+* BREAKING: remove the `XFFI` cabal flag. It has no effect now that the
+  experimental `x509` code is moved.
+
 ## 0.1.0.0 -- 2025-09-17
 
 * PATCH: update the changelog to change the release date of version 0.0.1.0 from

@@ -30,7 +30,6 @@ This project has received support from the [Haskell Foundation](https://haskell.
     - [Windows from source](#Windows-from-source)
 - [Usage](#Usage)
 - [Tutorials](#Tutorials)
-- [Enabling experimental support](#Enabling-experimental-support)
 - [Resources](#Resources)
 - [License](#License)
 - [Contributing](#Contributing)
@@ -66,10 +65,8 @@ These bindings provide the following features:
 - Hash- and time-based one-time passwords
 - Post-quantum crypto schemes
 - SRP6 password authenticated key exchange
-- X.509 certificate systems (experimental)
+- X.509 certificate systems
 - ZFEC forward error correction
-
-> NOTE: This project includes efforts to expand this subset of features through a fork of the Botan C++ library - see [Enabling experimental support](#Enabling-experimental-support) for more details. This fork will be contributed back to the original library when it becomes sufficiently stable.
 
 </details>
 
@@ -1139,56 +1136,12 @@ message == recoveredMessage
 
 </details>
 
-# Enabling experimental support
-
-Some features rely on an experimental fork of the Botan C++ library, which will be contributed back upstream to Botan C++ when it is stable.
-
-<details><summary>Build with experimental features</summary>
-
-1.  Clone the experimental [fork](https://github.com/apotheca/botan-upstream)
-
-```shell
-git clone https://github.com/apotheca/botan-upstream $BOTAN_CPP
-```
-
-2.  Build and install the experimental fork as [from source](#From-source). You may wish to install to a non-standard location using `--prefix` during configuration, to avoid overwriting any pre-existing install.
-
-```shell
-cd $BOTAN_CPP
-./configure.py --prefix=$BOTAN_OUT
-make
-make install
-```
-
-3.  Use the `XFFI` flag to enable the experimental FFI modules. If you installed the experimental fork to a non-standard location, you may also need to specify where using `--extra-include-dirs` and `--extra-lib-dirs` flags.
-
-```shell
-cd $BOTAN_HASKELL
-cabal build TARGET -fXFFI --extra-include-dirs $BOTAN_OUT/include --extra-lib-dirs $BOTAN_OUT/lib
-# or
-stack build TARGET --flag XFFI --extra-include-dirs $BOTAN_OUT/include --extra-lib-dirs $BOTAN_OUT/lib
-```
-
-To check that you've done everything correctly, you can run the following:
-
-```
-import Botan.Bindings.Version
-import Foreign.C.String
-import Prelude
-botan_version_string >>= peekCString
-```
-
-The version will say `unreleased` if it is properly pointing to our built Botan.
-
-</details>
-
 # Resources
 
 There are several resources for this project that might be helpful:
 
 - **[Devlog](https://discourse.haskell.org/t/botan-bindings-devlog/6855?u=apothecalabs)** for project status and updates.
 - **[GitHub](https://github.com/haskellfoundation/botan)** for Haskell source code, issues, and pull requests.
-- **[Upstream C++ Github](https://github.com/apotheca/botan-upstream)** experimental fork of Botan C++
 - **[Proposal](https://github.com/haskellfoundation/tech-proposals/pull/57)** Haskell Foundation funding proposal submission thread.
 
 As well, there are resources for the original Botan C++ library:
