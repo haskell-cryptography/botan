@@ -21,7 +21,50 @@ instance in the Transport Layer Security (TLS) protocol.
 
 {-# LANGUAGE CApiFFI #-}
 
-module Botan.Bindings.X509 where
+module Botan.Bindings.X509 (
+    BotanX509CertStruct
+  , BotanX509Cert (..)
+  , botan_x509_cert_destroy
+  , botan_x509_cert_load
+  , botan_x509_cert_load_file
+  , botan_x509_cert_dup
+  , botan_x509_cert_get_time_starts
+  , botan_x509_cert_get_time_expires
+  , botan_x509_cert_not_before
+  , botan_x509_cert_not_after
+  , botan_x509_cert_get_fingerprint
+  , botan_x509_cert_get_serial_number
+  , botan_x509_cert_get_authority_key_id
+  , botan_x509_cert_get_subject_key_id
+  , botan_x509_cert_get_public_key_bits
+  , botan_x509_cert_view_public_key_bits
+  , botan_x509_cert_get_public_key
+  , botan_x509_cert_get_issuer_dn
+  , botan_x509_cert_get_subject_dn
+  , botan_x509_cert_to_string
+  , botan_x509_cert_view_as_string
+  , pattern NO_CONSTRAINTS
+  , pattern DIGITAL_SIGNATURE
+  , pattern NON_REPUDIATION
+  , pattern KEY_ENCIPHERMENT
+  , pattern DATA_ENCIPHERMENT
+  , pattern KEY_AGREEMENT
+  , pattern KEY_CERT_SIGN
+  , pattern CRL_SIGN
+  , pattern ENCIPHER_ONLY
+  , pattern DECIPHER_ONLY
+  , botan_x509_cert_allowed_usage
+  , botan_x509_cert_hostname_match
+  , botan_x509_cert_verify
+  , botan_x509_cert_validation_status
+  , BotanX509CRLStruct
+  , BotanX509CRL (..)
+  , botan_x509_crl_destroy
+  , botan_x509_crl_load_file
+  , botan_x509_crl_load
+  , botan_x509_is_revoked
+  , botan_x509_cert_verify_with_crl
+  ) where
 
 import Botan.Bindings.Prelude
 import Botan.Bindings.PubKey

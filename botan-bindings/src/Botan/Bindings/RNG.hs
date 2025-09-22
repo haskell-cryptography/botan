@@ -11,7 +11,29 @@ Portability : POSIX
 
 {-# LANGUAGE CApiFFI #-}
 
-module Botan.Bindings.RNG where
+module Botan.Bindings.RNG (
+    BotanRNGStruct
+  , BotanRNG (..)
+  , botan_rng_destroy
+  , pattern BOTAN_RNG_TYPE_SYSTEM
+  , pattern BOTAN_RNG_TYPE_USER
+  , pattern BOTAN_RNG_TYPE_USER_THREADSAFE
+  , pattern BOTAN_RNG_TYPE_RDRAND
+  , botan_rng_init
+  , BotanRNGGetCallback
+  , mallocBotanRNGGetCallbackFunPtr
+  , BotanRNGAddEntropyCallback
+  , mallocBotanRNGAddEntropyCallbackFunPtr
+  , BotanRNGDestroyCallback
+  , mallocBotanRNGDestroyCallbackFunPtr
+  , botan_rng_init_custom
+  , botan_rng_get
+  , botan_system_rng_get
+  , botan_rng_reseed
+  , botan_rng_reseed_from_rng
+  , botan_rng_add_entropy
+  ) where
+
 import           Botan.Bindings.Prelude
 
 -- | Opaque RNG struct

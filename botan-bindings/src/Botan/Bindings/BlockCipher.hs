@@ -15,7 +15,42 @@ This API exists as an escape hatch for applications which need to implement cust
 
 {-# LANGUAGE CApiFFI #-}
 
-module Botan.Bindings.BlockCipher where
+module Botan.Bindings.BlockCipher (
+    BotanBlockCipherStruct
+  , BotanBlockCipher (..)
+  , botan_block_cipher_destroy
+  , pattern BOTAN_BLOCK_CIPHER_128_AES_128
+  , pattern BOTAN_BLOCK_CIPHER_128_AES_192
+  , pattern BOTAN_BLOCK_CIPHER_128_AES_256
+  , pattern BOTAN_BLOCK_CIPHER_128_ARIA_128
+  , pattern BOTAN_BLOCK_CIPHER_128_ARIA_192
+  , pattern BOTAN_BLOCK_CIPHER_128_ARIA_256
+  , pattern BOTAN_BLOCK_CIPHER_128_CAMELLIA_128
+  , pattern BOTAN_BLOCK_CIPHER_128_CAMELLIA_192
+  , pattern BOTAN_BLOCK_CIPHER_128_CAMELLIA_256
+  , pattern BOTAN_BLOCK_CIPHER_128_NOEKEON
+  , pattern BOTAN_BLOCK_CIPHER_128_SEED
+  , pattern BOTAN_BLOCK_CIPHER_128_SM4
+  , pattern BOTAN_BLOCK_CIPHER_128_SERPENT
+  , pattern BOTAN_BLOCK_CIPHER_128_TWOFISH
+
+  , pattern BOTAN_BLOCK_CIPHER_BLOWFISH
+  , pattern BOTAN_BLOCK_CIPHER_CAST_128
+  , pattern BOTAN_BLOCK_CIPHER_DES
+  , pattern BOTAN_BLOCK_CIPHER_TRIPLEDES
+  , pattern BOTAN_BLOCK_CIPHER_GOST_28147_89
+  , pattern BOTAN_BLOCK_CIPHER_IDEA
+  , pattern BOTAN_BLOCK_CIPHER_SHACAL2
+  , pattern BOTAN_BLOCK_CIPHER_THREEFISH_512
+  , botan_block_cipher_init
+  , botan_block_cipher_clear
+  , botan_block_cipher_set_key
+  , botan_block_cipher_block_size
+  , botan_block_cipher_encrypt_blocks
+  , botan_block_cipher_decrypt_blocks
+  , botan_block_cipher_name
+  , botan_block_cipher_get_keyspec
+  ) where
 
 import           Botan.Bindings.Prelude
 

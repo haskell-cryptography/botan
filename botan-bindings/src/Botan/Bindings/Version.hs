@@ -11,7 +11,15 @@ Portability : POSIX
 
 {-# LANGUAGE CApiFFI #-}
 
-module Botan.Bindings.Version where
+module Botan.Bindings.Version (
+    botan_ffi_api_version
+  , botan_ffi_supports_api
+  , botan_version_string
+  , botan_version_major
+  , botan_version_minor
+  , botan_version_patch
+  , botan_version_datestamp
+  ) where
 
 import           Botan.Bindings.Prelude
 

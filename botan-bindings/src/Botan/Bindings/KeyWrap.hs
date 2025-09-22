@@ -24,7 +24,10 @@ Use AES for best interop.
 
 {-# LANGUAGE CApiFFI #-}
 
-module Botan.Bindings.KeyWrap where
+module Botan.Bindings.KeyWrap (
+    botan_nist_kw_enc
+  , botan_nist_kw_dec
+  ) where
 
 import           Botan.Bindings.Prelude
 

@@ -11,7 +11,17 @@ Portability : POSIX
 
 {-# LANGUAGE CApiFFI #-}
 
-module Botan.Bindings.View where
+module Botan.Bindings.View (
+    BotanViewContext
+  , BotanViewBinFn
+  , BotanViewBinCallback
+  , mallocBotanViewBinCallback
+  , freeBotanViewBinCallback
+  , BotanViewStrFn
+  , BotanViewStrCallback
+  , mallocBotanViewStrCallback
+  , freeBotanViewStrCallback
+  ) where
 
 import           Botan.Bindings.Prelude
 

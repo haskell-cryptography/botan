@@ -32,7 +32,17 @@ as a plaintext password would be.
 
 {-# LANGUAGE CApiFFI #-}
 
-module Botan.Bindings.SRP6 where
+module Botan.Bindings.SRP6 (
+    BotanSRP6ServerSessionStruct
+  , BotanSRP6ServerSession (..)
+  , botan_srp6_server_session_destroy
+  , botan_srp6_server_session_init
+  , botan_srp6_server_session_step1
+  , botan_srp6_server_session_step2
+  , botan_srp6_generate_verifier
+  , botan_srp6_client_agree
+  , botan_srp6_group_size
+  ) where
 
 import           Botan.Bindings.Prelude
 import           Botan.Bindings.RNG

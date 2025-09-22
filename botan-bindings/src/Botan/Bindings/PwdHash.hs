@@ -13,7 +13,17 @@ Derive a key from a passphrase
 
 {-# LANGUAGE CApiFFI #-}
 
-module Botan.Bindings.PwdHash where
+module Botan.Bindings.PwdHash (
+    pattern BOTAN_PBKDF_PBKDF2
+  , pattern BOTAN_PBKDF_SCRYPT
+  , pattern BOTAN_PBKDF_ARGON2D
+  , pattern BOTAN_PBKDF_ARGON2I
+  , pattern BOTAN_PBKDF_ARGON2ID
+  , pattern BOTAN_PBKDF_BCRYPT_PBKDF
+  , pattern BOTAN_PBKDF_OPENPGP_S2K
+  , botan_pwdhash
+  , botan_pwdhash_timed
+  ) where
 
 import           Botan.Bindings.Prelude
 

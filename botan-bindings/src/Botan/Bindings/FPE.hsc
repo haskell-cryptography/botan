@@ -35,7 +35,16 @@ the number of words in the dictionary.
 
 {-# LANGUAGE CApiFFI #-}
 
-module Botan.Bindings.FPE where
+module Botan.Bindings.FPE (
+    BotanFPEStruct
+  , BotanFPE (..)
+  , botan_fpe_destroy
+  , pattern BOTAN_FPE_FLAG_NONE
+  , pattern BOTAN_FPE_FLAG_FE1_COMPAT_MODE
+  , botan_fpe_fe1_init
+  , botan_fpe_encrypt
+  , botan_fpe_decrypt
+  ) where
 
 import Botan.Bindings.MPI
 import Botan.Bindings.Prelude

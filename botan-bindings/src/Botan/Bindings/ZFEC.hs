@@ -37,7 +37,10 @@ size.
 
 {-# LANGUAGE CApiFFI #-}
 
-module Botan.Bindings.ZFEC where
+module Botan.Bindings.ZFEC (
+    botan_zfec_encode
+  , botan_zfec_decode
+  ) where
 
 import           Botan.Bindings.Prelude
 

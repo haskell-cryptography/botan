@@ -11,7 +11,10 @@ Portability : POSIX
 
 {-# LANGUAGE CApiFFI #-}
 
-module Botan.Bindings.PubKey.DH where
+module Botan.Bindings.PubKey.DH (
+    botan_privkey_load_dh
+  , botan_pubkey_load_dh
+  ) where
 
 import           Botan.Bindings.MPI
 import           Botan.Bindings.Prelude

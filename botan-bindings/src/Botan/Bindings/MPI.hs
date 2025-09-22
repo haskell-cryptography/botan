@@ -11,7 +11,49 @@ Portability : POSIX
 
 {-# LANGUAGE CApiFFI #-}
 
-module Botan.Bindings.MPI where
+module Botan.Bindings.MPI (
+    BotanMPStruct
+  , BotanMP (..)
+  , botan_mp_destroy
+  , botan_mp_init
+  , botan_mp_to_hex
+  , botan_mp_to_str
+  , botan_mp_clear
+  , botan_mp_set_from_int
+  , botan_mp_set_from_mp
+  , botan_mp_set_from_str
+  , botan_mp_set_from_radix_str
+  , botan_mp_num_bits
+  , botan_mp_num_bytes
+  , botan_mp_to_bin
+  , botan_mp_from_bin
+  , botan_mp_to_uint32
+  , botan_mp_is_positive
+  , botan_mp_is_negative
+  , botan_mp_flip_sign
+  , botan_mp_is_zero
+  , botan_mp_add_u32
+  , botan_mp_sub_u32
+  , botan_mp_add
+  , botan_mp_sub
+  , botan_mp_mul
+  , botan_mp_div
+  , botan_mp_mod_mul
+  , botan_mp_equal
+  , botan_mp_cmp
+  , botan_mp_swap
+  , botan_mp_powmod
+  , botan_mp_lshift
+  , botan_mp_rshift
+  , botan_mp_mod_inverse
+  , botan_mp_rand_bits
+  , botan_mp_rand_range
+  , botan_mp_gcd
+  , botan_mp_is_prime
+  , botan_mp_get_bit
+  , botan_mp_set_bit
+  , botan_mp_clear_bit
+  ) where
 
 import           Botan.Bindings.Prelude
 import           Botan.Bindings.RNG

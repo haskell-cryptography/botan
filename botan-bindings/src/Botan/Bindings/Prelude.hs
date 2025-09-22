@@ -1,25 +1,23 @@
 {-# LANGUAGE CApiFFI #-}
 {-# LANGUAGE CPP     #-}
 
-module Botan.Bindings.Prelude
-( module Prelude
--- , module Data.ByteString
-, module Data.String
-, module Data.Word
-, module System.IO
-, module Foreign.C.String
-, module Foreign.C.Types
-, module Foreign.ForeignPtr
-, module Foreign.Marshal.Alloc
-, module Foreign.Marshal.Array
-, module Foreign.Ptr
-, module Foreign.Storable
-, ConstPtr(..)
-) where
+module Botan.Bindings.Prelude (
+    module Prelude
+  , module Data.String
+  , module Data.Word
+  , module System.IO
+  , module Foreign.C.String
+  , module Foreign.C.Types
+  , module Foreign.ForeignPtr
+  , module Foreign.Marshal.Alloc
+  , module Foreign.Marshal.Array
+  , module Foreign.Ptr
+  , module Foreign.Storable
+  , ConstPtr(..)
+  ) where
 
 import           Prelude
 
--- import Data.ByteString (ByteString)
 import           Data.String (IsString (..))
 import           Data.Word
 

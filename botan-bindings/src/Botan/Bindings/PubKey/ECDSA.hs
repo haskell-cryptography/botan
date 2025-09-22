@@ -11,7 +11,10 @@ Portability : POSIX
 
 {-# LANGUAGE CApiFFI #-}
 
-module Botan.Bindings.PubKey.ECDSA where
+module Botan.Bindings.PubKey.ECDSA (
+    botan_privkey_load_ecdsa
+  , botan_pubkey_load_ecdsa
+  ) where
 
 import           Botan.Bindings.MPI
 import           Botan.Bindings.Prelude

@@ -11,7 +11,15 @@ Portability : POSIX
 
 {-# LANGUAGE CApiFFI #-}
 
-module Botan.Bindings.PubKey.Decrypt where
+module Botan.Bindings.PubKey.Decrypt (
+    BotanPKOpDecryptStruct
+  , BotanPKOpDecrypt (..)
+  , botan_pk_op_decrypt_destroy
+  , pattern BOTAN_PUBKEY_DECRYPT_FLAGS_NONE
+  , botan_pk_op_decrypt_create
+  , botan_pk_op_decrypt_output_length
+  , botan_pk_op_decrypt
+  ) where
 
 import Botan.Bindings.Prelude
 import Botan.Bindings.PubKey

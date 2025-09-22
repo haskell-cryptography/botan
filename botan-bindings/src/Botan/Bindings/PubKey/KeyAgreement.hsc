@@ -11,7 +11,17 @@ Portability : POSIX
 
 {-# LANGUAGE CApiFFI #-}
 
-module Botan.Bindings.PubKey.KeyAgreement where
+module Botan.Bindings.PubKey.KeyAgreement (
+    BotanPKOpKeyAgreementStruct
+  , BotanPKOpKeyAgreement (..)
+  , botan_pk_op_key_agreement_destroy
+  , pattern BOTAN_PUBKEY_KEY_AGREEMENT_FLAGS_NONE
+  , botan_pk_op_key_agreement_create
+  , botan_pk_op_key_agreement_export_public
+  , botan_pk_op_key_agreement_view_public
+  , botan_pk_op_key_agreement_size
+  , botan_pk_op_key_agreement
+  ) where
 
 import Botan.Bindings.Prelude
 import Botan.Bindings.PubKey

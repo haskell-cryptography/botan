@@ -11,7 +11,12 @@ Portability : POSIX
 
 {-# LANGUAGE CApiFFI #-}
 
-module Botan.Bindings.PubKey.X25519 where
+module Botan.Bindings.PubKey.X25519 (
+    botan_privkey_load_x25519
+  , botan_pubkey_load_x25519
+  , botan_privkey_x25519_get_privkey
+  , botan_pubkey_x25519_get_pubkey
+  ) where
 
 import           Botan.Bindings.Prelude
 import           Botan.Bindings.PubKey

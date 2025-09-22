@@ -41,7 +41,14 @@ counter a timestamp is used.
 
 {-# LANGUAGE CApiFFI #-}
 
-module Botan.Bindings.TOTP where
+module Botan.Bindings.TOTP (
+    BotanTOTPStruct
+  , BotanTOTP (..)
+  , botan_totp_destroy
+  , botan_totp_init
+  , botan_totp_generate
+  , botan_totp_check
+  ) where
 
 import           Botan.Bindings.Prelude
 

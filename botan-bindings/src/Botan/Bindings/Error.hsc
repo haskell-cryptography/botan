@@ -13,7 +13,32 @@ Error values below -10000 are reserved for the application (these can be returne
 
 {-# LANGUAGE CApiFFI #-}
 
-module Botan.Bindings.Error where
+module Botan.Bindings.Error (
+    pattern BOTAN_FFI_SUCCESS
+  , pattern BOTAN_FFI_INVALID_VERIFIER
+  , pattern BOTAN_FFI_ERROR_INVALID_INPUT
+  , pattern BOTAN_FFI_ERROR_BAD_MAC
+  , pattern BOTAN_FFI_ERROR_INSUFFICIENT_BUFFER_SPACE
+  , pattern BOTAN_FFI_ERROR_STRING_CONVERSION_ERROR
+  , pattern BOTAN_FFI_ERROR_EXCEPTION_THROWN
+  , pattern BOTAN_FFI_ERROR_OUT_OF_MEMORY
+  , pattern BOTAN_FFI_ERROR_SYSTEM_ERROR
+  , pattern BOTAN_FFI_ERROR_INTERNAL_ERROR
+  , pattern BOTAN_FFI_ERROR_BAD_FLAG
+  , pattern BOTAN_FFI_ERROR_NULL_POINTER
+  , pattern BOTAN_FFI_ERROR_BAD_PARAMETER
+  , pattern BOTAN_FFI_ERROR_KEY_NOT_SET
+  , pattern BOTAN_FFI_ERROR_INVALID_KEY_LENGTH
+  , pattern BOTAN_FFI_ERROR_INVALID_OBJECT_STATE
+  , pattern BOTAN_FFI_ERROR_NOT_IMPLEMENTED
+  , pattern BOTAN_FFI_ERROR_INVALID_OBJECT
+  , pattern BOTAN_FFI_ERROR_TLS_ERROR
+  , pattern BOTAN_FFI_ERROR_HTTP_ERROR
+  , pattern BOTAN_FFI_ERROR_ROUGHTIME_ERROR
+  , pattern BOTAN_FFI_ERROR_UNKNOWN_ERROR
+  , botan_error_description
+  , botan_error_last_exception_message
+  ) where
 
 import Botan.Bindings.Prelude
 

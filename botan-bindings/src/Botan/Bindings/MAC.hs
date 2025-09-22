@@ -37,7 +37,28 @@ The Botan MAC computation is split into five stages.
 
 {-# LANGUAGE CApiFFI #-}
 
-module Botan.Bindings.MAC where
+module Botan.Bindings.MAC (
+    BotanMACStruct
+  , BotanMAC (..)
+  , botan_mac_destroy
+
+  , pattern BOTAN_MAC_CMAC
+  , pattern BOTAN_MAC_GMAC
+  , pattern BOTAN_MAC_HMAC
+  , pattern BOTAN_MAC_Poly1305
+  , pattern BOTAN_MAC_SipHash
+  , pattern BOTAN_MAC_X9_19_MAC
+
+  , botan_mac_init
+  , botan_mac_output_length
+  , botan_mac_set_key
+  , botan_mac_set_nonce
+  , botan_mac_update
+  , botan_mac_final
+  , botan_mac_clear
+  , botan_mac_name
+  , botan_mac_get_keyspec
+  ) where
 
 import           Botan.Bindings.Prelude
 

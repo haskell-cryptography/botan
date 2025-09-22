@@ -11,7 +11,11 @@ Portability : POSIX
 
 {-# LANGUAGE CApiFFI #-}
 
-module Botan.Bindings.PubKey.ElGamal where
+module Botan.Bindings.PubKey.ElGamal (
+    botan_privkey_create_elgamal
+  , botan_pubkey_load_elgamal
+  , botan_privkey_load_elgamal
+  ) where
 
 import           Botan.Bindings.MPI
 import           Botan.Bindings.Prelude

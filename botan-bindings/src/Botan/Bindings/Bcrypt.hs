@@ -13,7 +13,13 @@ Generate and validate Bcrypt password hashes
 
 {-# LANGUAGE CApiFFI #-}
 
-module Botan.Bindings.Bcrypt where
+module Botan.Bindings.Bcrypt (
+    pattern BOTAN_BCRYPT_WORK_FACTOR_FAST
+  , pattern BOTAN_BCRYPT_WORK_FACTOR_GOOD
+  , pattern BOTAN_BCRYPT_WORK_FACTOR_STRONG
+  , botan_bcrypt_generate
+  , botan_bcrypt_is_valid
+  ) where
 
 import           Botan.Bindings.Prelude
 import           Botan.Bindings.RNG
