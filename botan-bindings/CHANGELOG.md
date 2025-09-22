@@ -16,6 +16,8 @@
   - `Botan.Bindings.X509.Store`
 * BREAKING: remove the `XFFI` cabal flag. It has no effect now that the
   experimental `x509` code is moved.
+* PATCH: enable `-Wall` in addition to a number of other GHC warnings.
+* PATCH: use `GHC2021` as the default language.
 
 ## 0.1.0.0 -- 2025-09-17
 

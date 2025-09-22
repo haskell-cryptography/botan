@@ -16,3 +16,7 @@ packages:
 
 tests: True
 benchmarks: True
+
+-- TODO: add export lists to all modules.
+package botan-bindings
+  ghc-options: -Wno-missing-export-lists
