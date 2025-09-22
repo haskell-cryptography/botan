@@ -39,7 +39,7 @@ plaintext password.
 {-# LANGUAGE CApiFFI #-}
 
 module Botan.Bindings.HOTP where
-import Botan.Bindings.Prelude
+import           Botan.Bindings.Prelude
 
 -- | Opaque HOTP struct
 data {-# CTYPE "botan/ffi.h" "struct botan_hotp_struct" #-} BotanHOTPStruct

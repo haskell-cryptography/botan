@@ -28,14 +28,14 @@ module Botan.Low.PubKey.Sign
 
 import qualified Data.ByteString as ByteString
 
-import Botan.Bindings.PubKey.Sign
+import           Botan.Bindings.PubKey.Sign
 
-import Botan.Low.Error
-import Botan.Low.Make
-import Botan.Low.Prelude
-import Botan.Low.RNG
-import Botan.Low.PubKey
-import Botan.Low.Remake
+import           Botan.Low.Error
+import           Botan.Low.Make
+import           Botan.Low.Prelude
+import           Botan.Low.PubKey
+import           Botan.Low.Remake
+import           Botan.Low.RNG
 
 -- /*
 -- * Signature Generation

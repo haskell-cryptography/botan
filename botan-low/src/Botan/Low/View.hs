@@ -23,15 +23,15 @@ module Botan.Low.View
 
 import qualified Data.ByteString as ByteString
 
-import Data.Void
+import           Data.Void
 
-import System.IO
+import           System.IO
 
-import Botan.Bindings.View
+import           Botan.Bindings.View
 
-import Botan.Low.Error
-import Botan.Low.Make
-import Botan.Low.Prelude
+import           Botan.Low.Error
+import           Botan.Low.Make
+import           Botan.Low.Prelude
 
 viewBin :: BotanViewBinFn ctx -> (BotanViewBinCallback ctx -> IO a) -> IO a
 viewBin f = bracket (mallocBotanViewBinCallback f) freeBotanViewBinCallback

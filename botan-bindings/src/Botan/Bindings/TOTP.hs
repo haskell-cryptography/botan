@@ -43,7 +43,7 @@ counter a timestamp is used.
 
 module Botan.Bindings.TOTP where
 
-import Botan.Bindings.Prelude
+import           Botan.Bindings.Prelude
 
 -- NOTE: RFC 6238
 

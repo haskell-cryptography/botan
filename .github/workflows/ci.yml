@@ -265,3 +265,27 @@ jobs:
         run: |
           export PATH="$PWD:$PATH"
           CHECK=true ./scripts/format-fix-whitespace.sh
+
+  ################################################################################
+  # Lint with stylish-haskell
+  ################################################################################
+  lint-stylish-haskell:
+    name: Lint with stylish-haskell
+    runs-on: ubuntu-latest
+    steps:
+    - name: 📥 Checkout repository
+      uses: actions/checkout@v5
+
+    - name: 🛠️ Setup stylish-haskell
+      uses: intersectMBO/lsm-tree/.github/actions/setup-stylish-haskell@main
+      with:
+        stylish-haskell-version: "0.15.1.0"
+        ghc-version: "9.10"
+        cabal-version: "3.12"
+        # The index-state is fixed to enable caching and ensure that the version
+        # regardless of the current state of Hackage head.
+        # If you want a newer version of stylish-haskell, use a more recent time.
+        hackage-index-state: "2025-09-15T11:44:03Z"
+
+    - name: 🎗️ Lint with stylish-haskell
+      run: ./scripts/format-stylish-haskell.sh && git diff --exit-code

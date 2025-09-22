@@ -1,11 +1,11 @@
 module Botan.Low.PubKey.ECDH where
 
-import Botan.Bindings.PubKey
-import Botan.Bindings.PubKey.ECDH
+import           Botan.Bindings.PubKey
+import           Botan.Bindings.PubKey.ECDH
 
-import Botan.Low.MPI
-import Botan.Low.Prelude
-import Botan.Low.PubKey
+import           Botan.Low.MPI
+import           Botan.Low.Prelude
+import           Botan.Low.PubKey
 
 privKeyLoadECDH
     :: MP           -- ^ __scalar__

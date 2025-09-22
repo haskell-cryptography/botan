@@ -72,13 +72,13 @@ module Botan.Low.KDF
 
 import qualified Data.ByteString as ByteString
 
-import Botan.Bindings.KDF
+import           Botan.Bindings.KDF
 
-import Botan.Low.Hash
-import Botan.Low.MAC
-import Botan.Low.Error
-import Botan.Low.Make
-import Botan.Low.Prelude
+import           Botan.Low.Error
+import           Botan.Low.Hash
+import           Botan.Low.MAC
+import           Botan.Low.Make
+import           Botan.Low.Prelude
 
 type KDFName = ByteString
 

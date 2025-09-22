@@ -32,12 +32,12 @@ module Botan.Low.KeyWrap
 
 import qualified Data.ByteString as ByteString
 
-import Botan.Bindings.KeyWrap
+import           Botan.Bindings.KeyWrap
 
-import Botan.Low.BlockCipher
-import Botan.Low.Error
-import Botan.Low.Make
-import Botan.Low.Prelude
+import           Botan.Low.BlockCipher
+import           Botan.Low.Error
+import           Botan.Low.Make
+import           Botan.Low.Prelude
 
 nistKeyWrapEncode
     :: BlockCipherName  -- ^ __cipher_algo__

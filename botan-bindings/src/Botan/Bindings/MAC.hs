@@ -39,7 +39,7 @@ The Botan MAC computation is split into five stages.
 
 module Botan.Bindings.MAC where
 
-import Botan.Bindings.Prelude
+import           Botan.Bindings.Prelude
 
 -- | Opaque MAC struct
 data {-# CTYPE "botan/ffi.h" "struct botan_mac_struct" #-} BotanMACStruct

@@ -1,8 +1,8 @@
 module Main where
 
-import Test.Prelude
+import           Test.Prelude
 
-import Botan.Low.ZFEC
+import           Botan.Low.ZFEC
 
 k :: Int
 k = 5

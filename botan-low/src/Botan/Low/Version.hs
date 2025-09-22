@@ -19,7 +19,7 @@ module Botan.Low.Version
 , botanVersionDatestamp
 ) where
 
-import Data.Bool
+import           Data.Bool
 
 import qualified Data.ByteString as ByteString
 import qualified Data.ByteString.Unsafe as ByteString
@@ -27,13 +27,13 @@ import qualified Data.ByteString.Unsafe as ByteString
 import qualified Data.Text as Text
 import qualified Data.Text.Foreign as Text
 
-import System.IO.Unsafe
+import           System.IO.Unsafe
 
-import Botan.Bindings.Version
+import           Botan.Bindings.Version
 
-import Botan.Low.Prelude
-import Botan.Low.Error (throwBotanCatchingSuccess)
-import GHC.Generics ((:.:)(unComp1))
+import           Botan.Low.Error (throwBotanCatchingSuccess)
+import           Botan.Low.Prelude
+import           GHC.Generics ((:.:) (unComp1))
 
 -- https://botan.randombit.net/handbook/api_ref/ffi.html#versioning
 

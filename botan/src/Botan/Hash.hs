@@ -138,13 +138,13 @@ module Botan.Hash
 import qualified Data.ByteString as ByteString
 import qualified Data.ByteString.Lazy as Lazy
 
-import Data.Foldable
+import           Data.Foldable
 
 import qualified Botan.Low.Hash as Low
 
-import Botan.Error ()
-import Botan.Prelude
-import Botan.Utility
+import           Botan.Error ()
+import           Botan.Prelude
+import           Botan.Utility
 
 -- TODO: Distinguish between nonCopying and autoCopying variants
 
@@ -243,10 +243,10 @@ newtype Checksum = MkChecksum { unChecksum :: Hash }
     deriving (Eq, Ord, Show)
 
 isChecksum :: Hash -> Bool
-isChecksum Adler32  = True
-isChecksum CRC24    = True
-isChecksum CRC32    = True
-isChecksum _        = False
+isChecksum Adler32 = True
+isChecksum CRC24   = True
+isChecksum CRC32   = True
+isChecksum _       = False
 
 checksum :: Hash -> Maybe Checksum
 checksum h | isChecksum h = Just $ MkChecksum h
@@ -317,69 +317,69 @@ type HashDigest = ByteString
 -- Accessors
 
 hashName :: Hash -> Low.HashName
-hashName (BLAKE2b sz)       = Low.blake2b sz        -- "BLAKE2b(" <> showBytes sz <> ")"
-hashName GOST_34_11         = Low.GOST_34_11        -- "GOST-34.11"
-hashName Keccak1600_224     = Low.keccak1600 224    -- "Keccak-1600(224)"
-hashName Keccak1600_256     = Low.keccak1600 256    -- "Keccak-1600(256)"
-hashName Keccak1600_384     = Low.keccak1600 384    -- "Keccak-1600(384)"
-hashName Keccak1600_512     = Low.keccak1600 512    -- "Keccak-1600(512)"
-hashName MD4                = Low.MD4               -- "MD4"
-hashName MD5                = Low.MD5               -- "MD5"
-hashName RIPEMD160          = Low.RIPEMD160         -- "RIPEMD-160"
-hashName SHA1               = Low.SHA1              -- "SHA-1"
-hashName SHA224             = Low.SHA224            -- "SHA-224"
-hashName SHA256             = Low.SHA256            -- "SHA-256"
-hashName SHA512             = Low.SHA512            -- "SHA-512"
-hashName SHA384             = Low.SHA384            -- "SHA-384"
-hashName SHA512_256         = Low.SHA512_256        -- "SHA-512-256"
-hashName SHA3_224           = Low.sha3 224          -- "SHA-3(224)"
-hashName SHA3_256           = Low.sha3 256          -- "SHA-3(256)"
-hashName SHA3_384           = Low.sha3 384          -- "SHA-3(384)"
-hashName SHA3_512           = Low.sha3 512          -- "SHA-3(512)"
-hashName (SHAKE128 sz)      = Low.shake128 sz       -- "SHAKE-128(" <> showBytes sz <> ")"
-hashName (SHAKE256 sz)      = Low.shake256 sz       -- "SHAKE-256(" <> showBytes sz <> ")"
-hashName SM3                = Low.SM3               -- "SM3"
-hashName (Skein512 sz b)    = Low.skein512 sz b     -- "Skein-512(" <> showBytes sz <> "," <> b <> ")"
-hashName Streebog256        = Low.Streebog256       -- "Streebog-256"
-hashName Streebog512        = Low.Streebog512       -- "Streebog-512"
-hashName Whirlpool          = Low.Whirlpool         -- "Whirlpool"
-hashName Adler32            = Low.Adler32          -- "Adler32"
-hashName CRC24              = Low.CRC24            -- "CRC24"
-hashName CRC32              = Low.CRC32            -- "CRC32"
+hashName (BLAKE2b sz)    = Low.blake2b sz        -- "BLAKE2b(" <> showBytes sz <> ")"
+hashName GOST_34_11      = Low.GOST_34_11        -- "GOST-34.11"
+hashName Keccak1600_224  = Low.keccak1600 224    -- "Keccak-1600(224)"
+hashName Keccak1600_256  = Low.keccak1600 256    -- "Keccak-1600(256)"
+hashName Keccak1600_384  = Low.keccak1600 384    -- "Keccak-1600(384)"
+hashName Keccak1600_512  = Low.keccak1600 512    -- "Keccak-1600(512)"
+hashName MD4             = Low.MD4               -- "MD4"
+hashName MD5             = Low.MD5               -- "MD5"
+hashName RIPEMD160       = Low.RIPEMD160         -- "RIPEMD-160"
+hashName SHA1            = Low.SHA1              -- "SHA-1"
+hashName SHA224          = Low.SHA224            -- "SHA-224"
+hashName SHA256          = Low.SHA256            -- "SHA-256"
+hashName SHA512          = Low.SHA512            -- "SHA-512"
+hashName SHA384          = Low.SHA384            -- "SHA-384"
+hashName SHA512_256      = Low.SHA512_256        -- "SHA-512-256"
+hashName SHA3_224        = Low.sha3 224          -- "SHA-3(224)"
+hashName SHA3_256        = Low.sha3 256          -- "SHA-3(256)"
+hashName SHA3_384        = Low.sha3 384          -- "SHA-3(384)"
+hashName SHA3_512        = Low.sha3 512          -- "SHA-3(512)"
+hashName (SHAKE128 sz)   = Low.shake128 sz       -- "SHAKE-128(" <> showBytes sz <> ")"
+hashName (SHAKE256 sz)   = Low.shake256 sz       -- "SHAKE-256(" <> showBytes sz <> ")"
+hashName SM3             = Low.SM3               -- "SM3"
+hashName (Skein512 sz b) = Low.skein512 sz b     -- "Skein-512(" <> showBytes sz <> "," <> b <> ")"
+hashName Streebog256     = Low.Streebog256       -- "Streebog-256"
+hashName Streebog512     = Low.Streebog512       -- "Streebog-512"
+hashName Whirlpool       = Low.Whirlpool         -- "Whirlpool"
+hashName Adler32         = Low.Adler32          -- "Adler32"
+hashName CRC24           = Low.CRC24            -- "CRC24"
+hashName CRC32           = Low.CRC32            -- "CRC32"
 -- hashName (Parallel ha hb)   = "Parallel(" <> hashName ha <> "," <> hashName hb <> ")"
 -- hashName (Comb4P ha hb)     = "Comb4P(" <> hashName ha <> "," <> hashName hb <> ")"
 
 -- NOTE: SIZE IN BYTES
 hashDigestSize :: Hash -> Int
-hashDigestSize (BLAKE2b n)      = div n 8
-hashDigestSize GOST_34_11       = 32
-hashDigestSize Keccak1600_224   = 28
-hashDigestSize Keccak1600_256   = 32
-hashDigestSize Keccak1600_384   = 48
-hashDigestSize Keccak1600_512   = 64
-hashDigestSize MD4              = 16
-hashDigestSize MD5              = 16
-hashDigestSize RIPEMD160        = 20
-hashDigestSize SHA1             = 20
-hashDigestSize SHA224           = 28
-hashDigestSize SHA256           = 32
-hashDigestSize SHA384           = 48
-hashDigestSize SHA512           = 64
-hashDigestSize SHA512_256       = 32
-hashDigestSize SHA3_224         = 28
-hashDigestSize SHA3_256         = 32
-hashDigestSize SHA3_384         = 48
-hashDigestSize SHA3_512         = 64
-hashDigestSize (SHAKE128 n)     = div n 8
-hashDigestSize (SHAKE256 n)     = div n 8
-hashDigestSize SM3              = 32
-hashDigestSize (Skein512 n _)  = div n 8
-hashDigestSize Streebog256      = 32
-hashDigestSize Streebog512      = 64
-hashDigestSize Whirlpool        = 64
-hashDigestSize Adler32          = 4
-hashDigestSize CRC24            = 3
-hashDigestSize CRC32            = 4
+hashDigestSize (BLAKE2b n)    = div n 8
+hashDigestSize GOST_34_11     = 32
+hashDigestSize Keccak1600_224 = 28
+hashDigestSize Keccak1600_256 = 32
+hashDigestSize Keccak1600_384 = 48
+hashDigestSize Keccak1600_512 = 64
+hashDigestSize MD4            = 16
+hashDigestSize MD5            = 16
+hashDigestSize RIPEMD160      = 20
+hashDigestSize SHA1           = 20
+hashDigestSize SHA224         = 28
+hashDigestSize SHA256         = 32
+hashDigestSize SHA384         = 48
+hashDigestSize SHA512         = 64
+hashDigestSize SHA512_256     = 32
+hashDigestSize SHA3_224       = 28
+hashDigestSize SHA3_256       = 32
+hashDigestSize SHA3_384       = 48
+hashDigestSize SHA3_512       = 64
+hashDigestSize (SHAKE128 n)   = div n 8
+hashDigestSize (SHAKE256 n)   = div n 8
+hashDigestSize SM3            = 32
+hashDigestSize (Skein512 n _) = div n 8
+hashDigestSize Streebog256    = 32
+hashDigestSize Streebog512    = 64
+hashDigestSize Whirlpool      = 64
+hashDigestSize Adler32        = 4
+hashDigestSize CRC24          = 3
+hashDigestSize CRC32          = 4
 -- hashDigestSize (Parallel ha hb) = undefined
 -- hashDigestSize (Comb4P ha hb)   = undefined
 -- NOTE: Extracted / confirmed from inspecting:
@@ -402,35 +402,35 @@ generateHashDigestSize = do
 
 -- NOTE: SIZE IN BITS
 hashBlockSize :: Hash -> Int
-hashBlockSize (BLAKE2b _) = 128
-hashBlockSize GOST_34_11 = 32
+hashBlockSize (BLAKE2b _)    = 128
+hashBlockSize GOST_34_11     = 32
 hashBlockSize Keccak1600_224 = 144
 hashBlockSize Keccak1600_256 = 136
 hashBlockSize Keccak1600_384 = 104
 hashBlockSize Keccak1600_512 = 72
-hashBlockSize MD4 = 64
-hashBlockSize MD5 = 64
-hashBlockSize RIPEMD160 = 64
-hashBlockSize SHA1 = 64
-hashBlockSize SHA224 = 64
-hashBlockSize SHA256 = 64
-hashBlockSize SHA384 = 128
-hashBlockSize SHA512 = 128
-hashBlockSize SHA512_256 = 128
-hashBlockSize SHA3_224 = 144
-hashBlockSize SHA3_256 = 136
-hashBlockSize SHA3_384 = 104
-hashBlockSize SHA3_512 = 72
-hashBlockSize (SHAKE128 _) = 168
-hashBlockSize (SHAKE256 _) = 136
-hashBlockSize SM3 = 64
+hashBlockSize MD4            = 64
+hashBlockSize MD5            = 64
+hashBlockSize RIPEMD160      = 64
+hashBlockSize SHA1           = 64
+hashBlockSize SHA224         = 64
+hashBlockSize SHA256         = 64
+hashBlockSize SHA384         = 128
+hashBlockSize SHA512         = 128
+hashBlockSize SHA512_256     = 128
+hashBlockSize SHA3_224       = 144
+hashBlockSize SHA3_256       = 136
+hashBlockSize SHA3_384       = 104
+hashBlockSize SHA3_512       = 72
+hashBlockSize (SHAKE128 _)   = 168
+hashBlockSize (SHAKE256 _)   = 136
+hashBlockSize SM3            = 64
 hashBlockSize (Skein512 _ _) = 64
-hashBlockSize Streebog256 = 64
-hashBlockSize Streebog512 = 64
-hashBlockSize Whirlpool = 64
-hashBlockSize Adler32 = error "Unimplemented: checksumBlockSize"
-hashBlockSize CRC24   = error "Unimplemented: checksumBlockSize"
-hashBlockSize CRC32   = error "Unimplemented: checksumBlockSize"
+hashBlockSize Streebog256    = 64
+hashBlockSize Streebog512    = 64
+hashBlockSize Whirlpool      = 64
+hashBlockSize Adler32        = error "Unimplemented: checksumBlockSize"
+hashBlockSize CRC24          = error "Unimplemented: checksumBlockSize"
+hashBlockSize CRC32          = error "Unimplemented: checksumBlockSize"
 {-# WARNING hashBlockSize "Unimplemented for: Adler32, CRC24, CRC32" #-}
 -- NOTE: Extracted / confirmed from inspecting:
 {-
@@ -490,8 +490,8 @@ hashFileLazy h fp = do
 -- Tagged mutable context
 
 data MutableHash = MkMutableHash
-    { mutableHashType    :: Hash
-    , mutableHashCtx     :: Low.Hash
+    { mutableHashType :: Hash
+    , mutableHashCtx  :: Low.Hash
     }
 
 -- Destructor
@@ -622,11 +622,11 @@ keccak1600_512 :: Hash
 keccak1600_512 = Keccak1600_512
 
 keccak1600 :: Int -> Maybe Hash
-keccak1600 224        = Just keccak1600_224
-keccak1600 256        = Just keccak1600_256
-keccak1600 384        = Just keccak1600_384
-keccak1600 512        = Just keccak1600_512
-keccak1600 _          = Nothing
+keccak1600 224 = Just keccak1600_224
+keccak1600 256 = Just keccak1600_256
+keccak1600 384 = Just keccak1600_384
+keccak1600 512 = Just keccak1600_512
+keccak1600 _   = Nothing
 
 md4 :: Hash
 md4 = MD4

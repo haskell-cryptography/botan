@@ -4,9 +4,9 @@ import qualified Data.ByteString as ByteString
 
 import qualified Botan.Low.HOTP as Low
 
-import Botan.Hash
+import           Botan.Hash
 
-import Botan.Prelude
+import           Botan.Prelude
 
 -- TODO: Package the ctx with counter?
 -- Low HOTPCtx does not mutate, so it should
@@ -20,7 +20,7 @@ data HOTP
     | HOTP_SHA512
 
 hotpHash :: HOTP -> Hash
-hotpHash HOTP_SHA1 = SHA1
+hotpHash HOTP_SHA1   = SHA1
 hotpHash HOTP_SHA256 = SHA256
 hotpHash HOTP_SHA512 = SHA512
 
@@ -32,9 +32,9 @@ type HOTPKey = ByteString
 -- TODO: Bring in MVar to capture everything
 data HOTPCtx
     = HOTPCtx
-    { hotpCtx       :: Low.HOTP
-    , hotpCounter   :: Low.HOTPCounter
-    , hotpResync    :: Int
+    { hotpCtx     :: Low.HOTP
+    , hotpCounter :: Low.HOTPCounter
+    , hotpResync  :: Int
     }
 
 data HOTPLength
@@ -43,7 +43,7 @@ data HOTPLength
 
 hotpLength :: HOTPLength -> Int
 hotpLength Short = 6
-hotpLength Long = 8
+hotpLength Long  = 8
 
 newHOTP :: HOTP -> HOTPLength -> Int -> ByteString -> IO HOTPCtx
 newHOTP hotp len resync key = do

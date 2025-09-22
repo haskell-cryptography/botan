@@ -13,9 +13,9 @@ Portability : POSIX
 
 module Botan.Bindings.PubKey.KeyEncapsulation where
 
-import Botan.Bindings.Prelude
-import Botan.Bindings.PubKey
-import Botan.Bindings.RNG
+import           Botan.Bindings.Prelude
+import           Botan.Bindings.PubKey
+import           Botan.Bindings.RNG
 
 -- | Opaque KEM encrypt struct
 data {-# CTYPE "botan/ffi.h" "struct botan_pk_op_kem_encrypt_struct" #-} BotanPKOpKEMEncryptStruct

@@ -24,15 +24,15 @@ module Botan.Low.PubKey.Verify
 
 import qualified Data.ByteString as ByteString
 
-import Botan.Bindings.PubKey.Verify
+import           Botan.Bindings.PubKey.Verify
 
-import Botan.Low.Error
-import Botan.Low.Make
-import Botan.Low.Prelude
-import Botan.Low.RNG
-import Botan.Low.PubKey
-import Botan.Low.PubKey.Sign (SigningFlags(..))
-import Botan.Low.Remake
+import           Botan.Low.Error
+import           Botan.Low.Make
+import           Botan.Low.Prelude
+import           Botan.Low.PubKey
+import           Botan.Low.PubKey.Sign (SigningFlags (..))
+import           Botan.Low.Remake
+import           Botan.Low.RNG
 
 -- /*
 -- * Signature Verification

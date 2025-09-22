@@ -53,15 +53,15 @@ module Botan.Low.SRP6
 
 import qualified Data.ByteString as ByteString
 
-import Botan.Bindings.SRP6
+import           Botan.Bindings.SRP6
 
-import Botan.Low.Error
-import Botan.Low.Hash
-import Botan.Low.Make
-import Botan.Low.Prelude
-import Botan.Low.Remake
-import Botan.Low.RNG
-import Botan.Low.PubKey
+import           Botan.Low.Error
+import           Botan.Low.Hash
+import           Botan.Low.Make
+import           Botan.Low.Prelude
+import           Botan.Low.PubKey
+import           Botan.Low.Remake
+import           Botan.Low.RNG
 
 {- $introduction
 

@@ -42,10 +42,10 @@ import qualified Data.ByteString as ByteString
 
 import qualified Botan.Low.PubKey.Verify as Low
 
-import Botan.Error
-import Botan.Prelude
-import Botan.PubKey
-import Botan.PubKey.Sign
+import           Botan.Error
+import           Botan.Prelude
+import           Botan.PubKey
+import           Botan.PubKey.Sign
 
 {- $introduction
 

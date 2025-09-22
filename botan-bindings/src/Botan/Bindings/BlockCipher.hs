@@ -17,7 +17,7 @@ This API exists as an escape hatch for applications which need to implement cust
 
 module Botan.Bindings.BlockCipher where
 
-import Botan.Bindings.Prelude
+import           Botan.Bindings.Prelude
 
 -- | Opaque BlockCipher struct
 data {-# CTYPE "botan/ffi.h" "struct botan_block_cipher_struct" #-} BotanBlockCipherStruct

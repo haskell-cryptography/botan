@@ -13,13 +13,13 @@ module Botan.Low.PubKey.DH where
 
 import qualified Data.ByteString as ByteString
 
-import Botan.Bindings.PubKey.DH
+import           Botan.Bindings.PubKey.DH
 
-import Botan.Low.Error
-import Botan.Low.Make
-import Botan.Low.MPI
-import Botan.Low.Prelude
-import Botan.Low.PubKey
+import           Botan.Low.Error
+import           Botan.Low.Make
+import           Botan.Low.MPI
+import           Botan.Low.Prelude
+import           Botan.Low.PubKey
 
 privKeyLoadDH
     :: MP           -- ^ __p__: prime order of a Z_p group

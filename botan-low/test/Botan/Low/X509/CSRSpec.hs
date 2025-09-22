@@ -2,16 +2,16 @@ module Botan.Low.X509.CSRSpec
 ( spec
 ) where
 
-import Test.Prelude
+import           Test.Prelude
 
-import Botan.Low.RNG
-import Botan.Low.PubKey
+import           Botan.Low.PubKey
+import           Botan.Low.RNG
 
-import Botan.Low.X509
-import Botan.Low.X509.CSR
-import Botan.Low.X509.Options
+import           Botan.Low.X509
+import           Botan.Low.X509.CSR
+import           Botan.Low.X509.Options
 
-import Data.Bits
+import           Data.Bits
 
 mkTestOptions :: IO X509CertOptions
 mkTestOptions = do

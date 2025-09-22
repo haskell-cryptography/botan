@@ -13,13 +13,13 @@ module Botan.Low.PubKey.RSA where
 
 import qualified Data.ByteString as ByteString
 
-import Botan.Bindings.PubKey.RSA
+import           Botan.Bindings.PubKey.RSA
 
-import Botan.Low.Error
-import Botan.Low.Remake
-import Botan.Low.MPI
-import Botan.Low.Prelude
-import Botan.Low.PubKey
+import           Botan.Low.Error
+import           Botan.Low.MPI
+import           Botan.Low.Prelude
+import           Botan.Low.PubKey
+import           Botan.Low.Remake
 
 -- /*
 -- * Algorithm specific key operations: RSA

@@ -2,18 +2,19 @@ module Botan.Low.X509.StoreSpec
 ( spec
 ) where
 
-import Test.Prelude
+import           Test.Prelude
 
-import Data.ByteString.Char8 as BC
+import           Data.ByteString.Char8 as BC
 
-import System.Directory (removeFile, doesFileExist)
+import           System.Directory (doesFileExist, removeFile)
 
-import Botan.Low.RNG
-import Botan.Low.X509
-import Botan.Low.X509.Store
+import           Botan.Low.RNG
+import           Botan.Low.X509
+import           Botan.Low.X509.Store
 
-import Paths_botan_low
-import Botan.Low.X509.Store (X509CertStore, x509CertStoreInMemoryCreate)
+import           Botan.Low.X509.Store (X509CertStore,
+                     x509CertStoreInMemoryCreate)
+import           Paths_botan_low
 
 dbFile :: FilePath
 dbFile = "test-data/x509-store.db"

@@ -13,7 +13,7 @@ Portability : POSIX
 
 module Botan.Bindings.View where
 
-import Botan.Bindings.Prelude
+import           Botan.Bindings.Prelude
 
 -- View context
 

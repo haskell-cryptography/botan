@@ -9,13 +9,13 @@ module Botan.Hash.SHA2
 , sha2_512_256Lazy
 ) where
 
-import GHC.TypeLits
+import           GHC.TypeLits
 
-import Data.Maybe
-import Data.Proxy
+import           Data.Maybe
+import           Data.Proxy
 
-import Data.Type.Bool
-import Data.Type.Equality
+import           Data.Type.Bool
+import           Data.Type.Equality
 
 import qualified Data.ByteString as ByteString
 import qualified Data.ByteString.Lazy as Lazy
@@ -24,8 +24,8 @@ import qualified Data.Text as Text
 import qualified Botan.Hash as Botan
 import qualified Botan.Utility as Botan
 
-import Botan.Hash.Class
-import Botan.Prelude
+import           Botan.Hash.Class
+import           Botan.Prelude
 
 -- SHA2 type
 

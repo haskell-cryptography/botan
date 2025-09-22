@@ -7,10 +7,10 @@ module Botan.Hash.Skein
 , skein512Lazy
 ) where
 
-import GHC.TypeLits
+import           GHC.TypeLits
 
-import Data.Maybe
-import Data.Proxy
+import           Data.Maybe
+import           Data.Proxy
 
 import qualified Data.ByteString as ByteString
 import qualified Data.ByteString.Char8 as Char8
@@ -20,8 +20,8 @@ import qualified Data.Text as Text
 import qualified Botan.Hash as Botan
 import qualified Botan.Utility as Botan
 
-import Botan.Hash.Class
-import Botan.Prelude
+import           Botan.Hash.Class
+import           Botan.Prelude
 
 -- Skein type
 

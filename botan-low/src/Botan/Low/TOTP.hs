@@ -53,13 +53,13 @@ module Botan.Low.TOTP
 
 import qualified Data.ByteString as ByteString
 
-import Botan.Bindings.TOTP
+import           Botan.Bindings.TOTP
 
-import Botan.Low.Error
-import Botan.Low.Hash
-import Botan.Low.Make
-import Botan.Low.Prelude
-import Botan.Low.Remake
+import           Botan.Low.Error
+import           Botan.Low.Hash
+import           Botan.Low.Make
+import           Botan.Low.Prelude
+import           Botan.Low.Remake
 
 -- NOTE: RFC 6238
 

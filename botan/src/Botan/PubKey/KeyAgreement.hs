@@ -2,18 +2,18 @@ module Botan.PubKey.KeyAgreement where
 
 import qualified Data.ByteString as ByteString
 
-import Data.Bool
+import           Data.Bool
 
-import Botan.Low.PubKey (PubKey(..), PrivKey(..))
+import           Botan.Low.PubKey (PrivKey (..), PubKey (..))
 import qualified Botan.Low.PubKey.KeyAgreement as Low
 import qualified Botan.Low.RNG as Low
 
-import Botan.Error
-import Botan.Hash
-import Botan.Prelude
-import Botan.PubKey
-import Botan.KDF
-import Botan.RNG
+import           Botan.Error
+import           Botan.Hash
+import           Botan.KDF
+import           Botan.Prelude
+import           Botan.PubKey
+import           Botan.RNG
 
 data KeyAgreement
     = DHKA DLGroup
@@ -21,7 +21,7 @@ data KeyAgreement
     | Curve25519KA
 
 keyAgreementToPK :: KeyAgreement -> PK
-keyAgreementToPK (DHKA dlg) = (DH dlg)
+keyAgreementToPK (DHKA dlg)   = (DH dlg)
 keyAgreementToPK (ECDHKA ecg) = (ECDH ecg)
 keyAgreementToPK Curve25519KA = Curve25519
 

@@ -30,7 +30,8 @@ the server to the client, so verifiers should be protected as carefully
 as a plaintext password would be.
 -}
 
-{-# LANGUAGE TypeSynonymInstances, FlexibleInstances #-}
+{-# LANGUAGE FlexibleInstances    #-}
+{-# LANGUAGE TypeSynonymInstances #-}
 
 module Botan.SRP6
 (
@@ -93,13 +94,13 @@ import qualified Data.ByteString as ByteString
 
 import qualified Botan.Low.SRP6 as Low
 
-import Botan.Error
-import Botan.Hash
-import Botan.PubKey
-import Botan.Prelude
-import Botan.RNG
+import           Botan.Error
+import           Botan.Hash
+import           Botan.Prelude
+import           Botan.PubKey
+import           Botan.RNG
 
-import Control.Monad.Reader
+import           Control.Monad.Reader
 
 {- $usage
 
@@ -319,10 +320,10 @@ class (SRP6Session' m) => SRP6Server' m where
 -- TODO: Maybe MVar instead of IORef - has valid state for 'uninitialized' re blocking on empty
 data SRP6ServerSession'
     = SRP6ServerSession'
-    { srp6ServerSessionConfig'      :: SRP6Config'
-    , srp6ServerSessionRef'         :: Low.SRP6ServerSession
-    , srp6ServerSessionServerKey'   :: IORef SRP6ServerKey
-    , srp6ServerSessionSessionKey'  :: IORef SRP6SessionKey
+    { srp6ServerSessionConfig'     :: SRP6Config'
+    , srp6ServerSessionRef'        :: Low.SRP6ServerSession
+    , srp6ServerSessionServerKey'  :: IORef SRP6ServerKey
+    , srp6ServerSessionSessionKey' :: IORef SRP6SessionKey
     -- , srp6ServerSessionUserContext :: IORef a
     }
 
@@ -354,9 +355,9 @@ class (SRP6Session' m) => SRP6Client' m where
 -- TODO: Maybe MVar instead of IORef - has valid state for 'uninitialized' re blocking on empty
 data SRP6ClientSession'
     = SRP6ClientSession'
-    { srp6ClientSessionConfig'       :: SRP6Config'
-    , srp6ClientSessionClientKey'    :: IORef SRP6ClientKey
-    , srp6ClientSessionSessionKey'   :: IORef SRP6SessionKey
+    { srp6ClientSessionConfig'     :: SRP6Config'
+    , srp6ClientSessionClientKey'  :: IORef SRP6ClientKey
+    , srp6ClientSessionSessionKey' :: IORef SRP6SessionKey
     -- , srp6ClientSessionUserContext :: IORef a
     }
 

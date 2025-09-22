@@ -2,14 +2,14 @@ module Botan.Low.X509.CASpec
 ( spec
 ) where
 
-import Test.Prelude
+import           Test.Prelude
 
-import Botan.Low.PubKey
-import Botan.Low.RNG
-import Botan.Low.X509
-import Botan.Low.X509.CA
-import Botan.Low.X509.CSR
-import Botan.Low.X509.Options
+import           Botan.Low.PubKey
+import           Botan.Low.RNG
+import           Botan.Low.X509
+import           Botan.Low.X509.CA
+import           Botan.Low.X509.CSR
+import           Botan.Low.X509.Options
 
 -- NOTE: Failing because not properly implemented on C++ side
 main :: IO ()

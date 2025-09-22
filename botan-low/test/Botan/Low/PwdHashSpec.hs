@@ -1,12 +1,12 @@
 module Main where
 
-import Data.ByteString (isPrefixOf)
+import           Data.ByteString (isPrefixOf)
 
-import Botan.Low.Hash
-import Botan.Low.MAC
-import Botan.Low.PwdHash
+import           Botan.Low.Hash
+import           Botan.Low.MAC
+import           Botan.Low.PwdHash
 
-import Test.Prelude
+import           Test.Prelude
 
 -- NOTE: Needs more exhaustive tests, and to validate parameter order for
 --  Scrypt and the Argons. We've got tests that pass, but that doesn't

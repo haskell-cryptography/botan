@@ -1,8 +1,8 @@
 module Main where
 
-import Test.Prelude
+import           Test.Prelude
 
-import Botan.Low.Utility
+import           Botan.Low.Utility
 
 import qualified Data.ByteString as ByteString
 

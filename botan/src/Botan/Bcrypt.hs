@@ -43,9 +43,9 @@ import qualified Data.ByteString as ByteString
 import qualified Botan.Low.Bcrypt as Low
 import qualified Botan.Low.RNG as Low
 
-import Botan.Error
-import Botan.Prelude
-import Botan.RNG
+import           Botan.Error
+import           Botan.Prelude
+import           Botan.RNG
 
 {- $introduction
 
@@ -98,10 +98,10 @@ instance Ord WorkFactor where
 
 -- | Convert a work factor to an integer
 workFactor :: WorkFactor -> Low.BcryptWorkFactor
-workFactor Fast             = Low.BcryptFast
-workFactor Good             = Low.BcryptGood
-workFactor Strong           = Low.BcryptStrong
-workFactor (WorkFactor wf)  = wf
+workFactor Fast            = Low.BcryptFast
+workFactor Good            = Low.BcryptGood
+workFactor Strong          = Low.BcryptStrong
+workFactor (WorkFactor wf) = wf
 
 toWorkFactor :: Low.BcryptWorkFactor -> WorkFactor
 toWorkFactor Low.BcryptFast   = Fast

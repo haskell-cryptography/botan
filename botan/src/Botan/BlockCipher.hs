@@ -118,15 +118,15 @@ module Botan.BlockCipher -- where
 
 import qualified Botan.Low.BlockCipher as Low
 
-import Botan.Prelude
+import           Botan.Prelude
 
 import qualified Data.ByteString as ByteString
 import qualified Data.ByteString.Lazy as Lazy
 
-import Data.Maybe
+import           Data.Maybe
 
-import Botan.KeySpec
-import Botan.RNG
+import           Botan.KeySpec
+import           Botan.RNG
 
 -- NOTE: No nonces at this level - these are raw block ciphers.
 --  For block ciphers with nonces, see Cipher
@@ -206,21 +206,21 @@ newtype BlockCipher128 = MkBlockCipher128 { unBlockCipher128 :: BlockCipher }
     deriving (Eq, Ord, Show)
 
 blockCipher128 :: BlockCipher -> Maybe BlockCipher128
-blockCipher128 bc@AES128        = Just $ MkBlockCipher128 bc
-blockCipher128 bc@AES192        = Just $ MkBlockCipher128 bc
-blockCipher128 bc@AES256        = Just $ MkBlockCipher128 bc
-blockCipher128 bc@ARIA128       = Just $ MkBlockCipher128 bc
-blockCipher128 bc@ARIA192       = Just $ MkBlockCipher128 bc
-blockCipher128 bc@ARIA256       = Just $ MkBlockCipher128 bc
-blockCipher128 bc@Camellia128   = Just $ MkBlockCipher128 bc
-blockCipher128 bc@Camellia192   = Just $ MkBlockCipher128 bc
-blockCipher128 bc@Camellia256   = Just $ MkBlockCipher128 bc
-blockCipher128 bc@Noekeon       = Just $ MkBlockCipher128 bc
-blockCipher128 bc@SEED          = Just $ MkBlockCipher128 bc
-blockCipher128 bc@Serpent       = Just $ MkBlockCipher128 bc
-blockCipher128 bc@SM4           = Just $ MkBlockCipher128 bc
-blockCipher128 bc@Twofish       = Just $ MkBlockCipher128 bc
-blockCipher128 _                = Nothing
+blockCipher128 bc@AES128      = Just $ MkBlockCipher128 bc
+blockCipher128 bc@AES192      = Just $ MkBlockCipher128 bc
+blockCipher128 bc@AES256      = Just $ MkBlockCipher128 bc
+blockCipher128 bc@ARIA128     = Just $ MkBlockCipher128 bc
+blockCipher128 bc@ARIA192     = Just $ MkBlockCipher128 bc
+blockCipher128 bc@ARIA256     = Just $ MkBlockCipher128 bc
+blockCipher128 bc@Camellia128 = Just $ MkBlockCipher128 bc
+blockCipher128 bc@Camellia192 = Just $ MkBlockCipher128 bc
+blockCipher128 bc@Camellia256 = Just $ MkBlockCipher128 bc
+blockCipher128 bc@Noekeon     = Just $ MkBlockCipher128 bc
+blockCipher128 bc@SEED        = Just $ MkBlockCipher128 bc
+blockCipher128 bc@Serpent     = Just $ MkBlockCipher128 bc
+blockCipher128 bc@SM4         = Just $ MkBlockCipher128 bc
+blockCipher128 bc@Twofish     = Just $ MkBlockCipher128 bc
+blockCipher128 _              = Nothing
 
 unsafeBlockCipher128 :: BlockCipher -> BlockCipher128
 unsafeBlockCipher128 = MkBlockCipher128
@@ -276,54 +276,54 @@ type BlockCipherText = ByteString
 
 blockCipherName :: BlockCipher -> Low.BlockCipherName
 blockCipherName spec = case spec of
-    Blowfish        -> Low.Blowfish
-    CAST128         -> Low.CAST128
-    DES             -> Low.DES
-    TripleDES       -> Low.TripleDES
-    GOST_28147_89   -> Low.GOST_28147_89
-    IDEA            -> Low.IDEA
-    AES128          -> Low.AES128
-    AES192          -> Low.AES192
-    AES256          -> Low.AES256
-    ARIA128         -> Low.ARIA128
-    ARIA192         -> Low.ARIA192
-    ARIA256         -> Low.ARIA256
-    Camellia128     -> Low.Camellia128
-    Camellia192     -> Low.Camellia192
-    Camellia256     -> Low.Camellia256
-    Noekeon         -> Low.Noekeon
-    SEED            -> Low.SEED
-    Serpent         -> Low.Serpent
-    SM4             -> Low.SM4
-    Twofish         -> Low.Twofish
-    SHACAL2         -> Low.SHACAL2
-    Threefish512    -> Low.Threefish512
+    Blowfish      -> Low.Blowfish
+    CAST128       -> Low.CAST128
+    DES           -> Low.DES
+    TripleDES     -> Low.TripleDES
+    GOST_28147_89 -> Low.GOST_28147_89
+    IDEA          -> Low.IDEA
+    AES128        -> Low.AES128
+    AES192        -> Low.AES192
+    AES256        -> Low.AES256
+    ARIA128       -> Low.ARIA128
+    ARIA192       -> Low.ARIA192
+    ARIA256       -> Low.ARIA256
+    Camellia128   -> Low.Camellia128
+    Camellia192   -> Low.Camellia192
+    Camellia256   -> Low.Camellia256
+    Noekeon       -> Low.Noekeon
+    SEED          -> Low.SEED
+    Serpent       -> Low.Serpent
+    SM4           -> Low.SM4
+    Twofish       -> Low.Twofish
+    SHACAL2       -> Low.SHACAL2
+    Threefish512  -> Low.Threefish512
     -- Cascade bca bcb -> "Cascade(" <> blockCipherName bca <> "," <> blockCipherName bcb <> ")"
     -- Lion h sc sz    -> "Lion(" <> hashSpecName h <> "," <> streamCipherName sc <> "," <> showBytes sz <> ")"
 
 blockCipherBlockSize :: BlockCipher -> Int
-blockCipherBlockSize Blowfish       = 8
-blockCipherBlockSize CAST128        = 8
-blockCipherBlockSize DES            = 8
-blockCipherBlockSize TripleDES      = 8
-blockCipherBlockSize GOST_28147_89  = 8
-blockCipherBlockSize IDEA           = 8
-blockCipherBlockSize AES128         = 16
-blockCipherBlockSize AES192         = 16
-blockCipherBlockSize AES256         = 16
-blockCipherBlockSize ARIA128        = 16
-blockCipherBlockSize ARIA192        = 16
-blockCipherBlockSize ARIA256        = 16
-blockCipherBlockSize Camellia128    = 16
-blockCipherBlockSize Camellia192    = 16
-blockCipherBlockSize Camellia256    = 16
-blockCipherBlockSize Noekeon        = 16
-blockCipherBlockSize SEED           = 16
-blockCipherBlockSize Serpent        = 16
-blockCipherBlockSize SM4            = 16
-blockCipherBlockSize Twofish        = 16
-blockCipherBlockSize SHACAL2        = 32
-blockCipherBlockSize Threefish512   = 64
+blockCipherBlockSize Blowfish      = 8
+blockCipherBlockSize CAST128       = 8
+blockCipherBlockSize DES           = 8
+blockCipherBlockSize TripleDES     = 8
+blockCipherBlockSize GOST_28147_89 = 8
+blockCipherBlockSize IDEA          = 8
+blockCipherBlockSize AES128        = 16
+blockCipherBlockSize AES192        = 16
+blockCipherBlockSize AES256        = 16
+blockCipherBlockSize ARIA128       = 16
+blockCipherBlockSize ARIA192       = 16
+blockCipherBlockSize ARIA256       = 16
+blockCipherBlockSize Camellia128   = 16
+blockCipherBlockSize Camellia192   = 16
+blockCipherBlockSize Camellia256   = 16
+blockCipherBlockSize Noekeon       = 16
+blockCipherBlockSize SEED          = 16
+blockCipherBlockSize Serpent       = 16
+blockCipherBlockSize SM4           = 16
+blockCipherBlockSize Twofish       = 16
+blockCipherBlockSize SHACAL2       = 32
+blockCipherBlockSize Threefish512  = 64
 -- NOTE: Statically generatated:
 {-
 generateBlockCipherBlockSizes :: IO ()
@@ -343,28 +343,28 @@ generateBlockCipherBlockSizes = do
 -}
 
 blockCipherKeySpec :: BlockCipher -> BlockCipherKeySpec
-blockCipherKeySpec Blowfish         = keySpec 1 56 1
-blockCipherKeySpec CAST128          = keySpec 11 16 1
-blockCipherKeySpec DES              = keySpec 8 8 1
-blockCipherKeySpec TripleDES        = keySpec 16 24 8
-blockCipherKeySpec GOST_28147_89    = keySpec 32 32 1
-blockCipherKeySpec IDEA             = keySpec 16 16 1
-blockCipherKeySpec AES128           = keySpec 16 16 1
-blockCipherKeySpec AES192           = keySpec 24 24 1
-blockCipherKeySpec AES256           = keySpec 32 32 1
-blockCipherKeySpec ARIA128          = keySpec 16 16 1
-blockCipherKeySpec ARIA192          = keySpec 24 24 1
-blockCipherKeySpec ARIA256          = keySpec 32 32 1
-blockCipherKeySpec Camellia128      = keySpec 16 16 1
-blockCipherKeySpec Camellia192      = keySpec 24 24 1
-blockCipherKeySpec Camellia256      = keySpec 32 32 1
-blockCipherKeySpec Noekeon          = keySpec 16 16 1
-blockCipherKeySpec SEED             = keySpec 16 16 1
-blockCipherKeySpec Serpent          = keySpec 16 32 8
-blockCipherKeySpec SM4              = keySpec 16 16 1
-blockCipherKeySpec Twofish          = keySpec 16 32 8
-blockCipherKeySpec SHACAL2          = keySpec 16 64 4
-blockCipherKeySpec Threefish512     = keySpec 64 64 1
+blockCipherKeySpec Blowfish      = keySpec 1 56 1
+blockCipherKeySpec CAST128       = keySpec 11 16 1
+blockCipherKeySpec DES           = keySpec 8 8 1
+blockCipherKeySpec TripleDES     = keySpec 16 24 8
+blockCipherKeySpec GOST_28147_89 = keySpec 32 32 1
+blockCipherKeySpec IDEA          = keySpec 16 16 1
+blockCipherKeySpec AES128        = keySpec 16 16 1
+blockCipherKeySpec AES192        = keySpec 24 24 1
+blockCipherKeySpec AES256        = keySpec 32 32 1
+blockCipherKeySpec ARIA128       = keySpec 16 16 1
+blockCipherKeySpec ARIA192       = keySpec 24 24 1
+blockCipherKeySpec ARIA256       = keySpec 32 32 1
+blockCipherKeySpec Camellia128   = keySpec 16 16 1
+blockCipherKeySpec Camellia192   = keySpec 24 24 1
+blockCipherKeySpec Camellia256   = keySpec 32 32 1
+blockCipherKeySpec Noekeon       = keySpec 16 16 1
+blockCipherKeySpec SEED          = keySpec 16 16 1
+blockCipherKeySpec Serpent       = keySpec 16 32 8
+blockCipherKeySpec SM4           = keySpec 16 16 1
+blockCipherKeySpec Twofish       = keySpec 16 32 8
+blockCipherKeySpec SHACAL2       = keySpec 16 64 4
+blockCipherKeySpec Threefish512  = keySpec 64 64 1
 -- NOTE: Statically generatated:
 {-
 generateBlockCipherKeySpecs :: IO ()
@@ -433,8 +433,8 @@ blockCipherDecryptLazy = undefined
 -- Tagged mutable context
 
 data MutableBlockCipher = MkMutableBlockCipher
-    { mutableBlockCipherType    :: BlockCipher
-    , mutableBlockCipherCtx     :: Low.BlockCipher
+    { mutableBlockCipherType :: BlockCipher
+    , mutableBlockCipherCtx  :: Low.BlockCipher
     }
 
 -- Destructor

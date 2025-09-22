@@ -1,20 +1,20 @@
-import Test.Tasty.Bench
+import           Test.Tasty.Bench
 
-import Prelude
+import           Prelude
 
-import Data.ByteString (ByteString(..))
+import           Data.ByteString (ByteString (..))
 import qualified Data.ByteString as ByteString
 
-import qualified Botan.Bindings.RNG as Botan
 import qualified Botan.Bindings.Bcrypt as Botan
-import qualified Botan.Low.RNG as Botan
+import qualified Botan.Bindings.RNG as Botan
 import qualified Botan.Low.Bcrypt as Botan
 import qualified Botan.Low.Hash as Botan
+import qualified Botan.Low.RNG as Botan
 
 
-import qualified Crypto.KDF.BCrypt as Crypton
 import qualified Crypto.Hash as Crypton
 import qualified Crypto.Hash.Algorithms as Crypton
+import qualified Crypto.KDF.BCrypt as Crypton
 
 password :: ByteString
 password = "Fee fi fo fum!"

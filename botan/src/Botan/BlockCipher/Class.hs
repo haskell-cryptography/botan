@@ -18,16 +18,16 @@ module Botan.BlockCipher.Class
 , IncrementalBlockCipher128(..)
 ) where
 
-import Botan.Prelude hiding (Ciphertext, LazyCiphertext)
+import           Botan.Prelude hiding (Ciphertext, LazyCiphertext)
 
-import Data.Maybe
-import Data.Proxy (Proxy(..))
+import           Data.Maybe
+import           Data.Proxy (Proxy (..))
 
 import qualified Data.ByteString as ByteString
 import qualified Data.ByteString.Lazy as Lazy
 
-import Botan.Types.Class
-import Botan.RNG
+import           Botan.RNG
+import           Botan.Types.Class
 
 -- TODO: Maybe make take Block instead of ByteString, where Block (n :: Nat) ~ ByteString | length bs == natVal n
 

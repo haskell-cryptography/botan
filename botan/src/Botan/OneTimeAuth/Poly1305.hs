@@ -7,7 +7,7 @@ module Botan.OneTimeAuth.Poly1305
 -- , poly1305AuthOneTimeAuthLazy
 ) where
 
-import Data.Maybe
+import           Data.Maybe
 
 import qualified Data.ByteString as ByteString
 import qualified Data.ByteString.Lazy as Lazy
@@ -16,8 +16,8 @@ import qualified Data.Text as Text
 import qualified Botan.MAC as Botan
 import qualified Botan.Utility as Botan
 
-import Botan.OneTimeAuth.Class
-import Botan.Prelude
+import           Botan.OneTimeAuth.Class
+import           Botan.Prelude
 
 -- Poly1305 type
 

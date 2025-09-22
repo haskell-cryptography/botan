@@ -2,10 +2,10 @@ module Botan.Low.X509.CRLSpec
 ( spec
 ) where
 
-import Test.Prelude
+import           Test.Prelude
 
-import Botan.Low.X509
-import Botan.Low.X509.CRL
+import           Botan.Low.X509
+import           Botan.Low.X509.CRL
 
 -- TODO: Better than this - consolidate
 loadTestCert :: IO X509Cert

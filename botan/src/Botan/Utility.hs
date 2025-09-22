@@ -13,21 +13,22 @@ module Botan.Utility
 , base64Decode
 ) where
 
-import System.IO.Unsafe
+import           System.IO.Unsafe
 
-import Data.ByteString.Unsafe as ByteString
-import Data.ByteString.Internal as ByteString
+import           Data.ByteString.Internal as ByteString
+import           Data.ByteString.Unsafe as ByteString
 
-import Botan.Low.Utility (HexEncodingFlags(..), pattern HexUpperCase, pattern HexLowerCase)
-import qualified Botan.Low.Utility as Low
 import qualified Botan.Bindings.Utility as Bindings
+import           Botan.Low.Utility (HexEncodingFlags (..), pattern HexLowerCase,
+                     pattern HexUpperCase)
+import qualified Botan.Low.Utility as Low
 
-import Foreign.Ptr
-import Foreign.ForeignPtr
-import Foreign.Storable
+import           Foreign.ForeignPtr
+import           Foreign.Ptr
+import           Foreign.Storable
 
-import Botan.Error
-import Botan.Prelude
+import           Botan.Error
+import           Botan.Prelude
 
 -- | Returns 0 if x[0..len] == y[0..len], -1 otherwise.
 constantTimeCompare :: ByteString -> ByteString -> Int -> Bool

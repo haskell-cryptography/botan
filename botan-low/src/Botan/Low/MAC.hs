@@ -80,14 +80,14 @@ module Botan.Low.MAC
 
 import qualified Data.ByteString as ByteString
 
-import Botan.Bindings.MAC
+import           Botan.Bindings.MAC
 
-import Botan.Low.BlockCipher
-import Botan.Low.Error
-import Botan.Low.Hash
-import Botan.Low.Make
-import Botan.Low.Prelude
-import Botan.Low.Remake
+import           Botan.Low.BlockCipher
+import           Botan.Low.Error
+import           Botan.Low.Hash
+import           Botan.Low.Make
+import           Botan.Low.Prelude
+import           Botan.Low.Remake
 
 {- $introduction
 

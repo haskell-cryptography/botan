@@ -2,9 +2,9 @@ module Botan.Error
 ( module Botan.Low.Error
 ) where
 
-import Botan.Prelude
+import           Botan.Prelude
 
-import Botan.Low.Error hiding (tryBotan, catchBotan, handleBotan)
+import           Botan.Low.Error hiding (catchBotan, handleBotan, tryBotan)
 
 -- NOTE: These need MonadUnliftIO
 

@@ -59,13 +59,13 @@ module Botan.Low.MPI
 
 import qualified Data.ByteString as ByteString
 
-import Botan.Bindings.MPI
+import           Botan.Bindings.MPI
 
-import Botan.Low.Error
-import Botan.Low.Make
-import Botan.Low.Prelude
-import Botan.Low.Remake
-import Botan.Low.RNG
+import           Botan.Low.Error
+import           Botan.Low.Make
+import           Botan.Low.Prelude
+import           Botan.Low.Remake
+import           Botan.Low.RNG
 
 -- Yes, the module is named MPI, but the type is MP.
 -- I'm probably renaming the module / type to `Botan.Integer` for ergonomics,

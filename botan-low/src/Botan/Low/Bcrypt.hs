@@ -38,14 +38,14 @@ module Botan.Low.Bcrypt
 
 import qualified Data.ByteString as ByteString
 
-import Botan.Bindings.Bcrypt
+import           Botan.Bindings.Bcrypt
 
-import Botan.Low.Error
-import Botan.Low.Make
-import Botan.Low.Prelude
-import Botan.Low.RNG
+import           Botan.Low.Error
+import           Botan.Low.Make
+import           Botan.Low.Prelude
+import           Botan.Low.RNG
 
-import Data.ByteString.Internal as ByteString
+import           Data.ByteString.Internal as ByteString
 
 {- $introduction
 

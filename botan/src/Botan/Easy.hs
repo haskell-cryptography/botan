@@ -16,22 +16,22 @@ module Botan.Easy
 , cipherDecrypt
 ) where
 
-import Botan.Prelude hiding (Ciphertext, LazyCiphertext)
+import           Botan.Prelude hiding (Ciphertext, LazyCiphertext)
 
-import Data.ByteString (ByteString)
+import           Data.ByteString (ByteString)
 
-import Botan.RNG (MonadRandomIO(..))
+import           Botan.RNG (MonadRandomIO (..))
 
 import qualified Botan.Types.Class as Types
 
 import qualified Botan.Hash.Class as Hash
-import qualified Botan.Hash.SHA3  as Hash
+import qualified Botan.Hash.SHA3 as Hash
 
+import qualified Botan.BlockCipher.AES as BlockCipher
 import qualified Botan.BlockCipher.Class as BlockCipher
-import qualified Botan.BlockCipher.AES   as BlockCipher
 
-import qualified Botan.Cipher.Class            as Cipher
 import qualified Botan.Cipher.ChaCha20Poly1305 as Cipher
+import qualified Botan.Cipher.Class as Cipher
 
 -- A module of recommended algorithms; eg, one-file botanium
 

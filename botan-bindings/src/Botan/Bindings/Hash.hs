@@ -30,7 +30,7 @@ hashFinal), the internal state is reset to begin hashing a new message.
 
 module Botan.Bindings.Hash where
 
-import Botan.Bindings.Prelude
+import           Botan.Bindings.Prelude
 
 -- | Opaque Hash struct
 data {-# CTYPE "botan/ffi.h" "struct botan_hash_struct" #-} BotanHashStruct

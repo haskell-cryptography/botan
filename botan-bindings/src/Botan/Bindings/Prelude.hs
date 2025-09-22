@@ -1,6 +1,5 @@
-{-# LANGUAGE CApiFFI
-           , CPP
-           #-}
+{-# LANGUAGE CApiFFI #-}
+{-# LANGUAGE CPP     #-}
 
 module Botan.Bindings.Prelude
 ( module Prelude
@@ -18,28 +17,28 @@ module Botan.Bindings.Prelude
 , ConstPtr(..)
 ) where
 
-import Prelude
+import           Prelude
 
 -- import Data.ByteString (ByteString)
-import Data.String (IsString(..))
-import Data.Word
+import           Data.String (IsString (..))
+import           Data.Word
 
-import System.IO
+import           System.IO
 
-import Foreign.C.String
-import Foreign.C.Types
-import Foreign.ForeignPtr
-import Foreign.Marshal.Alloc
-import Foreign.Marshal.Array
-import Foreign.Ptr
-import Foreign.Storable
+import           Foreign.C.String
+import           Foreign.C.Types
+import           Foreign.ForeignPtr
+import           Foreign.Marshal.Alloc
+import           Foreign.Marshal.Array
+import           Foreign.Ptr
+import           Foreign.Storable
 
 
 #if MIN_VERSION_base (4,18,0)
-import Foreign.C.ConstPtr
+import           Foreign.C.ConstPtr
 #else
-import Data.Data
-import Data.Kind
+import           Data.Data
+import           Data.Kind
 #endif
 
 #if !(MIN_VERSION_base (4,18,0))

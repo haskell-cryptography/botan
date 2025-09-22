@@ -72,11 +72,11 @@ import qualified Data.ByteString as ByteString
 
 import qualified Botan.Low.PubKey.KeyEncapsulation as Low
 
-import Botan.Error
-import Botan.Prelude
-import Botan.KDF
-import Botan.RNG
-import Botan.PubKey
+import           Botan.Error
+import           Botan.KDF
+import           Botan.Prelude
+import           Botan.PubKey
+import           Botan.RNG
 
 {- $introduction
 

@@ -17,11 +17,11 @@ import qualified Data.Text as Text
 import qualified Botan.Cipher as Botan
 import qualified Botan.Utility as Botan
 
-import Botan.Prelude hiding (Ciphertext, LazyCiphertext)
+import           Botan.Prelude hiding (Ciphertext, LazyCiphertext)
 
-import Botan.Cipher.Class
-import Botan.Types.Class
-import Botan.RNG
+import           Botan.Cipher.Class
+import           Botan.RNG
+import           Botan.Types.Class
 
 
 -- ChaCha20Poly1305 type

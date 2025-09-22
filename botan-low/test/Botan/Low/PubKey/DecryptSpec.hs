@@ -1,11 +1,11 @@
 module Main where
 
-import Test.Prelude
+import           Test.Prelude
 
-import Botan.Low.PubKey
-import Botan.Low.PubKey.Encrypt
-import Botan.Low.PubKey.Decrypt
-import Botan.Low.RNG
+import           Botan.Low.PubKey
+import           Botan.Low.PubKey.Decrypt
+import           Botan.Low.PubKey.Encrypt
+import           Botan.Low.RNG
 
 pks =
     [ ("RSA", "2048", "PKCS1v15")

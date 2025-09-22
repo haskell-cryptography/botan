@@ -1,9 +1,9 @@
 module Main where
 
-import Test.Prelude
-import Botan.Low.Hash (HashName(..))
+import           Botan.Low.Hash (HashName (..))
+import           Test.Prelude
 
-import Botan.Low.HOTP
+import           Botan.Low.HOTP
 
 key :: ByteString
 key = "Fee fi fo fum"

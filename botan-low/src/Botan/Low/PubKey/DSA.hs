@@ -13,15 +13,15 @@ module Botan.Low.PubKey.DSA where
 
 import qualified Data.ByteString as ByteString
 
-import Botan.Bindings.PubKey
-import Botan.Bindings.PubKey.DSA
+import           Botan.Bindings.PubKey
+import           Botan.Bindings.PubKey.DSA
 
-import Botan.Low.Error
-import Botan.Low.Make
-import Botan.Low.MPI
-import Botan.Low.Prelude
-import Botan.Low.PubKey
-import Botan.Low.RNG
+import           Botan.Low.Error
+import           Botan.Low.Make
+import           Botan.Low.MPI
+import           Botan.Low.Prelude
+import           Botan.Low.PubKey
+import           Botan.Low.RNG
 
 privKeyCreateDSA
     :: RNG          -- ^ __rng__: initialized PRNG

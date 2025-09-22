@@ -1,10 +1,10 @@
 module Botan.KeySpec where
 
-import Botan.Prelude
+import           Botan.Prelude
 
-import Botan.RNG
+import           Botan.RNG
 
-import Botan.Types.Class
+import           Botan.Types.Class
 
 -- Keep prior stuff working for the moment
 

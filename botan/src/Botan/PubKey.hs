@@ -92,16 +92,16 @@ module Botan.PubKey
 
 ) where
 
+import           Botan.Low.MPI
+import           Botan.Low.PubKey (PrivKey (..), PubKey (..))
 import qualified Botan.Low.PubKey as Low
-import Botan.Low.PubKey (PrivKey(..), PubKey(..))
 import qualified Botan.Low.RNG as Low
-import Botan.Low.MPI
 
-import Botan.Hash
-import Botan.Prelude
-import Botan.RNG
+import           Botan.Hash
+import           Botan.Prelude
+import           Botan.RNG
 
-import Data.Bool
+import           Data.Bool
 
 {- $introduction
 
@@ -301,24 +301,24 @@ type PKName = ByteString
 type PKParams = ByteString
 
 pkName :: PK -> PKName
-pkName (RSA _)          = Low.RSA           -- "RSA"
-pkName (SM2 _)          = Low.SM2           -- "SM2"
-pkName (ElGamal _)      = Low.ElGamal       -- "ElGamal"
-pkName (DSA _)          = Low.DSA           -- "DSA"
-pkName (ECDSA _)        = Low.ECDSA         -- "ECDSA"
-pkName (ECKCDSA _)      = Low.ECKCDSA       -- "ECKCDSA"
-pkName (ECGDSA _)       = Low.ECGDSA        -- "ECGDSA"
-pkName (GOST_34_10 _)   = Low.GOST_34_10    -- "GOST-34.10"
-pkName Ed25519          = Low.Ed25519       -- "Ed25519"
-pkName (XMSS _)         = Low.XMSS          -- "XMSS"
-pkName (DH _)           = Low.DH            -- "DH"
-pkName (ECDH _)         = Low.ECDH          -- "ECDH"
-pkName Curve25519       = Low.Curve25519    -- "Curve25519"
+pkName (RSA _)        = Low.RSA           -- "RSA"
+pkName (SM2 _)        = Low.SM2           -- "SM2"
+pkName (ElGamal _)    = Low.ElGamal       -- "ElGamal"
+pkName (DSA _)        = Low.DSA           -- "DSA"
+pkName (ECDSA _)      = Low.ECDSA         -- "ECDSA"
+pkName (ECKCDSA _)    = Low.ECKCDSA       -- "ECKCDSA"
+pkName (ECGDSA _)     = Low.ECGDSA        -- "ECGDSA"
+pkName (GOST_34_10 _) = Low.GOST_34_10    -- "GOST-34.10"
+pkName Ed25519        = Low.Ed25519       -- "Ed25519"
+pkName (XMSS _)       = Low.XMSS          -- "XMSS"
+pkName (DH _)         = Low.DH            -- "DH"
+pkName (ECDH _)       = Low.ECDH          -- "ECDH"
+pkName Curve25519     = Low.Curve25519    -- "Curve25519"
 -- New in 3.x?
-pkName Dilithium        = Low.Dilithium   -- "Dilithium-6x5-r3"   -- TODO: Find full listing in doxygen
-pkName Kyber            = Low.Kyber       -- "Kyber-1024-r3"      -- TODO: Find full listing in doxygen
+pkName Dilithium      = Low.Dilithium   -- "Dilithium-6x5-r3"   -- TODO: Find full listing in doxygen
+pkName Kyber          = Low.Kyber       -- "Kyber-1024-r3"      -- TODO: Find full listing in doxygen
 -- pkName SPHINCSPlus      = "SPHINCS+"  -- Doesn't work :/      -- TODO: Find full listing in doxygen
-pkName McEliece         = Low.McEliece
+pkName McEliece       = Low.McEliece
 
 pkParams :: PK -> PKParams
 pkParams (RSA bits)       = showBytes bits
@@ -357,18 +357,18 @@ data XMSS
 type XMSSName = ByteString
 
 xmssName :: XMSS -> XMSSName
-xmssName XMSS_SHA2_10_256   = Low.XMSS_SHA2_10_256
-xmssName XMSS_SHA2_16_256   = Low.XMSS_SHA2_16_256
-xmssName XMSS_SHA2_20_256   = Low.XMSS_SHA2_20_256
-xmssName XMSS_SHA2_10_512   = Low.XMSS_SHA2_10_512
-xmssName XMSS_SHA2_16_512   = Low.XMSS_SHA2_16_512
-xmssName XMSS_SHA2_20_512   = Low.XMSS_SHA2_20_512
-xmssName XMSS_SHAKE_10_256  = Low.XMSS_SHAKE_10_256
-xmssName XMSS_SHAKE_16_256  = Low.XMSS_SHAKE_16_256
-xmssName XMSS_SHAKE_20_256  = Low.XMSS_SHAKE_20_256
-xmssName XMSS_SHAKE_10_512  = Low.XMSS_SHAKE_10_512
-xmssName XMSS_SHAKE_16_512  = Low.XMSS_SHAKE_16_512
-xmssName XMSS_SHAKE_20_512  = Low.XMSS_SHAKE_20_512
+xmssName XMSS_SHA2_10_256  = Low.XMSS_SHA2_10_256
+xmssName XMSS_SHA2_16_256  = Low.XMSS_SHA2_16_256
+xmssName XMSS_SHA2_20_256  = Low.XMSS_SHA2_20_256
+xmssName XMSS_SHA2_10_512  = Low.XMSS_SHA2_10_512
+xmssName XMSS_SHA2_16_512  = Low.XMSS_SHA2_16_512
+xmssName XMSS_SHA2_20_512  = Low.XMSS_SHA2_20_512
+xmssName XMSS_SHAKE_10_256 = Low.XMSS_SHAKE_10_256
+xmssName XMSS_SHAKE_16_256 = Low.XMSS_SHAKE_16_256
+xmssName XMSS_SHAKE_20_256 = Low.XMSS_SHAKE_20_256
+xmssName XMSS_SHAKE_10_512 = Low.XMSS_SHAKE_10_512
+xmssName XMSS_SHAKE_16_512 = Low.XMSS_SHAKE_16_512
+xmssName XMSS_SHAKE_20_512 = Low.XMSS_SHAKE_20_512
 
 data ECGroup
     = Secp160k1
@@ -402,33 +402,33 @@ data ECGroup
 type ECGroupName = ByteString
 
 ecGroupName :: ECGroup -> ECGroupName
-ecGroupName Secp160k1       = Low.Secp160k1
-ecGroupName Secp160r1       = Low.Secp160r1
-ecGroupName Secp160r2       = Low.Secp160r2
-ecGroupName Secp192k1       = Low.Secp192k1
-ecGroupName Secp192r1       = Low.Secp192r1
-ecGroupName Secp224k1       = Low.Secp224k1
-ecGroupName Secp224r1       = Low.Secp224r1
-ecGroupName Secp256k1       = Low.Secp256k1
-ecGroupName Secp256r1       = Low.Secp256r1
-ecGroupName Secp384r1       = Low.Secp384r1
-ecGroupName Secp521r1       = Low.Secp521r1
-ecGroupName Brainpool160r1  = Low.Brainpool160r1
-ecGroupName Brainpool192r1  = Low.Brainpool192r1
-ecGroupName Brainpool224r1  = Low.Brainpool224r1
-ecGroupName Brainpool256r1  = Low.Brainpool256r1
-ecGroupName Brainpool320r1  = Low.Brainpool320r1
-ecGroupName Brainpool384r1  = Low.Brainpool384r1
-ecGroupName Brainpool512r1  = Low.Brainpool512r1
-ecGroupName X962_p192v2     = Low.X962_p192v2
-ecGroupName X962_p192v3     = Low.X962_p192v3
-ecGroupName X962_p239v1     = Low.X962_p239v1
-ecGroupName X962_p239v2     = Low.X962_p239v2
-ecGroupName X962_p239v3     = Low.X962_p239v3
-ecGroupName Gost_256A       = Low.Gost_256A
-ecGroupName Gost_512A       = Low.Gost_512A
-ecGroupName Frp256v1        = Low.Frp256v1
-ecGroupName Sm2p256v1       = Low.Sm2p256v1
+ecGroupName Secp160k1      = Low.Secp160k1
+ecGroupName Secp160r1      = Low.Secp160r1
+ecGroupName Secp160r2      = Low.Secp160r2
+ecGroupName Secp192k1      = Low.Secp192k1
+ecGroupName Secp192r1      = Low.Secp192r1
+ecGroupName Secp224k1      = Low.Secp224k1
+ecGroupName Secp224r1      = Low.Secp224r1
+ecGroupName Secp256k1      = Low.Secp256k1
+ecGroupName Secp256r1      = Low.Secp256r1
+ecGroupName Secp384r1      = Low.Secp384r1
+ecGroupName Secp521r1      = Low.Secp521r1
+ecGroupName Brainpool160r1 = Low.Brainpool160r1
+ecGroupName Brainpool192r1 = Low.Brainpool192r1
+ecGroupName Brainpool224r1 = Low.Brainpool224r1
+ecGroupName Brainpool256r1 = Low.Brainpool256r1
+ecGroupName Brainpool320r1 = Low.Brainpool320r1
+ecGroupName Brainpool384r1 = Low.Brainpool384r1
+ecGroupName Brainpool512r1 = Low.Brainpool512r1
+ecGroupName X962_p192v2    = Low.X962_p192v2
+ecGroupName X962_p192v3    = Low.X962_p192v3
+ecGroupName X962_p239v1    = Low.X962_p239v1
+ecGroupName X962_p239v2    = Low.X962_p239v2
+ecGroupName X962_p239v3    = Low.X962_p239v3
+ecGroupName Gost_256A      = Low.Gost_256A
+ecGroupName Gost_512A      = Low.Gost_512A
+ecGroupName Frp256v1       = Low.Frp256v1
+ecGroupName Sm2p256v1      = Low.Sm2p256v1
 
 data DLGroup
     -- = FFDHE FFDHE

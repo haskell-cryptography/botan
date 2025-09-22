@@ -15,15 +15,15 @@ module Botan.Cipher.Class
 -- , MutableCtx(..)
 ) where
 
-import Botan.Prelude hiding (Ciphertext, LazyCiphertext)
+import           Botan.Prelude hiding (Ciphertext, LazyCiphertext)
 
-import Data.Proxy (Proxy(..))
+import           Data.Proxy (Proxy (..))
 
 import qualified Data.ByteString as ByteString
 import qualified Data.ByteString.Lazy as Lazy
 
-import Botan.Types.Class
-import Botan.RNG
+import           Botan.RNG
+import           Botan.Types.Class
 
 -- NOTE: I think that CBC NoPadding is the only cipher that doesn't accept arbitrary length input
 -- So we can drop the Maybe from cipherEncrypt

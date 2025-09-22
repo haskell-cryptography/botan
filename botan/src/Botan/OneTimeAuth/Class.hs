@@ -9,9 +9,9 @@ module Botan.OneTimeAuth.Class
 , oneTimeAuthFileLazy
 ) where
 
-import Botan.Prelude
+import           Botan.Prelude
 
-import Data.Proxy (Proxy(..))
+import           Data.Proxy (Proxy (..))
 
 import qualified Data.ByteString as ByteString
 import qualified Data.ByteString.Lazy as Lazy

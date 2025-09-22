@@ -2,8 +2,8 @@ module Botan.KeyWrap where
 
 import qualified Botan.Low.KeyWrap as Low
 
-import Botan.BlockCipher
-import Botan.Prelude
+import           Botan.BlockCipher
+import           Botan.Prelude
 
 -- NOTE: These friendlier names reflect the higher-level C++ interface names
 --  as opposed to Botan.Low.KeyWrap and the C FFI names, but drop the 'nist'

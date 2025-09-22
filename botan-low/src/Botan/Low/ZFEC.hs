@@ -29,18 +29,18 @@ module Botan.Low.ZFEC
 
 ) where
 
-import Control.Concurrent
+import           Control.Concurrent
 
-import Data.Foldable
+import           Data.Foldable
 
 import qualified Data.ByteString as ByteString
 import qualified Data.ByteString.Unsafe as ByteString
 
-import Botan.Bindings.ZFEC
+import           Botan.Bindings.ZFEC
 
-import Botan.Low.Error
-import Botan.Low.Make
-import Botan.Low.Prelude
+import           Botan.Low.Error
+import           Botan.Low.Make
+import           Botan.Low.Prelude
 
 {- $introduction
 

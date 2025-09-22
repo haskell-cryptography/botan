@@ -1,13 +1,13 @@
 module Main where
 
-import Test.Prelude
+import           Test.Prelude
 
 import qualified Data.ByteString as ByteString
 
-import Botan.Low.PubKey
-import Botan.Low.PubKey.Sign
-import Botan.Low.PubKey.Verify
-import Botan.Low.RNG
+import           Botan.Low.PubKey
+import           Botan.Low.PubKey.Sign
+import           Botan.Low.PubKey.Verify
+import           Botan.Low.RNG
 
 -- TODO: Consolidate test values with SignSpec
 

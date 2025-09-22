@@ -40,15 +40,15 @@ module Botan.Low.PubKey.KeyEncapsulation
 
 import qualified Data.ByteString as ByteString
 
-import Botan.Bindings.PubKey.KeyEncapsulation
+import           Botan.Bindings.PubKey.KeyEncapsulation
 
-import Botan.Low.Error
-import Botan.Low.KDF
-import Botan.Low.Make
-import Botan.Low.Prelude
-import Botan.Low.PubKey
-import Botan.Low.Remake
-import Botan.Low.RNG
+import           Botan.Low.Error
+import           Botan.Low.KDF
+import           Botan.Low.Make
+import           Botan.Low.Prelude
+import           Botan.Low.PubKey
+import           Botan.Low.Remake
+import           Botan.Low.RNG
 
 {- $introduction
 

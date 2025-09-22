@@ -54,16 +54,16 @@ module Botan.PubKey.Sign
 
 import qualified Data.ByteString as ByteString
 
-import Data.Bool
+import           Data.Bool
 
 import qualified Botan.Low.PubKey as Low
 import qualified Botan.Low.PubKey.Sign as Low
 
-import Botan.Error
-import Botan.Hash
-import Botan.Prelude
-import Botan.PubKey
-import Botan.RNG
+import           Botan.Error
+import           Botan.Hash
+import           Botan.Prelude
+import           Botan.PubKey
+import           Botan.RNG
 
 {- $introduction
 
@@ -188,12 +188,12 @@ data Ed25519Sign'
 {- END REFACTORING STAB 1 -}
 
 signAlgoName :: SignAlgo -> Low.EMSAName
-signAlgoName (EMSA emsa)            = emsaName emsa
-signAlgoName Ed25519Pure            = "Pure"
-signAlgoName Ed25519ph              = "Ed25519ph"
-signAlgoName (Ed25519Hash h)        = hashName h
-signAlgoName (SM2SignParam uid h)   = uid <> "," <> hashName h
-signAlgoName _                      = ""
+signAlgoName (EMSA emsa)          = emsaName emsa
+signAlgoName Ed25519Pure          = "Pure"
+signAlgoName Ed25519ph            = "Ed25519ph"
+signAlgoName (Ed25519Hash h)      = hashName h
+signAlgoName (SM2SignParam uid h) = uid <> "," <> hashName h
+signAlgoName _                    = ""
 
 -- NOTE: Mostly straight from Z-Botan
 --  Can do a lot to make more ergonomic
@@ -240,6 +240,6 @@ data SignatureFormat
     deriving (Show, Eq)
 
 signatureFormatFlag :: SignatureFormat -> Low.SigningFlags
-signatureFormatFlag StandardFormat    = Low.StandardFormatSignature -- BOTAN_PUBKEY_SIGNING_FLAGS_NONE
-signatureFormatFlag DERFormat = Low.DERFormatSignature -- BOTAN_PUBKEY_DER_FORMAT_SIGNATURE
+signatureFormatFlag StandardFormat = Low.StandardFormatSignature -- BOTAN_PUBKEY_SIGNING_FLAGS_NONE
+signatureFormatFlag DERFormat      = Low.DERFormatSignature -- BOTAN_PUBKEY_DER_FORMAT_SIGNATURE
 

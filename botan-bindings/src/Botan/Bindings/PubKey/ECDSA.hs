@@ -13,9 +13,9 @@ Portability : POSIX
 
 module Botan.Bindings.PubKey.ECDSA where
 
-import Botan.Bindings.MPI
-import Botan.Bindings.Prelude
-import Botan.Bindings.PubKey
+import           Botan.Bindings.MPI
+import           Botan.Bindings.Prelude
+import           Botan.Bindings.PubKey
 
 foreign import capi safe "botan/ffi.h botan_privkey_load_ecdsa"
     botan_privkey_load_ecdsa

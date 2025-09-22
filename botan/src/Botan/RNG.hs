@@ -11,18 +11,17 @@ Portability : POSIX
 A module for the common task of random number generation.
 -}
 
-{-# LANGUAGE    KindSignatures
-            ,   RankNTypes
-            ,   TypeSynonymInstances
-            ,   FlexibleInstances
-            ,   MagicHash
-            ,   TypeFamilies
-            ,   MultiParamTypeClasses
-            ,   CPP
-            ,   DerivingStrategies
-            ,   FunctionalDependencies
-            ,   GeneralizedNewtypeDeriving
-#-}
+{-# LANGUAGE CPP                        #-}
+{-# LANGUAGE DerivingStrategies         #-}
+{-# LANGUAGE FlexibleInstances          #-}
+{-# LANGUAGE FunctionalDependencies     #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE KindSignatures             #-}
+{-# LANGUAGE MagicHash                  #-}
+{-# LANGUAGE MultiParamTypeClasses      #-}
+{-# LANGUAGE RankNTypes                 #-}
+{-# LANGUAGE TypeFamilies               #-}
+{-# LANGUAGE TypeSynonymInstances       #-}
 
 module Botan.RNG
 (
@@ -74,20 +73,20 @@ module Botan.RNG
 
 ) where
 
-import Control.Concurrent.MVar
+import           Control.Concurrent.MVar
 
-import Data.Bifunctor
-import Data.Tuple
+import           Data.Bifunctor
+import           Data.Tuple
 
 import qualified Data.ByteString as ByteString
 
 import qualified Botan.Low.RNG as Low
 
-import Control.Monad.Reader
+import           Control.Monad.Reader
 
-import Botan.Prelude
+import           Botan.Prelude
 
-import System.Random.Stateful
+import           System.Random.Stateful
 
 {- $introduction
 
@@ -173,9 +172,9 @@ data RNGType
 type RNGName = Low.RNGType
 
 rngName :: RNGType -> RNGName
-rngName System            = Low.SystemRNG
-rngName Autoseeded        = Low.UserRNG
-rngName RDRand            = Low.RDRandRNG
+rngName System     = Low.SystemRNG
+rngName Autoseeded = Low.UserRNG
+rngName RDRand     = Low.RDRandRNG
 
 {- |
 The random number generator context.

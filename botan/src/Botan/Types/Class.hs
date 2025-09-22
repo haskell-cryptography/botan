@@ -46,12 +46,12 @@ module Botan.Types.Class
 , GLazyCiphertext(..)
 ) where
 
-import Botan.Prelude hiding (Ciphertext,LazyCiphertext)
+import           Botan.Prelude hiding (Ciphertext, LazyCiphertext)
 
-import Data.Coerce
-import Data.Either
-import Data.Maybe
-import Data.Proxy
+import           Data.Coerce
+import           Data.Either
+import           Data.Maybe
+import           Data.Proxy
 
 import qualified Data.ByteString as ByteString
 import qualified Data.ByteString.Lazy as Lazy
@@ -59,12 +59,12 @@ import qualified Data.ByteString.Lazy as Lazy
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
 
-import Botan.RNG
+import           Botan.RNG
 
-import Botan.Utility
+import           Botan.Utility
 
 -- FOR BlockSize
-import GHC.TypeLits
+import           GHC.TypeLits
 
 -- TODO: gnewSecretKey, gnewNonce, etc
 

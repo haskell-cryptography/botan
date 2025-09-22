@@ -26,7 +26,7 @@ Use AES for best interop.
 
 module Botan.Bindings.KeyWrap where
 
-import Botan.Bindings.Prelude
+import           Botan.Bindings.Prelude
 
 foreign import capi safe "botan/ffi.h botan_nist_kw_enc"
     botan_nist_kw_enc

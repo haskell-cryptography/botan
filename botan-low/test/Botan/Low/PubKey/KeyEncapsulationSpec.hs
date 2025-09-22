@@ -1,10 +1,10 @@
 module Main where
 
-import Test.Prelude
+import           Test.Prelude
 
-import Botan.Low.PubKey
-import Botan.Low.PubKey.KeyEncapsulation
-import Botan.Low.RNG
+import           Botan.Low.PubKey
+import           Botan.Low.PubKey.KeyEncapsulation
+import           Botan.Low.RNG
 
 pks =
     [ ( "RSA", "2048", "HKDF(SHA-256)")
