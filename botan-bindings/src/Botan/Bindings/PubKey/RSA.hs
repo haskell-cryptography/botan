@@ -11,7 +11,12 @@ Portability : POSIX
 
 {-# LANGUAGE CApiFFI #-}
 
-module Botan.Bindings.PubKey.RSA where
+module Botan.Bindings.PubKey.RSA (
+    botan_privkey_load_rsa
+  , botan_privkey_load_rsa_pkcs1
+  , botan_privkey_rsa_get_privkey
+  , botan_pubkey_load_rsa
+  ) where
 
 import           Botan.Bindings.MPI
 import           Botan.Bindings.Prelude

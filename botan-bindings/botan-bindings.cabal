@@ -46,19 +46,28 @@ flag pkg-config
   manual:      False
   description: Use @pkg-config(1)@ to locate foreign @botan-3@ library.
 
-library
-  hs-source-dirs:     src
-  default-language:   Haskell2010
+common warnings
+  ghc-options:
+    -Wall -Wcompat -Wincomplete-uni-patterns
+    -Wincomplete-record-updates -Wpartial-fields -Widentities
+    -Wredundant-constraints -Wmissing-export-lists
+    -Wno-unticked-promoted-constructors -Wunused-packages
+    -Wmissing-deriving-strategies
+
+common language
+  default-language:   GHC2021
   default-extensions:
-    DeriveDataTypeable
     DerivingStrategies
-    GeneralizedNewtypeDeriving
+    PatternSynonyms
+    RecordWildCards
+    RoleAnnotations
+
+library
+  import:             warnings, language
+  hs-source-dirs:     src
+  default-extensions:
     NoImplicitPrelude
     OverloadedStrings
-    PatternSynonyms
-    RoleAnnotations
-    ScopedTypeVariables
-    StandaloneKindSignatures
 
   exposed-modules:
     Botan.Bindings.Bcrypt
@@ -101,10 +110,7 @@ library
 
   other-modules:      Paths_botan_bindings
   autogen-modules:    Paths_botan_bindings
-  build-depends:
-    , base        >=4.16 && <4.22
-    , bytestring  >=0.11 && <0.13
-
+  build-depends:      base >=4.16 && <4.22
   includes:           botan/ffi.h
 
   if flag(pkg-config)
@@ -113,5 +119,3 @@ library
 
   else
     extra-libraries: botan-3
-
-  ghc-options:        -Wall -Wno-name-shadowing

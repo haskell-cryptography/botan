@@ -11,7 +11,11 @@ Portability : POSIX
 
 {-# LANGUAGE CApiFFI #-}
 
-module Botan.Bindings.PubKey.DSA where
+module Botan.Bindings.PubKey.DSA (
+    botan_privkey_create_dsa
+  , botan_privkey_load_dsa
+  , botan_pubkey_load_dsa
+  ) where
 
 import           Botan.Bindings.MPI
 import           Botan.Bindings.Prelude

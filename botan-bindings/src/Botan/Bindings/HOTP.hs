@@ -38,7 +38,15 @@ plaintext password.
 
 {-# LANGUAGE CApiFFI #-}
 
-module Botan.Bindings.HOTP where
+module Botan.Bindings.HOTP (
+    BotanHOTPStruct
+  , BotanHOTP (..)
+  , botan_hotp_destroy
+  , botan_hotp_init
+  , botan_hotp_generate
+  , botan_hotp_check
+  ) where
+
 import           Botan.Bindings.Prelude
 
 -- | Opaque HOTP struct

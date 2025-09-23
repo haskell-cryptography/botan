@@ -12,7 +12,11 @@ Portability : POSIX
 
 {-# LANGUAGE CApiFFI #-}
 
-module Botan.Bindings.PubKey.SM2 where
+module Botan.Bindings.PubKey.SM2 (
+    botan_pubkey_load_sm2
+  , botan_privkey_load_sm2
+  , botan_pubkey_sm2_compute_za
+  ) where
 
 import           Botan.Bindings.MPI
 import           Botan.Bindings.Prelude

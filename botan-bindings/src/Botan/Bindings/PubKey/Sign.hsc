@@ -11,7 +11,17 @@ Portability : POSIX
 
 {-# LANGUAGE CApiFFI #-}
 
-module Botan.Bindings.PubKey.Sign where
+module Botan.Bindings.PubKey.Sign (
+    BotanPKOpSignStruct
+  , BotanPKOpSign (..)
+  , botan_pk_op_sign_destroy
+  , pattern BOTAN_PUBKEY_STD_FORMAT_SIGNATURE
+  , pattern BOTAN_PUBKEY_DER_FORMAT_SIGNATURE
+  , botan_pk_op_sign_create
+  , botan_pk_op_sign_output_length
+  , botan_pk_op_sign_update
+  , botan_pk_op_sign_finish
+  ) where
 
 import Botan.Bindings.Prelude
 import Botan.Bindings.PubKey

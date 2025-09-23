@@ -29,7 +29,22 @@ still use different keys in the two contexts.
 
 {-# LANGUAGE CApiFFI #-}
 
-module Botan.Bindings.KDF where
+module Botan.Bindings.KDF (
+    pattern BOTAN_KDF_HKDF
+  , pattern BOTAN_KDF_HKDF_EXTRACT
+  , pattern BOTAN_KDF_HKDF_EXPAND
+  , pattern BOTAN_KDF_KDF2
+  , pattern BOTAN_KDF_KDF1_18033
+  , pattern BOTAN_KDF_KDF1
+  , pattern BOTAN_KDF_TLS_12_PRF
+  , pattern BOTAN_KDF_X9_42_PRF
+  , pattern BOTAN_KDF_SP800_108_COUNTER
+  , pattern BOTAN_KDF_SP800_108_FEEDBACK
+  , pattern BOTAN_KDF_SP800_108_PIPELINE
+  , pattern BOTAN_KDF_SP800_56A
+  , pattern BOTAN_KDF_SP800_56C
+  , botan_kdf
+  ) where
 
 import           Botan.Bindings.Prelude
 

@@ -11,7 +11,21 @@ Portability : POSIX
 
 {-# LANGUAGE CApiFFI #-}
 
-module Botan.Bindings.PubKey.KeyEncapsulation where
+module Botan.Bindings.PubKey.KeyEncapsulation (
+    BotanPKOpKEMEncryptStruct
+  , BotanPKOpKEMEncrypt (..)
+  , botan_pk_op_kem_encrypt_destroy
+  , botan_pk_op_kem_encrypt_create
+  , botan_pk_op_kem_encrypt_shared_key_length
+  , botan_pk_op_kem_encrypt_encapsulated_key_length
+  , botan_pk_op_kem_encrypt_create_shared_key
+  , BotanPKOpKEMDecryptStruct
+  , BotanPKOpKEMDecrypt (..)
+  , botan_pk_op_kem_decrypt_destroy
+  , botan_pk_op_kem_decrypt_create
+  , botan_pk_op_kem_decrypt_shared_key_length
+  , botan_pk_op_kem_decrypt_shared_key
+  ) where
 
 import           Botan.Bindings.Prelude
 import           Botan.Bindings.PubKey

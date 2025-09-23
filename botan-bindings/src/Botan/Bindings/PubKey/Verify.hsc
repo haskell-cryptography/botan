@@ -11,16 +11,16 @@ Portability : POSIX
 
 {-# LANGUAGE CApiFFI #-}
 
-module Botan.Bindings.PubKey.Verify
-( BotanPKOpVerifyStruct
-, BotanPKOpVerify(..)
-, botan_pk_op_verify_destroy
-, botan_pk_op_verify_create
-, botan_pk_op_verify_update
-, botan_pk_op_verify_finish
-, pattern BOTAN_PUBKEY_STD_FORMAT_SIGNATURE
-, pattern BOTAN_PUBKEY_DER_FORMAT_SIGNATURE
-) where
+module Botan.Bindings.PubKey.Verify (
+    BotanPKOpVerifyStruct
+  , BotanPKOpVerify (..)
+  , botan_pk_op_verify_destroy
+  , botan_pk_op_verify_create
+  , botan_pk_op_verify_update
+  , botan_pk_op_verify_finish
+  , pattern BOTAN_PUBKEY_STD_FORMAT_SIGNATURE
+  , pattern BOTAN_PUBKEY_DER_FORMAT_SIGNATURE
+  ) where
 
 import Botan.Bindings.Prelude
 import Botan.Bindings.PubKey

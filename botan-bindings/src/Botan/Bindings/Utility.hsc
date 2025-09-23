@@ -11,7 +11,16 @@ Portability : POSIX
 
 {-# LANGUAGE CApiFFI #-}
 
-module Botan.Bindings.Utility where
+module Botan.Bindings.Utility (
+    botan_constant_time_compare
+  , botan_scrub_mem
+  , pattern BOTAN_FFI_HEX_UPPER_CASE
+  , pattern BOTAN_FFI_HEX_LOWER_CASE
+  , botan_hex_encode
+  , botan_hex_decode
+  , botan_base64_encode
+  , botan_base64_decode
+  ) where
 
 import Botan.Bindings.Prelude
 

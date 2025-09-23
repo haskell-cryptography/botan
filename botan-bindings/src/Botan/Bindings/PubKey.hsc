@@ -14,7 +14,131 @@ for encryption, signatures, and key agreement.
 
 {-# LANGUAGE CApiFFI #-}
 
-module Botan.Bindings.PubKey where
+module Botan.Bindings.PubKey (
+    BotanPrivKeyStruct
+  , BotanPrivKey (..)
+  , botan_privkey_destroy
+  , pattern BOTAN_PK_RSA
+  , pattern BOTAN_PK_SM2
+  , pattern BOTAN_PK_ELGAMAL
+  , pattern BOTAN_PK_DSA
+  , pattern BOTAN_PK_ECDSA
+  , pattern BOTAN_PK_ECKCDSA
+  , pattern BOTAN_PK_ECGDSA
+  , pattern BOTAN_PK_GOST_34_10
+  , pattern BOTAN_PK_ED25519
+  , pattern BOTAN_PK_XMSS
+  , pattern BOTAN_PK_DH
+  , pattern BOTAN_PK_ECDH
+  , pattern BOTAN_PK_CURVE25519
+  , pattern BOTAN_PK_DILITHIUM
+  , pattern BOTAN_PK_KYBER
+  , pattern BOTAN_PK_MCELIECE
+
+  , pattern BOTAN_XMSS_SHA2_10_256
+  , pattern BOTAN_XMSS_SHA2_16_256
+  , pattern BOTAN_XMSS_SHA2_20_256
+  , pattern BOTAN_XMSS_SHA2_10_512
+  , pattern BOTAN_XMSS_SHA2_16_512
+  , pattern BOTAN_XMSS_SHA2_20_512
+  , pattern BOTAN_XMSS_SHAKE_10_256
+  , pattern BOTAN_XMSS_SHAKE_16_256
+  , pattern BOTAN_XMSS_SHAKE_20_256
+  , pattern BOTAN_XMSS_SHAKE_10_512
+  , pattern BOTAN_XMSS_SHAKE_16_512
+  , pattern BOTAN_XMSS_SHAKE_20_512
+
+  , pattern BOTAN_ECGROUP_SECP_160_K1
+  , pattern BOTAN_ECGROUP_SECP_160_R1
+  , pattern BOTAN_ECGROUP_SECP_160_R2
+  , pattern BOTAN_ECGROUP_SECP_192_K1
+  , pattern BOTAN_ECGROUP_SECP_192_R1
+  , pattern BOTAN_ECGROUP_SECP_224_K1
+  , pattern BOTAN_ECGROUP_SECP_224_R1
+  , pattern BOTAN_ECGROUP_SECP_256_K1
+  , pattern BOTAN_ECGROUP_SECP_256_R1
+  , pattern BOTAN_ECGROUP_SECP_384_R1
+  , pattern BOTAN_ECGROUP_SECP_521_R1
+  , pattern BOTAN_ECGROUP_BRAINPOOL_160_R1
+  , pattern BOTAN_ECGROUP_BRAINPOOL_192_R1
+  , pattern BOTAN_ECGROUP_BRAINPOOL_224_R1
+  , pattern BOTAN_ECGROUP_BRAINPOOL_256_R1
+  , pattern BOTAN_ECGROUP_BRAINPOOL_320_R1
+  , pattern BOTAN_ECGROUP_BRAINPOOL_384_R1
+  , pattern BOTAN_ECGROUP_BRAINPOOL_512_R1
+  , pattern BOTAN_ECGROUP_X962_P192_V2
+  , pattern BOTAN_ECGROUP_X962_P192_V3
+  , pattern BOTAN_ECGROUP_X962_P239_V1
+  , pattern BOTAN_ECGROUP_X962_P239_V2
+  , pattern BOTAN_ECGROUP_X962_P239_V3
+  , pattern BOTAN_ECGROUP_GOST_256A
+  , pattern BOTAN_ECGROUP_GOST_512A
+  , pattern BOTAN_ECGROUP_FRP_256_V1
+  , pattern BOTAN_ECGROUP_SM2_P256_V1
+
+  , pattern BOTAN_DLGROUP_FFDHE_IETF_2048
+  , pattern BOTAN_DLGROUP_FFDHE_IETF_3072
+  , pattern BOTAN_DLGROUP_FFDHE_IETF_4096
+  , pattern BOTAN_DLGROUP_FFDHE_IETF_6144
+  , pattern BOTAN_DLGROUP_FFDHE_IETF_8192
+  , pattern BOTAN_DLGROUP_MODP_IETF_1024
+  , pattern BOTAN_DLGROUP_MODP_IETF_1536
+  , pattern BOTAN_DLGROUP_MODP_IETF_2048
+  , pattern BOTAN_DLGROUP_MODP_IETF_3072
+  , pattern BOTAN_DLGROUP_MODP_IETF_4096
+  , pattern BOTAN_DLGROUP_MODP_IETF_6144
+  , pattern BOTAN_DLGROUP_MODP_IETF_8192
+  , pattern BOTAN_DLGROUP_MODP_SRP_1024
+  , pattern BOTAN_DLGROUP_MODP_SRP_1536
+  , pattern BOTAN_DLGROUP_MODP_SRP_2048
+  , pattern BOTAN_DLGROUP_MODP_SRP_3072
+  , pattern BOTAN_DLGROUP_MODP_SRP_4096
+  , pattern BOTAN_DLGROUP_MODP_SRP_6144
+  , pattern BOTAN_DLGROUP_MODP_SRP_8192
+  , pattern BOTAN_DLGROUP_DSA_JCE_1024
+  , pattern BOTAN_DLGROUP_DSA_BOTAN_2048
+  , pattern BOTAN_DLGROUP_DSA_BOTAN_3072
+
+  , pattern BOTAN_EME_RAW
+  , pattern BOTAN_EME_PKCS1_v1_5
+  , pattern BOTAN_EME_OAEP
+
+  , pattern BOTAN_MGF_MGF1
+  , botan_privkey_create
+  , pattern BOTAN_CHECK_KEY_NORMAL_TESTS
+  , pattern BOTAN_CHECK_KEY_EXPENSIVE_TESTS
+  , botan_privkey_check_key
+  , botan_privkey_load
+  , pattern BOTAN_PRIVKEY_EXPORT_FLAG_DER
+  , pattern BOTAN_PRIVKEY_EXPORT_FLAG_PEM
+  , botan_privkey_export
+  , botan_privkey_view_der
+  , botan_privkey_view_pem
+  , botan_privkey_algo_name
+  , botan_privkey_export_encrypted_pbkdf_msec
+  , botan_privkey_export_encrypted_pbkdf_iter
+  , botan_privkey_view_encrypted_der
+  , botan_privkey_view_encrypted_der_timed
+  , botan_privkey_view_encrypted_pem
+  , botan_privkey_view_encrypted_pem_timed
+  , botan_privkey_get_field
+  , BotanPubKeyStruct
+  , BotanPubKey (..)
+  , botan_pubkey_destroy
+  , botan_privkey_export_pubkey
+  , botan_pubkey_load
+  , pattern BOTAN_PUBKEY_EXPORT_FLAG_DER
+  , pattern BOTAN_PUBKEY_EXPORT_FLAG_PEM
+  , botan_pubkey_export
+  , botan_pubkey_view_der
+  , botan_pubkey_view_pem
+  , botan_pubkey_algo_name
+  , botan_pubkey_check_key
+  , botan_pubkey_estimated_strength
+  , botan_pubkey_fingerprint
+  , botan_pubkey_get_field
+  , botan_pubkey_view_ec_public_point
+  ) where
 
 import Botan.Bindings.MPI
 import Botan.Bindings.Prelude

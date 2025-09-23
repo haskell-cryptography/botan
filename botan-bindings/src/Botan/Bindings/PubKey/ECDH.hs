@@ -11,7 +11,10 @@ Portability : POSIX
 
 {-# LANGUAGE CApiFFI #-}
 
-module Botan.Bindings.PubKey.ECDH where
+module Botan.Bindings.PubKey.ECDH (
+    botan_pubkey_load_ecdh
+  , botan_privkey_load_ecdh
+  ) where
 
 import           Botan.Bindings.MPI
 import           Botan.Bindings.Prelude

@@ -16,7 +16,51 @@ repeatedly to encrypt an entire message.
 
 {-# LANGUAGE CApiFFI #-}
 
-module Botan.Bindings.Cipher where
+module Botan.Bindings.Cipher (
+    BotanCipherStruct
+  , BotanCipher (..)
+  , botan_cipher_destroy
+  , pattern BOTAN_CIPHER_MODE_CBC
+  , pattern BOTAN_CIPHER_MODE_CFB
+  , pattern BOTAN_CIPHER_MODE_XTS
+
+  , pattern BOTAN_CBC_PADDING_PKCS7
+  , pattern BOTAN_CBC_PADDING_ONE_AND_ZEROS
+  , pattern BOTAN_CBC_PADDING_X9_23
+  , pattern BOTAN_CBC_PADDING_ESP
+  , pattern BOTAN_CBC_PADDING_CTS
+  , pattern BOTAN_CBC_PADDING_NO_PADDING
+
+  , pattern BOTAN_AEAD_CHACHA20POLY1305
+
+  , pattern BOTAN_AEAD_MODE_GCM
+  , pattern BOTAN_AEAD_MODE_OCB
+  , pattern BOTAN_AEAD_MODE_EAX
+  , pattern BOTAN_AEAD_MODE_SIV
+  , pattern BOTAN_AEAD_MODE_CCM
+
+  , pattern BOTAN_CIPHER_INIT_FLAG_MASK_DIRECTION
+  , pattern BOTAN_CIPHER_INIT_FLAG_ENCRYPT
+  , pattern BOTAN_CIPHER_INIT_FLAG_DECRYPT
+  , botan_cipher_init
+  , botan_cipher_name
+  , botan_cipher_output_length
+  , botan_cipher_valid_nonce_length
+  , botan_cipher_get_tag_length
+  , botan_cipher_get_default_nonce_length
+  , botan_cipher_get_update_granularity
+  , botan_cipher_get_ideal_update_granularity
+  , botan_cipher_query_keylen
+  , botan_cipher_get_keyspec
+  , botan_cipher_set_key
+  , botan_cipher_reset
+  , botan_cipher_set_associated_data
+  , botan_cipher_start
+  , pattern BOTAN_CIPHER_UPDATE_FLAG_NONE
+  , pattern BOTAN_CIPHER_UPDATE_FLAG_FINAL
+  , botan_cipher_update
+  , botan_cipher_clear
+  ) where
 
 import Botan.Bindings.Prelude
 
