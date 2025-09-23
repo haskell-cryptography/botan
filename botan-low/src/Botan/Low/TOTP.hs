@@ -18,38 +18,37 @@ as a mobile phone.
 
 -}
 
-module Botan.Low.TOTP
-(
+module Botan.Low.TOTP (
 
--- * Time-based one time passwords
--- $introduction
--- * Usage
--- $usage
+  -- * Time-based one time passwords
+  -- $introduction
+  -- * Usage
+  -- $usage
 
--- * TOTP
+  -- * TOTP
 
-  TOTP(..)
-, TOTPHashName
-, TOTPTimestep
-, TOTPTimestamp
-, TOTPCode
-, withTOTP
-, totpInit
-, totpDestroy
-, totpGenerate
-, totpCheck
+    TOTP(..)
+  , TOTPHashName
+  , TOTPTimestep
+  , TOTPTimestamp
+  , TOTPCode
+  , withTOTP
+  , totpInit
+  , totpDestroy
+  , totpGenerate
+  , totpCheck
 
--- * TOTP Hashes
+  -- * TOTP Hashes
 
-, pattern TOTP_SHA1
-, pattern TOTP_SHA256
-, pattern TOTP_SHA512
+  , pattern TOTP_SHA1
+  , pattern TOTP_SHA256
+  , pattern TOTP_SHA512
 
--- * Convenience
+  -- * Convenience
 
-, totpHashes
+  , totpHashes
 
-) where
+  ) where
 
 import           Botan.Bindings.TOTP
 

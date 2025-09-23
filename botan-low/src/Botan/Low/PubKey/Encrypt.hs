@@ -9,18 +9,17 @@ Stability   : experimental
 Portability : POSIX
 -}
 
-module Botan.Low.PubKey.Encrypt
-(
+module Botan.Low.PubKey.Encrypt (
 
--- * Public key encryption
-  Encrypt(..)
-, withEncrypt
-, encryptCreate
-, encryptDestroy
-, encryptOutputLength
-, encrypt
+  -- * Public key encryption
+    Encrypt(..)
+  , withEncrypt
+  , encryptCreate
+  , encryptDestroy
+  , encryptOutputLength
+  , encrypt
 
-) where
+  ) where
 
 import           Botan.Bindings.PubKey.Encrypt
 

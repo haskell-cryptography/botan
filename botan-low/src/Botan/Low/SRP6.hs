@@ -13,43 +13,42 @@ authenticated key exchange protocol.
 
 -}
 
-module Botan.Low.SRP6
-(
+module Botan.Low.SRP6 (
 
--- * Secure Random Password 6a
--- $introduction
+  -- * Secure Random Password 6a
+  -- $introduction
 
--- * Usage
--- $usage
+  -- * Usage
+  -- $usage
 
-  SRP6ServerSession(..)
-, withSRP6ServerSession
-, srp6ServerSessionInit
-, srp6ServerSessionDestroy
-, srp6ServerSessionStep1
-, srp6ServerSessionStep2
-, srp6GenerateVerifier
-, srp6ClientAgree
-, srp6GroupSize
+    SRP6ServerSession(..)
+  , withSRP6ServerSession
+  , srp6ServerSessionInit
+  , srp6ServerSessionDestroy
+  , srp6ServerSessionStep1
+  , srp6ServerSessionStep2
+  , srp6GenerateVerifier
+  , srp6ClientAgree
+  , srp6GroupSize
 
--- * SRP6 Types
+  -- * SRP6 Types
 
-, SRP6Verifier
-, SRP6BValue
-, SRP6AValue
-, SRP6SharedSecret
+  , SRP6Verifier
+  , SRP6BValue
+  , SRP6AValue
+  , SRP6SharedSecret
 
--- * SRP discrete logarithm groups
+  -- * SRP discrete logarithm groups
 
-, pattern MODP_SRP_1024
-, pattern MODP_SRP_1536
-, pattern MODP_SRP_2048
-, pattern MODP_SRP_3072
-, pattern MODP_SRP_4096
-, pattern MODP_SRP_6144
-, pattern MODP_SRP_8192
+  , pattern MODP_SRP_1024
+  , pattern MODP_SRP_1536
+  , pattern MODP_SRP_2048
+  , pattern MODP_SRP_3072
+  , pattern MODP_SRP_4096
+  , pattern MODP_SRP_6144
+  , pattern MODP_SRP_8192
 
-) where
+  ) where
 
 import           Botan.Bindings.SRP6
 

@@ -27,48 +27,47 @@ accidentally use the same input key and salt in some other context, you
 still use different keys in the two contexts.
 -}
 
-module Botan.Low.KDF
-(
+module Botan.Low.KDF (
 
--- * Key derivation function
+  -- * Key derivation function
 
-  KDFName
-, kdf
+    KDFName
+  , kdf
 
--- * KDF algorithms
+  -- * KDF algorithms
 
-, pattern HKDF
-, hkdf
-, pattern HKDF_Extract
-, hkdf_extract
-, pattern HKDF_Expand
-, hkdf_expand
-, pattern KDF2
-, kdf2
-, pattern KDF1_18033
-, kdf1_18033
-, pattern KDF1
-, kdf1
-, pattern TLS_12_PRF
-, tls_12_prf
-, pattern X9_42_PRF
-, x9_42_prf
-, pattern SP800_108_Counter
-, sp800_108_counter
-, pattern SP800_108_Feedback
-, sp800_108_feedback
-, pattern SP800_108_Pipeline
-, sp800_108_pipeline
-, pattern SP800_56A
-, sp800_56A
-, pattern SP800_56C
-, sp800_56C
+  , pattern HKDF
+  , hkdf
+  , pattern HKDF_Extract
+  , hkdf_extract
+  , pattern HKDF_Expand
+  , hkdf_expand
+  , pattern KDF2
+  , kdf2
+  , pattern KDF1_18033
+  , kdf1_18033
+  , pattern KDF1
+  , kdf1
+  , pattern TLS_12_PRF
+  , tls_12_prf
+  , pattern X9_42_PRF
+  , x9_42_prf
+  , pattern SP800_108_Counter
+  , sp800_108_counter
+  , pattern SP800_108_Feedback
+  , sp800_108_feedback
+  , pattern SP800_108_Pipeline
+  , sp800_108_pipeline
+  , pattern SP800_56A
+  , sp800_56A
+  , pattern SP800_56C
+  , sp800_56C
 
--- * Convenience
+  -- * Convenience
 
-, kdfs
+  , kdfs
 
-) where
+  ) where
 
 import           Botan.Bindings.KDF
 

@@ -11,30 +11,29 @@ Portability : POSIX
 Generate and validate Bcrypt password hashes
 -}
 
-module Botan.Low.Bcrypt
-(
+module Botan.Low.Bcrypt (
 
--- * Bcrypt
--- $introduction
+  -- * Bcrypt
+  -- $introduction
 
--- * Usage
--- $usage
+  -- * Usage
+  -- $usage
 
--- * Generate a bcrypt digest
-  bcryptGenerate
+  -- * Generate a bcrypt digest
+    bcryptGenerate
 
--- * Validate a bcrypt digest
-, bcryptIsValid
+  -- * Validate a bcrypt digest
+  , bcryptIsValid
 
--- * Work factor
-, BcryptWorkFactor
-, pattern BcryptFast
-, pattern BcryptGood
-, pattern BcryptStrong
-, BcryptPassword
-, BcryptDigest
+  -- * Work factor
+  , BcryptWorkFactor
+  , pattern BcryptFast
+  , pattern BcryptGood
+  , pattern BcryptStrong
+  , BcryptPassword
+  , BcryptDigest
 
-) where
+  ) where
 
 import qualified Data.ByteString as ByteString
 

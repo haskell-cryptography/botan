@@ -14,20 +14,19 @@ the entire original input.
 
 -}
 
-module Botan.Low.ZFEC
-(
+module Botan.Low.ZFEC (
 
--- * Forward Error Correction
--- $introduction
--- * Usage
--- $usage
+  -- * Forward Error Correction
+  -- $introduction
+  -- * Usage
+  -- $usage
 
--- * ZFEC
-  ZFECShare
-, zfecEncode
-, zfecDecode
+  -- * ZFEC
+    ZFECShare
+  , zfecEncode
+  , zfecDecode
 
-) where
+  ) where
 
 import qualified Data.ByteString as ByteString
 

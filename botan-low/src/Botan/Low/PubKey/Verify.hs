@@ -9,18 +9,17 @@ Stability   : experimental
 Portability : POSIX
 -}
 
-module Botan.Low.PubKey.Verify
-(
+module Botan.Low.PubKey.Verify (
 
--- * Public key signature verification
-  Verify(..)
-, withVerify
-, verifyCreate
-, verifyDestroy
-, verifyUpdate
-, verifyFinish
+  -- * Public key signature verification
+    Verify(..)
+  , withVerify
+  , verifyCreate
+  , verifyDestroy
+  , verifyUpdate
+  , verifyFinish
 
-) where
+  ) where
 
 import           Botan.Bindings.PubKey.Verify
 

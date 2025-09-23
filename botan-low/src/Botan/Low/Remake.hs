@@ -11,22 +11,22 @@ Portability : POSIX
 Generate low-level bindings automatically
 -}
 
-module Botan.Low.Remake
-( mkBindings
-, mkCreateObject
-, mkCreateObjects
-, mkCreateObjectWith
-, mkCreateObjectCString
-, mkCreateObjectCString1
-, mkCreateObjectCBytes
-, mkCreateObjectCBytesLen
-, mkCreateObjectCBytesLen1
-, mkWithObjectAction
-, mkWithObjectGetterCBytesLen
-, mkWithObjectGetterCBytesLen1
-, mkWithObjectSetterCString
-, mkWithObjectSetterCBytesLen
-) where
+module Botan.Low.Remake (
+    mkBindings
+  , mkCreateObject
+  , mkCreateObjects
+  , mkCreateObjectWith
+  , mkCreateObjectCString
+  , mkCreateObjectCString1
+  , mkCreateObjectCBytes
+  , mkCreateObjectCBytesLen
+  , mkCreateObjectCBytesLen1
+  , mkWithObjectAction
+  , mkWithObjectGetterCBytesLen
+  , mkWithObjectGetterCBytesLen1
+  , mkWithObjectSetterCString
+  , mkWithObjectSetterCBytesLen
+  ) where
 
 import           Botan.Low.Error
 import           Botan.Low.Make (allocBytesQuerying)

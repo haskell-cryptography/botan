@@ -26,72 +26,71 @@ the arguments concatenated. After completing a hash computation (eg using
 hashFinal), the internal state is reset to begin hashing a new message.
 -}
 
-module Botan.Low.Hash
-(
+module Botan.Low.Hash (
 
--- * Hashing
--- $introduction
+  -- * Hashing
+  -- $introduction
 
--- * Usage
--- $usage
+  -- * Usage
+  -- $usage
 
-  Hash(..)
-, HashName
-, HashDigest
-, withHash
-, hashInit
-, hashDestroy
-, hashName
-, hashBlockSize
-, hashOutputLength
-, hashCopyState
-, hashUpdate
-, hashFinal
-, hashUpdateFinalize
-, hashUpdateFinalizeClear
-, hashClear
+    Hash(..)
+  , HashName
+  , HashDigest
+  , withHash
+  , hashInit
+  , hashDestroy
+  , hashName
+  , hashBlockSize
+  , hashOutputLength
+  , hashCopyState
+  , hashUpdate
+  , hashFinal
+  , hashUpdateFinalize
+  , hashUpdateFinalizeClear
+  , hashClear
 
--- * Hash algorithms
+  -- * Hash algorithms
 
-, pattern BLAKE2b
-, blake2b
-, pattern Keccak1600
-, keccak1600
-, pattern GOST_34_11
-, pattern MD4
-, pattern MD5
-, pattern RIPEMD160
-, pattern SHA1
-, pattern SHA224
-, pattern SHA256
-, pattern SHA384
-, pattern SHA512
-, pattern SHA512_256
-, pattern SHA3
-, sha3
-, pattern SHAKE128
-, shake128
-, pattern SHAKE256
-, shake256
-, pattern SM3
-, pattern Skein512
-, skein512
-, pattern Streebog256
-, pattern Streebog512
-, pattern Whirlpool
-, pattern Parallel
-, pattern Comb4P
-, pattern Adler32
-, pattern CRC24
-, pattern CRC32
+  , pattern BLAKE2b
+  , blake2b
+  , pattern Keccak1600
+  , keccak1600
+  , pattern GOST_34_11
+  , pattern MD4
+  , pattern MD5
+  , pattern RIPEMD160
+  , pattern SHA1
+  , pattern SHA224
+  , pattern SHA256
+  , pattern SHA384
+  , pattern SHA512
+  , pattern SHA512_256
+  , pattern SHA3
+  , sha3
+  , pattern SHAKE128
+  , shake128
+  , pattern SHAKE256
+  , shake256
+  , pattern SM3
+  , pattern Skein512
+  , skein512
+  , pattern Streebog256
+  , pattern Streebog512
+  , pattern Whirlpool
+  , pattern Parallel
+  , pattern Comb4P
+  , pattern Adler32
+  , pattern CRC24
+  , pattern CRC32
 
--- * Convenience
+  -- * Convenience
 
-, cryptohashes
-, checksums
-, allHashes
+  , cryptohashes
+  , checksums
+  , allHashes
 
-) where
+  ) where
 
 import           Botan.Bindings.Hash
 

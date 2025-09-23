@@ -14,171 +14,170 @@ for encryption, signatures, and key agreement.
 
 {-# LANGUAGE LambdaCase #-}
 
-module Botan.Low.PubKey
-(
+module Botan.Low.PubKey (
 
--- * Private keys
-  PrivKey(..)
-, CheckKeyFlags
-, pattern CheckKeyNormalTests
-, pattern CheckKeyExpensiveTests
-, PrivKeyExportFlags
-, pattern PrivKeyExportDER
-, pattern PrivKeyExportPEM
-, withPrivKey
-, privKeyCreate
-, privKeyLoad
-, privKeyDestroy
-, privKeyAlgoName
-, privKeyCheckKey
-, privKeyGetField
-, privKeyExport
-, privKeyExportPubKey
+  -- * Private keys
+    PrivKey(..)
+  , CheckKeyFlags
+  , pattern CheckKeyNormalTests
+  , pattern CheckKeyExpensiveTests
+  , PrivKeyExportFlags
+  , pattern PrivKeyExportDER
+  , pattern PrivKeyExportPEM
+  , withPrivKey
+  , privKeyCreate
+  , privKeyLoad
+  , privKeyDestroy
+  , privKeyAlgoName
+  , privKeyCheckKey
+  , privKeyGetField
+  , privKeyExport
+  , privKeyExportPubKey
 
--- * Public Keys
+  -- * Public Keys
 
-, PubKey(..)
-, withPubKey
-, pubKeyLoad
-, pubKeyDestroy
-, pubKeyAlgoName
-, pubKeyCheckKey
-, pubKeyEstimatedStrength
-, pubKeyFingerprint
-, pubKeyGetField
-, pubKeyExport
+  , PubKey(..)
+  , withPubKey
+  , pubKeyLoad
+  , pubKeyDestroy
+  , pubKeyAlgoName
+  , pubKeyCheckKey
+  , pubKeyEstimatedStrength
+  , pubKeyFingerprint
+  , pubKeyGetField
+  , pubKeyExport
 
--- * PK Algorithms
+  -- * PK Algorithms
 
-, PKName
-, pattern RSA
-, pattern SM2
-, pattern ElGamal
-, pattern DSA
-, pattern ECDSA
-, pattern ECKCDSA
-, pattern ECGDSA
-, pattern GOST_34_10
-, pattern Ed25519
-, pattern XMSS
-, pattern DH
-, pattern ECDH
-, pattern Curve25519
-, pattern Dilithium
-, pattern Kyber
-, pattern McEliece
+  , PKName
+  , pattern RSA
+  , pattern SM2
+  , pattern ElGamal
+  , pattern DSA
+  , pattern ECDSA
+  , pattern ECKCDSA
+  , pattern ECGDSA
+  , pattern GOST_34_10
+  , pattern Ed25519
+  , pattern XMSS
+  , pattern DH
+  , pattern ECDH
+  , pattern Curve25519
+  , pattern Dilithium
+  , pattern Kyber
+  , pattern McEliece
 
--- ** DLGroup
+  -- ** DLGroup
 
-, DLGroupName
-, pattern FFDHE_IETF_2048
-, pattern FFDHE_IETF_3072
-, pattern FFDHE_IETF_4096
-, pattern FFDHE_IETF_6144
-, pattern FFDHE_IETF_8192
-, pattern MODP_IETF_1024
-, pattern MODP_IETF_1536
-, pattern MODP_IETF_2048
-, pattern MODP_IETF_3072
-, pattern MODP_IETF_4096
-, pattern MODP_IETF_6144
-, pattern MODP_IETF_8192
-, pattern MODP_SRP_1024
-, pattern MODP_SRP_1536
-, pattern MODP_SRP_2048
-, pattern MODP_SRP_3072
-, pattern MODP_SRP_4096
-, pattern MODP_SRP_6144
-, pattern MODP_SRP_8192
-, pattern DSA_JCE_1024
-, pattern DSA_BOTAN_2048
-, pattern DSA_BOTAN_3072
+  , DLGroupName
+  , pattern FFDHE_IETF_2048
+  , pattern FFDHE_IETF_3072
+  , pattern FFDHE_IETF_4096
+  , pattern FFDHE_IETF_6144
+  , pattern FFDHE_IETF_8192
+  , pattern MODP_IETF_1024
+  , pattern MODP_IETF_1536
+  , pattern MODP_IETF_2048
+  , pattern MODP_IETF_3072
+  , pattern MODP_IETF_4096
+  , pattern MODP_IETF_6144
+  , pattern MODP_IETF_8192
+  , pattern MODP_SRP_1024
+  , pattern MODP_SRP_1536
+  , pattern MODP_SRP_2048
+  , pattern MODP_SRP_3072
+  , pattern MODP_SRP_4096
+  , pattern MODP_SRP_6144
+  , pattern MODP_SRP_8192
+  , pattern DSA_JCE_1024
+  , pattern DSA_BOTAN_2048
+  , pattern DSA_BOTAN_3072
 
--- ** ECGroup
+  -- ** ECGroup
 
-, ECGroupName
-, pattern Secp160k1
-, pattern Secp160r1
-, pattern Secp160r2
-, pattern Secp192k1
-, pattern Secp192r1
-, pattern Secp224k1
-, pattern Secp224r1
-, pattern Secp256k1
-, pattern Secp256r1
-, pattern Secp384r1
-, pattern Secp521r1
-, pattern Brainpool160r1
-, pattern Brainpool192r1
-, pattern Brainpool224r1
-, pattern Brainpool256r1
-, pattern Brainpool320r1
-, pattern Brainpool384r1
-, pattern Brainpool512r1
-, pattern X962_p192v2
-, pattern X962_p192v3
-, pattern X962_p239v1
-, pattern X962_p239v2
-, pattern X962_p239v3
-, pattern Gost_256A
-, pattern Gost_512A
-, pattern Frp256v1
-, pattern Sm2p256v1
+  , ECGroupName
+  , pattern Secp160k1
+  , pattern Secp160r1
+  , pattern Secp160r2
+  , pattern Secp192k1
+  , pattern Secp192r1
+  , pattern Secp224k1
+  , pattern Secp224r1
+  , pattern Secp256k1
+  , pattern Secp256r1
+  , pattern Secp384r1
+  , pattern Secp521r1
+  , pattern Brainpool160r1
+  , pattern Brainpool192r1
+  , pattern Brainpool224r1
+  , pattern Brainpool256r1
+  , pattern Brainpool320r1
+  , pattern Brainpool384r1
+  , pattern Brainpool512r1
+  , pattern X962_p192v2
+  , pattern X962_p192v3
+  , pattern X962_p239v1
+  , pattern X962_p239v2
+  , pattern X962_p239v3
+  , pattern Gost_256A
+  , pattern Gost_512A
+  , pattern Frp256v1
+  , pattern Sm2p256v1
 
--- ** XMSS
+  -- ** XMSS
 
-, XMSSName
-, pattern XMSS_SHA2_10_256
-, pattern XMSS_SHA2_16_256
-, pattern XMSS_SHA2_20_256
-, pattern XMSS_SHA2_10_512
-, pattern XMSS_SHA2_16_512
-, pattern XMSS_SHA2_20_512
-, pattern XMSS_SHAKE_10_256
-, pattern XMSS_SHAKE_16_256
-, pattern XMSS_SHAKE_20_256
-, pattern XMSS_SHAKE_10_512
-, pattern XMSS_SHAKE_16_512
-, pattern XMSS_SHAKE_20_512
+  , XMSSName
+  , pattern XMSS_SHA2_10_256
+  , pattern XMSS_SHA2_16_256
+  , pattern XMSS_SHA2_20_256
+  , pattern XMSS_SHA2_10_512
+  , pattern XMSS_SHA2_16_512
+  , pattern XMSS_SHA2_20_512
+  , pattern XMSS_SHAKE_10_256
+  , pattern XMSS_SHAKE_16_256
+  , pattern XMSS_SHAKE_20_256
+  , pattern XMSS_SHAKE_10_512
+  , pattern XMSS_SHAKE_16_512
+  , pattern XMSS_SHAKE_20_512
 
--- * EME
+  -- * EME
 
-, EMEName
-, pattern EME_RAW
-, pattern EME_PKCS1_v1_5
-, pattern EME_OAEP
-, eme_raw
-, eme_pkcs1_v1_5
-, eme_oaep
--- , eme_oaep_mgf
-, eme_hash
-, eme_sm2EncParam
+  , EMEName
+  , pattern EME_RAW
+  , pattern EME_PKCS1_v1_5
+  , pattern EME_OAEP
+  , eme_raw
+  , eme_pkcs1_v1_5
+  , eme_oaep
+  -- , eme_oaep_mgf
+  , eme_hash
+  , eme_sm2EncParam
 
--- * EMSA
+  -- * EMSA
 
-, EMSAName
-, emsa_none
-, emsa_emsa4
-, emsa_hash
-, emsa_ed25519Pure
-, emsa_ed25519Prehashed
-, emsa_ed25519GnuPG
-, emsa_sm2SignParam
+  , EMSAName
+  , emsa_none
+  , emsa_emsa4
+  , emsa_hash
+  , emsa_ed25519Pure
+  , emsa_ed25519Prehashed
+  , emsa_ed25519GnuPG
+  , emsa_sm2SignParam
 
--- * Convenience
+  -- * Convenience
 
--- , PKPaddingName(..)
-, createPrivKey
-, createPubKey
-, mkPrivKeyLoad1_name
-, mkPrivKeyLoad3
-, mkPrivKeyLoad4
-, mkPubKeyLoad2
-, mkPubKeyLoad2_name
-, mkPubKeyLoad3
-, mkPubKeyLoad4
+  -- , PKPaddingName(..)
+  , createPrivKey
+  , createPubKey
+  , mkPrivKeyLoad1_name
+  , mkPrivKeyLoad3
+  , mkPrivKeyLoad4
+  , mkPubKeyLoad2
+  , mkPubKeyLoad2_name
+  , mkPubKeyLoad3
+  , mkPubKeyLoad4
 
-) where
+  ) where
 
 import qualified Data.ByteString as ByteString
 

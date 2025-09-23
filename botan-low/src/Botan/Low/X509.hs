@@ -19,63 +19,62 @@ The major certificate format in use today is X.509v3, used for
 instance in the Transport Layer Security (TLS) protocol.
 -}
 
-module Botan.Low.X509
-(
+module Botan.Low.X509 (
 
--- * X509 Certificates
+  -- * X509 Certificates
 
-  X509Cert(..)
-, withX509Cert
-, x509CertLoad
-, x509CertLoadFile
-, x509CertDestroy
-, x509CertDup
-, x509CertGetTimeStarts
-, x509CertGetTimeExpires
-, x509CertNotBefore
-, x509CertNotAfter
-, x509CertGetPubKeyFingerprint
-, x509CertGetSerialNumber
-, x509CertGetAuthorityKeyId
-, x509CertGetSubjectKeyId
-, x509CertGetPublicKeyBits
-, x509CertGetPublicKey
-, x509CertGetIssuerDN
-, x509CertGetSubjectDN
-, x509CertToString
-, x509CertAllowedUsage
-, x509CertHostnameMatch
-, x509CertVerify
-, x509CertValidationStatus
+    X509Cert(..)
+  , withX509Cert
+  , x509CertLoad
+  , x509CertLoadFile
+  , x509CertDestroy
+  , x509CertDup
+  , x509CertGetTimeStarts
+  , x509CertGetTimeExpires
+  , x509CertNotBefore
+  , x509CertNotAfter
+  , x509CertGetPubKeyFingerprint
+  , x509CertGetSerialNumber
+  , x509CertGetAuthorityKeyId
+  , x509CertGetSubjectKeyId
+  , x509CertGetPublicKeyBits
+  , x509CertGetPublicKey
+  , x509CertGetIssuerDN
+  , x509CertGetSubjectDN
+  , x509CertToString
+  , x509CertAllowedUsage
+  , x509CertHostnameMatch
+  , x509CertVerify
+  , x509CertValidationStatus
 
--- * X509 Key constraints
+  -- * X509 Key constraints
 
-, X509KeyConstraints
-, pattern NoConstraints
-, pattern DigitalSignature
-, pattern NonRepudiation
-, pattern KeyEncipherment
-, pattern DataEncipherment
-, pattern KeyAgreement
-, pattern KeyCertSign
-, pattern CRLSign
-, pattern EncipherOnly
-, pattern DecipherOnly
+  , X509KeyConstraints
+  , pattern NoConstraints
+  , pattern DigitalSignature
+  , pattern NonRepudiation
+  , pattern KeyEncipherment
+  , pattern DataEncipherment
+  , pattern KeyAgreement
+  , pattern KeyCertSign
+  , pattern CRLSign
+  , pattern EncipherOnly
+  , pattern DecipherOnly
 
--- * X509 Certificate revocation list
+  -- * X509 Certificate revocation list
 
-, X509CRL(..)
-, withX509CRL
-, x509CRLLoad
-, x509CRLLoadFile
-, x509CRLDestroy
-, x509IsRevoked
-, x509CertVerifyWithCLR
+  , X509CRL(..)
+  , withX509CRL
+  , x509CRLLoad
+  , x509CRLLoadFile
+  , x509CRLDestroy
+  , x509IsRevoked
+  , x509CertVerifyWithCLR
 
--- * Convenience
-, DistinguishedName
+  -- * Convenience
+  , DistinguishedName
 
-) where
+  ) where
 
 import           Data.ByteString (packCString)
 import qualified Data.ByteString.Char8 as Char8

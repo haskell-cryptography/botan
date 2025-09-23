@@ -35,48 +35,47 @@ The Botan MAC computation is split into five stages.
 - Finalize the MAC computation.
 -}
 
-module Botan.Low.MAC
-(
+module Botan.Low.MAC (
 
--- * Message authentication codes
--- $introduction
+  -- * Message authentication codes
+  -- $introduction
 
--- * Usage
--- $usage
+  -- * Usage
+  -- $usage
 
-  MAC(..)
-, MACName
-, MACKey
-, MACNonce
-, MACDigest
-, withMAC
-, macInit
-, macDestroy
-, macName
-, macOutputLength
-, macGetKeyspec
-, macSetKey
-, macSetNonce
-, macUpdate
-, macFinal
-, macClear
+    MAC(..)
+  , MACName
+  , MACKey
+  , MACNonce
+  , MACDigest
+  , withMAC
+  , macInit
+  , macDestroy
+  , macName
+  , macOutputLength
+  , macGetKeyspec
+  , macSetKey
+  , macSetNonce
+  , macUpdate
+  , macFinal
+  , macClear
 
--- * MAC algorithms
+  -- * MAC algorithms
 
-, pattern CMAC
-, cmac
-, pattern GMAC
-, gmac
-, pattern HMAC
-, hmac
-, pattern Poly1305
-, pattern SipHash
-, sipHash
-, pattern X9_19_MAC
+  , pattern CMAC
+  , cmac
+  , pattern GMAC
+  , gmac
+  , pattern HMAC
+  , hmac
+  , pattern Poly1305
+  , pattern SipHash
+  , sipHash
+  , pattern X9_19_MAC
 
--- * Convenience
+  -- * Convenience
 
-) where
+  ) where
 
 import           Botan.Bindings.MAC
 

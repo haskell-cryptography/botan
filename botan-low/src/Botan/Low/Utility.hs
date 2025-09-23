@@ -9,17 +9,17 @@ Stability   : experimental
 Portability : POSIX
 -}
 
-module Botan.Low.Utility
-( constantTimeCompare
-, scrubMem
-, HexEncodingFlags
-, pattern HexUpperCase
-, pattern HexLowerCase
-, hexEncode
-, hexDecode
-, base64Encode
-, base64Decode
-) where
+module Botan.Low.Utility (
+    constantTimeCompare
+  , scrubMem
+  , HexEncodingFlags
+  , pattern HexUpperCase
+  , pattern HexLowerCase
+  , hexEncode
+  , hexDecode
+  , base64Encode
+  , base64Decode
+  ) where
 
 import           Data.Bool
 import qualified Data.Text.Encoding as Text

@@ -9,53 +9,52 @@ Stability   : experimental
 Portability : POSIX
 -}
 
-module Botan.Low.MPI
-(
+module Botan.Low.MPI (
 
-  MP(..)
-, withMP
-, mpInit
-, mpDestroy
-, mpToHex
-, mpToStr
-, mpClear
-, mpSetFromInt
-, mpSetFromMP
-, mpCopy
-, mpSetFromStr
-, mpSetFromRadixStr
-, mpNumBits
-, mpNumBytes
-, mpToBin
-, mpFromBin
-, mpToWord32
-, mpIsPositive
-, mpIsNegative
-, mpFlipSign
-, mpIsZero
-, mpAddWord32
-, mpSubWord32
-, mpAdd
-, mpSub
-, mpMul
-, mpDiv
-, mpModMul
-, mpEqual
-, mpCmp
-, mpSwap
-, mpPowMod
-, mpLeftShift
-, mpRightShift
-, mpModInverse
-, mpRandBits
-, mpRandRange
-, mpGCD
-, mpIsPrime
-, mpGetBit
-, mpSetBit
-, mpClearBit
+    MP(..)
+  , withMP
+  , mpInit
+  , mpDestroy
+  , mpToHex
+  , mpToStr
+  , mpClear
+  , mpSetFromInt
+  , mpSetFromMP
+  , mpCopy
+  , mpSetFromStr
+  , mpSetFromRadixStr
+  , mpNumBits
+  , mpNumBytes
+  , mpToBin
+  , mpFromBin
+  , mpToWord32
+  , mpIsPositive
+  , mpIsNegative
+  , mpFlipSign
+  , mpIsZero
+  , mpAddWord32
+  , mpSubWord32
+  , mpAdd
+  , mpSub
+  , mpMul
+  , mpDiv
+  , mpModMul
+  , mpEqual
+  , mpCmp
+  , mpSwap
+  , mpPowMod
+  , mpLeftShift
+  , mpRightShift
+  , mpModInverse
+  , mpRandBits
+  , mpRandRange
+  , mpGCD
+  , mpIsPrime
+  , mpGetBit
+  , mpSetBit
+  , mpClearBit
 
-) where
+  ) where
 
 import qualified Data.ByteString as ByteString
 

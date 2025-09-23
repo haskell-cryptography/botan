@@ -9,34 +9,33 @@ Stability   : experimental
 Portability : POSIX
 -}
 
-module Botan.Low.PubKey.KeyEncapsulation
-(
+module Botan.Low.PubKey.KeyEncapsulation (
 
--- * PK Key Encapsulation
--- $introduction
--- * Usage
--- $usage
+  -- * PK Key Encapsulation
+  -- $introduction
+  -- * Usage
+  -- $usage
 
--- * KEM Encryption
-  KEMSharedKey
-, KEMEncapsulatedKey
-, KEMEncrypt(..)
-, withKEMEncrypt
-, kemEncryptDestroy
-, kemEncryptCreate
-, kemEncryptSharedKeyLength
-, kemEncryptEncapsulatedKeyLength
-, kemEncryptCreateSharedKey
+  -- * KEM Encryption
+    KEMSharedKey
+  , KEMEncapsulatedKey
+  , KEMEncrypt(..)
+  , withKEMEncrypt
+  , kemEncryptDestroy
+  , kemEncryptCreate
+  , kemEncryptSharedKeyLength
+  , kemEncryptEncapsulatedKeyLength
+  , kemEncryptCreateSharedKey
 
--- * KEM Decryption
-, KEMDecrypt(..)
-, withKEMDecrypt
-, kemDecryptDestroy
-, kemDecryptCreate
-, kemDecryptSharedKeyLength
-, kemDecryptSharedKey
+  -- * KEM Decryption
+  , KEMDecrypt(..)
+  , withKEMDecrypt
+  , kemDecryptDestroy
+  , kemDecryptCreate
+  , kemDecryptSharedKeyLength
+  , kemDecryptSharedKey
 
-) where
+  ) where
 
 import qualified Data.ByteString as ByteString
 

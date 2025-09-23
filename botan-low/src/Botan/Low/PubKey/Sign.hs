@@ -9,22 +9,21 @@ Stability   : experimental
 Portability : POSIX
 -}
 
-module Botan.Low.PubKey.Sign
-(
+module Botan.Low.PubKey.Sign (
 
--- * Public key signatures
-  Sign(..)
-, SigningFlags
-, pattern StandardFormatSignature
-, pattern DERFormatSignature
-, withSign
-, signCreate
-, signDestroy
-, signOutputLength
-, signUpdate
-, signFinish
+  -- * Public key signatures
+    Sign(..)
+  , SigningFlags
+  , pattern StandardFormatSignature
+  , pattern DERFormatSignature
+  , withSign
+  , signCreate
+  , signDestroy
+  , signOutputLength
+  , signUpdate
+  , signFinish
 
-) where
+  ) where
 
 import qualified Data.ByteString as ByteString
 
