@@ -1,32 +1,29 @@
-module Main where
+module Main (main) where
 
 import           Test.Prelude
 
-import qualified Data.ByteString as ByteString
-import qualified Data.ByteString.Char8 as Char8
-
-import           Botan.Bindings.Hash
 import           Botan.Low.Hash
 
+message :: ByteString
 message = "Fee fi fo fum! I smell the blood of an Englishman!"
 
 main :: IO ()
 main = hspec $ testSuite allHashes chars $ \ h -> do
     it "can initialize a hash context" $ do
-        ctx <- hashInit h
+        _ctx <- hashInit h
         pass
     it "has a name" $ do
         ctx <- hashInit h
-        name <- hashName ctx
+        _name <- hashName ctx
         pass
     it "has an output length" $ do
         ctx <- hashInit h
-        olen <- hashOutputLength ctx
+        _olen <- hashOutputLength ctx
         pass
     it "can copy the internal state" $ do
         ctx <- hashInit h
         -- TODO: Populate with state and actually prove
-        ctx' <- hashCopyState ctx
+        _ctx' <- hashCopyState ctx
         pass
     it "can clear all internal state" $ do
         ctx <- hashInit h
@@ -44,5 +41,5 @@ main = hspec $ testSuite allHashes chars $ \ h -> do
     it "can finalize a digest" $ do
         ctx <- hashInit h
         hashUpdate ctx message
-        d <- hashFinal ctx
+        _d <- hashFinal ctx
         pass

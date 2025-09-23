@@ -53,18 +53,28 @@ source-repository this
   subdir:   botan-low
   tag:      botan-low-0.0.2.0
 
-library
-  hs-source-dirs:     src
-  default-language:   Haskell2010
+common warnings
+  ghc-options:
+    -Wall -Wcompat -Wincomplete-uni-patterns
+    -Wincomplete-record-updates -Wpartial-fields -Widentities
+    -Wredundant-constraints -Wmissing-export-lists
+    -Wno-unticked-promoted-constructors -Wunused-packages
+    -Wmissing-deriving-strategies
+
+common language
+  default-language:   GHC2021
   default-extensions:
-    ExistentialQuantification
+    DerivingStrategies
+    PatternSynonyms
+    RecordWildCards
+    RoleAnnotations
+
+library
+  import:             warnings, language
+  hs-source-dirs:     src
+  default-extensions:
     NoImplicitPrelude
     OverloadedStrings
-    PatternSynonyms
-    RankNTypes
-    ScopedTypeVariables
-    TupleSections
-    TypeApplications
 
   exposed-modules:
     Botan.Low.Bcrypt
@@ -123,12 +133,12 @@ library
 --
 
 test-suite botan-low-bcrypt-tests
+  import:             warnings, language
   type:               exitcode-stdio-1.0
   main-is:            Botan/Low/BcryptSpec.hs
   hs-source-dirs:     test/
   build-depends:
     , base
-    , botan-bindings
     , botan-low
     , bytestring
     , hspec
@@ -139,18 +149,17 @@ test-suite botan-low-bcrypt-tests
     Test.Prelude
 
   autogen-modules:    Paths_botan_low
-  default-language:   Haskell2010
   default-extensions:
     NoImplicitPrelude
     OverloadedStrings
 
 test-suite botan-low-block-cipher-tests
+  import:             warnings, language
   type:               exitcode-stdio-1.0
   main-is:            Botan/Low/BlockCipherSpec.hs
   hs-source-dirs:     test/
   build-depends:
     , base
-    , botan-bindings
     , botan-low
     , bytestring
     , hspec
@@ -161,12 +170,13 @@ test-suite botan-low-block-cipher-tests
     Test.Prelude
 
   autogen-modules:    Paths_botan_low
-  default-language:   Haskell2010
   default-extensions:
     NoImplicitPrelude
     OverloadedStrings
 
 test-suite botan-low-cipher-tests
+  import:             warnings, language
+
   -- TODO: temporarily disabled because the test suite fails. See issue #33.
   buildable:          False
   type:               exitcode-stdio-1.0
@@ -185,12 +195,12 @@ test-suite botan-low-cipher-tests
     Test.Prelude
 
   autogen-modules:    Paths_botan_low
-  default-language:   Haskell2010
   default-extensions:
     NoImplicitPrelude
     OverloadedStrings
 
 test-suite botan-low-fpe-tests
+  import:             warnings, language
   type:               exitcode-stdio-1.0
   main-is:            Botan/Low/FPESpec.hs
   hs-source-dirs:     test/
@@ -207,18 +217,17 @@ test-suite botan-low-fpe-tests
     Test.Prelude
 
   autogen-modules:    Paths_botan_low
-  default-language:   Haskell2010
   default-extensions:
     NoImplicitPrelude
     OverloadedStrings
 
 test-suite botan-low-hash-tests
+  import:             warnings, language
   type:               exitcode-stdio-1.0
   main-is:            Botan/Low/HashSpec.hs
   hs-source-dirs:     test/
   build-depends:
     , base
-    , botan-bindings
     , botan-low
     , bytestring
     , hspec
@@ -229,18 +238,17 @@ test-suite botan-low-hash-tests
     Test.Prelude
 
   autogen-modules:    Paths_botan_low
-  default-language:   Haskell2010
   default-extensions:
     NoImplicitPrelude
     OverloadedStrings
 
 test-suite botan-low-hotp-tests
+  import:             warnings, language
   type:               exitcode-stdio-1.0
   main-is:            Botan/Low/HOTPSpec.hs
   hs-source-dirs:     test/
   build-depends:
     , base
-    , botan-bindings
     , botan-low
     , bytestring
     , hspec
@@ -251,18 +259,17 @@ test-suite botan-low-hotp-tests
     Test.Prelude
 
   autogen-modules:    Paths_botan_low
-  default-language:   Haskell2010
   default-extensions:
     NoImplicitPrelude
     OverloadedStrings
 
 test-suite botan-low-kdf-tests
+  import:             warnings, language
   type:               exitcode-stdio-1.0
   main-is:            Botan/Low/KDFSpec.hs
   hs-source-dirs:     test/
   build-depends:
     , base
-    , botan-bindings
     , botan-low
     , bytestring
     , hspec
@@ -273,18 +280,17 @@ test-suite botan-low-kdf-tests
     Test.Prelude
 
   autogen-modules:    Paths_botan_low
-  default-language:   Haskell2010
   default-extensions:
     NoImplicitPrelude
     OverloadedStrings
 
 test-suite botan-low-keywrap-tests
+  import:             warnings, language
   type:               exitcode-stdio-1.0
   main-is:            Botan/Low/KeyWrapSpec.hs
   hs-source-dirs:     test/
   build-depends:
     , base
-    , botan-bindings
     , botan-low
     , bytestring
     , hspec
@@ -295,18 +301,17 @@ test-suite botan-low-keywrap-tests
     Test.Prelude
 
   autogen-modules:    Paths_botan_low
-  default-language:   Haskell2010
   default-extensions:
     NoImplicitPrelude
     OverloadedStrings
 
 test-suite botan-low-mac-tests
+  import:             warnings, language
   type:               exitcode-stdio-1.0
   main-is:            Botan/Low/MACSpec.hs
   hs-source-dirs:     test/
   build-depends:
     , base
-    , botan-bindings
     , botan-low
     , bytestring
     , hspec
@@ -317,18 +322,17 @@ test-suite botan-low-mac-tests
     Test.Prelude
 
   autogen-modules:    Paths_botan_low
-  default-language:   Haskell2010
   default-extensions:
     NoImplicitPrelude
     OverloadedStrings
 
 test-suite botan-low-mpi-tests
+  import:             warnings, language
   type:               exitcode-stdio-1.0
   main-is:            Botan/Low/MPISpec.hs
   hs-source-dirs:     test/
   build-depends:
     , base
-    , botan-bindings
     , botan-low
     , bytestring
     , hspec
@@ -339,18 +343,17 @@ test-suite botan-low-mpi-tests
     Test.Prelude
 
   autogen-modules:    Paths_botan_low
-  default-language:   Haskell2010
   default-extensions:
     NoImplicitPrelude
     OverloadedStrings
 
 test-suite botan-low-pubkey-tests
+  import:             warnings, language
   type:               exitcode-stdio-1.0
   main-is:            Botan/Low/PubKeySpec.hs
   hs-source-dirs:     test/
   build-depends:
     , base
-    , botan-bindings
     , botan-low
     , bytestring
     , hspec
@@ -361,12 +364,13 @@ test-suite botan-low-pubkey-tests
     Test.Prelude
 
   autogen-modules:    Paths_botan_low
-  default-language:   Haskell2010
   default-extensions:
     NoImplicitPrelude
     OverloadedStrings
 
 test-suite botan-low-pubkey-decrypt-tests
+  import:             warnings, language
+
   -- TODO: temporarily disabled because the test suite fails. See issue #33.
   buildable:          False
   type:               exitcode-stdio-1.0
@@ -385,18 +389,17 @@ test-suite botan-low-pubkey-decrypt-tests
     Test.Prelude
 
   autogen-modules:    Paths_botan_low
-  default-language:   Haskell2010
   default-extensions:
     NoImplicitPrelude
     OverloadedStrings
 
 test-suite botan-low-pubkey-dh-tests
+  import:             warnings, language
   type:               exitcode-stdio-1.0
   main-is:            Botan/Low/PubKey/DHSpec.hs
   hs-source-dirs:     test/
   build-depends:
     , base
-    , botan-bindings
     , botan-low
     , bytestring
     , hspec
@@ -407,12 +410,13 @@ test-suite botan-low-pubkey-dh-tests
     Test.Prelude
 
   autogen-modules:    Paths_botan_low
-  default-language:   Haskell2010
   default-extensions:
     NoImplicitPrelude
     OverloadedStrings
 
 test-suite botan-low-pubkey-dsa-tests
+  import:             warnings, language
+
   -- TODO: temporarily disabled because the test suite fails. See issue #33.
   buildable:          False
   type:               exitcode-stdio-1.0
@@ -431,18 +435,17 @@ test-suite botan-low-pubkey-dsa-tests
     Test.Prelude
 
   autogen-modules:    Paths_botan_low
-  default-language:   Haskell2010
   default-extensions:
     NoImplicitPrelude
     OverloadedStrings
 
 test-suite botan-low-pubkey-ecdh-tests
+  import:             warnings, language
   type:               exitcode-stdio-1.0
   main-is:            Botan/Low/PubKey/ECDHSpec.hs
   hs-source-dirs:     test/
   build-depends:
     , base
-    , botan-bindings
     , botan-low
     , bytestring
     , hspec
@@ -453,18 +456,17 @@ test-suite botan-low-pubkey-ecdh-tests
     Test.Prelude
 
   autogen-modules:    Paths_botan_low
-  default-language:   Haskell2010
   default-extensions:
     NoImplicitPrelude
     OverloadedStrings
 
 test-suite botan-low-pubkey-ecdsa-tests
+  import:             warnings, language
   type:               exitcode-stdio-1.0
   main-is:            Botan/Low/PubKey/ECDSASpec.hs
   hs-source-dirs:     test/
   build-depends:
     , base
-    , botan-bindings
     , botan-low
     , bytestring
     , hspec
@@ -475,18 +477,17 @@ test-suite botan-low-pubkey-ecdsa-tests
     Test.Prelude
 
   autogen-modules:    Paths_botan_low
-  default-language:   Haskell2010
   default-extensions:
     NoImplicitPrelude
     OverloadedStrings
 
 test-suite botan-low-pubkey-ed25519-tests
+  import:             warnings, language
   type:               exitcode-stdio-1.0
   main-is:            Botan/Low/PubKey/Ed25519Spec.hs
   hs-source-dirs:     test/
   build-depends:
     , base
-    , botan-bindings
     , botan-low
     , bytestring
     , hspec
@@ -497,18 +498,17 @@ test-suite botan-low-pubkey-ed25519-tests
     Test.Prelude
 
   autogen-modules:    Paths_botan_low
-  default-language:   Haskell2010
   default-extensions:
     NoImplicitPrelude
     OverloadedStrings
 
 test-suite botan-low-pubkey-elgamal-tests
+  import:             warnings, language
   type:               exitcode-stdio-1.0
   main-is:            Botan/Low/PubKey/ElGamalSpec.hs
   hs-source-dirs:     test/
   build-depends:
     , base
-    , botan-bindings
     , botan-low
     , bytestring
     , hspec
@@ -519,12 +519,13 @@ test-suite botan-low-pubkey-elgamal-tests
     Test.Prelude
 
   autogen-modules:    Paths_botan_low
-  default-language:   Haskell2010
   default-extensions:
     NoImplicitPrelude
     OverloadedStrings
 
 test-suite botan-low-pubkey-encrypt-tests
+  import:             warnings, language
+
   -- TODO: temporarily disabled because the test suite fails. See issue #33.
   buildable:          False
   type:               exitcode-stdio-1.0
@@ -543,18 +544,17 @@ test-suite botan-low-pubkey-encrypt-tests
     Test.Prelude
 
   autogen-modules:    Paths_botan_low
-  default-language:   Haskell2010
   default-extensions:
     NoImplicitPrelude
     OverloadedStrings
 
 test-suite botan-low-pubkey-keyagreement-tests
+  import:             warnings, language
   type:               exitcode-stdio-1.0
   main-is:            Botan/Low/PubKey/KeyAgreementSpec.hs
   hs-source-dirs:     test/
   build-depends:
     , base
-    , botan-bindings
     , botan-low
     , bytestring
     , hspec
@@ -565,18 +565,17 @@ test-suite botan-low-pubkey-keyagreement-tests
     Test.Prelude
 
   autogen-modules:    Paths_botan_low
-  default-language:   Haskell2010
   default-extensions:
     NoImplicitPrelude
     OverloadedStrings
 
 test-suite botan-low-pubkey-keyencapsulation-tests
+  import:             warnings, language
   type:               exitcode-stdio-1.0
   main-is:            Botan/Low/PubKey/KeyEncapsulationSpec.hs
   hs-source-dirs:     test/
   build-depends:
     , base
-    , botan-bindings
     , botan-low
     , bytestring
     , hspec
@@ -587,18 +586,17 @@ test-suite botan-low-pubkey-keyencapsulation-tests
     Test.Prelude
 
   autogen-modules:    Paths_botan_low
-  default-language:   Haskell2010
   default-extensions:
     NoImplicitPrelude
     OverloadedStrings
 
 test-suite botan-low-pubkey-rsa-tests
+  import:             warnings, language
   type:               exitcode-stdio-1.0
   main-is:            Botan/Low/PubKey/RSASpec.hs
   hs-source-dirs:     test/
   build-depends:
     , base
-    , botan-bindings
     , botan-low
     , bytestring
     , hspec
@@ -609,18 +607,17 @@ test-suite botan-low-pubkey-rsa-tests
     Test.Prelude
 
   autogen-modules:    Paths_botan_low
-  default-language:   Haskell2010
   default-extensions:
     NoImplicitPrelude
     OverloadedStrings
 
 test-suite botan-low-pubkey-sign-tests
+  import:             warnings, language
   type:               exitcode-stdio-1.0
   main-is:            Botan/Low/PubKey/SignSpec.hs
   hs-source-dirs:     test/
   build-depends:
     , base
-    , botan-bindings
     , botan-low
     , bytestring
     , hspec
@@ -631,18 +628,17 @@ test-suite botan-low-pubkey-sign-tests
     Test.Prelude
 
   autogen-modules:    Paths_botan_low
-  default-language:   Haskell2010
   default-extensions:
     NoImplicitPrelude
     OverloadedStrings
 
 test-suite botan-low-pubkey-sm2-tests
+  import:             warnings, language
   type:               exitcode-stdio-1.0
   main-is:            Botan/Low/PubKey/SM2Spec.hs
   hs-source-dirs:     test/
   build-depends:
     , base
-    , botan-bindings
     , botan-low
     , bytestring
     , hspec
@@ -653,18 +649,17 @@ test-suite botan-low-pubkey-sm2-tests
     Test.Prelude
 
   autogen-modules:    Paths_botan_low
-  default-language:   Haskell2010
   default-extensions:
     NoImplicitPrelude
     OverloadedStrings
 
 test-suite botan-low-pubkey-verify-tests
+  import:             warnings, language
   type:               exitcode-stdio-1.0
   main-is:            Botan/Low/PubKey/VerifySpec.hs
   hs-source-dirs:     test/
   build-depends:
     , base
-    , botan-bindings
     , botan-low
     , bytestring
     , hspec
@@ -675,18 +670,17 @@ test-suite botan-low-pubkey-verify-tests
     Test.Prelude
 
   autogen-modules:    Paths_botan_low
-  default-language:   Haskell2010
   default-extensions:
     NoImplicitPrelude
     OverloadedStrings
 
 test-suite botan-low-pubkey-x25519-tests
+  import:             warnings, language
   type:               exitcode-stdio-1.0
   main-is:            Botan/Low/PubKey/X25519Spec.hs
   hs-source-dirs:     test/
   build-depends:
     , base
-    , botan-bindings
     , botan-low
     , bytestring
     , hspec
@@ -697,7 +691,6 @@ test-suite botan-low-pubkey-x25519-tests
     Test.Prelude
 
   autogen-modules:    Paths_botan_low
-  default-language:   Haskell2010
   default-extensions:
     NoImplicitPrelude
     OverloadedStrings
@@ -705,6 +698,8 @@ test-suite botan-low-pubkey-x25519-tests
 -- TODO: Pubkey folder tests
 
 test-suite botan-low-pwdhash-tests
+  import:             warnings, language
+
   -- TODO: temporarily disabled because the test suite fails. See issue #33.
   buildable:          False
   type:               exitcode-stdio-1.0
@@ -723,12 +718,13 @@ test-suite botan-low-pwdhash-tests
     Test.Prelude
 
   autogen-modules:    Paths_botan_low
-  default-language:   Haskell2010
   default-extensions:
     NoImplicitPrelude
     OverloadedStrings
 
 test-suite botan-low-rng-tests
+  import:             warnings, language
+
   if os(osx)
     -- TODO: temporarily disabled because the test suite fails. See issue #33.
     buildable: False
@@ -738,7 +734,6 @@ test-suite botan-low-rng-tests
   hs-source-dirs:     test/
   build-depends:
     , base
-    , botan-bindings
     , botan-low
     , bytestring
     , hspec
@@ -749,12 +744,13 @@ test-suite botan-low-rng-tests
     Test.Prelude
 
   autogen-modules:    Paths_botan_low
-  default-language:   Haskell2010
   default-extensions:
     NoImplicitPrelude
     OverloadedStrings
 
 test-suite botan-low-srp6-tests
+  import:             warnings, language
+
   -- TODO: temporarily disabled because the test suite fails. See issue #33.
   buildable:          False
   type:               exitcode-stdio-1.0
@@ -773,18 +769,17 @@ test-suite botan-low-srp6-tests
     Test.Prelude
 
   autogen-modules:    Paths_botan_low
-  default-language:   Haskell2010
   default-extensions:
     NoImplicitPrelude
     OverloadedStrings
 
 test-suite botan-low-totp-tests
+  import:             warnings, language
   type:               exitcode-stdio-1.0
   main-is:            Botan/Low/TOTPSpec.hs
   hs-source-dirs:     test/
   build-depends:
     , base
-    , botan-bindings
     , botan-low
     , bytestring
     , hspec
@@ -795,40 +790,39 @@ test-suite botan-low-totp-tests
     Test.Prelude
 
   autogen-modules:    Paths_botan_low
-  default-language:   Haskell2010
   default-extensions:
     NoImplicitPrelude
     OverloadedStrings
 
 test-suite botan-low-utility-tests
+  import:             warnings, language
   type:               exitcode-stdio-1.0
   main-is:            Botan/Low/UtilitySpec.hs
   hs-source-dirs:     test/
   build-depends:
     , base
-    , botan-bindings
     , botan-low
     , bytestring
     , hspec
     , QuickCheck
+    , text
 
   other-modules:
     Paths_botan_low
     Test.Prelude
 
   autogen-modules:    Paths_botan_low
-  default-language:   Haskell2010
   default-extensions:
     NoImplicitPrelude
     OverloadedStrings
 
 test-suite botan-low-x509-tests
+  import:             warnings, language
   type:               exitcode-stdio-1.0
   main-is:            Botan/Low/X509Spec.hs
   hs-source-dirs:     test/
   build-depends:
     , base
-    , botan-bindings
     , botan-low
     , bytestring
     , hspec
@@ -839,18 +833,17 @@ test-suite botan-low-x509-tests
     Test.Prelude
 
   autogen-modules:    Paths_botan_low
-  default-language:   Haskell2010
   default-extensions:
     NoImplicitPrelude
     OverloadedStrings
 
 test-suite botan-low-zfec-tests
+  import:             warnings, language
   type:               exitcode-stdio-1.0
   main-is:            Botan/Low/ZFECSpec.hs
   hs-source-dirs:     test/
   build-depends:
     , base
-    , botan-bindings
     , botan-low
     , bytestring
     , hspec
@@ -861,7 +854,6 @@ test-suite botan-low-zfec-tests
     Test.Prelude
 
   autogen-modules:    Paths_botan_low
-  default-language:   Haskell2010
   default-extensions:
     NoImplicitPrelude
     OverloadedStrings
@@ -871,18 +863,17 @@ test-suite botan-low-zfec-tests
 --
 
 benchmark botan-low-bench
+  import:             warnings, language
   hs-source-dirs:     bench
   main-is:            Bcrypt.hs
   type:               exitcode-stdio-1.0
   build-depends:
     , base
-    , botan-bindings
     , botan-low
     , bytestring
     , crypton
     , tasty-bench
 
-  default-language:   Haskell2010
   default-extensions:
     NoImplicitPrelude
     OverloadedStrings

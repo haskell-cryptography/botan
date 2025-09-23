@@ -45,10 +45,10 @@ module Botan.Low.MAC
 -- $usage
 
   MAC(..)
-, MACName(..)
-, MACKey(..)
-, MACNonce(..)
-, MACDigest(..)
+, MACName
+, MACKey
+, MACNonce
+, MACDigest
 , withMAC
 , macInit
 , macDestroy
@@ -78,13 +78,10 @@ module Botan.Low.MAC
 
 ) where
 
-import qualified Data.ByteString as ByteString
-
 import           Botan.Bindings.MAC
 
 import           Botan.Low.BlockCipher
 import           Botan.Low.Error
-import           Botan.Low.Hash
 import           Botan.Low.Make
 import           Botan.Low.Prelude
 import           Botan.Low.Remake
@@ -162,11 +159,10 @@ If you must use GMAC, a nonce needs to be set:
 
 newtype MAC = MkMAC { getMACForeignPtr :: ForeignPtr BotanMACStruct }
 
-newMAC      :: BotanMAC -> IO MAC
 withMAC     :: MAC -> (BotanMAC -> IO a) -> IO a
 macDestroy  :: MAC -> IO ()
 createMAC   :: (Ptr BotanMAC -> IO CInt) -> IO MAC
-(newMAC, withMAC, macDestroy, createMAC, _)
+(_, withMAC, macDestroy, createMAC, _)
     = mkBindings
         MkBotanMAC runBotanMAC
         MkMAC getMACForeignPtr
@@ -228,10 +224,6 @@ macInit
     :: MACName  -- ^ __mac_name__: name of the hash function, e.g., "HMAC(SHA-384)"
     -> IO MAC   -- ^ __mac__: mac object
 macInit = mkCreateObjectCString createMAC (\ out name -> botan_mac_init out name 0)
-
--- WARNING: withFooInit-style limited lifetime functions moved to high-level botan
-withMACInit :: MACName -> (MAC -> IO a) -> IO a
-withMACInit = mkWithTemp1 macInit macDestroy
 
 -- | Writes the output length of the message authentication code to *output_length
 macOutputLength

@@ -10,7 +10,7 @@ Portability : POSIX
 -}
 
 module Botan.Low.Error
-( BotanErrorCode(..)
+( BotanErrorCode
 , pattern Success
 , pattern InvalidIdentifier
 , pattern InvalidInput
@@ -72,10 +72,6 @@ import           Data.Typeable
 import           Botan.Bindings.Error
 
 import           Botan.Low.Prelude
-
-import qualified Data.ByteString as ByteString
-import qualified Data.ByteString.Char8 as Char8
-import qualified Data.Text as Text
 
 -- | Botan error code data type
 type BotanErrorCode = CInt
@@ -172,7 +168,7 @@ fromBotanException x = do
 
 data InvalidVerifierException
     = InvalidVerifierException BotanErrorCode ErrorMessage CallStack
-    deriving (Show)
+    deriving stock (Show)
 
 instance Exception InvalidVerifierException where
     toException = toBotanException
@@ -180,7 +176,7 @@ instance Exception InvalidVerifierException where
 
 data InvalidInputException
     = InvalidInputException BotanErrorCode ErrorMessage CallStack
-    deriving (Show)
+    deriving stock (Show)
 
 instance Exception InvalidInputException where
     toException = toBotanException
@@ -188,7 +184,7 @@ instance Exception InvalidInputException where
 
 data BadMACException
     = BadMACException BotanErrorCode ErrorMessage CallStack
-    deriving (Show)
+    deriving stock (Show)
 
 instance Exception BadMACException where
     toException = toBotanException
@@ -196,7 +192,7 @@ instance Exception BadMACException where
 
 data InsufficientBufferSpaceException
     = InsufficientBufferSpaceException BotanErrorCode ErrorMessage CallStack
-    deriving (Show)
+    deriving stock (Show)
 
 instance Exception InsufficientBufferSpaceException where
     toException = toBotanException
@@ -204,7 +200,7 @@ instance Exception InsufficientBufferSpaceException where
 
 data StringConversionException
     = StringConversionException BotanErrorCode ErrorMessage CallStack
-    deriving (Show)
+    deriving stock (Show)
 
 instance Exception StringConversionException where
     toException = toBotanException
@@ -212,7 +208,7 @@ instance Exception StringConversionException where
 
 data ExceptionThrownException
     = ExceptionThrownException BotanErrorCode ErrorMessage CallStack
-    deriving (Show)
+    deriving stock (Show)
 
 instance Exception ExceptionThrownException where
     toException = toBotanException
@@ -220,7 +216,7 @@ instance Exception ExceptionThrownException where
 
 data OutOfMemoryException
     = OutOfMemoryException BotanErrorCode ErrorMessage CallStack
-    deriving (Show)
+    deriving stock (Show)
 
 instance Exception OutOfMemoryException where
     toException = toBotanException
@@ -228,7 +224,7 @@ instance Exception OutOfMemoryException where
 
 data SystemErrorException
     = SystemErrorException BotanErrorCode ErrorMessage CallStack
-    deriving (Show)
+    deriving stock (Show)
 
 instance Exception SystemErrorException where
     toException = toBotanException
@@ -236,7 +232,7 @@ instance Exception SystemErrorException where
 
 data InternalErrorException
     = InternalErrorException BotanErrorCode ErrorMessage CallStack
-    deriving (Show)
+    deriving stock (Show)
 
 instance Exception InternalErrorException where
     toException = toBotanException
@@ -244,7 +240,7 @@ instance Exception InternalErrorException where
 
 data BadFlagException
     = BadFlagException BotanErrorCode ErrorMessage CallStack
-    deriving (Show)
+    deriving stock (Show)
 
 instance Exception BadFlagException where
     toException = toBotanException
@@ -252,7 +248,7 @@ instance Exception BadFlagException where
 
 data NullPointerException
     = NullPointerException BotanErrorCode ErrorMessage CallStack
-    deriving (Show)
+    deriving stock (Show)
 
 instance Exception NullPointerException where
     toException = toBotanException
@@ -260,7 +256,7 @@ instance Exception NullPointerException where
 
 data BadParameterException
     = BadParameterException BotanErrorCode ErrorMessage CallStack
-    deriving (Show)
+    deriving stock (Show)
 
 instance Exception BadParameterException where
     toException = toBotanException
@@ -268,7 +264,7 @@ instance Exception BadParameterException where
 
 data KeyNotSetException
     = KeyNotSetException BotanErrorCode ErrorMessage CallStack
-    deriving (Show)
+    deriving stock (Show)
 
 instance Exception KeyNotSetException where
     toException = toBotanException
@@ -276,7 +272,7 @@ instance Exception KeyNotSetException where
 
 data InvalidKeyLengthException
     = InvalidKeyLengthException BotanErrorCode ErrorMessage CallStack
-    deriving (Show)
+    deriving stock (Show)
 
 instance Exception InvalidKeyLengthException where
     toException = toBotanException
@@ -284,7 +280,7 @@ instance Exception InvalidKeyLengthException where
 
 data InvalidObjectStateException
     = InvalidObjectStateException BotanErrorCode ErrorMessage CallStack
-    deriving (Show)
+    deriving stock (Show)
 
 instance Exception InvalidObjectStateException where
     toException = toBotanException
@@ -292,7 +288,7 @@ instance Exception InvalidObjectStateException where
 
 data NotImplementedException
     = NotImplementedException BotanErrorCode ErrorMessage CallStack
-    deriving (Show)
+    deriving stock (Show)
 
 instance Exception NotImplementedException where
     toException = toBotanException
@@ -300,7 +296,7 @@ instance Exception NotImplementedException where
 
 data InvalidObjectException
     = InvalidObjectException BotanErrorCode ErrorMessage CallStack
-    deriving (Show)
+    deriving stock (Show)
 
 instance Exception InvalidObjectException where
     toException = toBotanException
@@ -308,7 +304,7 @@ instance Exception InvalidObjectException where
 
 data UnknownException
     = UnknownException BotanErrorCode ErrorMessage CallStack
-    deriving (Show)
+    deriving stock (Show)
 
 instance Exception UnknownException where
     toException = toBotanException
@@ -324,13 +320,13 @@ throwBotanError r = throwBotanErrorWithCallstack r callStack
 throwBotanIfNegative :: HasCallStack => IO BotanErrorCode -> IO BotanErrorCode
 throwBotanIfNegative act = do
     e <- act
-    when (e < 0) $ throwBotanErrorWithCallstack (fromIntegral e) callStack
+    when (e < 0) $ throwBotanErrorWithCallstack e callStack
     return e
 
 throwBotanIfNegative_ :: HasCallStack => IO BotanErrorCode -> IO ()
 throwBotanIfNegative_ act = do
     e <- act
-    when (e < 0) $ throwBotanErrorWithCallstack (fromIntegral e) callStack
+    when (e < 0) $ throwBotanErrorWithCallstack e callStack
 
 -- TODO: Rename to throwBotanCatchingInvalidIdentifier, make:
 -- throwBotanCatchingSuccess :: HasCallStack => IO BotanErrorCode -> IO Bool
@@ -346,7 +342,7 @@ throwBotanCatchingSuccess act = do
     case result of
         BOTAN_FFI_SUCCESS           -> return True
         BOTAN_FFI_INVALID_VERIFIER  -> return False
-        _                           -> throwBotanErrorWithCallstack (fromIntegral result) callStack
+        _                           -> throwBotanErrorWithCallstack result callStack
 
 -- NOTE: Catches 1 as True and 0 as False, throws all other values
 throwBotanCatchingBool :: HasCallStack => IO BotanErrorCode -> IO Bool
@@ -363,7 +359,7 @@ throwBotanCatchingBool act = do
 throwBotanCatchingInt :: HasCallStack => IO BotanErrorCode -> IO Int
 throwBotanCatchingInt act = do
     result <- act
-    when (result < 0) $ throwBotanErrorWithCallstack (fromIntegral result) callStack
+    when (result < 0) $ throwBotanErrorWithCallstack result callStack
     return (fromIntegral result)
 
 throwBotanErrorWithCallstack :: BotanErrorCode -> CallStack -> IO a

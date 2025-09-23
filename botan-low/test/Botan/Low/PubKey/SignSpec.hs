@@ -1,4 +1,4 @@
-module Main where
+module Main (main) where
 
 import           Test.Prelude
 
@@ -12,6 +12,7 @@ ecGroup = "secp256r1"
 dlGroup :: ByteString
 dlGroup = "modp/ietf/1024"
 
+sha :: ByteString
 sha = "SHA-256"
 
 -- TODO: More exhaustive testing in botan
@@ -41,14 +42,14 @@ main = hspec $ testSuite pks pkTestName $ \ (pk, param, algo) -> do
     it "signCreate" $ do
         rng <- rngInit "system"
         privKey <- privKeyCreate pk param rng
-        ctx <- signCreate privKey algo StandardFormatSignature
+        _ctx <- signCreate privKey algo StandardFormatSignature
         -- ctxDER <- signCreate privKey algo DERFormatSignature
         pass
     it "signOutputLength" $ do
         rng <- rngInit "system"
         privKey <- privKeyCreate pk param rng
         ctx <- signCreate privKey algo StandardFormatSignature
-        sigLen <- signOutputLength ctx
+        _sigLen <- signOutputLength ctx
         -- ctxDER <- signCreate privKey algo DERFormatSignature
         -- _ <- signOutputLength ctxDER
         pass
@@ -63,5 +64,5 @@ main = hspec $ testSuite pks pkTestName $ \ (pk, param, algo) -> do
         privKey <- privKeyCreate pk param rng
         ctx <- signCreate privKey algo StandardFormatSignature
         signUpdate ctx "Fee fi fo fum!"
-        sig <- signFinish ctx rng
+        _sig <- signFinish ctx rng
         pass

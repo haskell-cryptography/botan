@@ -21,7 +21,7 @@ module Botan.Low.RNG
 -- $usage
 
   RNG(..)
-, RNGType(..)
+, RNGType
 , withRNG
 , rngInit
 , rngDestroy
@@ -40,12 +40,9 @@ module Botan.Low.RNG
 
 ) where
 
-import qualified Data.ByteString as ByteString
-
 import           Botan.Bindings.RNG
 
 import           Botan.Low.Error (throwBotanIfNegative_)
-import           Botan.Low.Make (mkWithTemp1)
 import           Botan.Low.Prelude
 import           Botan.Low.Remake
 
@@ -92,12 +89,11 @@ You can also seed it with your own entropy; this is safe and can never
 
 newtype RNG = MkRNG { getRNGForeignPtr :: ForeignPtr BotanRNGStruct }
 
-newRNG      :: BotanRNG -> IO RNG
 withRNG     :: RNG -> (BotanRNG -> IO a) -> IO a
 -- | Destroy a random number generator object immediately
 rngDestroy  :: RNG -> IO ()
 createRNG   :: (Ptr BotanRNG -> IO CInt) -> IO RNG
-(newRNG, withRNG, rngDestroy, createRNG, _)
+(_, withRNG, rngDestroy, createRNG, _)
     = mkBindings MkBotanRNG runBotanRNG MkRNG getRNGForeignPtr botan_rng_destroy
 
 type RNGType = ByteString
@@ -128,10 +124,6 @@ rngInit
     :: RNGType  -- ^ __rng_type__: type of the rng
     -> IO RNG   -- ^ __rng__
 rngInit = mkCreateObjectCString createRNG botan_rng_init
-
--- WARNING: withFooInit-style limited lifetime functions moved to high-level botan
-withRNGInit :: RNGType -> (RNG -> IO a) -> IO a
-withRNGInit = mkWithTemp1 rngInit rngDestroy
 
 -- | Get random bytes from a random number generator
 rngGet

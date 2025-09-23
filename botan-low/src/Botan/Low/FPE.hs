@@ -37,7 +37,7 @@ module Botan.Low.FPE
 (
 
   FPE(..)
-, FPEFlags(..)
+, FPEFlags
 , pattern FPENone
 , pattern FPEFE1CompatMode
 , withFPE
@@ -48,12 +48,9 @@ module Botan.Low.FPE
 
 ) where
 
-import qualified Data.ByteString as ByteString
-
 import           Botan.Bindings.FPE
 
 import           Botan.Low.Error
-import           Botan.Low.Make
 import           Botan.Low.MPI
 import           Botan.Low.Prelude
 import           Botan.Low.Remake
@@ -75,11 +72,10 @@ import           Botan.Low.Remake
 
 newtype FPE = MkFPE { getFPEForeignPtr :: ForeignPtr BotanFPEStruct }
 
-newFPE      :: BotanFPE -> IO FPE
 withFPE     :: FPE -> (BotanFPE -> IO a) -> IO a
 fpeDestroy  :: FPE -> IO ()
 createFPE   :: (Ptr BotanFPE -> IO CInt) -> IO FPE
-(newFPE, withFPE, fpeDestroy, createFPE, _)
+(_, withFPE, fpeDestroy, createFPE, _)
     = mkBindings
         MkBotanFPE runBotanFPE
         MkFPE getFPEForeignPtr
@@ -109,10 +105,6 @@ fpeInitFE1 n key rounds flags = withMP n $ \ nPtr -> do
             keyLen
             (fromIntegral rounds)
             flags
-
--- WARNING: withFooInit-style limited lifetime functions moved to high-level botan
-withFPEInitFE1 :: MP -> ByteString -> Int -> FPEFlags -> (FPE -> IO a) -> IO a
-withFPEInitFE1 = mkWithTemp4 fpeInitFE1 fpeDestroy
 
 -- -- NOTE: Referentially transparent, move to botan
 -- fpeEncrypt :: FPE -> MP -> ByteString -> IO MP
@@ -155,7 +147,3 @@ fpeDecrypt fpe mp tweak = do
         withMP mp $ \ mpPtr -> do
             asBytesLen tweak $ \ tweakPtr tweakLen -> do
                 throwBotanIfNegative_ $ botan_fpe_decrypt fpePtr mpPtr (ConstPtr tweakPtr) tweakLen
-
-data FE1InitFlags
-    = FE1None       -- BOTAN_FPE_FLAG_NONE
-    | FE1CompatMode -- BOTAN_FPE_FLAG_FE1_COMPAT_MODE

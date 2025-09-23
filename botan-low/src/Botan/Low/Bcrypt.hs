@@ -27,12 +27,12 @@ module Botan.Low.Bcrypt
 , bcryptIsValid
 
 -- * Work factor
-, BcryptWorkFactor(..)
+, BcryptWorkFactor
 , pattern BcryptFast
 , pattern BcryptGood
 , pattern BcryptStrong
-, BcryptPassword(..)
-, BcryptDigest(..)
+, BcryptPassword
+, BcryptDigest
 
 ) where
 
@@ -41,11 +41,8 @@ import qualified Data.ByteString as ByteString
 import           Botan.Bindings.Bcrypt
 
 import           Botan.Low.Error
-import           Botan.Low.Make
 import           Botan.Low.Prelude
 import           Botan.Low.RNG
-
-import           Data.ByteString.Internal as ByteString
 
 {- $introduction
 

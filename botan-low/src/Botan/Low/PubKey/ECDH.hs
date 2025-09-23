@@ -1,6 +1,8 @@
-module Botan.Low.PubKey.ECDH where
+module Botan.Low.PubKey.ECDH (
+    privKeyLoadECDH
+  , pubKeyLoadECDH
+  ) where
 
-import           Botan.Bindings.PubKey
 import           Botan.Bindings.PubKey.ECDH
 
 import           Botan.Low.MPI

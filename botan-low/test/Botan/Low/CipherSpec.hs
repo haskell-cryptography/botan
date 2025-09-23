@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -Wno-deprecations #-}
 
-module Main where
+module Main (main) where
 
 import           Test.Prelude
 

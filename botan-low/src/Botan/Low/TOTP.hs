@@ -29,10 +29,10 @@ module Botan.Low.TOTP
 -- * TOTP
 
   TOTP(..)
-, TOTPHashName(..)
-, TOTPTimestep(..)
-, TOTPTimestamp(..)
-, TOTPCode(..)
+, TOTPHashName
+, TOTPTimestep
+, TOTPTimestamp
+, TOTPCode
 , withTOTP
 , totpInit
 , totpDestroy
@@ -51,13 +51,10 @@ module Botan.Low.TOTP
 
 ) where
 
-import qualified Data.ByteString as ByteString
-
 import           Botan.Bindings.TOTP
 
 import           Botan.Low.Error
 import           Botan.Low.Hash
-import           Botan.Low.Make
 import           Botan.Low.Prelude
 import           Botan.Low.Remake
 
@@ -158,11 +155,10 @@ The user should then be notified.
 
 newtype TOTP = MkTOTP { getTOTPForeignPtr :: ForeignPtr BotanTOTPStruct }
 
-newTOTP      :: BotanTOTP -> IO TOTP
 withTOTP     :: TOTP -> (BotanTOTP -> IO a) -> IO a
 totpDestroy  :: TOTP -> IO ()
 createTOTP   :: (Ptr BotanTOTP -> IO CInt) -> IO TOTP
-(newTOTP, withTOTP, totpDestroy, createTOTP, _)
+(_, withTOTP, totpDestroy, createTOTP, _)
     = mkBindings
         MkBotanTOTP runBotanTOTP
         MkTOTP getTOTPForeignPtr
@@ -180,6 +176,7 @@ pattern TOTP_SHA256 = SHA256
 pattern TOTP_SHA512 = SHA512
 
 -- TODO: Do any other hashes work?
+totpHashes :: [TOTPHashName]
 totpHashes =
     [ TOTP_SHA1
     , TOTP_SHA256
@@ -209,10 +206,6 @@ totpInit key algo digits timestep = asBytesLen key $ \ keyPtr keyLen -> do
             (fromIntegral digits)
             (fromIntegral timestep)
 
--- WARNING: withFooInit-style limited lifetime functions moved to high-level botan
-withTOTPInit :: ByteString -> ByteString -> Int -> TOTPTimestep -> (TOTP -> IO a) -> IO a
-withTOTPInit = mkWithTemp4 totpInit totpDestroy
-
 -- | Generate a TOTP code for the provided timestamp
 totpGenerate
     :: TOTP             -- ^ __totp__: the TOTP object
@@ -220,7 +213,7 @@ totpGenerate
     -> IO TOTPCode      -- ^ __timestamp__: the current local timestamp
 totpGenerate totp timestamp = withTOTP totp $ \ totpPtr -> do
     alloca $ \ outPtr -> do
-        throwBotanIfNegative $ botan_totp_generate totpPtr outPtr timestamp
+        void $ throwBotanIfNegative $ botan_totp_generate totpPtr outPtr timestamp
         peek outPtr
 
 -- | Verify a TOTP code

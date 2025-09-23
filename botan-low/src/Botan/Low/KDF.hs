@@ -32,7 +32,7 @@ module Botan.Low.KDF
 
 -- * Key derivation function
 
-  KDFName(..)
+  KDFName
 , kdf
 
 -- * KDF algorithms
@@ -70,14 +70,11 @@ module Botan.Low.KDF
 
 ) where
 
-import qualified Data.ByteString as ByteString
-
 import           Botan.Bindings.KDF
 
 import           Botan.Low.Error
 import           Botan.Low.Hash
 import           Botan.Low.MAC
-import           Botan.Low.Make
 import           Botan.Low.Prelude
 
 type KDFName = ByteString
@@ -113,19 +110,32 @@ pattern SP800_56C           = BOTAN_KDF_SP800_56C
 
 hkdf :: HashName -> KDFName
 hkdf h = HKDF /$ h
+hkdf_extract :: KDFName -> KDFName
 hkdf_extract h = HKDF_Extract /$ h
+hkdf_expand :: KDFName -> KDFName
 hkdf_expand h = HKDF_Expand /$ h
+kdf2 :: KDFName -> KDFName
 kdf2 h = KDF2 /$ h
+kdf1_18033 :: KDFName -> KDFName
 kdf1_18033 h = KDF1_18033 /$ h
+kdf1 :: KDFName -> KDFName
 kdf1 h = KDF1 /$ h
+tls_12_prf :: KDFName -> KDFName
 tls_12_prf h = TLS_12_PRF /$ h
+x9_42_prf :: KDFName -> KDFName
 x9_42_prf h = X9_42_PRF /$ h
+sp800_108_counter :: KDFName -> KDFName
 sp800_108_counter h = SP800_108_Counter /$ HMAC /$ h
+sp800_108_feedback :: KDFName -> KDFName
 sp800_108_feedback h = SP800_108_Feedback /$ HMAC /$ h
+sp800_108_pipeline :: KDFName -> KDFName
 sp800_108_pipeline h = SP800_108_Pipeline /$ HMAC /$ h
+sp800_56A :: KDFName -> KDFName
 sp800_56A h = SP800_56A /$ HMAC /$ h
+sp800_56C :: KDFName -> KDFName
 sp800_56C h = SP800_56C /$ HMAC /$ h
 
+kdfs :: [KDFName]
 kdfs = concat
     [ [ hkdf h | h <- cryptohashes ]
     , [ hkdf_extract h | h <- cryptohashes ]

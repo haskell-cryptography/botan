@@ -29,17 +29,10 @@ module Botan.Low.Remake
 ) where
 
 import           Botan.Low.Error
-import           Botan.Low.Prelude
-
-import qualified Data.ByteString.Internal as ByteString
-
 import           Botan.Low.Make (allocBytesQuerying)
+import           Botan.Low.Prelude hiding (init)
 
 -- ByteString Helpers
-
--- NOTE: Was allocBytes
-createByteString :: Int -> (Ptr byte -> IO ()) -> IO ByteString
-createByteString sz f = ByteString.create sz (f . castPtr)
 
 -- NOTE: Was allocBytesWith
 -- createByteString' :: Int -> (Ptr byte -> IO a) -> IO (a, ByteString)
@@ -235,7 +228,7 @@ mkWithObjectGetterCBytesLen withObject getter obj = withObject obj $ \ cobj -> d
 
 -- TODO: getter parameter order may be improper - switch up if problematic
 mkWithObjectGetterCBytesLen1
-    :: (forall a . object -> (botan -> IO a) -> IO a)
+    :: (forall b . object -> (botan -> IO b) -> IO b)
     -> (botan -> a -> Ptr Word8 -> Ptr CSize -> IO CInt)
     -> object
     -> a

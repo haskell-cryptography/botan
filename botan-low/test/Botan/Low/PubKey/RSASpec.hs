@@ -1,4 +1,4 @@
-module Main where
+module Main (main) where
 
 import           Test.Prelude
 
@@ -7,6 +7,7 @@ import           Botan.Low.PubKey
 import           Botan.Low.PubKey.RSA
 import           Botan.Low.RNG
 
+rsaSizes :: [ByteString]
 rsaSizes = [ "2048" ]
 
 -- TODO: Consolidate
@@ -31,7 +32,7 @@ main = hspec $ testSuite rsaSizes chars $ \ rsaSize -> do
         p <- privKeyField privKey "p"
         q <- privKeyField privKey "q"
         e <- privKeyField privKey "e"
-        loadedKey <- privKeyLoadRSA p q e
+        _loadedKey <- privKeyLoadRSA p q e
         pass
     it "pubKeyLoadRSA" $ do
         rng <- rngInit "system"
@@ -39,5 +40,5 @@ main = hspec $ testSuite rsaSizes chars $ \ rsaSize -> do
         pubKey <- privKeyExportPubKey privKey
         n <- pubKeyField pubKey "n"
         e <- pubKeyField pubKey "e"
-        loadedKey <- pubKeyLoadRSA n e
+        _loadedKey <- pubKeyLoadRSA n e
         pass

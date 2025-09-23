@@ -16,7 +16,7 @@ module Botan.Low.PwdHash
 
 -- * Password hashing
 
-  PBKDFName(..)
+  PBKDFName
 , pwdhash
 , pwdhashTimed
 
@@ -34,14 +34,11 @@ module Botan.Low.PwdHash
 
 ) where
 
-import qualified Data.ByteString as ByteString
-
 import           Botan.Bindings.PwdHash
 
 import           Botan.Low.Error
 import           Botan.Low.Hash
 import           Botan.Low.MAC
-import           Botan.Low.Make
 import           Botan.Low.Prelude
 
 type PBKDFName = ByteString

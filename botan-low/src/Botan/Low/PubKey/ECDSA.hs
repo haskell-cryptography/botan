@@ -1,6 +1,8 @@
-module Botan.Low.PubKey.ECDSA where
+module Botan.Low.PubKey.ECDSA (
+    privKeyLoadECDSA
+  , pubKeyLoadECDSA
+  ) where
 
-import           Botan.Bindings.PubKey
 import           Botan.Bindings.PubKey.ECDSA
 
 import           Botan.Low.MPI

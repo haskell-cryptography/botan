@@ -24,14 +24,14 @@ module Botan.Low.Cipher
 -- $usage
 
   Cipher(..)
-, CipherName(..)
-, CipherKey(..)
-, CipherNonce(..)
-, CipherInitFlags(..)
+, CipherName
+, CipherKey
+, CipherNonce
+, CipherInitFlags
 , pattern MaskDirection
 , pattern Encrypt
 , pattern Decrypt
-, CipherUpdateFlags(..)
+, CipherUpdateFlags
 , pattern CipherUpdate
 , pattern CipherFinal
 , withCipher
@@ -56,14 +56,14 @@ module Botan.Low.Cipher
 , cipherClear
 
 -- * Cipher modes
-, CipherMode(..)
+, CipherMode
 , cbcMode
 , cfbMode
 , cfbModeWith
 , xtsMode
 
 -- ** CBC padding
-, CBCPaddingName(..)
+, CBCPaddingName
 , pattern PKCS7
 , pattern OneAndZeros
 , pattern X9_23
@@ -72,12 +72,12 @@ module Botan.Low.Cipher
 , pattern NoPadding
 
 -- * AEAD
-, AEADName(..)
+, AEADName
 , pattern ChaCha20Poly1305
 , chaCha20Poly1305
 
 -- * AEAD modes
-, AEADMode(..)
+, AEADMode
 , gcmMode
 , gcmModeWith
 , ocbMode
@@ -107,8 +107,6 @@ import           Botan.Low.Error
 import           Botan.Low.Make
 import           Botan.Low.Prelude
 import           Botan.Low.Remake
-
-import           Botan.Low.RNG
 
 {- $introduction
 
@@ -193,12 +191,11 @@ If you are encrypting or decrypting multiple messages with the same key, you can
 
 newtype Cipher = MkCipher { getCipherForeignPtr :: ForeignPtr BotanCipherStruct }
 
-newCipher      :: BotanCipher -> IO Cipher
 withCipher     :: Cipher -> (BotanCipher -> IO a) -> IO a
 -- | Destroy the cipher object immediately
 cipherDestroy  :: Cipher -> IO ()
 createCipher   :: (Ptr BotanCipher -> IO CInt) -> IO Cipher
-(newCipher, withCipher, cipherDestroy, createCipher, _)
+(_, withCipher, cipherDestroy, createCipher, _)
     = mkBindings
         MkBotanCipher runBotanCipher
         MkCipher getCipherForeignPtr
@@ -279,6 +276,7 @@ ccmMode bc = bc // BOTAN_AEAD_MODE_CCM
 ccmModeWith :: BlockCipher128Name -> Int -> Int -> AEADName
 ccmModeWith bc tagSz l = ccmMode bc /$ showBytes tagSz <> "," <> showBytes l
 
+cbcPaddings :: [CBCPaddingName]
 cbcPaddings =
     [ PKCS7
     , OneAndZeros
@@ -288,12 +286,14 @@ cbcPaddings =
     , NoPadding
     ]
 
+cipherModes :: [CipherName]
 cipherModes = concat
     [ [ cbcMode bc pd | bc <- allBlockCiphers, pd <- cbcPaddings ]
     , [ cfbMode bc    | bc <- allBlockCiphers ]
     , [ xtsMode bc    | bc <- allBlockCiphers ]
     ]
 
+aeads :: [AEADName]
 aeads = concat
     [ [ chaCha20Poly1305 ]
     , [ gcmMode bc | bc <- blockCipher128s ]
@@ -303,6 +303,7 @@ aeads = concat
     , [ ccmMode bc | bc <- blockCipher128s ]
     ]
 
+allCiphers :: [CipherName]
 allCiphers = cipherModes ++ aeads
 
 -- TODO: Rename CipherMaskDirection, CipherEncrypt, CipherDecrypt;
@@ -329,10 +330,6 @@ cipherInit
     -> CipherInitFlags  -- ^ __flags__
     -> IO Cipher        -- ^ __cipher__
 cipherInit = mkCreateObjectCString1 createCipher botan_cipher_init
-
--- WARNING: withFooInit-style limited lifetime functions moved to high-level botan
-withCipherInit :: CipherName -> CipherInitFlags -> (Cipher -> IO a) -> IO a
-withCipherInit = mkWithTemp2 cipherInit cipherDestroy
 
 -- |Return the name of the cipher object
 cipherName
@@ -569,14 +566,6 @@ Experiments with online processing
 --                 (_,encblock) <- cipherUpdate ctx BOTAN_CIPHER_UPDATE_FLAG_NONE g block
 --                 encrest <- go (i + g) u t g rest
 --                 return $! encblock : encrest
-
---  NOTE: Some ciphers (SIV, CCM) are not online-capable algorithms, but Botan does not throw
---  an error even though it should.
-{-# DEPRECATED cipherProcessOnline "Moving from botan-low to botan" #-}
-cipherProcessOnline :: Cipher -> CipherInitFlags -> ByteString -> IO ByteString
-cipherProcessOnline ctx flags = if flags == BOTAN_CIPHER_INIT_FLAG_ENCRYPT
-    then cipherEncryptOnline ctx
-    else cipherDecryptOnline ctx
 
 -- TODO: Consolidate online encipher / decipher
 -- TODO: Use Builder to do this

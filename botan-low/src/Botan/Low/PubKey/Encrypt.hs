@@ -22,11 +22,8 @@ module Botan.Low.PubKey.Encrypt
 
 ) where
 
-import qualified Data.ByteString as ByteString
-
 import           Botan.Bindings.PubKey.Encrypt
 
-import           Botan.Low.Error
 import           Botan.Low.Make
 import           Botan.Low.Prelude
 import           Botan.Low.PubKey
@@ -39,11 +36,10 @@ import           Botan.Low.RNG
 
 newtype Encrypt = MkEncrypt { getEncryptForeignPtr :: ForeignPtr BotanPKOpEncryptStruct }
 
-newEncrypt      :: BotanPKOpEncrypt -> IO Encrypt
 withEncrypt     :: Encrypt -> (BotanPKOpEncrypt -> IO a) -> IO a
 encryptDestroy  :: Encrypt -> IO ()
 createEncrypt   :: (Ptr BotanPKOpEncrypt -> IO CInt) -> IO Encrypt
-(newEncrypt, withEncrypt, encryptDestroy, createEncrypt, _)
+(_, withEncrypt, encryptDestroy, createEncrypt, _)
     = mkBindings
         MkBotanPKOpEncrypt runBotanPKOpEncrypt
         MkEncrypt getEncryptForeignPtr
@@ -60,10 +56,6 @@ encryptCreate pk padding = withPubKey pk $ \ pkPtr -> do
             pkPtr
             (ConstPtr paddingPtr)
             0
-
--- WARNING: withFooInit-style limited lifetime functions moved to high-level botan
-withEncryptCreate :: PubKey -> EMEName -> (Encrypt -> IO a) -> IO a
-withEncryptCreate = mkWithTemp2 encryptCreate encryptDestroy
 
 encryptOutputLength
     :: Encrypt  -- ^ __op__

@@ -23,10 +23,10 @@ module Botan.Low.BlockCipher
 -- $usage
 
   BlockCipher(..)
-, BlockCipherName(..)
-, BlockCipher128Name(..)
-, BlockCipherKey(..)
-, BlockCipherCiphertext(..)
+, BlockCipherName
+, BlockCipher128Name
+, BlockCipherKey
+, BlockCipherCiphertext
 , withBlockCipher
 , blockCipherInit
 , blockCipherDestroy
@@ -79,8 +79,6 @@ module Botan.Low.BlockCipher
 , allBlockCiphers
 
 ) where
-
-import qualified Data.ByteString as ByteString
 
 import           Botan.Bindings.BlockCipher
 
@@ -136,12 +134,11 @@ To decrypt a message, simply reverse the process:
 -- | A mutable block cipher object
 newtype BlockCipher = MkBlockCipher { getBlockCipherForeignPtr :: ForeignPtr BotanBlockCipherStruct }
 
-newBlockCipher      :: BotanBlockCipher -> IO BlockCipher
 withBlockCipher     :: BlockCipher -> (BotanBlockCipher -> IO a) -> IO a
 -- | Destroy a block cipher object immediately
 blockCipherDestroy  :: BlockCipher -> IO ()
 createBlockCipher   :: (Ptr BotanBlockCipher -> IO CInt) -> IO BlockCipher
-(newBlockCipher, withBlockCipher, blockCipherDestroy, createBlockCipher, _)
+(_, withBlockCipher, blockCipherDestroy, createBlockCipher, _)
     = mkBindings
         MkBotanBlockCipher runBotanBlockCipher
         MkBlockCipher getBlockCipherForeignPtr
@@ -181,6 +178,7 @@ pattern SM4         = BOTAN_BLOCK_CIPHER_128_SM4
 pattern Serpent     = BOTAN_BLOCK_CIPHER_128_SERPENT
 pattern Twofish     = BOTAN_BLOCK_CIPHER_128_TWOFISH
 
+blockCipher128s :: [BlockCipher128Name]
 blockCipher128s =
     [ AES128
     , AES192
@@ -220,6 +218,7 @@ pattern IDEA            = BOTAN_BLOCK_CIPHER_IDEA
 pattern SHACAL2         = BOTAN_BLOCK_CIPHER_SHACAL2
 pattern Threefish512    = BOTAN_BLOCK_CIPHER_THREEFISH_512
 
+blockCiphers :: [BlockCipherName]
 blockCiphers =
     [ Blowfish
     , CAST128
@@ -245,10 +244,6 @@ blockCipherInit
     :: BlockCipherName  -- ^ __cipher_name__
     -> IO BlockCipher   -- ^ __bc__
 blockCipherInit = mkCreateObjectCString createBlockCipher botan_block_cipher_init
-
--- WARNING: withFooInit-style limited lifetime functions moved to high-level botan
-withBlockCipherInit :: BlockCipherName -> (BlockCipher -> IO a) -> IO a
-withBlockCipherInit = mkWithTemp1 blockCipherInit blockCipherDestroy
 
 {- |
 Reinitializes a block cipher

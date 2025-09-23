@@ -113,11 +113,10 @@ agreed-upon salt:
 
 newtype KeyAgreement = MkKeyAgreement { getKeyAgreementForeignPtr :: ForeignPtr BotanPKOpKeyAgreementStruct }
 
-newKeyAgreement      :: BotanPKOpKeyAgreement -> IO KeyAgreement
 withKeyAgreement     :: KeyAgreement -> (BotanPKOpKeyAgreement -> IO a) -> IO a
 keyAgreementDestroy  :: KeyAgreement -> IO ()
 createKeyAgreement   :: (Ptr BotanPKOpKeyAgreement -> IO CInt) -> IO KeyAgreement
-(newKeyAgreement, withKeyAgreement, keyAgreementDestroy, createKeyAgreement, _)
+(_, withKeyAgreement, keyAgreementDestroy, createKeyAgreement, _)
     = mkBindings
         MkBotanPKOpKeyAgreement runBotanPKOpKeyAgreement
         MkKeyAgreement getKeyAgreementForeignPtr
@@ -135,10 +134,6 @@ keyAgreementCreate sk algo = withPrivKey sk $ \ skPtr -> do
             skPtr
             (ConstPtr algoPtr)
             0
-
--- WARNING: withFooInit-style limited lifetime functions moved to high-level botan
-withKeyAgreementCreate :: PrivKey -> KDFName -> (KeyAgreement -> IO a) -> IO a
-withKeyAgreementCreate = mkWithTemp2 keyAgreementCreate keyAgreementDestroy
 
 -- NOTE: I do not know if this provides a different functionality than just being
 --  an alias for botan_privkey_export_pubkey / privKeyExportPubKey

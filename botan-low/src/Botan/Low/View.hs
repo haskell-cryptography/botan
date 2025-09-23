@@ -10,27 +10,19 @@ Portability : POSIX
 -}
 
 module Botan.Low.View
-(
-
-  BotanViewBinFn(..)
-, BotanViewBinCallback(..)
+( BotanViewBinFn
+, BotanViewBinCallback
 , viewBin
-, BotanViewStrFn(..)
-, BotanViewStrCallback(..)
+, BotanViewStrFn
+, BotanViewStrCallback
 , viewStr
 
 )where
-
-import qualified Data.ByteString as ByteString
-
-import           Data.Void
 
 import           System.IO
 
 import           Botan.Bindings.View
 
-import           Botan.Low.Error
-import           Botan.Low.Make
 import           Botan.Low.Prelude
 
 viewBin :: BotanViewBinFn ctx -> (BotanViewBinCallback ctx -> IO a) -> IO a

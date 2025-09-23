@@ -22,17 +22,13 @@ module Botan.Low.PubKey.Verify
 
 ) where
 
-import qualified Data.ByteString as ByteString
-
 import           Botan.Bindings.PubKey.Verify
 
 import           Botan.Low.Error
-import           Botan.Low.Make
 import           Botan.Low.Prelude
 import           Botan.Low.PubKey
-import           Botan.Low.PubKey.Sign (SigningFlags (..))
+import           Botan.Low.PubKey.Sign (SigningFlags)
 import           Botan.Low.Remake
-import           Botan.Low.RNG
 
 -- /*
 -- * Signature Verification
@@ -40,17 +36,14 @@ import           Botan.Low.RNG
 
 newtype Verify = MkVerify { getVerifyForeignPtr :: ForeignPtr BotanPKOpVerifyStruct }
 
-newVerify      :: BotanPKOpVerify -> IO Verify
 withVerify     :: Verify -> (BotanPKOpVerify -> IO a) -> IO a
 verifyDestroy  :: Verify -> IO ()
 createVerify   :: (Ptr BotanPKOpVerify -> IO CInt) -> IO Verify
-(newVerify, withVerify, verifyDestroy, createVerify, _)
+(_, withVerify, verifyDestroy, createVerify, _)
     = mkBindings
         MkBotanPKOpVerify runBotanPKOpVerify
         MkVerify getVerifyForeignPtr
         botan_pk_op_verify_destroy
-
-type VerifyAlgo = ByteString
 
 verifyCreate
     :: PubKey       -- ^ __key__
@@ -64,10 +57,6 @@ verifyCreate pk algo flags =  withPubKey pk $ \ pkPtr -> do
             pkPtr
             (ConstPtr algoPtr)
             flags
-
--- WARNING: withFooInit-style limited lifetime functions moved to high-level botan
-withVerifyCreate :: PubKey -> EMSAName -> SigningFlags -> (Verify -> IO a) -> IO a
-withVerifyCreate = mkWithTemp3 verifyCreate verifyDestroy
 
 verifyUpdate
     :: Verify       -- ^ __op__

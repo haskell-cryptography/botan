@@ -1,4 +1,4 @@
-module Main where
+module Main (main) where
 
 import           Test.Prelude
 
@@ -6,8 +6,6 @@ import           Botan.Bindings.FPE
 import           Botan.Low.FPE
 import           Botan.Low.MPI
 import           Botan.Low.RNG
-
-import           Botan.Low.Error
 
 -- NOTE: FPE operations encrypt/decrypt integers less than n
 nStr :: ByteString
@@ -51,10 +49,10 @@ main :: IO ()
 main = hspec $ do
     describe "fpeInitFE1" $ do
         it "initializes an FE1 FPE context" $ do
-            newFE1Ctx
+            void newFE1Ctx
             pass
         it "initializes an FE1 FPE context in compat mode" $ (do
-            newFE1CtxCompatMode
+            void newFE1CtxCompatMode
             pass
             ) -- `shouldThrow` anyBotanException
     describe "fpeEncrypt" $ do

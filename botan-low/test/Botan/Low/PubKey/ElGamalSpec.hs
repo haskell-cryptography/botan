@@ -1,4 +1,4 @@
-module Main where
+module Main (main) where
 
 import           Test.Prelude
 
@@ -41,31 +41,24 @@ privKeyField privKey field = do
     privKeyGetField mp privKey field
     return mp
 
--- TODO: Consolidate
-pubKeyField :: PubKey -> ByteString -> IO MP
-pubKeyField pubKey field = do
-    mp <- mpInit
-    pubKeyGetField mp pubKey field
-    return mp
-
 main :: IO ()
 main = hspec $ testSuite dlGroups chars $ \ dlGroup -> do
     it "privKeyLoadELGamal" $ do
         rng <- rngInit "system"
         privKey <- privKeyCreate "DH" dlGroup rng
         p <- privKeyField privKey "p"
-        q <- privKeyField privKey "q"
+        _q <- privKeyField privKey "q"
         g <- privKeyField privKey "g"
         x <- privKeyField privKey "x"
-        loadedKey <- privKeyLoadElGamal p g x
+        _loadedKey <- privKeyLoadElGamal p g x
         pass
     it "pubKeyLoadELGamal" $ do
         rng <- rngInit "system"
         privKey <- privKeyCreate "DH" dlGroup rng
-        pubKey <- privKeyExportPubKey privKey
+        _pubKey <- privKeyExportPubKey privKey
         p <- privKeyField privKey "p"
-        q <- privKeyField privKey "q"
+        _q <- privKeyField privKey "q"
         g <- privKeyField privKey "g"
         y <- privKeyField privKey "y"
-        loadedKey <- pubKeyLoadElGamal p g y
+        _loadedKey <- pubKeyLoadElGamal p g y
         pass

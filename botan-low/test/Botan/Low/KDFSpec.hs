@@ -1,10 +1,7 @@
-module Main where
+module Main (main) where
 
 import           Test.Prelude
 
-import qualified Data.ByteString as ByteString
-
--- import Botan.Low.Hash
 import           Botan.Low.KDF
 
 --  NOTE: Many of these tests fail because different kdfs / macs / hashes have different requirements
@@ -30,5 +27,5 @@ main :: IO ()
 main = hspec $ testSuite kdfs chars $ \ algo -> do
     describe "kdf" $ do
         it "can derive a key" $ do
-            key <- kdf algo 3 "secret" "salt" "" -- "label"
+            _key <- kdf algo 3 "secret" "salt" "" -- "label"
             pass

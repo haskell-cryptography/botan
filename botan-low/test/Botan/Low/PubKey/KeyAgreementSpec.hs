@@ -1,4 +1,4 @@
-module Main where
+module Main (main) where
 
 import           Test.Prelude
 
@@ -22,19 +22,19 @@ main = hspec $ testSuite pks pkTestName $ \ (pk, param) -> do
     it "keyAgreementCreate" $ do
         rng <- rngInit "system"
         privKey <- privKeyCreate pk param rng
-        ka <- keyAgreementCreate privKey "HKDF(SHA-256)"
+        _ka <- keyAgreementCreate privKey "HKDF(SHA-256)"
         pass
     it "keyAgreementExportPublic" $ do
         rng <- rngInit "system"
         privKey <- privKeyCreate pk param rng
-        ka <- keyAgreementCreate privKey "HKDF(SHA-256)"
-        pubKey <- keyAgreementExportPublic privKey
+        _ka <- keyAgreementCreate privKey "HKDF(SHA-256)"
+        _pubKey <- keyAgreementExportPublic privKey
         pass
     it "keyAgreementSize" $ do
         rng <- rngInit "system"
         privKey <- privKeyCreate pk param rng
         ka <- keyAgreementCreate privKey "HKDF(SHA-256)"
-        kaSz <- keyAgreementSize ka
+        _kaSz <- keyAgreementSize ka
         pass
     it "keyAgreement" $ do
         rng <- rngInit "system"

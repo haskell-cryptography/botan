@@ -9,13 +9,15 @@ Stability   : experimental
 Portability : POSIX
 -}
 
-module Botan.Low.PubKey.RSA where
-
-import qualified Data.ByteString as ByteString
+module Botan.Low.PubKey.RSA (
+    privKeyLoadRSA
+  , privKeyLoadRSA_PKCS1
+  , privKeyRSAGetPrivKey
+  , pubKeyLoadRSA
+  ) where
 
 import           Botan.Bindings.PubKey.RSA
 
-import           Botan.Low.Error
 import           Botan.Low.MPI
 import           Botan.Low.Prelude
 import           Botan.Low.PubKey

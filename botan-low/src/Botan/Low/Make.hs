@@ -1,9 +1,73 @@
-module Botan.Low.Make where
+module Botan.Low.Make (
+    WithPtr
+  , Constr
+  , Initializer
+  , Initializer_name
+  , Initializer_name_flags
+  , Initializer_bytes
+  , Initializer_bytes_len
+  , Destructor
+  , mkInit
+  , mkInit_name
+  , mkInit_name_flags
+  , mkInit_bytes
+  , mkInit_bytes_len
+  , Initializer_with
+  , mkInit_with
+  , GetBytes
+  , mkGetBytes
+  , GetCString
+  , mkGetCString
+  , GetInt
+  , mkGetInt
+  , GetSize
+  , GetSize_csize
+  , GetSizes2
+  , GetSizes3
+  , mkGetSize
+  , mkGetSize_csize
+  , mkGetSizes2
+  , mkGetSizes3
+  , GetSuccessCode
+  , GetSuccessCode_csize
+  , mkGetSuccessCode
+  , mkGetSuccessCode_csize
+  , GetBoolCode
+  , GetBoolCode_csize
+  , mkGetBoolCode
+  , mkGetBoolCode_csize
+  , GetIntCode
+  , GetIntCode_csize
+  , mkGetIntCode
+  , mkGetIntCode_csize
+  , Action
+  , mkAction
+  , mkSet
+  , mkSetOn
+  , SetCSize
+  , SetCInt
+  , mkSetCSize
+  , mkSetCInt
+  , SetCString
+  , SetCString_csize
+  , mkSetCString
+  , mkSetCString_csize
+  , SetBytesLen
+  , mkSetBytesLen
+  , allocBytesQuerying
+  , allocBytesQueryingCString
+  , mkWithTemp
+  , mkWithTemp1
+  , mkWithTemp2
+  , mkWithTemp3
+  , mkWithTemp4
+  , withPtrs
+  ) where
 
 import qualified Data.ByteString as ByteString
 
 import           Botan.Low.Error
-import           Botan.Low.Prelude
+import           Botan.Low.Prelude hiding (init)
 
 {-
 Basic botan type template
@@ -463,8 +527,8 @@ mkWithTemp4 init destroy x y z w = bracket (init x y z w) destroy
 --
 
 withPtrs :: (forall a . typ -> (ptr -> IO a) -> IO a) -> [typ] -> ([ptr] -> IO b) -> IO b
-withPtrs withPtr []         act = act []
-withPtrs withPtr (typ:typs) act = withPtr typ $ \ typPtr -> withPtrs withPtr typs (act . (typPtr:))
+withPtrs _withPtr []         act = act []
+withPtrs withPtr  (typ:typs) act = withPtr typ $ \ typPtr -> withPtrs withPtr typs (act . (typPtr:))
 
 -- withNullablePtr
 
