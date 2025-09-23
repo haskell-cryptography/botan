@@ -1,15 +1,16 @@
-module Botan.Checksum.CRC
-( CRC24(..)
-, CRC24Digest(..)
-, crc24
-, crc24Lazy
-, CRC32(..)
-, CRC32Digest(..)
-, crc32
-, crc32Lazy
-) where
+{-# LANGUAGE TypeFamilies #-}
 
-import qualified Data.ByteString as ByteString
+module Botan.Checksum.CRC (
+    CRC24
+  , CRC24Digest
+  , crc24
+  , crc24Lazy
+  , CRC32
+  , CRC32Digest
+  , crc32
+  , crc32Lazy
+  ) where
+
 import qualified Data.ByteString.Lazy as Lazy
 import qualified Data.Text as Text
 
@@ -24,7 +25,7 @@ import           Botan.Prelude
 data CRC24
 
 newtype instance Digest CRC24 = CRC24Digest
-    { getCRC24ByteString :: ByteString {- ByteVector n -} }
+    { _getCRC24ByteString :: ByteString {- ByteVector n -} }
     deriving newtype (Eq, Ord)
 
 type CRC24Digest = Digest CRC24
@@ -54,7 +55,7 @@ crc24Lazy = hashLazy
 data CRC32
 
 newtype instance Digest CRC32 = CRC32Digest
-    { getCRC32ByteString :: ByteString {- ByteVector n -} }
+    { _getCRC32ByteString :: ByteString {- ByteVector n -} }
     deriving newtype (Eq, Ord)
 
 type CRC32Digest = Digest CRC32

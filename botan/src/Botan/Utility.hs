@@ -1,33 +1,30 @@
-module Botan.Utility
-( constantTimeCompare
-, scrubMemory
-, scrub
-, scrubArray
-, scrubForeignPtr
-, scrubForeignPtrArray
-, scrubByteString
-, HexCase(..)
-, hexEncode
-, hexDecode
-, base64Encode
-, base64Decode
-) where
+module Botan.Utility (
+    constantTimeCompare
+  , scrubMemory
+  , scrub
+  , scrubArray
+  , scrubForeignPtr
+  , scrubForeignPtrArray
+  , scrubByteString
+  , HexCase(..)
+  , hexEncode
+  , hexDecode
+  , base64Encode
+  , base64Decode
+  ) where
 
 import           System.IO.Unsafe
 
 import           Data.ByteString.Internal as ByteString
 import           Data.ByteString.Unsafe as ByteString
 
-import qualified Botan.Bindings.Utility as Bindings
-import           Botan.Low.Utility (HexEncodingFlags (..), pattern HexLowerCase,
-                     pattern HexUpperCase)
+import           Botan.Low.Utility (HexEncodingFlags)
 import qualified Botan.Low.Utility as Low
 
 import           Foreign.ForeignPtr
 import           Foreign.Ptr
 import           Foreign.Storable
 
-import           Botan.Error
 import           Botan.Prelude
 
 -- | Returns 0 if x[0..len] == y[0..len], -1 otherwise.
@@ -39,16 +36,16 @@ constantTimeCompare = unsafePerformIO3 Low.constantTimeCompare
 scrubMemory :: (MonadIO m) => Ptr a -> Int -> m ()
 scrubMemory ptr sz = liftIO $ Low.scrubMem ptr sz
 
-scrub :: (MonadIO m, Storable a) => Ptr a -> m ()
+scrub :: MonadIO m => Ptr a -> m ()
 scrub ptr = scrubMemory ptr (sizeOf ptr)
 
-scrubArray :: (MonadIO m, Storable a) => Int -> Ptr a -> m ()
+scrubArray :: MonadIO m => Int -> Ptr a -> m ()
 scrubArray n ptr  = scrubMemory ptr (n * sizeOf ptr)
 
-scrubForeignPtr :: (MonadIO m, Storable a) => ForeignPtr a -> m ()
+scrubForeignPtr :: MonadIO m => ForeignPtr a -> m ()
 scrubForeignPtr fptr = liftIO $ withForeignPtr fptr scrub
 
-scrubForeignPtrArray :: (MonadIO m, Storable a) => Int -> ForeignPtr a -> m ()
+scrubForeignPtrArray :: MonadIO m => Int -> ForeignPtr a -> m ()
 scrubForeignPtrArray n fptr = liftIO $ withForeignPtr fptr (scrubArray n)
 
 -- TODO: Rename scrubByteStringImmediately?

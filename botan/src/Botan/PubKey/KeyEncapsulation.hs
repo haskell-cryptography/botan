@@ -9,74 +9,69 @@ Stability   : experimental
 Portability : POSIX
 -}
 
-module Botan.PubKey.KeyEncapsulation
-(
+module Botan.PubKey.KeyEncapsulation (
 
--- * Thing
--- $introduction
+  -- * Thing
+  -- $introduction
 
--- * Usage
--- $usage
+  -- * Usage
+  -- $usage
 
--- * KEM Encryption
+  -- * KEM Encryption
 
-  kemEncrypt
-, kemDecrypt
+    kemEncrypt
+  , kemDecrypt
 
--- ** Associated types
+  -- ** Associated types
 
-, KEMSharedKey(..)
-, KEMEncapsulatedKey(..)
+  , KEMSharedKey
+  , KEMEncapsulatedKey
 
--- ** Accessors
+  -- ** Accessors
 
-, kemSharedKeyLength
-, kemEncapsulatedKeyLength
+  , kemSharedKeyLength
+  , kemEncapsulatedKeyLength
 
--- ** Data type
-,  KEMEncrypt(..)
+  -- ** Data type
+  ,  KEMEncrypt
 
--- ** Destructor
-, destroyKEMEncrypt
+  -- ** Destructor
+  , destroyKEMEncrypt
 
--- ** Initializers
-, newKEMEncrypt
+  -- ** Initializers
+  , newKEMEncrypt
 
--- ** Accessors
-, kemEncryptSharedKeyLength
-, kemEncryptEncapsulatedKeyLength
+  -- ** Accessors
+  , kemEncryptSharedKeyLength
+  , kemEncryptEncapsulatedKeyLength
 
--- ** Mutable Algorithm
-, kemEncryptCreateSharedKey
+  -- ** Mutable Algorithm
+  , kemEncryptCreateSharedKey
 
--- * KEM Decryption
+  -- * KEM Decryption
 
--- ** Data type
-, KEMDecrypt(..)
+  -- ** Data type
+  , KEMDecrypt
 
--- ** Destructor
-, destroyKEMDecrypt
+  -- ** Destructor
+  , destroyKEMDecrypt
 
--- ** Initializers
-, newKEMDecrypt
+  -- ** Initializers
+  , newKEMDecrypt
 
--- ** Accessors
-, kemDecryptSharedKeyLength
+  -- ** Accessors
+  , kemDecryptSharedKeyLength
 
--- ** Mutable Algorithm
-, kemDecryptSharedKey
+  -- ** Mutable Algorithm
+  , kemDecryptSharedKey
 
-) where
-
-import qualified Data.ByteString as ByteString
+  ) where
 
 import qualified Botan.Low.PubKey.KeyEncapsulation as Low
 
-import           Botan.Error
 import           Botan.KDF
 import           Botan.Prelude
 import           Botan.PubKey
-import           Botan.RNG
 
 {- $introduction
 
@@ -90,8 +85,10 @@ import           Botan.RNG
 -- Idiomatic interface
 --
 
+kemEncrypt :: a
 kemEncrypt = undefined
 
+kemDecrypt :: a
 kemDecrypt = undefined
 
 -- Associated types
@@ -101,8 +98,10 @@ type KEMEncapsulatedKey = Low.KEMEncapsulatedKey
 
 -- Accessors
 
+kemSharedKeyLength :: a
 kemSharedKeyLength = undefined
 
+kemEncapsulatedKeyLength :: a
 kemEncapsulatedKeyLength = undefined
 
 
@@ -118,27 +117,27 @@ data KEMEncrypt
 
 -- Destructor
 
-destroyKEMEncrypt :: (MonadIO m) => KEMEncrypt -> m ()
+destroyKEMEncrypt :: KEMEncrypt -> m ()
 destroyKEMEncrypt = undefined
 
 -- Initializers
 
-newKEMEncrypt :: (MonadIO m) => PubKey -> KDF -> m KEMEncrypt
+newKEMEncrypt :: PubKey -> KDF -> m KEMEncrypt
 newKEMEncrypt = undefined
 
 -- Accessors
 
-kemEncryptEncapsulatedKeyLength :: (MonadIO m) => KEMEncrypt -> m Int
+kemEncryptEncapsulatedKeyLength :: KEMEncrypt -> m Int
 kemEncryptEncapsulatedKeyLength = undefined
 
 -- Accessory functions
 
-kemEncryptSharedKeyLength :: (MonadIO m) => KEMEncrypt -> Int -> m Int
+kemEncryptSharedKeyLength :: KEMEncrypt -> Int -> m Int
 kemEncryptSharedKeyLength = undefined
 
 -- Mutable algorithm
 
-kemEncryptCreateSharedKey :: (MonadRandomIO m) => KEMEncrypt -> ByteString -> Int -> m (KEMSharedKey,KEMEncapsulatedKey)
+kemEncryptCreateSharedKey :: KEMEncrypt -> ByteString -> Int -> m (KEMSharedKey,KEMEncapsulatedKey)
 kemEncryptCreateSharedKey = undefined
 
 -- KEM Decryption
@@ -147,20 +146,20 @@ data KEMDecrypt
 
 -- Destructor
 
-destroyKEMDecrypt  :: (MonadIO m) => KEMDecrypt -> m ()
+destroyKEMDecrypt  :: KEMDecrypt -> m ()
 destroyKEMDecrypt = undefined
 
 -- Initializers
 
-newKEMDecrypt :: (MonadIO m) => PrivKey -> KDF -> m KEMDecrypt
+newKEMDecrypt :: PrivKey -> KDF -> m KEMDecrypt
 newKEMDecrypt = undefined
 
 -- Accessory functions
 
-kemDecryptSharedKeyLength :: (MonadIO m) => KEMDecrypt -> Int -> m Int
+kemDecryptSharedKeyLength :: KEMDecrypt -> Int -> m Int
 kemDecryptSharedKeyLength = undefined
 
 -- Mutable algorithm
 
-kemDecryptSharedKey :: (MonadIO m) => KEMDecrypt -> ByteString -> KEMEncapsulatedKey -> Int -> m KEMSharedKey
+kemDecryptSharedKey :: KEMDecrypt -> ByteString -> KEMEncapsulatedKey -> Int -> m KEMSharedKey
 kemDecryptSharedKey  = undefined

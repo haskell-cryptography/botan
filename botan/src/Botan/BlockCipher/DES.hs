@@ -1,30 +1,29 @@
-module Botan.BlockCipher.DES
-( DES(..)
-, DESSecretKey(..)
-, pattern DESSecretKey
-, getDESSecretKey
-, DESCiphertext(..)
-, desEncrypt
-, desDecrypt
-, desEncryptLazy
-, desDecryptLazy
-, TripleDES(..)
-, TripleDESSecretKey(..)
-, pattern TripleDESSecretKey
-, getTripleDESSecretKey
-, TripleDESCiphertext(..)
-, tripleDESEncrypt
-, tripleDESDecrypt
-, tripleDESEncryptLazy
-, tripleDESDecryptLazy
-) where
+{-# LANGUAGE TypeFamilies #-}
 
-import qualified Data.ByteString as ByteString
+module Botan.BlockCipher.DES (
+    DES
+  , DESSecretKey
+  , pattern DESSecretKey
+  , getDESSecretKey
+  , DESCiphertext
+  , desEncrypt
+  , desDecrypt
+  , desEncryptLazy
+  , desDecryptLazy
+  , TripleDES
+  , TripleDESSecretKey
+  , pattern TripleDESSecretKey
+  , getTripleDESSecretKey
+  , TripleDESCiphertext
+  , tripleDESEncrypt
+  , tripleDESDecrypt
+  , tripleDESEncryptLazy
+  , tripleDESDecryptLazy
+  ) where
+
 import qualified Data.ByteString.Lazy as Lazy
-import qualified Data.Text as Text
 
 import qualified Botan.BlockCipher as Botan
-import qualified Botan.Utility as Botan
 
 import           Botan.Prelude hiding (Ciphertext, LazyCiphertext)
 
@@ -39,6 +38,7 @@ data DES
 newtype instance SecretKey DES = MkDESSecretKey GSecretKey
     deriving newtype (Eq, Ord, Show, Encodable)
 
+{-# COMPLETE DESSecretKey #-}
 pattern DESSecretKey :: ByteString -> SecretKey DES
 pattern DESSecretKey bytes = MkDESSecretKey (MkGSecretKey bytes)
 
@@ -50,22 +50,18 @@ type DESSecretKey = SecretKey DES
 newtype instance Ciphertext DES = MkDESCiphertext GCiphertext
     deriving newtype (Eq, Ord, Show, Encodable)
 
+{-# COMPLETE DESCiphertext #-}
 pattern DESCiphertext :: ByteString -> Ciphertext DES
 pattern DESCiphertext bs = MkDESCiphertext (MkGCiphertext bs)
-
-getDESCiphertext :: Ciphertext DES -> ByteString
-getDESCiphertext (DESCiphertext bs) = bs
 
 type DESCiphertext = Ciphertext DES
 
 newtype instance LazyCiphertext DES = MkDESLazyCiphertext GLazyCiphertext
     deriving newtype (Eq, Ord, Show, Encodable, LazyEncodable)
 
+{-# COMPLETE DESLazyCiphertext #-}
 pattern DESLazyCiphertext :: Lazy.ByteString -> LazyCiphertext DES
 pattern DESLazyCiphertext lbs = MkDESLazyCiphertext (MkGLazyCiphertext lbs)
-
-getDESLazyCiphertext :: LazyCiphertext DES -> Lazy.ByteString
-getDESLazyCiphertext (DESLazyCiphertext bs) = bs
 
 type DESLazyCiphertext = LazyCiphertext DES
 
@@ -74,12 +70,12 @@ instance HasSecretKey DES where
     secretKeySpec :: SizeSpecifier (SecretKey DES)
     secretKeySpec = coerceSizeSpec $ Botan.blockCipherKeySpec Botan.des
 
-instance (MonadRandomIO m )=> SecretKeyGen DES m where
+instance MonadRandomIO m => SecretKeyGen DES m where
 
-    newSecretKey :: MonadRandomIO m => m (SecretKey DES)
+    newSecretKey :: m (SecretKey DES)
     newSecretKey = DESSecretKey <$> newSized (secretKeySpec @DES)
 
-    newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey DES))
+    newSecretKeyMaybe :: Int -> m (Maybe (SecretKey DES))
     newSecretKeyMaybe i = fmap DESSecretKey <$> newSizedMaybe (secretKeySpec @DES) i
 
 instance HasCiphertext DES where
@@ -124,6 +120,7 @@ data TripleDES
 newtype instance SecretKey TripleDES = MkTripleDESSecretKey GSecretKey
     deriving newtype (Eq, Ord, Show, Encodable)
 
+{-# COMPLETE TripleDESSecretKey #-}
 pattern TripleDESSecretKey :: ByteString -> SecretKey TripleDES
 pattern TripleDESSecretKey bytes = MkTripleDESSecretKey (MkGSecretKey bytes)
 
@@ -135,22 +132,18 @@ type TripleDESSecretKey = SecretKey TripleDES
 newtype instance Ciphertext TripleDES = MkTripleDESCiphertext GCiphertext
     deriving newtype (Eq, Ord, Show, Encodable)
 
+{-# COMPLETE TripleDESCiphertext #-}
 pattern TripleDESCiphertext :: ByteString -> Ciphertext TripleDES
 pattern TripleDESCiphertext bs = MkTripleDESCiphertext (MkGCiphertext bs)
-
-getTripleDESCiphertext :: Ciphertext TripleDES -> ByteString
-getTripleDESCiphertext (TripleDESCiphertext bs) = bs
 
 type TripleDESCiphertext = Ciphertext TripleDES
 
 newtype instance LazyCiphertext TripleDES = MkTripleDESLazyCiphertext GLazyCiphertext
     deriving newtype (Eq, Ord, Show, Encodable, LazyEncodable)
 
+{-# COMPLETE TripleDESLazyCiphertext #-}
 pattern TripleDESLazyCiphertext :: Lazy.ByteString -> LazyCiphertext TripleDES
 pattern TripleDESLazyCiphertext lbs = MkTripleDESLazyCiphertext (MkGLazyCiphertext lbs)
-
-getTripleDESLazyCiphertext :: LazyCiphertext TripleDES -> Lazy.ByteString
-getTripleDESLazyCiphertext (TripleDESLazyCiphertext bs) = bs
 
 type TripleDESLazyCiphertext = LazyCiphertext TripleDES
 
@@ -159,12 +152,12 @@ instance HasSecretKey TripleDES where
     secretKeySpec :: SizeSpecifier (SecretKey TripleDES)
     secretKeySpec = coerceSizeSpec $ Botan.blockCipherKeySpec Botan.tripleDES
 
-instance (MonadRandomIO m )=> SecretKeyGen TripleDES m where
+instance MonadRandomIO m => SecretKeyGen TripleDES m where
 
-    newSecretKey :: MonadRandomIO m => m (SecretKey TripleDES)
+    newSecretKey :: m (SecretKey TripleDES)
     newSecretKey = TripleDESSecretKey <$> newSized (secretKeySpec @TripleDES)
 
-    newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey TripleDES))
+    newSecretKeyMaybe :: Int -> m (Maybe (SecretKey TripleDES))
     newSecretKeyMaybe i = fmap TripleDESSecretKey <$> newSizedMaybe (secretKeySpec @TripleDES) i
 
 instance HasCiphertext TripleDES where

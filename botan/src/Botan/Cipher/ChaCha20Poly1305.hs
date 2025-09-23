@@ -1,21 +1,20 @@
-module Botan.Cipher.ChaCha20Poly1305
-( ChaCha20Poly1305(..)
-, ChaCha20Poly1305SecretKey(..)
-, ChaCha20Poly1305Nonce(..)
-, ChaCha20Poly1305Ciphertext(..)
-, ChaCha20Poly1305LazyCiphertext(..)
-, chaCha20Poly1305Encrypt
-, chaCha20Poly1305Decrypt
-, chaCha20Poly1305EncryptLazy
-, chaCha20Poly1305DecryptLazy
-) where
+{-# LANGUAGE TypeFamilies #-}
 
-import qualified Data.ByteString as ByteString
+module Botan.Cipher.ChaCha20Poly1305 (
+    ChaCha20Poly1305
+  , ChaCha20Poly1305SecretKey
+  , ChaCha20Poly1305Nonce
+  , ChaCha20Poly1305Ciphertext
+  , ChaCha20Poly1305LazyCiphertext
+  , chaCha20Poly1305Encrypt
+  , chaCha20Poly1305Decrypt
+  , chaCha20Poly1305EncryptLazy
+  , chaCha20Poly1305DecryptLazy
+  ) where
+
 import qualified Data.ByteString.Lazy as Lazy
-import qualified Data.Text as Text
 
 import qualified Botan.Cipher as Botan
-import qualified Botan.Utility as Botan
 
 import           Botan.Prelude hiding (Ciphertext, LazyCiphertext)
 
@@ -31,44 +30,36 @@ data ChaCha20Poly1305
 newtype instance SecretKey ChaCha20Poly1305 = MkChaCha20Poly1305SecretKey GSecretKey
     deriving newtype (Eq, Ord, Show, Encodable)
 
+{-# COMPLETE ChaCha20Poly1305SecretKey #-}
 pattern ChaCha20Poly1305SecretKey :: ByteString -> SecretKey ChaCha20Poly1305
 pattern ChaCha20Poly1305SecretKey bytes = MkChaCha20Poly1305SecretKey (MkGSecretKey bytes)
-
-getChaCha20Poly1305SecretKey :: SecretKey ChaCha20Poly1305 -> ByteString
-getChaCha20Poly1305SecretKey (ChaCha20Poly1305SecretKey bs) = bs
 
 type ChaCha20Poly1305SecretKey = SecretKey ChaCha20Poly1305
 
 newtype instance Nonce ChaCha20Poly1305 = MkChaCha20Poly1305Nonce GNonce
     deriving newtype (Eq, Ord, Show, Encodable, IsNonce)
 
+{-# COMPLETE ChaCha20Poly1305Nonce #-}
 pattern ChaCha20Poly1305Nonce :: ByteString -> Nonce ChaCha20Poly1305
 pattern ChaCha20Poly1305Nonce bytes = MkChaCha20Poly1305Nonce (MkGNonce bytes)
-
-getChaCha20Poly1305Nonce :: Nonce ChaCha20Poly1305 -> ByteString
-getChaCha20Poly1305Nonce (ChaCha20Poly1305Nonce bs) = bs
 
 type ChaCha20Poly1305Nonce = Nonce ChaCha20Poly1305
 
 newtype instance Ciphertext ChaCha20Poly1305 = MkChaCha20Poly1305Ciphertext GCiphertext
     deriving newtype (Eq, Ord, Show, Encodable)
 
+{-# COMPLETE ChaCha20Poly1305Ciphertext #-}
 pattern ChaCha20Poly1305Ciphertext :: ByteString -> Ciphertext ChaCha20Poly1305
 pattern ChaCha20Poly1305Ciphertext bs = MkChaCha20Poly1305Ciphertext (MkGCiphertext bs)
-
-getChaCha20Poly1305Ciphertext :: Ciphertext ChaCha20Poly1305 -> ByteString
-getChaCha20Poly1305Ciphertext (ChaCha20Poly1305Ciphertext bs) = bs
 
 type ChaCha20Poly1305Ciphertext = Ciphertext ChaCha20Poly1305
 
 newtype instance LazyCiphertext ChaCha20Poly1305 = MkChaCha20Poly1305LazyCiphertext GLazyCiphertext
     deriving newtype (Eq, Ord, Show, Encodable, LazyEncodable)
 
+{-# COMPLETE ChaCha20Poly1305LazyCiphertext #-}
 pattern ChaCha20Poly1305LazyCiphertext :: Lazy.ByteString -> LazyCiphertext ChaCha20Poly1305
 pattern ChaCha20Poly1305LazyCiphertext lbs = MkChaCha20Poly1305LazyCiphertext (MkGLazyCiphertext lbs)
-
-getChaCha20Poly1305LazyCiphertext :: LazyCiphertext ChaCha20Poly1305 -> Lazy.ByteString
-getChaCha20Poly1305LazyCiphertext (ChaCha20Poly1305LazyCiphertext bs) = bs
 
 type ChaCha20Poly1305LazyCiphertext = LazyCiphertext ChaCha20Poly1305
 
@@ -77,12 +68,12 @@ instance HasSecretKey ChaCha20Poly1305 where
     secretKeySpec :: SizeSpecifier (SecretKey ChaCha20Poly1305)
     secretKeySpec = coerceSizeSpec $ Botan.cipherKeySpec Botan.chaCha20Poly1305
 
-instance (MonadRandomIO m )=> SecretKeyGen ChaCha20Poly1305 m where
+instance MonadRandomIO m => SecretKeyGen ChaCha20Poly1305 m where
 
-    newSecretKey :: MonadRandomIO m => m (SecretKey ChaCha20Poly1305)
+    newSecretKey :: m (SecretKey ChaCha20Poly1305)
     newSecretKey = ChaCha20Poly1305SecretKey <$> newSized (secretKeySpec @ChaCha20Poly1305)
 
-    newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey ChaCha20Poly1305))
+    newSecretKeyMaybe :: Int -> m (Maybe (SecretKey ChaCha20Poly1305))
     newSecretKeyMaybe i = fmap ChaCha20Poly1305SecretKey <$> newSizedMaybe (secretKeySpec @ChaCha20Poly1305) i
 
 instance HasNonce ChaCha20Poly1305 where
@@ -93,12 +84,12 @@ instance HasNonce ChaCha20Poly1305 where
     -- We should be moving algo-specific stuff here anyway.
     nonceSpec = SizeEnum [ 8, 12, 24 ]
 
-instance (MonadRandomIO m )=> NonceGen ChaCha20Poly1305 m where
+instance MonadRandomIO m => NonceGen ChaCha20Poly1305 m where
 
-    newNonce :: MonadRandomIO m => m (Nonce ChaCha20Poly1305)
+    newNonce :: m (Nonce ChaCha20Poly1305)
     newNonce = ChaCha20Poly1305Nonce <$> newSized (nonceSpec @ChaCha20Poly1305)
 
-    newNonceMaybe :: MonadRandomIO m => Int -> m (Maybe (Nonce ChaCha20Poly1305))
+    newNonceMaybe :: Int -> m (Maybe (Nonce ChaCha20Poly1305))
     newNonceMaybe i = fmap ChaCha20Poly1305Nonce <$> newSizedMaybe (nonceSpec @ChaCha20Poly1305) i
 
 instance HasCiphertext ChaCha20Poly1305 where

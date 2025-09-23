@@ -1,26 +1,29 @@
-module Botan.Hash.SHA3
-( SHA3(..)
-, SHA3Size(..)
-, SHA3Digest(..)
-, sha3
-, sha3Lazy
-, SHA3_224(..)
-, SHA3_224Digest(..)
-, sha3_224
-, sha3_224Lazy
-, SHA3_256(..)
-, SHA3_256Digest(..)
-, sha3_256
-, sha3_256Lazy
-, SHA3_384(..)
-, SHA3_384Digest(..)
-, sha3_384
-, sha3_384Lazy
-, SHA3_512(..)
-, SHA3_512Digest(..)
-, sha3_512
-, sha3_512Lazy
-) where
+{-# LANGUAGE DataKinds    #-}
+{-# LANGUAGE TypeFamilies #-}
+
+module Botan.Hash.SHA3 (
+    SHA3
+  , SHA3Size
+  , SHA3Digest
+  , sha3
+  , sha3Lazy
+  , SHA3_224
+  , SHA3_224Digest
+  , sha3_224
+  , sha3_224Lazy
+  , SHA3_256
+  , SHA3_256Digest
+  , sha3_256
+  , sha3_256Lazy
+  , SHA3_384
+  , SHA3_384Digest
+  , sha3_384
+  , sha3_384Lazy
+  , SHA3_512
+  , SHA3_512Digest
+  , sha3_512
+  , sha3_512Lazy
+  ) where
 
 import           GHC.TypeLits
 
@@ -30,7 +33,6 @@ import           Data.Proxy
 import           Data.Type.Bool
 import           Data.Type.Equality
 
-import qualified Data.ByteString as ByteString
 import qualified Data.ByteString.Lazy as Lazy
 import qualified Data.Text as Text
 
@@ -50,7 +52,7 @@ type SHA3Size (n :: Nat) = (KnownNat n, (n == 224 || n == 256 || n == 384 || n =
 type SHA3Digest n = Digest (SHA3 n)
 
 newtype instance Digest (SHA3 n) = SHA3Digest
-    { getSHA3ByteString :: ByteString {- ByteVector n -} }
+    { _getSHA3ByteString :: ByteString {- ByteVector n -} }
     deriving newtype (Eq, Ord)
 
 instance Show (Digest (SHA3 n)) where

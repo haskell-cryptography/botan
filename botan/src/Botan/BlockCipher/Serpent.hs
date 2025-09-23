@@ -1,21 +1,20 @@
-module Botan.BlockCipher.Serpent
-( Serpent(..)
-, SerpentSecretKey(..)
-, pattern SerpentSecretKey
-, getSerpentSecretKey
-, SerpentCiphertext(..)
-, serpentEncrypt
-, serpentDecrypt
-, serpentEncryptLazy
-, serpentDecryptLazy
-) where
+{-# LANGUAGE TypeFamilies #-}
 
-import qualified Data.ByteString as ByteString
+module Botan.BlockCipher.Serpent (
+    Serpent
+  , SerpentSecretKey
+  , pattern SerpentSecretKey
+  , getSerpentSecretKey
+  , SerpentCiphertext
+  , serpentEncrypt
+  , serpentDecrypt
+  , serpentEncryptLazy
+  , serpentDecryptLazy
+  ) where
+
 import qualified Data.ByteString.Lazy as Lazy
-import qualified Data.Text as Text
 
 import qualified Botan.BlockCipher as Botan
-import qualified Botan.Utility as Botan
 
 import           Botan.Prelude hiding (Ciphertext, LazyCiphertext)
 
@@ -30,6 +29,7 @@ data Serpent
 newtype instance SecretKey Serpent = MkSerpentSecretKey GSecretKey
     deriving newtype (Eq, Ord, Show, Encodable)
 
+{-# COMPLETE SerpentSecretKey #-}
 pattern SerpentSecretKey :: ByteString -> SecretKey Serpent
 pattern SerpentSecretKey bytes = MkSerpentSecretKey (MkGSecretKey bytes)
 
@@ -41,22 +41,18 @@ type SerpentSecretKey = SecretKey Serpent
 newtype instance Ciphertext Serpent = MkSerpentCiphertext GCiphertext
     deriving newtype (Eq, Ord, Show, Encodable)
 
+{-# COMPLETE SerpentCiphertext #-}
 pattern SerpentCiphertext :: ByteString -> Ciphertext Serpent
 pattern SerpentCiphertext bs = MkSerpentCiphertext (MkGCiphertext bs)
-
-getSerpentCiphertext :: Ciphertext Serpent -> ByteString
-getSerpentCiphertext (SerpentCiphertext bs) = bs
 
 type SerpentCiphertext = Ciphertext Serpent
 
 newtype instance LazyCiphertext Serpent = MkSerpentLazyCiphertext GLazyCiphertext
     deriving newtype (Eq, Ord, Show, Encodable, LazyEncodable)
 
+{-# COMPLETE SerpentLazyCiphertext #-}
 pattern SerpentLazyCiphertext :: Lazy.ByteString -> LazyCiphertext Serpent
 pattern SerpentLazyCiphertext lbs = MkSerpentLazyCiphertext (MkGLazyCiphertext lbs)
-
-getSerpentLazyCiphertext :: LazyCiphertext Serpent -> Lazy.ByteString
-getSerpentLazyCiphertext (SerpentLazyCiphertext bs) = bs
 
 type SerpentLazyCiphertext = LazyCiphertext Serpent
 
@@ -65,12 +61,12 @@ instance HasSecretKey Serpent where
     secretKeySpec :: SizeSpecifier (SecretKey Serpent)
     secretKeySpec = coerceSizeSpec $ Botan.blockCipherKeySpec Botan.serpent
 
-instance (MonadRandomIO m )=> SecretKeyGen Serpent m where
+instance MonadRandomIO m => SecretKeyGen Serpent m where
 
-    newSecretKey :: MonadRandomIO m => m (SecretKey Serpent)
+    newSecretKey :: m (SecretKey Serpent)
     newSecretKey = SerpentSecretKey <$> newSized (secretKeySpec @Serpent)
 
-    newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey Serpent))
+    newSecretKeyMaybe :: Int -> m (Maybe (SecretKey Serpent))
     newSecretKeyMaybe i = fmap SerpentSecretKey <$> newSizedMaybe (secretKeySpec @Serpent) i
 
 instance HasCiphertext Serpent where

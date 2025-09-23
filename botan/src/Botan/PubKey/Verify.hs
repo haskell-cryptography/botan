@@ -9,40 +9,36 @@ Stability   : experimental
 Portability : POSIX
 -}
 
-module Botan.PubKey.Verify
-(
+module Botan.PubKey.Verify (
 
--- * Thing
--- $introduction
+  -- * Thing
+  -- $introduction
 
--- * Usage
--- $usage
+  -- * Usage
+  -- $usage
 
--- * Public Key Signature Verification
+  -- * Public Key Signature Verification
 
--- TODO: Rename pkVerifySignature?
-  pkVerify
+  -- TODO: Rename pkVerifySignature?
+    pkVerify
 
--- ** Data type
-, PKVerify(..)
+  -- ** Data type
+  , PKVerify
 
--- ** Destructor
-, destroyPKVerify
+  -- ** Destructor
+  , destroyPKVerify
 
--- ** Initializers
-, newPKVerify
+  -- ** Initializers
+  , newPKVerify
 
--- ** Algorithm
-, pkVerifyUpdate
-, pkVerifyFinish
+  -- ** Algorithm
+  , pkVerifyUpdate
+  , pkVerifyFinish
 
-) where
-
-import qualified Data.ByteString as ByteString
+  ) where
 
 import qualified Botan.Low.PubKey.Verify as Low
 
-import           Botan.Error
 import           Botan.Prelude
 import           Botan.PubKey
 import           Botan.PubKey.Sign

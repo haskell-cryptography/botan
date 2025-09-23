@@ -1,21 +1,20 @@
-module Botan.BlockCipher.SM4
-( SM4(..)
-, SM4SecretKey(..)
-, pattern SM4SecretKey
-, getSM4SecretKey
-, SM4Ciphertext(..)
-, sm4Encrypt
-, sm4Decrypt
-, sm4EncryptLazy
-, sm4DecryptLazy
-) where
+{-# LANGUAGE TypeFamilies #-}
 
-import qualified Data.ByteString as ByteString
+module Botan.BlockCipher.SM4 (
+    SM4
+  , SM4SecretKey
+  , pattern SM4SecretKey
+  , getSM4SecretKey
+  , SM4Ciphertext
+  , sm4Encrypt
+  , sm4Decrypt
+  , sm4EncryptLazy
+  , sm4DecryptLazy
+  ) where
+
 import qualified Data.ByteString.Lazy as Lazy
-import qualified Data.Text as Text
 
 import qualified Botan.BlockCipher as Botan
-import qualified Botan.Utility as Botan
 
 import           Botan.Prelude hiding (Ciphertext, LazyCiphertext)
 
@@ -30,6 +29,7 @@ data SM4
 newtype instance SecretKey SM4 = MkSM4SecretKey GSecretKey
     deriving newtype (Eq, Ord, Show, Encodable)
 
+{-# COMPLETE SM4SecretKey #-}
 pattern SM4SecretKey :: ByteString -> SecretKey SM4
 pattern SM4SecretKey bytes = MkSM4SecretKey (MkGSecretKey bytes)
 
@@ -41,22 +41,18 @@ type SM4SecretKey = SecretKey SM4
 newtype instance Ciphertext SM4 = MkSM4Ciphertext GCiphertext
     deriving newtype (Eq, Ord, Show, Encodable)
 
+{-# COMPLETE SM4Ciphertext #-}
 pattern SM4Ciphertext :: ByteString -> Ciphertext SM4
 pattern SM4Ciphertext bs = MkSM4Ciphertext (MkGCiphertext bs)
-
-getSM4Ciphertext :: Ciphertext SM4 -> ByteString
-getSM4Ciphertext (SM4Ciphertext bs) = bs
 
 type SM4Ciphertext = Ciphertext SM4
 
 newtype instance LazyCiphertext SM4 = MkSM4LazyCiphertext GLazyCiphertext
     deriving newtype (Eq, Ord, Show, Encodable, LazyEncodable)
 
+{-# COMPLETE SM4LazyCiphertext #-}
 pattern SM4LazyCiphertext :: Lazy.ByteString -> LazyCiphertext SM4
 pattern SM4LazyCiphertext lbs = MkSM4LazyCiphertext (MkGLazyCiphertext lbs)
-
-getSM4LazyCiphertext :: LazyCiphertext SM4 -> Lazy.ByteString
-getSM4LazyCiphertext (SM4LazyCiphertext bs) = bs
 
 type SM4LazyCiphertext = LazyCiphertext SM4
 
@@ -65,12 +61,12 @@ instance HasSecretKey SM4 where
     secretKeySpec :: SizeSpecifier (SecretKey SM4)
     secretKeySpec = coerceSizeSpec $ Botan.blockCipherKeySpec Botan.sm4
 
-instance (MonadRandomIO m )=> SecretKeyGen SM4 m where
+instance MonadRandomIO m => SecretKeyGen SM4 m where
 
-    newSecretKey :: MonadRandomIO m => m (SecretKey SM4)
+    newSecretKey :: m (SecretKey SM4)
     newSecretKey = SM4SecretKey <$> newSized (secretKeySpec @SM4)
 
-    newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey SM4))
+    newSecretKeyMaybe :: Int -> m (Maybe (SecretKey SM4))
     newSecretKeyMaybe i = fmap SM4SecretKey <$> newSizedMaybe (secretKeySpec @SM4) i
 
 instance HasCiphertext SM4 where

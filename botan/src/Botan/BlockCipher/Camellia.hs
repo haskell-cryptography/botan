@@ -1,39 +1,38 @@
-module Botan.BlockCipher.Camellia
-( Camellia128(..)
-, Camellia128SecretKey(..)
-, pattern Camellia128SecretKey
-, getCamellia128SecretKey
-, Camellia128Ciphertext(..)
-, camellia128Encrypt
-, camellia128Decrypt
-, camellia128EncryptLazy
-, camellia128DecryptLazy
-, Camellia192(..)
-, Camellia192SecretKey(..)
-, pattern Camellia192SecretKey
-, getCamellia192SecretKey
-, Camellia192Ciphertext(..)
-, camellia192Encrypt
-, camellia192Decrypt
-, camellia192EncryptLazy
-, camellia192DecryptLazy
-, Camellia256(..)
-, Camellia256SecretKey(..)
-, pattern Camellia256SecretKey
-, getCamellia256SecretKey
-, Camellia256Ciphertext(..)
-, camellia256Encrypt
-, camellia256Decrypt
-, camellia256EncryptLazy
-, camellia256DecryptLazy
-) where
+{-# LANGUAGE TypeFamilies #-}
 
-import qualified Data.ByteString as ByteString
+module Botan.BlockCipher.Camellia (
+    Camellia128
+  , Camellia128SecretKey
+  , pattern Camellia128SecretKey
+  , getCamellia128SecretKey
+  , Camellia128Ciphertext
+  , camellia128Encrypt
+  , camellia128Decrypt
+  , camellia128EncryptLazy
+  , camellia128DecryptLazy
+  , Camellia192
+  , Camellia192SecretKey
+  , pattern Camellia192SecretKey
+  , getCamellia192SecretKey
+  , Camellia192Ciphertext
+  , camellia192Encrypt
+  , camellia192Decrypt
+  , camellia192EncryptLazy
+  , camellia192DecryptLazy
+  , Camellia256
+  , Camellia256SecretKey
+  , pattern Camellia256SecretKey
+  , getCamellia256SecretKey
+  , Camellia256Ciphertext
+  , camellia256Encrypt
+  , camellia256Decrypt
+  , camellia256EncryptLazy
+  , camellia256DecryptLazy
+  ) where
+
 import qualified Data.ByteString.Lazy as Lazy
-import qualified Data.Text as Text
 
 import qualified Botan.BlockCipher as Botan
-import qualified Botan.Utility as Botan
 
 import           Botan.Prelude hiding (Ciphertext, LazyCiphertext)
 
@@ -48,6 +47,7 @@ data Camellia128
 newtype instance SecretKey Camellia128 = MkCamellia128SecretKey GSecretKey
     deriving newtype (Eq, Ord, Show, Encodable)
 
+{-# COMPLETE Camellia128SecretKey #-}
 pattern Camellia128SecretKey :: ByteString -> SecretKey Camellia128
 pattern Camellia128SecretKey bytes = MkCamellia128SecretKey (MkGSecretKey bytes)
 
@@ -59,22 +59,18 @@ type Camellia128SecretKey = SecretKey Camellia128
 newtype instance Ciphertext Camellia128 = MkCamellia128Ciphertext GCiphertext
     deriving newtype (Eq, Ord, Show, Encodable)
 
+{-# COMPLETE Camellia128Ciphertext #-}
 pattern Camellia128Ciphertext :: ByteString -> Ciphertext Camellia128
 pattern Camellia128Ciphertext bs = MkCamellia128Ciphertext (MkGCiphertext bs)
-
-getCamellia128Ciphertext :: Ciphertext Camellia128 -> ByteString
-getCamellia128Ciphertext (Camellia128Ciphertext bs) = bs
 
 type Camellia128Ciphertext = Ciphertext Camellia128
 
 newtype instance LazyCiphertext Camellia128 = MkCamellia128LazyCiphertext GLazyCiphertext
     deriving newtype (Eq, Ord, Show, Encodable, LazyEncodable)
 
+{-# COMPLETE Camellia128LazyCiphertext #-}
 pattern Camellia128LazyCiphertext :: Lazy.ByteString -> LazyCiphertext Camellia128
 pattern Camellia128LazyCiphertext lbs = MkCamellia128LazyCiphertext (MkGLazyCiphertext lbs)
-
-getCamellia128LazyCiphertext :: LazyCiphertext Camellia128 -> Lazy.ByteString
-getCamellia128LazyCiphertext (Camellia128LazyCiphertext bs) = bs
 
 type Camellia128LazyCiphertext = LazyCiphertext Camellia128
 
@@ -83,12 +79,12 @@ instance HasSecretKey Camellia128 where
     secretKeySpec :: SizeSpecifier (SecretKey Camellia128)
     secretKeySpec = coerceSizeSpec $ Botan.blockCipherKeySpec Botan.camellia128
 
-instance (MonadRandomIO m )=> SecretKeyGen Camellia128 m where
+instance MonadRandomIO m => SecretKeyGen Camellia128 m where
 
-    newSecretKey :: MonadRandomIO m => m (SecretKey Camellia128)
+    newSecretKey :: m (SecretKey Camellia128)
     newSecretKey = Camellia128SecretKey <$> newSized (secretKeySpec @Camellia128)
 
-    newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey Camellia128))
+    newSecretKeyMaybe :: Int -> m (Maybe (SecretKey Camellia128))
     newSecretKeyMaybe i = fmap Camellia128SecretKey <$> newSizedMaybe (secretKeySpec @Camellia128) i
 
 instance HasCiphertext Camellia128 where
@@ -132,6 +128,7 @@ data Camellia192
 newtype instance SecretKey Camellia192 = MkCamellia192SecretKey GSecretKey
     deriving newtype (Eq, Ord, Show, Encodable)
 
+{-# COMPLETE Camellia192SecretKey #-}
 pattern Camellia192SecretKey :: ByteString -> SecretKey Camellia192
 pattern Camellia192SecretKey bytes = MkCamellia192SecretKey (MkGSecretKey bytes)
 
@@ -143,22 +140,18 @@ type Camellia192SecretKey = SecretKey Camellia192
 newtype instance Ciphertext Camellia192 = MkCamellia192Ciphertext GCiphertext
     deriving newtype (Eq, Ord, Show, Encodable)
 
+{-# COMPLETE Camellia192Ciphertext #-}
 pattern Camellia192Ciphertext :: ByteString -> Ciphertext Camellia192
 pattern Camellia192Ciphertext bs = MkCamellia192Ciphertext (MkGCiphertext bs)
-
-getCamellia192Ciphertext :: Ciphertext Camellia192 -> ByteString
-getCamellia192Ciphertext (Camellia192Ciphertext bs) = bs
 
 type Camellia192Ciphertext = Ciphertext Camellia192
 
 newtype instance LazyCiphertext Camellia192 = MkCamellia192LazyCiphertext GLazyCiphertext
     deriving newtype (Eq, Ord, Show, Encodable, LazyEncodable)
 
+{-# COMPLETE Camellia192LazyCiphertext #-}
 pattern Camellia192LazyCiphertext :: Lazy.ByteString -> LazyCiphertext Camellia192
 pattern Camellia192LazyCiphertext lbs = MkCamellia192LazyCiphertext (MkGLazyCiphertext lbs)
-
-getCamellia192LazyCiphertext :: LazyCiphertext Camellia192 -> Lazy.ByteString
-getCamellia192LazyCiphertext (Camellia192LazyCiphertext bs) = bs
 
 type Camellia192LazyCiphertext = LazyCiphertext Camellia192
 
@@ -167,12 +160,12 @@ instance HasSecretKey Camellia192 where
     secretKeySpec :: SizeSpecifier (SecretKey Camellia192)
     secretKeySpec = coerceSizeSpec $ Botan.blockCipherKeySpec Botan.camellia192
 
-instance (MonadRandomIO m )=> SecretKeyGen Camellia192 m where
+instance MonadRandomIO m => SecretKeyGen Camellia192 m where
 
-    newSecretKey :: MonadRandomIO m => m (SecretKey Camellia192)
+    newSecretKey :: m (SecretKey Camellia192)
     newSecretKey = Camellia192SecretKey <$> newSized (secretKeySpec @Camellia192)
 
-    newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey Camellia192))
+    newSecretKeyMaybe :: Int -> m (Maybe (SecretKey Camellia192))
     newSecretKeyMaybe i = fmap Camellia192SecretKey <$> newSizedMaybe (secretKeySpec @Camellia192) i
 
 instance HasCiphertext Camellia192 where
@@ -216,6 +209,7 @@ data Camellia256
 newtype instance SecretKey Camellia256 = MkCamellia256SecretKey GSecretKey
     deriving newtype (Eq, Ord, Show, Encodable)
 
+{-# COMPLETE Camellia256SecretKey #-}
 pattern Camellia256SecretKey :: ByteString -> SecretKey Camellia256
 pattern Camellia256SecretKey bytes = MkCamellia256SecretKey (MkGSecretKey bytes)
 
@@ -227,22 +221,18 @@ type Camellia256SecretKey = SecretKey Camellia256
 newtype instance Ciphertext Camellia256 = MkCamellia256Ciphertext GCiphertext
     deriving newtype (Eq, Ord, Show, Encodable)
 
+{-# COMPLETE Camellia256Ciphertext #-}
 pattern Camellia256Ciphertext :: ByteString -> Ciphertext Camellia256
 pattern Camellia256Ciphertext bs = MkCamellia256Ciphertext (MkGCiphertext bs)
-
-getCamellia256Ciphertext :: Ciphertext Camellia256 -> ByteString
-getCamellia256Ciphertext (Camellia256Ciphertext bs) = bs
 
 type Camellia256Ciphertext = Ciphertext Camellia256
 
 newtype instance LazyCiphertext Camellia256 = MkCamellia256LazyCiphertext GLazyCiphertext
     deriving newtype (Eq, Ord, Show, Encodable, LazyEncodable)
 
+{-# COMPLETE Camellia256LazyCiphertext #-}
 pattern Camellia256LazyCiphertext :: Lazy.ByteString -> LazyCiphertext Camellia256
 pattern Camellia256LazyCiphertext lbs = MkCamellia256LazyCiphertext (MkGLazyCiphertext lbs)
-
-getCamellia256LazyCiphertext :: LazyCiphertext Camellia256 -> Lazy.ByteString
-getCamellia256LazyCiphertext (Camellia256LazyCiphertext bs) = bs
 
 type Camellia256LazyCiphertext = LazyCiphertext Camellia256
 
@@ -251,12 +241,12 @@ instance HasSecretKey Camellia256 where
     secretKeySpec :: SizeSpecifier (SecretKey Camellia256)
     secretKeySpec = coerceSizeSpec $ Botan.blockCipherKeySpec Botan.camellia256
 
-instance (MonadRandomIO m )=> SecretKeyGen Camellia256 m where
+instance MonadRandomIO m => SecretKeyGen Camellia256 m where
 
-    newSecretKey :: MonadRandomIO m => m (SecretKey Camellia256)
+    newSecretKey :: m (SecretKey Camellia256)
     newSecretKey = Camellia256SecretKey <$> newSized (secretKeySpec @Camellia256)
 
-    newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey Camellia256))
+    newSecretKeyMaybe :: Int -> m (Maybe (SecretKey Camellia256))
     newSecretKeyMaybe i = fmap Camellia256SecretKey <$> newSizedMaybe (secretKeySpec @Camellia256) i
 
 instance HasCiphertext Camellia256 where

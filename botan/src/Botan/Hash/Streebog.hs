@@ -1,15 +1,16 @@
-module Botan.Hash.Streebog
-( Streebog256(..)
-, Streebog256Digest(..)
-, streebog256
-, streebog256Lazy
-, Streebog512(..)
-, Streebog512Digest(..)
-, streebog512
-, streebog512Lazy
-) where
+{-# LANGUAGE TypeFamilies #-}
 
-import qualified Data.ByteString as ByteString
+module Botan.Hash.Streebog (
+    Streebog256
+  , Streebog256Digest
+  , streebog256
+  , streebog256Lazy
+  , Streebog512
+  , Streebog512Digest
+  , streebog512
+  , streebog512Lazy
+  ) where
+
 import qualified Data.ByteString.Lazy as Lazy
 import qualified Data.Text as Text
 
@@ -24,7 +25,7 @@ import           Botan.Prelude
 data Streebog256
 
 newtype instance Digest Streebog256 = Streebog256Digest
-    { getStreebog256ByteString :: ByteString {- ByteVector n -} }
+    { _getStreebog256ByteString :: ByteString {- ByteVector n -} }
     deriving newtype (Eq, Ord)
 
 type Streebog256Digest = Digest Streebog256
@@ -54,7 +55,7 @@ streebog256Lazy = hashLazy
 data Streebog512
 
 newtype instance Digest Streebog512 = Streebog512Digest
-    { getStreebog512ByteString :: ByteString {- ByteVector n -} }
+    { _getStreebog512ByteString :: ByteString {- ByteVector n -} }
     deriving newtype (Eq, Ord)
 
 type Streebog512Digest = Digest Streebog512

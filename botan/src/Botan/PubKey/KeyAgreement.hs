@@ -1,16 +1,27 @@
-module Botan.PubKey.KeyAgreement where
-
-import qualified Data.ByteString as ByteString
+module Botan.PubKey.KeyAgreement (
+    KeyAgreement (..)
+  , keyAgreementToPK
+  , KAPublicKey
+  , KASharedSecret
+  , newKeyAgreementKey
+  , exportKeyAgreementPublicKey
+  , newKeyAgreementKeyPair
+  , newKeyAgreement
+  , deriveKeyAgreementSharedSecret
+  , keyAgreement
+  , newRNGCtx
+  , ECDHPub
+  , newKeyPair
+  , newECDHKeyPair
+  , testECDH
+  ) where
 
 import           Data.Bool
 
-import           Botan.Low.PubKey (PrivKey (..), PubKey (..))
 import qualified Botan.Low.PubKey.KeyAgreement as Low
 import qualified Botan.Low.RNG as Low
 
-import           Botan.Error
-import           Botan.Hash
-import           Botan.KDF
+import           Botan.KDF hiding (kdf)
 import           Botan.Prelude
 import           Botan.PubKey
 import           Botan.RNG
@@ -21,8 +32,8 @@ data KeyAgreement
     | Curve25519KA
 
 keyAgreementToPK :: KeyAgreement -> PK
-keyAgreementToPK (DHKA dlg)   = (DH dlg)
-keyAgreementToPK (ECDHKA ecg) = (ECDH ecg)
+keyAgreementToPK (DHKA dlg)   = DH dlg
+keyAgreementToPK (ECDHKA ecg) = ECDH ecg
 keyAgreementToPK Curve25519KA = Curve25519
 
 type KAPublicKey = ByteString
@@ -71,8 +82,8 @@ type ECDHPub = ByteString
 newKeyPair :: PK -> Low.RNG -> IO (ECDHPub, PrivKey)
 newKeyPair pk rng = do
     sk <- privKeyCreatePKIO pk rng
-    pk <- Low.keyAgreementExportPublic sk
-    return (pk,sk)
+    pk' <- Low.keyAgreementExportPublic sk
+    return (pk',sk)
 
 newECDHKeyPair :: Low.RNG -> IO (ECDHPub, PrivKey)
 newECDHKeyPair = newKeyPair (ECDH Secp256k1)
@@ -83,15 +94,15 @@ testECDH = do
     (pka, ska) <- newECDHKeyPair rng
     (pkb, skb) <- newECDHKeyPair rng
     -- ecdh k1 p2 == ecdh k2 p1
-    print "making a"
+    print @String "making a"
     ctxa <- Low.keyAgreementCreate ska "KDF2(SHA-256)"
-    print "making b"
+    print @String "making b"
     ctxb <- Low.keyAgreementCreate skb "KDF2(SHA-256)"
-    print "agreeing a"
+    print @String "agreeing a"
     a <- Low.keyAgreement ctxa pkb ""
-    print "agreeing b"
+    print @String "agreeing b"
     b <- Low.keyAgreement ctxb pka ""
-    print "comparing"
+    print @String "comparing"
     return $ a == b
 {-
 import Botan.RNG

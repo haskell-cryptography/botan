@@ -1,21 +1,20 @@
-module Botan.BlockCipher.SEED
-( SEED(..)
-, SEEDSecretKey(..)
-, pattern SEEDSecretKey
-, getSEEDSecretKey
-, SEEDCiphertext(..)
-, seedEncrypt
-, seedDecrypt
-, seedEncryptLazy
-, seedDecryptLazy
-) where
+{-# LANGUAGE TypeFamilies #-}
 
-import qualified Data.ByteString as ByteString
+module Botan.BlockCipher.SEED (
+    SEED
+  , SEEDSecretKey
+  , pattern SEEDSecretKey
+  , getSEEDSecretKey
+  , SEEDCiphertext
+  , seedEncrypt
+  , seedDecrypt
+  , seedEncryptLazy
+  , seedDecryptLazy
+  ) where
+
 import qualified Data.ByteString.Lazy as Lazy
-import qualified Data.Text as Text
 
 import qualified Botan.BlockCipher as Botan
-import qualified Botan.Utility as Botan
 
 import           Botan.Prelude hiding (Ciphertext, LazyCiphertext)
 
@@ -30,6 +29,7 @@ data SEED
 newtype instance SecretKey SEED = MkSEEDSecretKey GSecretKey
     deriving newtype (Eq, Ord, Show, Encodable)
 
+{-# COMPLETE SEEDSecretKey #-}
 pattern SEEDSecretKey :: ByteString -> SecretKey SEED
 pattern SEEDSecretKey bytes = MkSEEDSecretKey (MkGSecretKey bytes)
 
@@ -41,22 +41,18 @@ type SEEDSecretKey = SecretKey SEED
 newtype instance Ciphertext SEED = MkSEEDCiphertext GCiphertext
     deriving newtype (Eq, Ord, Show, Encodable)
 
+{-# COMPLETE SEEDCiphertext #-}
 pattern SEEDCiphertext :: ByteString -> Ciphertext SEED
 pattern SEEDCiphertext bs = MkSEEDCiphertext (MkGCiphertext bs)
-
-getSEEDCiphertext :: Ciphertext SEED -> ByteString
-getSEEDCiphertext (SEEDCiphertext bs) = bs
 
 type SEEDCiphertext = Ciphertext SEED
 
 newtype instance LazyCiphertext SEED = MkSEEDLazyCiphertext GLazyCiphertext
     deriving newtype (Eq, Ord, Show, Encodable, LazyEncodable)
 
+{-# COMPLETE SEEDLazyCiphertext #-}
 pattern SEEDLazyCiphertext :: Lazy.ByteString -> LazyCiphertext SEED
 pattern SEEDLazyCiphertext lbs = MkSEEDLazyCiphertext (MkGLazyCiphertext lbs)
-
-getSEEDLazyCiphertext :: LazyCiphertext SEED -> Lazy.ByteString
-getSEEDLazyCiphertext (SEEDLazyCiphertext bs) = bs
 
 type SEEDLazyCiphertext = LazyCiphertext SEED
 
@@ -65,12 +61,12 @@ instance HasSecretKey SEED where
     secretKeySpec :: SizeSpecifier (SecretKey SEED)
     secretKeySpec = coerceSizeSpec $ Botan.blockCipherKeySpec Botan.seed
 
-instance (MonadRandomIO m )=> SecretKeyGen SEED m where
+instance MonadRandomIO m => SecretKeyGen SEED m where
 
-    newSecretKey :: MonadRandomIO m => m (SecretKey SEED)
+    newSecretKey :: m (SecretKey SEED)
     newSecretKey = SEEDSecretKey <$> newSized (secretKeySpec @SEED)
 
-    newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey SEED))
+    newSecretKeyMaybe :: Int -> m (Maybe (SecretKey SEED))
     newSecretKeyMaybe i = fmap SEEDSecretKey <$> newSizedMaybe (secretKeySpec @SEED) i
 
 instance HasCiphertext SEED where

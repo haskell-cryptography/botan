@@ -1,11 +1,12 @@
-module Botan.Hash.MD4
-( MD4(..)
-, MD4Digest(..)
-, md4
-, md4Lazy
-) where
+{-# LANGUAGE TypeFamilies #-}
 
-import qualified Data.ByteString as ByteString
+module Botan.Hash.MD4 (
+    MD4
+  , MD4Digest
+  , md4
+  , md4Lazy
+  ) where
+
 import qualified Data.ByteString.Lazy as Lazy
 import qualified Data.Text as Text
 
@@ -20,7 +21,7 @@ import           Botan.Prelude
 data MD4
 
 newtype instance Digest MD4 = MD4Digest
-    { getMD4ByteString :: ByteString {- ByteVector n -} }
+    { _getMD4ByteString :: ByteString {- ByteVector n -} }
     deriving newtype (Eq, Ord)
 
 type MD4Digest = Digest MD4

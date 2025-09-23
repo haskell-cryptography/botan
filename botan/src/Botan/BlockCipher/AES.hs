@@ -1,39 +1,38 @@
-module Botan.BlockCipher.AES
-( AES128(..)
-, AES128SecretKey(..)
-, pattern AES128SecretKey
-, getAES128SecretKey
-, AES128Ciphertext(..)
-, aes128Encrypt
-, aes128Decrypt
-, aes128EncryptLazy
-, aes128DecryptLazy
-, AES192(..)
-, AES192SecretKey(..)
-, pattern AES192SecretKey
-, getAES192SecretKey
-, AES192Ciphertext(..)
-, aes192Encrypt
-, aes192Decrypt
-, aes192EncryptLazy
-, aes192DecryptLazy
-, AES256(..)
-, AES256SecretKey(..)
-, pattern AES256SecretKey
-, getAES256SecretKey
-, AES256Ciphertext(..)
-, aes256Encrypt
-, aes256Decrypt
-, aes256EncryptLazy
-, aes256DecryptLazy
-) where
+{-# LANGUAGE TypeFamilies #-}
 
-import qualified Data.ByteString as ByteString
+module Botan.BlockCipher.AES (
+    AES128
+  , AES128SecretKey
+  , pattern AES128SecretKey
+  , getAES128SecretKey
+  , AES128Ciphertext
+  , aes128Encrypt
+  , aes128Decrypt
+  , aes128EncryptLazy
+  , aes128DecryptLazy
+  , AES192
+  , AES192SecretKey
+  , pattern AES192SecretKey
+  , getAES192SecretKey
+  , AES192Ciphertext
+  , aes192Encrypt
+  , aes192Decrypt
+  , aes192EncryptLazy
+  , aes192DecryptLazy
+  , AES256
+  , AES256SecretKey
+  , pattern AES256SecretKey
+  , getAES256SecretKey
+  , AES256Ciphertext
+  , aes256Encrypt
+  , aes256Decrypt
+  , aes256EncryptLazy
+  , aes256DecryptLazy
+  ) where
+
 import qualified Data.ByteString.Lazy as Lazy
-import qualified Data.Text as Text
 
 import qualified Botan.BlockCipher as Botan
-import qualified Botan.Utility as Botan
 
 import           Botan.Prelude hiding (Ciphertext, LazyCiphertext)
 
@@ -48,6 +47,7 @@ data AES128
 newtype instance SecretKey AES128 = MkAES128SecretKey GSecretKey
     deriving newtype (Eq, Ord, Show, Encodable)
 
+{-# COMPLETE AES128SecretKey #-}
 pattern AES128SecretKey :: ByteString -> SecretKey AES128
 pattern AES128SecretKey bytes = MkAES128SecretKey (MkGSecretKey bytes)
 
@@ -59,22 +59,17 @@ type AES128SecretKey = SecretKey AES128
 newtype instance Ciphertext AES128 = MkAES128Ciphertext GCiphertext
     deriving newtype (Eq, Ord, Show, Encodable)
 
+{-# COMPLETE AES128Ciphertext #-}
 pattern AES128Ciphertext :: ByteString -> Ciphertext AES128
 pattern AES128Ciphertext bs = MkAES128Ciphertext (MkGCiphertext bs)
-
-getAES128Ciphertext :: Ciphertext AES128 -> ByteString
-getAES128Ciphertext (AES128Ciphertext bs) = bs
-
 type AES128Ciphertext = Ciphertext AES128
 
 newtype instance LazyCiphertext AES128 = MkAES128LazyCiphertext GLazyCiphertext
     deriving newtype (Eq, Ord, Show, Encodable, LazyEncodable)
 
+{-# COMPLETE AES128LazyCiphertext #-}
 pattern AES128LazyCiphertext :: Lazy.ByteString -> LazyCiphertext AES128
 pattern AES128LazyCiphertext lbs = MkAES128LazyCiphertext (MkGLazyCiphertext lbs)
-
-getAES128LazyCiphertext :: LazyCiphertext AES128 -> Lazy.ByteString
-getAES128LazyCiphertext (AES128LazyCiphertext bs) = bs
 
 type AES128LazyCiphertext = LazyCiphertext AES128
 
@@ -83,12 +78,12 @@ instance HasSecretKey AES128 where
     secretKeySpec :: SizeSpecifier (SecretKey AES128)
     secretKeySpec = coerceSizeSpec $ Botan.blockCipherKeySpec Botan.aes128
 
-instance (MonadRandomIO m )=> SecretKeyGen AES128 m where
+instance MonadRandomIO m => SecretKeyGen AES128 m where
 
-    newSecretKey :: MonadRandomIO m => m (SecretKey AES128)
+    newSecretKey :: m (SecretKey AES128)
     newSecretKey = AES128SecretKey <$> newSized (secretKeySpec @AES128)
 
-    newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey AES128))
+    newSecretKeyMaybe :: Int -> m (Maybe (SecretKey AES128))
     newSecretKeyMaybe i = fmap AES128SecretKey <$> newSizedMaybe (secretKeySpec @AES128) i
 
 instance HasCiphertext AES128 where
@@ -132,6 +127,7 @@ data AES192
 newtype instance SecretKey AES192 = MkAES192SecretKey GSecretKey
     deriving newtype (Eq, Ord, Show, Encodable)
 
+{-# COMPLETE AES192SecretKey #-}
 pattern AES192SecretKey :: ByteString -> SecretKey AES192
 pattern AES192SecretKey bytes = MkAES192SecretKey (MkGSecretKey bytes)
 
@@ -143,22 +139,18 @@ type AES192SecretKey = SecretKey AES192
 newtype instance Ciphertext AES192 = MkAES192Ciphertext GCiphertext
     deriving newtype (Eq, Ord, Show, Encodable)
 
+{-# COMPLETE AES192Ciphertext #-}
 pattern AES192Ciphertext :: ByteString -> Ciphertext AES192
 pattern AES192Ciphertext bs = MkAES192Ciphertext (MkGCiphertext bs)
-
-getAES192Ciphertext :: Ciphertext AES192 -> ByteString
-getAES192Ciphertext (AES192Ciphertext bs) = bs
 
 type AES192Ciphertext = Ciphertext AES192
 
 newtype instance LazyCiphertext AES192 = MkAES192LazyCiphertext GLazyCiphertext
     deriving newtype (Eq, Ord, Show, Encodable, LazyEncodable)
 
+{-# COMPLETE AES192LazyCiphertext #-}
 pattern AES192LazyCiphertext :: Lazy.ByteString -> LazyCiphertext AES192
 pattern AES192LazyCiphertext lbs = MkAES192LazyCiphertext (MkGLazyCiphertext lbs)
-
-getAES192LazyCiphertext :: LazyCiphertext AES192 -> Lazy.ByteString
-getAES192LazyCiphertext (AES192LazyCiphertext bs) = bs
 
 type AES192LazyCiphertext = LazyCiphertext AES192
 
@@ -167,12 +159,12 @@ instance HasSecretKey AES192 where
     secretKeySpec :: SizeSpecifier (SecretKey AES192)
     secretKeySpec = coerceSizeSpec $ Botan.blockCipherKeySpec Botan.aes192
 
-instance (MonadRandomIO m )=> SecretKeyGen AES192 m where
+instance MonadRandomIO m => SecretKeyGen AES192 m where
 
-    newSecretKey :: MonadRandomIO m => m (SecretKey AES192)
+    newSecretKey :: m (SecretKey AES192)
     newSecretKey = AES192SecretKey <$> newSized (secretKeySpec @AES192)
 
-    newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey AES192))
+    newSecretKeyMaybe :: Int -> m (Maybe (SecretKey AES192))
     newSecretKeyMaybe i = fmap AES192SecretKey <$> newSizedMaybe (secretKeySpec @AES192) i
 
 instance HasCiphertext AES192 where
@@ -216,6 +208,7 @@ data AES256
 newtype instance SecretKey AES256 = MkAES256SecretKey GSecretKey
     deriving newtype (Eq, Ord, Show, Encodable)
 
+{-# COMPLETE AES256SecretKey #-}
 pattern AES256SecretKey :: ByteString -> SecretKey AES256
 pattern AES256SecretKey bytes = MkAES256SecretKey (MkGSecretKey bytes)
 
@@ -227,22 +220,18 @@ type AES256SecretKey = SecretKey AES256
 newtype instance Ciphertext AES256 = MkAES256Ciphertext GCiphertext
     deriving newtype (Eq, Ord, Show, Encodable)
 
+{-# COMPLETE AES256Ciphertext #-}
 pattern AES256Ciphertext :: ByteString -> Ciphertext AES256
 pattern AES256Ciphertext bs = MkAES256Ciphertext (MkGCiphertext bs)
-
-getAES256Ciphertext :: Ciphertext AES256 -> ByteString
-getAES256Ciphertext (AES256Ciphertext bs) = bs
 
 type AES256Ciphertext = Ciphertext AES256
 
 newtype instance LazyCiphertext AES256 = MkAES256LazyCiphertext GLazyCiphertext
     deriving newtype (Eq, Ord, Show, Encodable, LazyEncodable)
 
+{-# COMPLETE AES256LazyCiphertext #-}
 pattern AES256LazyCiphertext :: Lazy.ByteString -> LazyCiphertext AES256
 pattern AES256LazyCiphertext lbs = MkAES256LazyCiphertext (MkGLazyCiphertext lbs)
-
-getAES256LazyCiphertext :: LazyCiphertext AES256 -> Lazy.ByteString
-getAES256LazyCiphertext (AES256LazyCiphertext bs) = bs
 
 type AES256LazyCiphertext = LazyCiphertext AES256
 
@@ -251,12 +240,12 @@ instance HasSecretKey AES256 where
     secretKeySpec :: SizeSpecifier (SecretKey AES256)
     secretKeySpec = coerceSizeSpec $ Botan.blockCipherKeySpec Botan.aes256
 
-instance (MonadRandomIO m )=> SecretKeyGen AES256 m where
+instance MonadRandomIO m => SecretKeyGen AES256 m where
 
-    newSecretKey :: MonadRandomIO m => m (SecretKey AES256)
+    newSecretKey :: m (SecretKey AES256)
     newSecretKey = AES256SecretKey <$> newSized (secretKeySpec @AES256)
 
-    newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey AES256))
+    newSecretKeyMaybe :: Int -> m (Maybe (SecretKey AES256))
     newSecretKeyMaybe i = fmap AES256SecretKey <$> newSizedMaybe (secretKeySpec @AES256) i
 
 instance HasCiphertext AES256 where

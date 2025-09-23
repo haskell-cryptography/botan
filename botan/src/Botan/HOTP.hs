@@ -1,6 +1,19 @@
-module Botan.HOTP where
-
-import qualified Data.ByteString as ByteString
+module Botan.HOTP (
+    MutableHOTP
+  , HOTP (..)
+  , hotpHash
+  , hotpAlgo
+  , HOTPKey
+  , HOTPCtx (..)
+  , HOTPLength (..)
+  , hotpLength
+  , newHOTP
+  , hotpGenerate
+  , hotpCheck
+  , hotpCtxInit
+  , hotpCtxGenerate
+  , hotpCtxCheck
+  ) where
 
 import qualified Botan.Low.HOTP as Low
 
@@ -63,10 +76,10 @@ hotpCheck = undefined
 
 -- NOTE: Digits should be 6-8
 hotpCtxInit :: ByteString -> ByteString -> Int -> IO HOTPCtx
-hotpCtxInit key algo digits = undefined
+hotpCtxInit _key _algo _digits = undefined
 
 hotpCtxGenerate :: HOTPCtx -> Low.HOTPCounter -> (Low.HOTPCode, HOTPCtx)
-hotpCtxGenerate hotp counter = undefined
+hotpCtxGenerate _hotp _counter = undefined
 
 -- NOTE:
 --      "Returns a pair of (is_valid,next_counter_to_use). If the OTP is
@@ -74,4 +87,4 @@ hotpCtxGenerate hotp counter = undefined
 --      last successful authentication counter has not changed. "
 -- NOTE: "Depending on the environment a resync_range of 3 to 10 might be appropriate."
 hotpCtxCheck :: HOTPCtx -> Low.HOTPCode -> Low.HOTPCounter -> Int -> (Bool, Low.HOTPCounter)
-hotpCtxCheck hotp code counter resync = undefined
+hotpCtxCheck _hotp _code _counter _resync = undefined

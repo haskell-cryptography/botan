@@ -1,4 +1,15 @@
-module Botan.KeySpec where
+module Botan.KeySpec (
+    KeySpec
+  , keySpec
+  , monoMapKeySpec
+  , minKeySize
+  , maxKeySize
+  , keySizes
+  , validKeySize
+  , keySizeIsValid
+  , newKeyMaybe
+  , newKey
+  ) where
 
 import           Botan.Prelude
 

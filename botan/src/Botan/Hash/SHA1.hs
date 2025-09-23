@@ -1,11 +1,12 @@
-module Botan.Hash.SHA1
-( SHA1(..)
-, SHA1Digest(..)
-, sha1
-, sha1Lazy
-) where
+{-# LANGUAGE TypeFamilies #-}
 
-import qualified Data.ByteString as ByteString
+module Botan.Hash.SHA1 (
+    SHA1
+  , SHA1Digest
+  , sha1
+  , sha1Lazy
+  ) where
+
 import qualified Data.ByteString.Lazy as Lazy
 import qualified Data.Text as Text
 
@@ -20,7 +21,7 @@ import           Botan.Prelude
 data SHA1
 
 newtype instance Digest SHA1 = SHA1Digest
-    { getSHA1ByteString :: ByteString {- ByteVector n -} }
+    { _getSHA1ByteString :: ByteString {- ByteVector n -} }
     deriving newtype (Eq, Ord)
 
 type SHA1Digest = Digest SHA1

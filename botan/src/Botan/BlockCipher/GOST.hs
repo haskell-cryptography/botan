@@ -1,21 +1,20 @@
-module Botan.BlockCipher.GOST
-( GOST_28147_89(..)
-, GOST_28147_89SecretKey(..)
-, pattern GOST_28147_89SecretKey
-, getGOST_28147_89SecretKey
-, GOST_28147_89Ciphertext(..)
-, gost_28147_89Encrypt
-, gost_28147_89Decrypt
-, gost_28147_89EncryptLazy
-, gost_28147_89DecryptLazy
-) where
+{-# LANGUAGE TypeFamilies #-}
 
-import qualified Data.ByteString as ByteString
+module Botan.BlockCipher.GOST (
+    GOST_28147_89
+  , GOST_28147_89SecretKey
+  , pattern GOST_28147_89SecretKey
+  , getGOST_28147_89SecretKey
+  , GOST_28147_89Ciphertext
+  , gost_28147_89Encrypt
+  , gost_28147_89Decrypt
+  , gost_28147_89EncryptLazy
+  , gost_28147_89DecryptLazy
+  ) where
+
 import qualified Data.ByteString.Lazy as Lazy
-import qualified Data.Text as Text
 
 import qualified Botan.BlockCipher as Botan
-import qualified Botan.Utility as Botan
 
 import           Botan.Prelude hiding (Ciphertext, LazyCiphertext)
 
@@ -30,6 +29,7 @@ data GOST_28147_89
 newtype instance SecretKey GOST_28147_89 = MkGOST_28147_89SecretKey GSecretKey
     deriving newtype (Eq, Ord, Show, Encodable)
 
+{-# COMPLETE GOST_28147_89SecretKey #-}
 pattern GOST_28147_89SecretKey :: ByteString -> SecretKey GOST_28147_89
 pattern GOST_28147_89SecretKey bytes = MkGOST_28147_89SecretKey (MkGSecretKey bytes)
 
@@ -41,22 +41,19 @@ type GOST_28147_89SecretKey = SecretKey GOST_28147_89
 newtype instance Ciphertext GOST_28147_89 = MkGOST_28147_89Ciphertext GCiphertext
     deriving newtype (Eq, Ord, Show, Encodable)
 
+{-# COMPLETE GOST_28147_89Ciphertext #-}
 pattern GOST_28147_89Ciphertext :: ByteString -> Ciphertext GOST_28147_89
 pattern GOST_28147_89Ciphertext bs = MkGOST_28147_89Ciphertext (MkGCiphertext bs)
-
-getGOST_28147_89Ciphertext :: Ciphertext GOST_28147_89 -> ByteString
-getGOST_28147_89Ciphertext (GOST_28147_89Ciphertext bs) = bs
 
 type GOST_28147_89Ciphertext = Ciphertext GOST_28147_89
 
 newtype instance LazyCiphertext GOST_28147_89 = MkGOST_28147_89LazyCiphertext GLazyCiphertext
     deriving newtype (Eq, Ord, Show, Encodable, LazyEncodable)
 
+{-# COMPLETE GOST_28147_89LazyCiphertext #-}
 pattern GOST_28147_89LazyCiphertext :: Lazy.ByteString -> LazyCiphertext GOST_28147_89
 pattern GOST_28147_89LazyCiphertext lbs = MkGOST_28147_89LazyCiphertext (MkGLazyCiphertext lbs)
 
-getGOST_28147_89LazyCiphertext :: LazyCiphertext GOST_28147_89 -> Lazy.ByteString
-getGOST_28147_89LazyCiphertext (GOST_28147_89LazyCiphertext bs) = bs
 
 type GOST_28147_89LazyCiphertext = LazyCiphertext GOST_28147_89
 
@@ -65,12 +62,12 @@ instance HasSecretKey GOST_28147_89 where
     secretKeySpec :: SizeSpecifier (SecretKey GOST_28147_89)
     secretKeySpec = coerceSizeSpec $ Botan.blockCipherKeySpec Botan.gost_28147_89
 
-instance (MonadRandomIO m )=> SecretKeyGen GOST_28147_89 m where
+instance MonadRandomIO m => SecretKeyGen GOST_28147_89 m where
 
-    newSecretKey :: MonadRandomIO m => m (SecretKey GOST_28147_89)
+    newSecretKey :: m (SecretKey GOST_28147_89)
     newSecretKey = GOST_28147_89SecretKey <$> newSized (secretKeySpec @GOST_28147_89)
 
-    newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey GOST_28147_89))
+    newSecretKeyMaybe :: Int -> m (Maybe (SecretKey GOST_28147_89))
     newSecretKeyMaybe i = fmap GOST_28147_89SecretKey <$> newSizedMaybe (secretKeySpec @GOST_28147_89) i
 
 instance HasCiphertext GOST_28147_89 where

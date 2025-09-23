@@ -1,11 +1,12 @@
-module Botan.Hash.RIPEMD
-( RIPEMD160(..)
-, RIPEMD160Digest(..)
-, ripemd160
-, ripemd160Lazy
-) where
+{-# LANGUAGE TypeFamilies #-}
 
-import qualified Data.ByteString as ByteString
+module Botan.Hash.RIPEMD (
+    RIPEMD160
+  , RIPEMD160Digest
+  , ripemd160
+  , ripemd160Lazy
+  ) where
+
 import qualified Data.ByteString.Lazy as Lazy
 import qualified Data.Text as Text
 
@@ -20,7 +21,7 @@ import           Botan.Prelude
 data RIPEMD160
 
 newtype instance Digest RIPEMD160 = RIPEMD160Digest
-    { getRIPEMD160ByteString :: ByteString {- ByteVector n -} }
+    { _getRIPEMD160ByteString :: ByteString {- ByteVector n -} }
     deriving newtype (Eq, Ord)
 
 type RIPEMD160Digest = Digest RIPEMD160

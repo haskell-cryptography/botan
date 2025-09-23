@@ -1,24 +1,22 @@
-module Botan.Easy
-( Digest(..)
-, hash
-, verifyDigest
-, BlockCipherKey(..)
-, BlockCiphertext(..)
-, newBlockCipherKey
-, blockCipherEncrypt
-, blockCipherDecrypt
-, CipherKey(..)
-, CipherNonce(..)
-, Ciphertext(..)
-, newCipherKey
-, newCipherNonce
-, cipherEncrypt
-, cipherDecrypt
-) where
+module Botan.Easy (
+    Digest
+  , hash
+  , verifyDigest
+  , BlockCipherKey
+  , BlockCiphertext
+  , newBlockCipherKey
+  , blockCipherEncrypt
+  , blockCipherDecrypt
+  , CipherKey
+  , CipherNonce
+  , Ciphertext
+  , newCipherKey
+  , newCipherNonce
+  , cipherEncrypt
+  , cipherDecrypt
+  ) where
 
 import           Botan.Prelude hiding (Ciphertext, LazyCiphertext)
-
-import           Data.ByteString (ByteString)
 
 import           Botan.RNG (MonadRandomIO (..))
 

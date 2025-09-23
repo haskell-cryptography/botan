@@ -13,108 +13,107 @@ Most applications want the higher level cipher API which provides authenticated 
 This API exists as an escape hatch for applications which need to implement custom primitives using a PRP.
 -}
 
-module Botan.BlockCipher -- where
-(
+module Botan.BlockCipher (
 
--- * Block ciphers
--- $introduction
+  -- * Block ciphers
+  -- $introduction
 
--- * Usage
--- $usage
+  -- * Usage
+  -- $usage
 
--- * Idiomatic interface
+  -- * Idiomatic interface
 
--- ** Data type
-  BlockCipher(..)
-, BlockCipher128(..)
+  -- ** Data type
+    BlockCipher(..)
+  , BlockCipher128(..)
 
--- ** Enumerations
+  -- ** Enumerations
 
-, blockCiphers
-, blockCipher128s
+  , blockCiphers
+  , blockCipher128s
 
--- ** Associated types
-, BlockCipherKeySpec(..)
-, BlockCipherKey(..)
-, newBlockCipherKey
-, newBlockCipherKeyMaybe
-, BlockCipherText(..)
+  -- ** Associated types
+  , BlockCipherKeySpec
+  , BlockCipherKey
+  , newBlockCipherKey
+  , newBlockCipherKeyMaybe
+  , BlockCipherText
 
--- ** Convenience
-, BlockCipher128Key(..)
-, blockCipher128Name
-, blockCipher128KeySpec
-, isBlockCipher128
+  -- ** Convenience
+  , BlockCipher128Key
+  , blockCipher128Name
+  , blockCipher128KeySpec
+  , isBlockCipher128
 
--- ** Accessors
+  -- ** Accessors
 
-, blockCipherName
-, blockCipherBlockSize
-, blockCipherKeySpec
+  , blockCipherName
+  , blockCipherBlockSize
+  , blockCipherKeySpec
 
--- ** Idiomatic algorithm
-, blockCipherEncrypt
-, blockCipherDecrypt
-, blockCipherEncryptLazy
-, blockCipherDecryptLazy
+  -- ** Idiomatic algorithm
+  , blockCipherEncrypt
+  , blockCipherDecrypt
+  , blockCipherEncryptLazy
+  , blockCipherDecryptLazy
 
--- * Mutable interface
+  -- * Mutable interface
 
--- ** Tagged mutable context
-, MutableBlockCipher(..)
+  -- ** Tagged mutable context
+  , MutableBlockCipher(..)
 
--- ** Destructor
-, destroyBlockCipher
+  -- ** Destructor
+  , destroyBlockCipher
 
--- ** Initializers
-, newBlockCipher
--- , newBlockCipher128
+  -- ** Initializers
+  , newBlockCipher
+  -- , newBlockCipher128
 
--- ** Accessors
-, getBlockCipherName
-, getBlockCipherBlockSize
-, getBlockCipherKeySpec
-, setBlockCipherKey
+  -- ** Accessors
+  , getBlockCipherName
+  , getBlockCipherBlockSize
+  , getBlockCipherKeySpec
+  , setBlockCipherKey
 
--- ** Accessory functions
-, clearBlockCipher
+  -- ** Accessory functions
+  , clearBlockCipher
 
--- ** Mutable algorithm
-, encryptBlockCipherBlocks
-, decryptBlockCipherBlocks
-, autoEncryptBlockCipherBlocks
--- , autoEncryptBlockCipherBlocksGeneratingkey
-, autoDecryptBlockCipherBlocks
+  -- ** Mutable algorithm
+  , encryptBlockCipherBlocks
+  , decryptBlockCipherBlocks
+  , autoEncryptBlockCipherBlocks
+  -- , autoEncryptBlockCipherBlocksGeneratingkey
+  , autoDecryptBlockCipherBlocks
 
--- Algorithm references
+  -- Algorithm references
 
-, blowfish
-, cast128
-, des
-, tripleDES
-, gost_28147_89
-, idea
+  , blowfish
+  , cast128
+  , des
+  , tripleDES
+  , gost_28147_89
+  , idea
 
-, aes128
-, aes192
-, aes256
-, aria128
-, aria192
-, aria256
-, camellia128
-, camellia192
-, camellia256
-, noekeon
-, seed
-, sm4
-, serpent
-, twofish
+  , aes128
+  , aes192
+  , aes256
+  , aria128
+  , aria192
+  , aria256
+  , camellia128
+  , camellia192
+  , camellia256
+  , noekeon
+  , seed
+  , sm4
+  , serpent
+  , twofish
 
-, shalcal2
+  , shalcal2
 
-, threefish512
+  , threefish512
 
-) where
+  ) where
 
 import qualified Botan.Low.BlockCipher as Low
 
@@ -170,7 +169,7 @@ data BlockCipher
     | Threefish512
     -- | Cascade BlockCipher BlockCipher
     -- | Lion HashSpec StreamCipher Int
-    deriving (Eq, Ord, Show)
+    deriving stock (Eq, Ord, Show)
 
 -- NOTE: An enumeration of all block ciphers, assuming default values if any parameters exist
 -- TODO: Maybe rename supportedBlockCiphers? Repeat pattern elsewhere?
@@ -203,7 +202,7 @@ blockCiphers =
 -- 128-bit block cipher type
 
 newtype BlockCipher128 = MkBlockCipher128 { unBlockCipher128 :: BlockCipher }
-    deriving (Eq, Ord, Show)
+    deriving stock (Eq, Ord, Show)
 
 blockCipher128 :: BlockCipher -> Maybe BlockCipher128
 blockCipher128 bc@AES128      = Just $ MkBlockCipher128 bc
@@ -221,9 +220,6 @@ blockCipher128 bc@Serpent     = Just $ MkBlockCipher128 bc
 blockCipher128 bc@SM4         = Just $ MkBlockCipher128 bc
 blockCipher128 bc@Twofish     = Just $ MkBlockCipher128 bc
 blockCipher128 _              = Nothing
-
-unsafeBlockCipher128 :: BlockCipher -> BlockCipher128
-unsafeBlockCipher128 = MkBlockCipher128
 
 blockCipher128s :: [ BlockCipher128 ]
 blockCipher128s = fmap MkBlockCipher128

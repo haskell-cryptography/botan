@@ -17,137 +17,134 @@ a mode of operation applies the block cipher’s single block operation
 repeatedly to encrypt an entire message.
 -}
 
-module Botan.Cipher
-(
+module Botan.Cipher (
 
--- * Thing
--- $introduction
+  -- * Thing
+  -- $introduction
 
--- * Usage
--- $usage
+  -- * Usage
+  -- $usage
 
--- * Idiomatic interface
+  -- * Idiomatic interface
 
--- ** Cipher data type
- Cipher(..)
+  -- ** Cipher data type
+  Cipher(..)
 
--- ** AEAD data type
-, AEAD(..)
-, aead
-, unsafeAEAD
-, isAEAD
+  -- ** AEAD data type
+  , AEAD(..)
+  , aead
+  , unsafeAEAD
+  , isAEAD
 
--- ** Enumerations
+  -- ** Enumerations
 
-, ciphers
-, cbcPaddings
-, aeads
+  , ciphers
+  , cbcPaddings
+  , aeads
 
--- ** Associated types
-, CipherKey(..)
-, CipherNonce(..)
-, CBCPadding(..)
-, AEADAssociatedData(..)
+  -- ** Associated types
+  , CipherKey
+  , CipherNonce
+  , CBCPadding(..)
+  , AEADAssociatedData
 
--- ** Accessors
+  -- ** Accessors
 
-, cipherName
-, cipherKeySpec
-, cipherDefaultNonceSize
-, cipherNonceSizeIsValid
-, cipherTagSize
-, cipherUpdateGranularity
-, cipherIdealUpdateGranularity
--- NOTE: This is our custom function
--- , cipherEstimateOutputLength
--- TODO: Determine if this function is state-dependent
--- NOTE: Really returns an upper bound but is not accurate? Can't remember, notes are old.
-, cipherOutputLength
+  , cipherName
+  , cipherKeySpec
+  , cipherDefaultNonceSize
+  , cipherNonceSizeIsValid
+  , cipherTagSize
+  , cipherUpdateGranularity
+  , cipherIdealUpdateGranularity
+  -- NOTE: This is our custom function
+  -- , cipherEstimateOutputLength
+  -- TODO: Determine if this function is state-dependent
+  -- NOTE: Really returns an upper bound but is not accurate? Can't remember, notes are old.
+  , cipherOutputLength
 
--- ** Idiomatic algorithm
-, cipherEncrypt   -- NOTE: Offline
-, cipherDecrypt
-, cipherEncryptLazy
-, cipherDecryptLazy
--- , encryptGeneratingKeys
--- , autoEncrypt
+  -- ** Idiomatic algorithm
+  , cipherEncrypt   -- NOTE: Offline
+  , cipherDecrypt
+  , cipherEncryptLazy
+  , cipherDecryptLazy
+  -- , encryptGeneratingKeys
+  -- , autoEncrypt
 
-, aeadEncrypt
-, aeadDecrypt
+  , aeadEncrypt
+  , aeadDecrypt
 
--- encryptLazy -- NOTE: Online, SIV and CCM are not available
--- , decryptLazy
+  -- encryptLazy -- NOTE: Online, SIV and CCM are not available
+  -- , decryptLazy
 
--- * Mutable interface
+  -- * Mutable interface
 
--- ** Tagged mutable context
--- TODO: Split MutableCipher into MutableEncipher and MutableDecipher?
--- Would be separate like pk ops
-, MutableCipher(..)
+  -- ** Tagged mutable context
+  -- TODO: Split MutableCipher into MutableEncipher and MutableDecipher?
+  -- Would be separate like pk ops
+  , MutableCipher(..)
 
--- ** Destructor
-, destroyCipher
+  -- ** Destructor
+  , destroyCipher
 
--- ** Associated types
-, CipherDirection(..)
-, CipherUpdate(..)
+  -- ** Associated types
+  , CipherDirection(..)
+  , CipherUpdate(..)
 
--- ** Initializers
-, newCipher
+  -- ** Initializers
+  , newCipher
 
--- ** Accessors
-, getCipherName
-, getCipherKeySpec
-, getCipherDefaultNonceSize
-, getCipherNonceSizeIsValid
-, getCipherTagSize
-, getCipherUpdateGranularity
-, getCipherIdealUpdateGranularity
-, getCipherEstimateOutputLength
-, getCipherOutputLength
-, setCipherKey
-, setAEADAssociatedData
+  -- ** Accessors
+  , getCipherName
+  , getCipherKeySpec
+  , getCipherDefaultNonceSize
+  , getCipherNonceSizeIsValid
+  , getCipherTagSize
+  , getCipherUpdateGranularity
+  , getCipherIdealUpdateGranularity
+  , getCipherEstimateOutputLength
+  , getCipherOutputLength
+  , setCipherKey
+  , setAEADAssociatedData
 
--- ** Accessory functions
-, clearCipher
-, resetCipher
+  -- ** Accessory functions
+  , clearCipher
+  , resetCipher
 
--- ** Mutable algorithm
-, startCipher
-, updateCipher
--- , updateCipherChunks
-, finalizeCipher
-, finalizeResetCipher
-, finalizeClearCipher
+  -- ** Mutable algorithm
+  , startCipher
+  , updateCipher
+  -- , updateCipherChunks
+  , finalizeCipher
+  , finalizeResetCipher
+  , finalizeClearCipher
 
--- ** Algorithm references
+  -- ** Algorithm references
 
-, cbc
-, cbcWith
-, cfb
-, cfbWith
-, xts
-, chaCha20Poly1305
-, gcm
-, gcmWith
-, ocb
-, ocbWith
-, eax
-, eaxWith
-, siv
-, ccm
-, ccmWith
+  , cbc
+  , cbcWith
+  , cfb
+  , cfbWith
+  , xts
+  , chaCha20Poly1305
+  , gcm
+  , gcmWith
+  , ocb
+  , ocbWith
+  , eax
+  , eaxWith
+  , siv
+  , ccm
+  , ccmWith
 
-) where
+  ) where
 
 import qualified Botan.Low.Cipher as Low
 
 import           Botan.BlockCipher
-import           Botan.Error
 import           Botan.KeySpec
 import           Botan.Prelude
 
-import           Botan.RNG
 import qualified Data.ByteString as ByteString
 import qualified Data.ByteString.Lazy as Lazy
 
@@ -202,7 +199,7 @@ data Cipher
     | EAX BlockCipher Int -- Tag size, default is block size
     | SIV BlockCipher128
     | CCM BlockCipher128 Int Int -- Tag size and L, default tag size is 16 and L is 3
-    deriving (Eq, Ord, Show)
+    deriving stock (Eq, Ord, Show)
 
 -- CBC Padding - does this have use elsewhere?
 data CBCPadding
@@ -212,14 +209,14 @@ data CBCPadding
     | ESP   -- NOTE: RFC 4304
     | CTS   -- NOTE: Ciphertext stealing
     | NoPadding
-    deriving (Eq, Ord, Show)
+    deriving stock (Eq, Ord, Show)
 
 -- TODO: AE data type? Unnecessary if considering AEAD?
 
 -- AEAD data type
 
 newtype AEAD = MkAEAD { unAEAD :: Cipher }
-    deriving (Eq, Ord, Show)
+    deriving stock (Eq, Ord, Show)
 
 aead :: Cipher -> Maybe AEAD
 aead c@(ChaCha20Poly1305) = Just $ MkAEAD c
@@ -272,21 +269,7 @@ type CipherKeySpec = KeySpec
 
 type CipherKey = Low.CipherKey
 
-newCipherKey :: (MonadRandomIO m) => Cipher -> m CipherKey
-newCipherKey = newKey . cipherKeySpec
-
-newCipherKeyMaybe :: (MonadRandomIO m) => Int -> Cipher -> m (Maybe CipherKey)
-newCipherKeyMaybe sz bc = newKeyMaybe sz (cipherKeySpec bc)
-
 type CipherNonce = ByteString
-
-newCipherNonce :: (MonadRandomIO m) => Cipher -> m CipherNonce
-newCipherNonce = getRandomBytes . cipherDefaultNonceSize
-
-newCipherNonceMaybe :: (MonadRandomIO m) => Int -> Cipher -> m (Maybe CipherNonce)
-newCipherNonceMaybe sz c = if cipherNonceSizeIsValid sz c
-    then Just <$> getRandomBytes sz
-    else return Nothing
 
 type AEADAssociatedData = ByteString
 
@@ -310,9 +293,6 @@ cbcPaddingName X9_23       = Low.X9_23
 cbcPaddingName ESP         = Low.ESP
 cbcPaddingName CTS         = Low.CTS
 cbcPaddingName NoPadding   = Low.NoPadding
-
-aeadName :: AEAD -> Low.CipherName
-aeadName = cipherName . unAEAD
 
 cipherKeySpec :: Cipher -> CipherKeySpec
 cipherKeySpec (CBC bc _)        = blockCipherKeySpec bc
@@ -381,7 +361,7 @@ cipherNonceSizeIsValid :: Int -> Cipher -> Bool
 cipherNonceSizeIsValid n (CBC bc _)         = n == blockCipherBlockSize bc
 cipherNonceSizeIsValid n (CFB bc _)         = n == blockCipherBlockSize bc
 cipherNonceSizeIsValid n (XTS bc)           = 1 <= n && n <= blockCipherBlockSize bc -- Always [ 1 .. 16 ]
-cipherNonceSizeIsValid n chaCha20Poly1305   = n `elem` [ 8, 12, 24 ]
+cipherNonceSizeIsValid n _haCha20Poly1305   = n `elem` [ 8, 12, 24 ]
 cipherNonceSizeIsValid n (GCM _ _)          = 1 <= n && n <= internalMaximumCipherNonceSize -- True if unbounded
 cipherNonceSizeIsValid n (OCB bc128 _)      = 1 <= n && n <= blockCipherBlockSize (unBlockCipher128 bc128) - 1 -- Always [ 1 .. 15 ]
 cipherNonceSizeIsValid n (EAX _ _)          = 1 <= n && n <= internalMaximumCipherNonceSize -- True if unbounded
@@ -406,15 +386,15 @@ generateCipherNonceLengths = do
 -}
 
 cipherTagSize :: Cipher -> Maybe Int
-cipherTagSize (CBC bc _)       = Nothing
-cipherTagSize (CFB bc _)       = Nothing
-cipherTagSize (XTS bc)         = Nothing
-cipherTagSize chaCha20Poly1305 = Just 16
-cipherTagSize (GCM _ tsz)      = Just tsz
-cipherTagSize (OCB _ tsz)      = Just tsz
-cipherTagSize (EAX _ tsz)      = Just tsz
-cipherTagSize (SIV _)          = Just 16
-cipherTagSize (CCM _ tsz _)    = Just tsz
+cipherTagSize (CBC _bc _)       = Nothing
+cipherTagSize (CFB _bc _)       = Nothing
+cipherTagSize (XTS _bc)         = Nothing
+cipherTagSize _chaCha20Poly1305 = Just 16
+cipherTagSize (GCM _ tsz)       = Just tsz
+cipherTagSize (OCB _ tsz)       = Just tsz
+cipherTagSize (EAX _ tsz)       = Just tsz
+cipherTagSize (SIV _)           = Just 16
+cipherTagSize (CCM _ tsz _)     = Just tsz
 -- NOTE: Extracted / confirmed from inspecting:
 {-
 generateCipherTagLength :: IO ()
@@ -432,9 +412,6 @@ generateCipherTagLength = do
         "cipherTagLength :: Cipher -> Int"
         : each
 -}
-
-aeadTagSize :: AEAD -> Int
-aeadTagSize = fromJust . cipherTagSize .  unAEAD
 
 cipherUpdateGranularity :: Cipher -> Int
 cipherUpdateGranularity (CBC bc CTS)        = 2 * blockCipherBlockSize bc
@@ -553,7 +530,7 @@ destroyCipher = liftIO . Low.cipherDestroy . mutableCipherCtx
 data CipherDirection
     = CipherEncrypt
     | CipherDecrypt
-    deriving (Eq, Ord, Show)
+    deriving stock (Eq, Ord, Show)
 
 cipherDirectionFlags :: CipherDirection -> Low.CipherInitFlags
 cipherDirectionFlags CipherEncrypt = Low.Encrypt
@@ -563,7 +540,7 @@ cipherDirectionFlags CipherDecrypt = Low.Decrypt
 data CipherUpdate
     = CipherUpdate
     | CipherFinal
-    deriving (Eq, Ord, Show)
+    deriving stock (Eq, Ord, Show)
 
 cipherUpdateFlags :: CipherUpdate -> Low.CipherUpdateFlags
 cipherUpdateFlags CipherUpdate = Low.CipherUpdate

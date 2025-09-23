@@ -1,12 +1,12 @@
-module Botan.Version
-( botanFFIAPIVersion
-, botanFFISupportsAPI
-, botanVersionText
-, botanVersionMajor
-, botanVersionMinor
-, botanVersionPatch
-, botanVersionDatestamp
-) where
+module Botan.Version (
+    botanFFIAPIVersion
+  , botanFFISupportsAPI
+  , botanVersionText
+  , botanVersionMajor
+  , botanVersionMinor
+  , botanVersionPatch
+  , botanVersionDatestamp
+  ) where
 
 import           System.IO.Unsafe
 

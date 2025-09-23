@@ -1,20 +1,18 @@
-module Botan.OneTimeAuth.Poly1305
-( Poly1305(..)
-, Poly1305OneTimeAuthKey(..)
-, Poly1305OneTimeAuthNonce(..)
-, Poly1305OneTimeAuthCode(..)
-, poly1305OneTimeAuth
--- , poly1305AuthOneTimeAuthLazy
-) where
+{-# LANGUAGE TypeFamilies #-}
+
+module Botan.OneTimeAuth.Poly1305 (
+    Poly1305
+  , Poly1305OneTimeAuthKey
+  , Poly1305OneTimeAuthNonce
+  , Poly1305OneTimeAuthCode
+  , poly1305OneTimeAuth
+  ) where
 
 import           Data.Maybe
 
-import qualified Data.ByteString as ByteString
 import qualified Data.ByteString.Lazy as Lazy
-import qualified Data.Text as Text
 
 import qualified Botan.MAC as Botan
-import qualified Botan.Utility as Botan
 
 import           Botan.OneTimeAuth.Class
 import           Botan.Prelude
@@ -24,7 +22,7 @@ import           Botan.Prelude
 data Poly1305
 
 newtype instance OneTimeAuthKey Poly1305 = Poly1305OneTimeAuthKey
-    { getPoly1305OneTimeAuthKey :: ByteString {- ByteVector n -} }
+    { _getPoly1305OneTimeAuthKey :: ByteString {- ByteVector n -} }
     deriving newtype (Eq, Ord)
 
 type Poly1305OneTimeAuthKey = OneTimeAuthKey Poly1305
@@ -39,7 +37,7 @@ newtype instance OneTimeAuthNonce Poly1305 = Poly1305OneTimeAuthNonce
 type Poly1305OneTimeAuthNonce = OneTimeAuthNonce Poly1305
 
 newtype instance OneTimeAuthCode Poly1305 = Poly1305OneTimeAuthCode
-    { getPoly1305OneTimeAuthCode :: ByteString {- ByteVector n -} }
+    { _getPoly1305OneTimeAuthCode :: ByteString {- ByteVector n -} }
     deriving newtype (Eq, Ord)
 
 type Poly1305OneTimeAuthCode = OneTimeAuthCode Poly1305

@@ -1,6 +1,14 @@
-module Botan.PwdHash where
+module Botan.PwdHash (
+    pwdhash
+  , pwdhashTimed
+  , PBKDF (..)
+  , pbkdfName
+  , PBKDFParams
+  , pbkdfParams
+  , pbkdfParamsNone
+  ) where
 
-import           Botan.Low.PwdHash (PBKDFName (..))
+import           Botan.Low.PwdHash (PBKDFName)
 import qualified Botan.Low.PwdHash as Low
 
 import           Botan.Hash
@@ -49,13 +57,13 @@ data PBKDF
     | OpenPGP_S2K Hash Int  -- Iterations
 
 pbkdfName :: PBKDF -> PBKDFName
-pbkdfName (PBKDF2 m _)      = Low.pbkdf2 (macName m)
-pbkdfName (Scrypt n r p)    = Low.Scrypt
-pbkdfName (Argon2d i m p)   = Low.Argon2d
-pbkdfName (Argon2i i m p)   = Low.Argon2i
-pbkdfName (Argon2id i m p)  = Low.Argon2id
-pbkdfName (Bcrypt i)        = Low.Bcrypt_PBKDF
-pbkdfName (OpenPGP_S2K h _) = Low.openPGP_S2K (hashName h)
+pbkdfName (PBKDF2 m _)        = Low.pbkdf2 (macName m)
+pbkdfName (Scrypt _n _r _p)   = Low.Scrypt
+pbkdfName (Argon2d _i _m _p)  = Low.Argon2d
+pbkdfName (Argon2i _i _m _p)  = Low.Argon2i
+pbkdfName (Argon2id _i _m _p) = Low.Argon2id
+pbkdfName (Bcrypt _i)         = Low.Bcrypt_PBKDF
+pbkdfName (OpenPGP_S2K h _)   = Low.openPGP_S2K (hashName h)
 
 type PBKDFParams = (Int,Int,Int)
 
