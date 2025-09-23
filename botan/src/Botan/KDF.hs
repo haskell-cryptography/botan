@@ -1,10 +1,14 @@
-module Botan.KDF where
+module Botan.KDF (
+    KDF (..)
+  , SP800_108_Mode (..)
+  , kdfName
+  , kdf
+  ) where
 
-import           Botan.Low.KDF (KDFName (..))
+import           Botan.Low.KDF (KDFName)
 import qualified Botan.Low.KDF as Low
 
 import           Botan.Hash
-import           Botan.MAC
 import           Botan.Prelude
 
 -- Sources: https://github.com/randombit/botan/blob/master/src/lib/kdf/kdf.cpp
@@ -42,7 +46,7 @@ data KDF
     | SP800_108_Pipeline Hash
     | SP800_56A Hash
     | SP800_56C Hash
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)
 
 -- TODO: | SP800_108 SP800_108_Mode MAC
 

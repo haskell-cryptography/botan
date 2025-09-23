@@ -12,85 +12,84 @@ Public key cryptography is a collection of techniques allowing
 for encryption, signatures, and key agreement.
 -}
 
-module Botan.PubKey
-(
+module Botan.PubKey (
 
--- * Thing
--- $introduction
+  -- * Thing
+  -- $introduction
 
--- * Usage
--- $usage
+  -- * Usage
+  -- $usage
 
--- * Idiomatic interface
+  -- * Idiomatic interface
 
--- ** Data type
-  PK(..)
--- TODO: Rename XMSSScheme
-, XMSS(..)
-, ECGroup(..)
-, ecGroupName
-, DLGroup(..)
-, dlGroupName
+  -- ** Data type
+    PK(..)
+  -- TODO: Rename XMSSScheme
+  , XMSS(..)
+  , ECGroup(..)
+  , ecGroupName
+  , DLGroup(..)
+  , dlGroupName
 
--- ** Enumerations
+  -- ** Enumerations
 
--- , allPKs
+  -- , allPKs
 
--- ** Associated types
+  -- ** Associated types
 
-, PKExportFormat(..)
-, pkExportFormatFlags
-, PKCheckKeyFlags(..)
-, PKPadding(..)
-, pkPaddingName
+  , PKExportFormat(..)
+  , pkExportFormatFlags
+  , PKCheckKeyFlags(..)
+  , PKPadding(..)
+  , pkPaddingName
 
--- * Private Keys
+  -- * Private Keys
 
--- ** Wrapped private key
-, PrivKey(..)
+  -- ** Wrapped private key
+  , PrivKey(..)
 
--- ** Destructor
-, destroyPrivKey
+  -- ** Destructor
+  , destroyPrivKey
 
--- ** Initializers
-, newPrivKey
+  -- ** Initializers
+  , newPrivKey
 
--- ** Accessors
+  -- ** Accessors
 
-, privKeyAlgo
-, privKeyField
+  , privKeyAlgo
+  , privKeyField
 
--- ** Accessory functions
-, loadPrivKey
-, exportPrivKey
-, exportPrivKeyPubKey
-, checkPrivKey
+  -- ** Accessory functions
+  , loadPrivKey
+  , exportPrivKey
+  , exportPrivKeyPubKey
+  , checkPrivKey
 
--- * Public Keys
+  -- * Public Keys
 
-, PubKey(..)
+  , PubKey(..)
 
--- ** Destructor
-, destroyPubKey
+  -- ** Destructor
+  , destroyPubKey
 
--- ** Accessors
+  -- ** Accessors
 
-, pubKeyAlgo
-, pubKeyField
-, estimatedPubKeyStrength
-, pubKeyFingerprint
+  , pubKeyAlgo
+  , pubKeyField
+  , estimatedPubKeyStrength
+  , pubKeyFingerprint
 
--- ** Accessory functions
+  -- ** Accessory functions
 
-, loadPubKey
-, exportPubKey
-, checkPubKey
+  , loadPubKey
+  , exportPubKey
+  , checkPubKey
 
---
+  --
 
-, privKeyCreatePKIO
+  , privKeyCreatePKIO
 
-) where
+  ) where
 
 import           Botan.Low.MPI
 import           Botan.Low.PubKey (PrivKey (..), PubKey (..))
@@ -256,7 +255,7 @@ checkPubKey :: (MonadRandomIO m) => PubKey -> Bool -> m Bool
 checkPubKey pk expensive = do
     rng <- getRNG
     -- TODO: Return false on catch error
-    liftIO $ Low.pubKeyCheckKey pk rng (bool Low.CheckKeyNormalTests Low.CheckKeyExpensiveTests expensive)
+    void $ liftIO $ Low.pubKeyCheckKey pk rng (bool Low.CheckKeyNormalTests Low.CheckKeyExpensiveTests expensive)
     return True
 
 
@@ -511,7 +510,6 @@ pkPaddingName (EME_OAEP h m l) = case (m,l) of
     (Just m', Just l') -> "OAEP(" <> hashName h <> ",MGF1(" <> hashName m' <> ")," <> l' <> ")"
 pkPaddingName (SM2EncParam h)  = hashName h
 
-defaultPKPadding = "OAEP(SHA-256)" -- C++ docs tell us more about this
 
 -- SEE: C++ Docs on more types, eg MGF1:
 --  MGF1: https://botan.randombit.net/doxygen/mgf1_8h_source.html

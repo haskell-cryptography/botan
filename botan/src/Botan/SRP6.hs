@@ -30,77 +30,68 @@ the server to the client, so verifiers should be protected as carefully
 as a plaintext password would be.
 -}
 
-{-# LANGUAGE FlexibleInstances    #-}
-{-# LANGUAGE TypeSynonymInstances #-}
+module Botan.SRP6 (
 
-module Botan.SRP6
-(
+  -- * SRP6
+  -- $introduction
 
--- * SRP6
--- $introduction
+  -- * Usage
+  -- $usage
 
--- * Usage
--- $usage
+  -- * Server session
 
--- * Server session
+  -- ** Mutable context
+  SRP6ServerSession
 
--- ** Mutable context
- SRP6ServerSession(..)
+  -- ** Destructor
 
--- ** Destructor
+  , destroySRP6ServerSession
 
-, destroySRP6ServerSession
+  -- ** Associated types
+  , SRP6Group
+  , SRP6Hash
+  -- , SRP6Config(..)
+  , SRP6Salt
+  , SRP6Verifier
+  , SRP6ServerKey
+  , SRP6ClientKey
+  , SRP6SessionKey
 
--- ** Associated types
-, SRP6Group(..)
-, SRP6Hash(..)
--- , SRP6Config(..)
-, SRP6Salt(..)
-, SRP6Verifier(..)
-, SRP6ServerKey(..)
-, SRP6ClientKey(..)
-, SRP6SessionKey(..)
+  -- ** Initializers
 
--- ** Initializers
+  , newSRP6ServerSession
 
-, newSRP6ServerSession
+  -- ** Accessors
+  -- TODO: Missing
+  -- , srp6GroupId
 
--- ** Accessors
--- TODO: Missing
--- , srp6GroupId
+  -- ** Accessory functions
 
--- ** Accessory functions
+  , srp6GroupSize
 
-, srp6GroupSize
+  -- ** Algorithm
 
--- ** Algorithm
+  , generateSRP6ClientVerifier
+  , generateSRP6ClientSecrets
 
-, generateSRP6ClientVerifier
-, generateSRP6ClientSecrets
+  , generateSRP6ServerKey
+  , generateSRP6ClientKeys
+  , generateSRP6SessionKey
 
-, generateSRP6ServerKey
-, generateSRP6ClientKeys
-, generateSRP6SessionKey
+  -- TODO: Server and client should exchange proof of session key before it is used,
+  -- with the client sending it first. This proof can be a Hash or HMAC of the session
+  -- key
+  -- , generateSRP6ClientSessionProof
+  -- , generateSRP6ServerSessionProof
 
--- TODO: Server and client should exchange proof of session key before it is used,
--- with the client sending it first. This proof can be a Hash or HMAC of the session
--- key
--- , generateSRP6ClientSessionProof
--- , generateSRP6ServerSessionProof
-
-) where
-
-import qualified Data.ByteString as ByteString
+  ) where
 
 import qualified Botan.Low.SRP6 as Low
 
-import           Botan.Error
-import           Botan.Hash
+import           Botan.Hash hiding (hash)
 import           Botan.Prelude
 import           Botan.PubKey
 import           Botan.RNG
-
-import           Control.Monad.Reader
 
 {- $usage
 
@@ -281,133 +272,3 @@ generateSRP6SessionKey
     -> m SRP6SessionKey
 generateSRP6SessionKey session ckey = liftIO $ Low.srp6ServerSessionStep2 session ckey
 
-
---
-
--- TODO: Monadic SRP6 sessions for much smoother automatic handling of stuff
--- TODO: Needs to handle verifiers
-
-data SRP6Config'
-    = SRP6Config'
-    { srp6ConfigGroup' :: SRP6Group
-    , srp6ConfigHash'  :: SRP6Hash
-    , srp6ConfigIdent' :: ByteString
-    , srp6ConfigSalt'  :: SRP6Salt
-    }
-
-class (Monad m) => SRP6Session' m where
-
-    getSRP6Config' :: m SRP6Config'
-
-    getSRP6SessionKey' :: m SRP6SessionKey
-
-getSRP6Group' :: (SRP6Session' m) => m SRP6Group
-getSRP6Group' = srp6ConfigGroup' <$> getSRP6Config'
-
-getSRP6Hash' :: (SRP6Session' m) => m SRP6Hash
-getSRP6Hash' = srp6ConfigHash' <$> getSRP6Config'
-
-getSRP6Ident' :: (SRP6Session' m) => m ByteString
-getSRP6Ident' = srp6ConfigIdent' <$> getSRP6Config'
-
-getSRP6Salt' :: (SRP6Session' m) => m SRP6Salt
-getSRP6Salt' = srp6ConfigSalt' <$> getSRP6Config'
-
-class (SRP6Session' m) => SRP6Server' m where
-
-    getSRP6ServerSession' :: m SRP6ServerSession'
-
--- TODO: Maybe MVar instead of IORef - has valid state for 'uninitialized' re blocking on empty
-data SRP6ServerSession'
-    = SRP6ServerSession'
-    { srp6ServerSessionConfig'     :: SRP6Config'
-    , srp6ServerSessionRef'        :: Low.SRP6ServerSession
-    , srp6ServerSessionServerKey'  :: IORef SRP6ServerKey
-    , srp6ServerSessionSessionKey' :: IORef SRP6SessionKey
-    -- , srp6ServerSessionUserContext :: IORef a
-    }
-
--- TODO: Newtype
-type SRP6ServerT' m = ReaderT SRP6ServerSession' m
-
-runSRP6ServerT' :: (MonadIO m) => SRP6ServerT' m a -> SRP6ServerSession' -> m a
-runSRP6ServerT' = runReaderT
-
-instance (MonadIO m) => SRP6Session' (SRP6ServerT' m) where
-
-    getSRP6Config' :: SRP6ServerT' m SRP6Config'
-    getSRP6Config' = srp6ServerSessionConfig' <$> getSRP6ServerSession'
-
-    getSRP6SessionKey' :: SRP6ServerT' m SRP6SessionKey
-    getSRP6SessionKey' = do
-        session <- getSRP6ServerSession'
-        liftIO $ readIORef (srp6ServerSessionSessionKey' session)
-
-instance (MonadIO m) => SRP6Server' (SRP6ServerT' m) where
-
-    getSRP6ServerSession' :: SRP6ServerT' m SRP6ServerSession'
-    getSRP6ServerSession' = ask
-
-class (SRP6Session' m) => SRP6Client' m where
-
-    getSRP6ClientSession' :: m SRP6ClientSession'
-
--- TODO: Maybe MVar instead of IORef - has valid state for 'uninitialized' re blocking on empty
-data SRP6ClientSession'
-    = SRP6ClientSession'
-    { srp6ClientSessionConfig'     :: SRP6Config'
-    , srp6ClientSessionClientKey'  :: IORef SRP6ClientKey
-    , srp6ClientSessionSessionKey' :: IORef SRP6SessionKey
-    -- , srp6ClientSessionUserContext :: IORef a
-    }
-
--- TODO: Newtype
-type SRP6ClientT' m = ReaderT SRP6ClientSession' m
-
-runSRP6ClientT' :: (MonadIO m) => SRP6ClientT' m a -> SRP6ClientSession' -> m a
-runSRP6ClientT' = runReaderT
-
-instance (MonadIO m) => SRP6Session' (SRP6ClientT' m) where
-
-    getSRP6Config' :: SRP6ClientT' m SRP6Config'
-    getSRP6Config' = srp6ClientSessionConfig' <$> getSRP6ClientSession'
-
-    getSRP6SessionKey' :: SRP6ClientT' m SRP6SessionKey
-    getSRP6SessionKey' = do
-        session <- getSRP6ClientSession'
-        liftIO $ readIORef (srp6ClientSessionSessionKey' session)
-
-instance (MonadIO m) => SRP6Client' (SRP6ClientT' m) where
-
-    getSRP6ClientSession' :: SRP6ClientT' m SRP6ClientSession'
-    getSRP6ClientSession' = ask
-
-
--- TODO: Elide group, hash, salt, and handshake for extreme convenience
-
-newClient :: (MonadRandomIO m) => ByteString -> m SRP6ClientSession'
-newClient ident = newClientWith ident MODP_SRP_4096 sha2_512
-
-newClientWith :: (MonadRandomIO m) => ByteString -> SRP6Group -> SRP6Hash -> m SRP6ClientSession'
-newClientWith ident group hash = do
-    salt <- getRandomBytes 12
-    loadClientWith ident $ \ _ -> return (group, hash, salt)
-
-loadClientWith :: (MonadIO m) => ByteString -> (ByteString -> m (SRP6Group, SRP6Hash, SRP6Salt)) -> m SRP6ClientSession'
-loadClientWith ident lookup = do
-    (group, hash, salt) <- lookup ident
-    let sessionConfig = SRP6Config'
-            { srp6ConfigGroup' = group
-            , srp6ConfigHash'  = hash
-            , srp6ConfigIdent' = ident
-            , srp6ConfigSalt'  = salt
-            }
-    clientKeyRef <- liftIO $ newIORef undefined
-    sessionKeyRef <- liftIO $ newIORef undefined
-    -- userContextRef <- liftIO $ newIORef undefined
-    return $ SRP6ClientSession'
-        { srp6ClientSessionConfig'      = sessionConfig
-        , srp6ClientSessionClientKey'   = clientKeyRef
-        , srp6ClientSessionSessionKey'  = sessionKeyRef
-        -- , srp6ClientSessionUserContext  = userContextRef
-        }

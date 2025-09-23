@@ -36,82 +36,81 @@ The Botan MAC computation is split into five stages.
 
 -}
 
-module Botan.MAC
-(
+module Botan.MAC (
 
--- * Message Authentication Codes
--- $introduction
+  -- * Message Authentication Codes
+  -- $introduction
 
--- * Usage
--- $usage
+  -- * Usage
+  -- $usage
 
--- * Idiomatic interface
+  -- * Idiomatic interface
 
--- ** Data type
-  MAC(..)
+  -- ** Data type
+    MAC(..)
 
--- ** Enumerations
+  -- ** Enumerations
 
-, macs
+  , macs
 
--- ** Associated types
-, MACKeySpec
-, MACKey(..)
-, newMACKey
-, newMACKeyMaybe
-, MACDigest(..)
+  -- ** Associated types
+  , MACKeySpec
+  , MACKey
+  , newMACKey
+  , newMACKeyMaybe
+  , MACDigest
 
--- ** Accessors
+  -- ** Accessors
 
-, macName
-, macKeySpec
-, macDigestLength
+  , macName
+  , macKeySpec
+  , macDigestLength
 
--- ** Idiomatic algorithm
-, mac
-, gmac
+  -- ** Idiomatic algorithm
+  , mac
+  , gmac
 
-, macLazy
+  , macLazy
 
--- * Mutable interface
+  -- * Mutable interface
 
--- ** Tagged mutable context
-, MutableMAC(..)
+  -- ** Tagged mutable context
+  , MutableMAC(..)
 
--- ** Destructor
-, destroyMAC
+  -- ** Destructor
+  , destroyMAC
 
--- ** Initializers
-, newMAC
+  -- ** Initializers
+  , newMAC
 
--- ** Accessors
-, getMACName
-, getMACKeySpec
-, getMACDigestLength
-, setMACKey
+  -- ** Accessors
+  , getMACName
+  , getMACKeySpec
+  , getMACDigestLength
+  , setMACKey
 
--- ** GMAC-specific functions
-, GMACNonce(..)
-, setGMACNonce
+  -- ** GMAC-specific functions
+  , GMACNonce
+  , setGMACNonce
 
--- ** Accessory functions
-, clearMAC
+  -- ** Accessory functions
+  , clearMAC
 
--- ** Mutable algorithm
-, updateMAC
-, finalizeMAC
-, updateFinalizeMAC
-, updateFinalizeClearMAC
+  -- ** Mutable algorithm
+  , updateMAC
+  , finalizeMAC
+  , updateFinalizeMAC
+  , updateFinalizeClearMAC
 
--- *Algorithm references
-, cmac
-, hmac
--- , kmac
-, poly1305
-, sipHash
-, x9_19_mac
+  -- *Algorithm references
+  , cmac
+  , hmac
+  -- , kmac
+  , poly1305
+  , sipHash
+  , x9_19_mac
 
-) where
+  ) where
 
 import           Data.Foldable
 
@@ -120,9 +119,7 @@ import qualified Data.ByteString.Lazy as Lazy
 
 import qualified Botan.Low.MAC as Low
 
-import qualified Botan.Bindings.MAC as Low
 import           Botan.BlockCipher
-import           Botan.Error (SomeBotanException (SomeBotanException))
 import           Botan.Hash
 import           Botan.KeySpec
 import           Botan.Prelude
@@ -161,10 +158,11 @@ data MAC
     | Poly1305              -- Requires a unique key per message (key r and nonce s have been combined)
     | SipHash Int Int       -- Number of input and finalization rounds
     | X9_19_MAC
-    deriving (Eq, Show)
+    deriving stock (Eq, Show)
 
 -- Enumerations
 
+macs :: [MAC]
 macs = concat
     [ [ CMAC bc | bc <- blockCiphers ]
     , [ GMAC bc | bc <- blockCiphers ] -- Requires a nonce
@@ -203,10 +201,11 @@ macName X9_19_MAC       = Low.X9_19_MAC
 macKeySpec :: MAC -> KeySpec
 macKeySpec (CMAC bc)     = blockCipherKeySpec bc
 macKeySpec (GMAC bc)     = blockCipherKeySpec bc
-macKeySpec (HMAC h)      = keySpec 0 4096 1
+macKeySpec (HMAC _h)     = keySpec 0 4096 1
 macKeySpec Poly1305      = keySpec 32 32 1
 macKeySpec (SipHash 2 4) = keySpec 16 16 1
 macKeySpec X9_19_MAC     = keySpec 8 16 8
+macKeySpec _             = error "macKeySpec"
 -- NOTE: Extracted from inspecting:
 {-
 generateMACKeySpec :: IO ()
@@ -238,6 +237,7 @@ macDigestLength Poly1305      = 16
 -- TODO: Check more variants
 macDigestLength (SipHash 2 4) = 8
 macDigestLength X9_19_MAC     = 8
+macDigestLength _             = error "macDigestLength"
 -- NOTE: Extracted / confirmed from inspecting:
 {-
 generateMACDigestSize :: IO ()
@@ -363,8 +363,8 @@ setGMACNonce
     => GMACNonce
     -> MutableMAC
     -> m ()
-setGMACNonce n mm@(MkMutableMAC (GMAC _) ctx) = liftIO $ Low.macSetNonce ctx n
-setGMACNonce _ _                              = return ()
+setGMACNonce n _mm@(MkMutableMAC (GMAC _) ctx) = liftIO $ Low.macSetNonce ctx n
+setGMACNonce _ _                               = return ()
 
 -- Accessory functions
 

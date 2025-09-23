@@ -1,9 +1,12 @@
-module Botan.Hash.Keccak
-( Keccak1600(..)
-, Keccak1600Digest(..)
-, keccak1600
-, keccak1600Lazy
-) where
+{-# LANGUAGE DataKinds    #-}
+{-# LANGUAGE TypeFamilies #-}
+
+module Botan.Hash.Keccak (
+    Keccak1600
+  , Keccak1600Digest
+  , keccak1600
+  , keccak1600Lazy
+  ) where
 
 import           GHC.TypeLits
 
@@ -13,7 +16,6 @@ import           Data.Proxy
 import           Data.Type.Bool
 import           Data.Type.Equality
 
-import qualified Data.ByteString as ByteString
 import qualified Data.ByteString.Lazy as Lazy
 import qualified Data.Text as Text
 
@@ -32,7 +34,7 @@ type Keccak1600Size (n :: Nat) = (KnownNat n, (n == 224 || n == 256 || n == 384 
 type Keccak1600Digest n = Digest (Keccak1600 n)
 
 newtype instance Digest (Keccak1600 n) = Keccak1600Digest
-    { getKeccak1600ByteString :: ByteString {- ByteVector n -} }
+    { _getKeccak1600ByteString :: ByteString {- ByteVector n -} }
     deriving newtype (Eq, Ord)
 
 instance Show (Digest (Keccak1600 n)) where

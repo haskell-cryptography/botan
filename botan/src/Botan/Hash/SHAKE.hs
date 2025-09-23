@@ -1,20 +1,22 @@
-module Botan.Hash.SHAKE
-( SHAKE128(..)
-, SHAKE128Digest(..)
-, shake128
-, shake128Lazy
-, SHAKE256(..)
-, SHAKE256Digest(..)
-, shake256
-, shake256Lazy
-) where
+{-# LANGUAGE DataKinds    #-}
+{-# LANGUAGE TypeFamilies #-}
+
+module Botan.Hash.SHAKE (
+    SHAKE128
+  , SHAKE128Digest
+  , shake128
+  , shake128Lazy
+  , SHAKE256
+  , SHAKE256Digest
+  , shake256
+  , shake256Lazy
+  ) where
 
 import           GHC.TypeLits
 
 import           Data.Maybe
 import           Data.Proxy
 
-import qualified Data.ByteString as ByteString
 import qualified Data.ByteString.Lazy as Lazy
 import qualified Data.Text as Text
 
@@ -33,7 +35,7 @@ type SHAKE128Size (n :: Nat) = (KnownNat n, (1 <=? n) ~ True, Mod n 8 ~ 0, (n <=
 type SHAKE128Digest n = Digest (SHAKE128 n)
 
 newtype instance Digest (SHAKE128 n) = SHAKE128Digest
-    { getSHAKE128ByteString :: ByteString {- ByteVector n -} }
+    { _getSHAKE128ByteString :: ByteString {- ByteVector n -} }
     deriving newtype (Eq, Ord)
 
 instance Show (Digest (SHAKE128 n)) where
@@ -69,7 +71,7 @@ type SHAKE256Size (n :: Nat) = (KnownNat n, (1 <=? n) ~ True, Mod n 8 ~ 0, (n <=
 type SHAKE256Digest n = Digest (SHAKE256 n)
 
 newtype instance Digest (SHAKE256 n) = SHAKE256Digest
-    { getSHAKE256ByteString :: ByteString {- ByteVector n -} }
+    { _getSHAKE256ByteString :: ByteString {- ByteVector n -} }
     deriving newtype (Eq, Ord)
 
 instance Show (Digest (SHAKE256 n)) where

@@ -1,4 +1,15 @@
-module Botan.KeyWrap where
+module Botan.KeyWrap (
+    KWKey
+  , KWPKey
+  , KWWrappedKey
+  , KWPWrappedKey
+  , keyWrap
+  , keyUnwrap
+  , keyWrapPadded
+  , keyUnwrapPadded
+  , nistKeyWrapEncode
+  , nistKeyWrapDecode
+  ) where
 
 import qualified Botan.Low.KeyWrap as Low
 

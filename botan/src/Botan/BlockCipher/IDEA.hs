@@ -1,21 +1,20 @@
-module Botan.BlockCipher.IDEA
-( IDEA(..)
-, IDEASecretKey(..)
-, pattern IDEASecretKey
-, getIDEASecretKey
-, IDEACiphertext(..)
-, ideaEncrypt
-, ideaDecrypt
-, ideaEncryptLazy
-, ideaDecryptLazy
-) where
+{-# LANGUAGE TypeFamilies #-}
 
-import qualified Data.ByteString as ByteString
+module Botan.BlockCipher.IDEA (
+    IDEA
+  , IDEASecretKey
+  , pattern IDEASecretKey
+  , getIDEASecretKey
+  , IDEACiphertext
+  , ideaEncrypt
+  , ideaDecrypt
+  , ideaEncryptLazy
+  , ideaDecryptLazy
+  ) where
+
 import qualified Data.ByteString.Lazy as Lazy
-import qualified Data.Text as Text
 
 import qualified Botan.BlockCipher as Botan
-import qualified Botan.Utility as Botan
 
 import           Botan.Prelude hiding (Ciphertext, LazyCiphertext)
 
@@ -30,6 +29,7 @@ data IDEA
 newtype instance SecretKey IDEA = MkIDEASecretKey GSecretKey
     deriving newtype (Eq, Ord, Show, Encodable)
 
+{-# COMPLETE IDEASecretKey #-}
 pattern IDEASecretKey :: ByteString -> SecretKey IDEA
 pattern IDEASecretKey bytes = MkIDEASecretKey (MkGSecretKey bytes)
 
@@ -41,22 +41,18 @@ type IDEASecretKey = SecretKey IDEA
 newtype instance Ciphertext IDEA = MkIDEACiphertext GCiphertext
     deriving newtype (Eq, Ord, Show, Encodable)
 
+{-# COMPLETE IDEACiphertext #-}
 pattern IDEACiphertext :: ByteString -> Ciphertext IDEA
 pattern IDEACiphertext bs = MkIDEACiphertext (MkGCiphertext bs)
-
-getIDEACiphertext :: Ciphertext IDEA -> ByteString
-getIDEACiphertext (IDEACiphertext bs) = bs
 
 type IDEACiphertext = Ciphertext IDEA
 
 newtype instance LazyCiphertext IDEA = MkIDEALazyCiphertext GLazyCiphertext
     deriving newtype (Eq, Ord, Show, Encodable, LazyEncodable)
 
+{-# COMPLETE IDEALazyCiphertext #-}
 pattern IDEALazyCiphertext :: Lazy.ByteString -> LazyCiphertext IDEA
 pattern IDEALazyCiphertext lbs = MkIDEALazyCiphertext (MkGLazyCiphertext lbs)
-
-getIDEALazyCiphertext :: LazyCiphertext IDEA -> Lazy.ByteString
-getIDEALazyCiphertext (IDEALazyCiphertext bs) = bs
 
 type IDEALazyCiphertext = LazyCiphertext IDEA
 
@@ -65,12 +61,12 @@ instance HasSecretKey IDEA where
     secretKeySpec :: SizeSpecifier (SecretKey IDEA)
     secretKeySpec = coerceSizeSpec $ Botan.blockCipherKeySpec Botan.idea
 
-instance (MonadRandomIO m )=> SecretKeyGen IDEA m where
+instance MonadRandomIO m => SecretKeyGen IDEA m where
 
-    newSecretKey :: MonadRandomIO m => m (SecretKey IDEA)
+    newSecretKey :: m (SecretKey IDEA)
     newSecretKey = IDEASecretKey <$> newSized (secretKeySpec @IDEA)
 
-    newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey IDEA))
+    newSecretKeyMaybe :: Int -> m (Maybe (SecretKey IDEA))
     newSecretKeyMaybe i = fmap IDEASecretKey <$> newSizedMaybe (secretKeySpec @IDEA) i
 
 instance HasCiphertext IDEA where

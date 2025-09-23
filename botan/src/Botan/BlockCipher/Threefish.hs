@@ -1,21 +1,20 @@
-module Botan.BlockCipher.Threefish
-( Threefish512(..)
-, Threefish512SecretKey(..)
-, pattern Threefish512SecretKey
-, getThreefish512SecretKey
-, Threefish512Ciphertext(..)
-, threefish512Encrypt
-, threefish512Decrypt
-, threefish512EncryptLazy
-, threefish512DecryptLazy
-) where
+{-# LANGUAGE TypeFamilies #-}
 
-import qualified Data.ByteString as ByteString
+module Botan.BlockCipher.Threefish (
+    Threefish512
+  , Threefish512SecretKey
+  , pattern Threefish512SecretKey
+  , getThreefish512SecretKey
+  , Threefish512Ciphertext
+  , threefish512Encrypt
+  , threefish512Decrypt
+  , threefish512EncryptLazy
+  , threefish512DecryptLazy
+  ) where
+
 import qualified Data.ByteString.Lazy as Lazy
-import qualified Data.Text as Text
 
 import qualified Botan.BlockCipher as Botan
-import qualified Botan.Utility as Botan
 
 import           Botan.Prelude hiding (Ciphertext, LazyCiphertext)
 
@@ -30,6 +29,7 @@ data Threefish512
 newtype instance SecretKey Threefish512 = MkThreefish512SecretKey GSecretKey
     deriving newtype (Eq, Ord, Show, Encodable)
 
+{-# COMPLETE Threefish512SecretKey #-}
 pattern Threefish512SecretKey :: ByteString -> SecretKey Threefish512
 pattern Threefish512SecretKey bytes = MkThreefish512SecretKey (MkGSecretKey bytes)
 
@@ -41,22 +41,18 @@ type Threefish512SecretKey = SecretKey Threefish512
 newtype instance Ciphertext Threefish512 = MkThreefish512Ciphertext GCiphertext
     deriving newtype (Eq, Ord, Show, Encodable)
 
+{-# COMPLETE Threefish512Ciphertext #-}
 pattern Threefish512Ciphertext :: ByteString -> Ciphertext Threefish512
 pattern Threefish512Ciphertext bs = MkThreefish512Ciphertext (MkGCiphertext bs)
-
-getThreefish512Ciphertext :: Ciphertext Threefish512 -> ByteString
-getThreefish512Ciphertext (Threefish512Ciphertext bs) = bs
 
 type Threefish512Ciphertext = Ciphertext Threefish512
 
 newtype instance LazyCiphertext Threefish512 = MkThreefish512LazyCiphertext GLazyCiphertext
     deriving newtype (Eq, Ord, Show, Encodable, LazyEncodable)
 
+{-# COMPLETE Threefish512LazyCiphertext #-}
 pattern Threefish512LazyCiphertext :: Lazy.ByteString -> LazyCiphertext Threefish512
 pattern Threefish512LazyCiphertext lbs = MkThreefish512LazyCiphertext (MkGLazyCiphertext lbs)
-
-getThreefish512LazyCiphertext :: LazyCiphertext Threefish512 -> Lazy.ByteString
-getThreefish512LazyCiphertext (Threefish512LazyCiphertext bs) = bs
 
 type Threefish512LazyCiphertext = LazyCiphertext Threefish512
 
@@ -65,12 +61,12 @@ instance HasSecretKey Threefish512 where
     secretKeySpec :: SizeSpecifier (SecretKey Threefish512)
     secretKeySpec = coerceSizeSpec $ Botan.blockCipherKeySpec Botan.threefish512
 
-instance (MonadRandomIO m )=> SecretKeyGen Threefish512 m where
+instance MonadRandomIO m => SecretKeyGen Threefish512 m where
 
-    newSecretKey :: MonadRandomIO m => m (SecretKey Threefish512)
+    newSecretKey :: m (SecretKey Threefish512)
     newSecretKey = Threefish512SecretKey <$> newSized (secretKeySpec @Threefish512)
 
-    newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey Threefish512))
+    newSecretKeyMaybe :: Int -> m (Maybe (SecretKey Threefish512))
     newSecretKeyMaybe i = fmap Threefish512SecretKey <$> newSizedMaybe (secretKeySpec @Threefish512) i
 
 instance HasCiphertext Threefish512 where

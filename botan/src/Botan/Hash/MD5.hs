@@ -1,11 +1,12 @@
-module Botan.Hash.MD5
-( MD5(..)
-, MD5Digest(..)
-, md5
-, md5Lazy
-) where
+{-# LANGUAGE TypeFamilies #-}
 
-import qualified Data.ByteString as ByteString
+module Botan.Hash.MD5 (
+    MD5
+  , MD5Digest
+  , md5
+  , md5Lazy
+  ) where
+
 import qualified Data.ByteString.Lazy as Lazy
 import qualified Data.Text as Text
 
@@ -20,7 +21,7 @@ import           Botan.Prelude
 data MD5
 
 newtype instance Digest MD5 = MD5Digest
-    { getMD5ByteString :: ByteString {- ByteVector n -} }
+    { _getMD5ByteString :: ByteString {- ByteVector n -} }
     deriving newtype (Eq, Ord)
 
 type MD5Digest = Digest MD5
@@ -44,25 +45,3 @@ md5 = hash
 
 md5Lazy :: Lazy.ByteString -> MD5Digest
 md5Lazy = hashLazy
-
--- Experimental below
-
--- newtype instance MutableCtx MD5 = MD5Ctx
---     { getMD5Ctx :: Botan.MutableHash }
-
--- -- TODO: Rename MutableMD5?
--- type MD5Ctx = MutableCtx MD5
-
--- instance (MonadIO m) => MutableHash MD5 m where
-
---     hashInit :: m MD5Ctx
---     hashInit = MD5Ctx <$> Botan.newHash Botan.md5
-
---     hashUpdate :: MD5Ctx -> ByteString -> m ()
---     hashUpdate (MD5Ctx ctx) = Botan.updateHash ctx
-
---     hashUpdates :: MD5Ctx -> [ByteString] -> m ()
---     hashUpdates (MD5Ctx ctx) = Botan.updateHashChunks ctx
-
---     hashFinalize :: MD5Ctx -> m (Digest MD5)
---     hashFinalize (MD5Ctx ctx) = MD5Digest <$> Botan.finalizeHash ctx

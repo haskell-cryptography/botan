@@ -1,39 +1,38 @@
-module Botan.BlockCipher.ARIA
-( ARIA128(..)
-, ARIA128SecretKey(..)
-, pattern ARIA128SecretKey
-, getARIA128SecretKey
-, ARIA128Ciphertext(..)
-, aria128Encrypt
-, aria128Decrypt
-, aria128EncryptLazy
-, aria128DecryptLazy
-, ARIA192(..)
-, ARIA192SecretKey(..)
-, pattern ARIA192SecretKey
-, getARIA192SecretKey
-, ARIA192Ciphertext(..)
-, aria192Encrypt
-, aria192Decrypt
-, aria192EncryptLazy
-, aria192DecryptLazy
-, ARIA256(..)
-, ARIA256SecretKey(..)
-, pattern ARIA256SecretKey
-, getARIA256SecretKey
-, ARIA256Ciphertext(..)
-, aria256Encrypt
-, aria256Decrypt
-, aria256EncryptLazy
-, aria256DecryptLazy
-) where
+{-# LANGUAGE TypeFamilies #-}
 
-import qualified Data.ByteString as ByteString
+module Botan.BlockCipher.ARIA (
+    ARIA128
+  , ARIA128SecretKey
+  , pattern ARIA128SecretKey
+  , getARIA128SecretKey
+  , ARIA128Ciphertext
+  , aria128Encrypt
+  , aria128Decrypt
+  , aria128EncryptLazy
+  , aria128DecryptLazy
+  , ARIA192
+  , ARIA192SecretKey
+  , pattern ARIA192SecretKey
+  , getARIA192SecretKey
+  , ARIA192Ciphertext
+  , aria192Encrypt
+  , aria192Decrypt
+  , aria192EncryptLazy
+  , aria192DecryptLazy
+  , ARIA256
+  , ARIA256SecretKey
+  , pattern ARIA256SecretKey
+  , getARIA256SecretKey
+  , ARIA256Ciphertext
+  , aria256Encrypt
+  , aria256Decrypt
+  , aria256EncryptLazy
+  , aria256DecryptLazy
+  ) where
+
 import qualified Data.ByteString.Lazy as Lazy
-import qualified Data.Text as Text
 
 import qualified Botan.BlockCipher as Botan
-import qualified Botan.Utility as Botan
 
 import           Botan.Prelude hiding (Ciphertext, LazyCiphertext)
 
@@ -48,6 +47,7 @@ data ARIA128
 newtype instance SecretKey ARIA128 = MkARIA128SecretKey GSecretKey
     deriving newtype (Eq, Ord, Show, Encodable)
 
+{-# COMPLETE ARIA128SecretKey #-}
 pattern ARIA128SecretKey :: ByteString -> SecretKey ARIA128
 pattern ARIA128SecretKey bytes = MkARIA128SecretKey (MkGSecretKey bytes)
 
@@ -59,22 +59,18 @@ type ARIA128SecretKey = SecretKey ARIA128
 newtype instance Ciphertext ARIA128 = MkARIA128Ciphertext GCiphertext
     deriving newtype (Eq, Ord, Show, Encodable)
 
+{-# COMPLETE ARIA128Ciphertext #-}
 pattern ARIA128Ciphertext :: ByteString -> Ciphertext ARIA128
 pattern ARIA128Ciphertext bs = MkARIA128Ciphertext (MkGCiphertext bs)
-
-getARIA128Ciphertext :: Ciphertext ARIA128 -> ByteString
-getARIA128Ciphertext (ARIA128Ciphertext bs) = bs
 
 type ARIA128Ciphertext = Ciphertext ARIA128
 
 newtype instance LazyCiphertext ARIA128 = MkARIA128LazyCiphertext GLazyCiphertext
     deriving newtype (Eq, Ord, Show, Encodable, LazyEncodable)
 
+{-# COMPLETE ARIA128LazyCiphertext #-}
 pattern ARIA128LazyCiphertext :: Lazy.ByteString -> LazyCiphertext ARIA128
 pattern ARIA128LazyCiphertext lbs = MkARIA128LazyCiphertext (MkGLazyCiphertext lbs)
-
-getARIA128LazyCiphertext :: LazyCiphertext ARIA128 -> Lazy.ByteString
-getARIA128LazyCiphertext (ARIA128LazyCiphertext bs) = bs
 
 type ARIA128LazyCiphertext = LazyCiphertext ARIA128
 
@@ -83,12 +79,12 @@ instance HasSecretKey ARIA128 where
     secretKeySpec :: SizeSpecifier (SecretKey ARIA128)
     secretKeySpec = coerceSizeSpec $ Botan.blockCipherKeySpec Botan.aria128
 
-instance (MonadRandomIO m )=> SecretKeyGen ARIA128 m where
+instance MonadRandomIO m => SecretKeyGen ARIA128 m where
 
-    newSecretKey :: MonadRandomIO m => m (SecretKey ARIA128)
+    newSecretKey :: m (SecretKey ARIA128)
     newSecretKey = ARIA128SecretKey <$> newSized (secretKeySpec @ARIA128)
 
-    newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey ARIA128))
+    newSecretKeyMaybe :: Int -> m (Maybe (SecretKey ARIA128))
     newSecretKeyMaybe i = fmap ARIA128SecretKey <$> newSizedMaybe (secretKeySpec @ARIA128) i
 
 instance HasCiphertext ARIA128 where
@@ -132,6 +128,7 @@ data ARIA192
 newtype instance SecretKey ARIA192 = MkARIA192SecretKey GSecretKey
     deriving newtype (Eq, Ord, Show, Encodable)
 
+{-# COMPLETE ARIA192SecretKey #-}
 pattern ARIA192SecretKey :: ByteString -> SecretKey ARIA192
 pattern ARIA192SecretKey bytes = MkARIA192SecretKey (MkGSecretKey bytes)
 
@@ -143,22 +140,18 @@ type ARIA192SecretKey = SecretKey ARIA192
 newtype instance Ciphertext ARIA192 = MkARIA192Ciphertext GCiphertext
     deriving newtype (Eq, Ord, Show, Encodable)
 
+{-# COMPLETE ARIA192Ciphertext #-}
 pattern ARIA192Ciphertext :: ByteString -> Ciphertext ARIA192
 pattern ARIA192Ciphertext bs = MkARIA192Ciphertext (MkGCiphertext bs)
 
-getARIA192Ciphertext :: Ciphertext ARIA192 -> ByteString
-getARIA192Ciphertext (ARIA192Ciphertext bs) = bs
-
 type ARIA192Ciphertext = Ciphertext ARIA192
 
+{-# COMPLETE ARIA192LazyCiphertext #-}
 newtype instance LazyCiphertext ARIA192 = MkARIA192LazyCiphertext GLazyCiphertext
     deriving newtype (Eq, Ord, Show, Encodable, LazyEncodable)
 
 pattern ARIA192LazyCiphertext :: Lazy.ByteString -> LazyCiphertext ARIA192
 pattern ARIA192LazyCiphertext lbs = MkARIA192LazyCiphertext (MkGLazyCiphertext lbs)
-
-getARIA192LazyCiphertext :: LazyCiphertext ARIA192 -> Lazy.ByteString
-getARIA192LazyCiphertext (ARIA192LazyCiphertext bs) = bs
 
 type ARIA192LazyCiphertext = LazyCiphertext ARIA192
 
@@ -167,12 +160,12 @@ instance HasSecretKey ARIA192 where
     secretKeySpec :: SizeSpecifier (SecretKey ARIA192)
     secretKeySpec = coerceSizeSpec $ Botan.blockCipherKeySpec Botan.aria192
 
-instance (MonadRandomIO m )=> SecretKeyGen ARIA192 m where
+instance MonadRandomIO m => SecretKeyGen ARIA192 m where
 
-    newSecretKey :: MonadRandomIO m => m (SecretKey ARIA192)
+    newSecretKey :: m (SecretKey ARIA192)
     newSecretKey = ARIA192SecretKey <$> newSized (secretKeySpec @ARIA192)
 
-    newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey ARIA192))
+    newSecretKeyMaybe :: Int -> m (Maybe (SecretKey ARIA192))
     newSecretKeyMaybe i = fmap ARIA192SecretKey <$> newSizedMaybe (secretKeySpec @ARIA192) i
 
 instance HasCiphertext ARIA192 where
@@ -216,6 +209,7 @@ data ARIA256
 newtype instance SecretKey ARIA256 = MkARIA256SecretKey GSecretKey
     deriving newtype (Eq, Ord, Show, Encodable)
 
+{-# COMPLETE ARIA256SecretKey #-}
 pattern ARIA256SecretKey :: ByteString -> SecretKey ARIA256
 pattern ARIA256SecretKey bytes = MkARIA256SecretKey (MkGSecretKey bytes)
 
@@ -227,22 +221,18 @@ type ARIA256SecretKey = SecretKey ARIA256
 newtype instance Ciphertext ARIA256 = MkARIA256Ciphertext GCiphertext
     deriving newtype (Eq, Ord, Show, Encodable)
 
+{-# COMPLETE ARIA256Ciphertext #-}
 pattern ARIA256Ciphertext :: ByteString -> Ciphertext ARIA256
 pattern ARIA256Ciphertext bs = MkARIA256Ciphertext (MkGCiphertext bs)
-
-getARIA256Ciphertext :: Ciphertext ARIA256 -> ByteString
-getARIA256Ciphertext (ARIA256Ciphertext bs) = bs
 
 type ARIA256Ciphertext = Ciphertext ARIA256
 
 newtype instance LazyCiphertext ARIA256 = MkARIA256LazyCiphertext GLazyCiphertext
     deriving newtype (Eq, Ord, Show, Encodable, LazyEncodable)
 
+{-# COMPLETE ARIA256LazyCiphertext #-}
 pattern ARIA256LazyCiphertext :: Lazy.ByteString -> LazyCiphertext ARIA256
 pattern ARIA256LazyCiphertext lbs = MkARIA256LazyCiphertext (MkGLazyCiphertext lbs)
-
-getARIA256LazyCiphertext :: LazyCiphertext ARIA256 -> Lazy.ByteString
-getARIA256LazyCiphertext (ARIA256LazyCiphertext bs) = bs
 
 type ARIA256LazyCiphertext = LazyCiphertext ARIA256
 
@@ -251,12 +241,12 @@ instance HasSecretKey ARIA256 where
     secretKeySpec :: SizeSpecifier (SecretKey ARIA256)
     secretKeySpec = coerceSizeSpec $ Botan.blockCipherKeySpec Botan.aria256
 
-instance (MonadRandomIO m )=> SecretKeyGen ARIA256 m where
+instance MonadRandomIO m => SecretKeyGen ARIA256 m where
 
-    newSecretKey :: MonadRandomIO m => m (SecretKey ARIA256)
+    newSecretKey :: m (SecretKey ARIA256)
     newSecretKey = ARIA256SecretKey <$> newSized (secretKeySpec @ARIA256)
 
-    newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey ARIA256))
+    newSecretKeyMaybe :: Int -> m (Maybe (SecretKey ARIA256))
     newSecretKeyMaybe i = fmap ARIA256SecretKey <$> newSizedMaybe (secretKeySpec @ARIA256) i
 
 instance HasCiphertext ARIA256 where

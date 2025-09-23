@@ -1,6 +1,9 @@
-module Botan.ZFEC where
+module Botan.ZFEC (
+    zfecEncode
+  , zfecDecode
+  ) where
 
-import           Botan.Low.ZFEC (ZFECShare (..))
+import           Botan.Low.ZFEC (ZFECShare)
 import qualified Botan.Low.ZFEC as Low
 
 import           Botan.Prelude

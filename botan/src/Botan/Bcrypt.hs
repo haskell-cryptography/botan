@@ -11,39 +11,34 @@ Portability : POSIX
 Generate and validate Bcrypt password hashes
 -}
 
-module Botan.Bcrypt
-(
+module Botan.Bcrypt (
 
--- * Bcrypt
--- $introduction
+  -- * Bcrypt
+  -- $introduction
 
--- * Usage
--- $usage
+  -- * Usage
+  -- $usage
 
--- * Work factors
-  WorkFactor(..)
-, workFactor
-, toWorkFactor
+  -- * Work factors
+    WorkFactor(..)
+  , workFactor
+  , toWorkFactor
 
--- * Generating a bcrypt digest
-, Password(..)
-, BcryptDigest(..)
-, bcryptGenerate
-, bcryptGenerateRNG
-, unsafeBcryptGenerateRNG
+  -- * Generating a bcrypt digest
+  , Password
+  , BcryptDigest
+  , bcryptGenerate
+  , bcryptGenerateRNG
+  , unsafeBcryptGenerateRNG
 
--- * Validating a bcrypt digest
-, bcryptValidate
-, unsafeBcryptValidate
+  -- * Validating a bcrypt digest
+  , bcryptValidate
+  , unsafeBcryptValidate
 
-) where
-
-import qualified Data.ByteString as ByteString
+  ) where
 
 import qualified Botan.Low.Bcrypt as Low
-import qualified Botan.Low.RNG as Low
 
-import           Botan.Error
 import           Botan.Prelude
 import           Botan.RNG
 
@@ -88,7 +83,7 @@ data WorkFactor
     | Good
     | Strong
     | WorkFactor Low.BcryptWorkFactor
-    deriving (Show)
+    deriving stock (Show)
 
 instance Eq WorkFactor where
     a == b = (workFactor a == workFactor b)
@@ -144,15 +139,6 @@ bcryptGenerateRNG
     -> WorkFactor   -- ^ A work factor to slow down guessing attack
     -> m BcryptDigest
 bcryptGenerateRNG rng pass wf = liftIO $ Low.bcryptGenerate pass rng (workFactor wf)
-
--- |This function is unsafe as it may block for an indeterminate
---  amount of time
-unsafeBcryptGenerateSystem
-    :: Password         -- ^ The password to check against
-    -> WorkFactor       -- ^ A work factor to slow down guessing attack
-    -> BcryptDigest
-unsafeBcryptGenerateSystem = unsafePerformIO3 bcryptGenerateRNG systemRNG
-{-# NOINLINE unsafeBcryptGenerateSystem #-}
 
 {- |
 This function is unsafe as it may block for an indeterminate amount of time

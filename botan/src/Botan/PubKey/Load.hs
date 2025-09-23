@@ -9,52 +9,51 @@ Stability   : experimental
 Portability : POSIX
 -}
 
-module Botan.PubKey.Load
-(
+module Botan.PubKey.Load (
 
--- * DH
-  loadDHPrivKey
-, loadDHPubKey
+  -- * DH
+    loadDHPrivKey
+  , loadDHPubKey
 
--- * DSA
-, newDSAPrivKey
-, loadDSAPrivKey
-, loadDSAPubKey
+  -- * DSA
+  , newDSAPrivKey
+  , loadDSAPrivKey
+  , loadDSAPubKey
 
--- * ECDH
-, loadECDHPrivKey
-, loadECDHPubKey
+  -- * ECDH
+  , loadECDHPrivKey
+  , loadECDHPubKey
 
--- * ECDSA
-, loadECDSAPrivKey
-, loadECDSAPubKey
+  -- * ECDSA
+  , loadECDSAPrivKey
+  , loadECDSAPubKey
 
--- * Ed25519
-, loadEd25519PrivKey
-, loadEd25519PubKey
-, exportEd25519PrivKey
-, exportEd25519PubKey
+  -- * Ed25519
+  , loadEd25519PrivKey
+  , loadEd25519PubKey
+  , exportEd25519PrivKey
+  , exportEd25519PubKey
 
--- * ElGamal
-, newElGamalPrivKey
-, loadElGamalPrivKey
-, loadElGamalPubKey
+  -- * ElGamal
+  , newElGamalPrivKey
+  , loadElGamalPrivKey
+  , loadElGamalPubKey
 
--- * RSA
-, loadRSAPrivKey
-, loadRSAPubKey
+  -- * RSA
+  , loadRSAPrivKey
+  , loadRSAPubKey
 
--- * SM2
-, loadSM2PrivKey
-, loadSM2PubKey
+  -- * SM2
+  , loadSM2PrivKey
+  , loadSM2PubKey
 
--- * X25519
-, loadX25519PrivKey
-, loadX25519PubKey
-, exportX25519PrivKey
-, exportX25519PubKey
+  -- * X25519
+  , loadX25519PrivKey
+  , loadX25519PubKey
+  , exportX25519PrivKey
+  , exportX25519PubKey
 
-) where
+  ) where
 
 import qualified Botan.Low.PubKey.DH as Low
 import qualified Botan.Low.PubKey.DSA as Low
@@ -66,7 +65,6 @@ import qualified Botan.Low.PubKey.RSA as Low
 import qualified Botan.Low.PubKey.SM2 as Low
 import qualified Botan.Low.PubKey.X25519 as Low
 
-import           Botan.Error
 import           Botan.Prelude
 import           Botan.PubKey
 import           Botan.RNG

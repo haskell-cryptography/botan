@@ -26,114 +26,113 @@ the arguments concatenated. After completing a hash computation (eg using
 hashFinal), the internal state is reset to begin hashing a new message.
 -}
 
-module Botan.Hash
-(
+module Botan.Hash (
 
--- * Hashes
--- $introduction
+  -- * Hashes
+  -- $introduction
 
--- * Usage
--- $usage
+  -- * Usage
+  -- $usage
 
--- * Idiomatic interface
+  -- * Idiomatic interface
 
--- ** Data type
-  Hash(..)
-, CryptoHash(..)
-, Checksum(..)
+  -- ** Data type
+    Hash(..)
+  , CryptoHash(..)
+  , Checksum(..)
 
--- ** Enumerations
+  -- ** Enumerations
 
-, hashes
-, cryptoHashes
-, checksums
+  , hashes
+  , cryptoHashes
+  , checksums
 
--- ** Associated types
-, HashDigest(..)
-, BLAKE2bSize(..)
-, SHAKE128Size(..)
-, SHAKE256Size(..)
-, Skein512Size(..)
-, Skein512Salt(..)
+  -- ** Associated types
+  , HashDigest
+  , BLAKE2bSize
+  , SHAKE128Size
+  , SHAKE256Size
+  , Skein512Size
+  , Skein512Salt
 
--- ** Accessors
+  -- ** Accessors
 
-, hashName
-, hashBlockSize
-, hashDigestSize
+  , hashName
+  , hashBlockSize
+  , hashDigestSize
 
--- ** Idiomatic algorithm
-, hash
-, hashChunks
-, hashLazy
-, hashFile
-, hashFileLazy
--- , unsafeHash
--- , unsafeHashLazy
+  -- ** Idiomatic algorithm
+  , hash
+  , hashChunks
+  , hashLazy
+  , hashFile
+  , hashFileLazy
+  -- , unsafeHash
+  -- , unsafeHashLazy
 
--- * Mutable interface
+  -- * Mutable interface
 
--- ** Tagged mutable context
-, MutableHash(..)
+  -- ** Tagged mutable context
+  , MutableHash(..)
 
--- ** Destructor
-, destroyHash
+  -- ** Destructor
+  , destroyHash
 
--- ** Initializers
-, newHash
+  -- ** Initializers
+  , newHash
 
--- ** Accessors
-, getHashName
-, getHashBlockSize
-, getHashDigestSize
+  -- ** Accessors
+  , getHashName
+  , getHashBlockSize
+  , getHashDigestSize
 
--- ** Accessory functions
-, copyHashState
-, clearHash
+  -- ** Accessory functions
+  , copyHashState
+  , clearHash
 
--- ** Mutable algorithm
-, updateHash
-, updateHashChunks
-, finalizeHash
-, updateFinalizeHash
-, updateFinalizeClearHash
+  -- ** Mutable algorithm
+  , updateHash
+  , updateHashChunks
+  , finalizeHash
+  , updateFinalizeHash
+  , updateFinalizeClearHash
 
--- Algorithm references
+  -- Algorithm references
 
-, blake2b
-, gost_34_11
-, keccak1600_224
-, keccak1600_256
-, keccak1600_384
-, keccak1600_512
-, keccak1600
-, md4
-, md5
-, ripemd160
-, sha1
-, sha2_224
-, sha2_256
-, sha2_384
-, sha2_512
-, sha2_512_256
-, sha2
-, sha3_224
-, sha3_256
-, sha3_384
-, sha3_512
-, sha3
-, shake128
-, shake256
-, sm3
-, skein512
-, streebog256
-, streebog512
-, whirlpool
-, adler32
-, crc24
-, crc32
+  , blake2b
+  , gost_34_11
+  , keccak1600_224
+  , keccak1600_256
+  , keccak1600_384
+  , keccak1600_512
+  , keccak1600
+  , md4
+  , md5
+  , ripemd160
+  , sha1
+  , sha2_224
+  , sha2_256
+  , sha2_384
+  , sha2_512
+  , sha2_512_256
+  , sha2
+  , sha3_224
+  , sha3_256
+  , sha3_384
+  , sha3_512
+  , sha3
+  , shake128
+  , shake256
+  , sm3
+  , skein512
+  , streebog256
+  , streebog512
+  , whirlpool
+  , adler32
+  , crc24
+  , crc32
 
-) where
+  ) where
 
 import qualified Data.ByteString as ByteString
 import qualified Data.ByteString.Lazy as Lazy
@@ -142,9 +141,7 @@ import           Data.Foldable
 
 import qualified Botan.Low.Hash as Low
 
-import           Botan.Error ()
 import           Botan.Prelude
-import           Botan.Utility
 
 -- TODO: Distinguish between nonCopying and autoCopying variants
 
@@ -198,10 +195,10 @@ data Hash
     | CRC32
 --     | Parallel Hash Hash
 --     | Comb4P Hash Hash
-    deriving (Eq, Ord, Show)
+    deriving stock (Eq, Ord, Show)
 
 newtype CryptoHash = MkCryptoHash { unCryptoHash :: Hash }
-    deriving (Eq, Ord, Show)
+    deriving stock (Eq, Ord, Show)
 
 isCryptoHash :: Hash -> Bool
 isCryptoHash (BLAKE2b _)    = True
@@ -232,28 +229,14 @@ isCryptoHash Streebog512    = True
 isCryptoHash Whirlpool      = True
 isCryptoHash _              = False
 
-cryptoHash :: Hash -> Maybe CryptoHash
-cryptoHash h | isCryptoHash h = Just $ MkCryptoHash h
-cryptoHash _                = Nothing
-
-unsafeCryptoHash :: Hash -> CryptoHash
-unsafeCryptoHash = MkCryptoHash
-
 newtype Checksum = MkChecksum { unChecksum :: Hash }
-    deriving (Eq, Ord, Show)
+    deriving stock (Eq, Ord, Show)
 
 isChecksum :: Hash -> Bool
 isChecksum Adler32 = True
 isChecksum CRC24   = True
 isChecksum CRC32   = True
 isChecksum _       = False
-
-checksum :: Hash -> Maybe Checksum
-checksum h | isChecksum h = Just $ MkChecksum h
-checksum _                = Nothing
-
-unsafeChecksum :: Hash -> Checksum
-unsafeChecksum = MkChecksum
 
 -- newtype HashStrategy = MkHashStrategy { unHashStrategy :: Hash }
 --     deriving (Eq, Ord)
@@ -269,6 +252,7 @@ type Skein512Salt = ByteString  -- Must not contain ")", can contain "," if esca
 -- Enumerations
 
 -- NOTE: MAC max key sizes imply that the max digest should be 4096
+defaultHashLength :: Int
 defaultHashLength = 128
 
 hashes :: [ Hash ]
@@ -319,10 +303,10 @@ type HashDigest = ByteString
 hashName :: Hash -> Low.HashName
 hashName (BLAKE2b sz)    = Low.blake2b sz        -- "BLAKE2b(" <> showBytes sz <> ")"
 hashName GOST_34_11      = Low.GOST_34_11        -- "GOST-34.11"
-hashName Keccak1600_224  = Low.keccak1600 224    -- "Keccak-1600(224)"
-hashName Keccak1600_256  = Low.keccak1600 256    -- "Keccak-1600(256)"
-hashName Keccak1600_384  = Low.keccak1600 384    -- "Keccak-1600(384)"
-hashName Keccak1600_512  = Low.keccak1600 512    -- "Keccak-1600(512)"
+hashName Keccak1600_224  = Low.keccak1600 @Int 224    -- "Keccak-1600(224)"
+hashName Keccak1600_256  = Low.keccak1600 @Int 256    -- "Keccak-1600(256)"
+hashName Keccak1600_384  = Low.keccak1600 @Int 384    -- "Keccak-1600(384)"
+hashName Keccak1600_512  = Low.keccak1600 @Int 512    -- "Keccak-1600(512)"
 hashName MD4             = Low.MD4               -- "MD4"
 hashName MD5             = Low.MD5               -- "MD5"
 hashName RIPEMD160       = Low.RIPEMD160         -- "RIPEMD-160"
@@ -332,10 +316,10 @@ hashName SHA256          = Low.SHA256            -- "SHA-256"
 hashName SHA512          = Low.SHA512            -- "SHA-512"
 hashName SHA384          = Low.SHA384            -- "SHA-384"
 hashName SHA512_256      = Low.SHA512_256        -- "SHA-512-256"
-hashName SHA3_224        = Low.sha3 224          -- "SHA-3(224)"
-hashName SHA3_256        = Low.sha3 256          -- "SHA-3(256)"
-hashName SHA3_384        = Low.sha3 384          -- "SHA-3(384)"
-hashName SHA3_512        = Low.sha3 512          -- "SHA-3(512)"
+hashName SHA3_224        = Low.sha3 @Int 224          -- "SHA-3(224)"
+hashName SHA3_256        = Low.sha3 @Int 256          -- "SHA-3(256)"
+hashName SHA3_384        = Low.sha3 @Int 384          -- "SHA-3(384)"
+hashName SHA3_512        = Low.sha3 @Int 512          -- "SHA-3(512)"
 hashName (SHAKE128 sz)   = Low.shake128 sz       -- "SHAKE-128(" <> showBytes sz <> ")"
 hashName (SHAKE256 sz)   = Low.shake256 sz       -- "SHAKE-256(" <> showBytes sz <> ")"
 hashName SM3             = Low.SM3               -- "SM3"
@@ -683,15 +667,18 @@ sha3 _   = Nothing
 
 shake128 :: Int -> Maybe Hash
 shake128 n | 0 < n && mod n 8 == 0 && n <= 512 = Just $ SHAKE128 n
+shake128 _ = Nothing
 
 shake256 :: Int -> Maybe Hash
 shake256 n | 0 < n && mod n 8 == 0 && n <= 512 = Just $ SHAKE256 n
+shake256 _ = Nothing
 
 sm3 :: Hash
 sm3 = SM3
 
 skein512 :: Int -> ByteString -> Maybe Hash
 skein512 n salt | 0 < n && mod n 8 == 0 && n <= 512 = Just $ Skein512 n salt
+skein512 _ _ = Nothing
 
 streebog256 :: Hash
 streebog256 = Streebog256

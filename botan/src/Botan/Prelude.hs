@@ -1,40 +1,40 @@
-module Botan.Prelude
-( module Prelude
-, module Control.Applicative
-, module Control.Monad
-, module Control.Monad.IO.Class
-, module Control.Exception
-, module Control.DeepSeq
-, module Data.Bits
-, module Data.ByteString
-, module Data.Text
-, module Data.Foldable
-, module Data.Word
-, module System.IO
-, module System.IO.Unsafe
-, module GHC.Stack
-, Message(..)
-, Ciphertext(..)
-, LazyCiphertext(..)
-, Plaintext(..)
-, unsafePerformIO1
-, unsafePerformIO2
-, unsafePerformIO3
-, unsafePerformIO4
--- , strictReturn
--- , strictly
--- , strictPerformIO
--- , strictPerformIO1
--- , strictPerformIO2
--- , strictPerformIO3
-, showText
-, showBytes
---
-, module Data.IORef
-, track
---
-, splitBlocks
-) where
+module Botan.Prelude (
+    module Prelude
+  , module Control.Applicative
+  , module Control.Monad
+  , module Control.Monad.IO.Class
+  , module Control.Exception
+  , module Control.DeepSeq
+  , module Data.Bits
+  , module Data.ByteString
+  , module Data.Text
+  , module Data.Foldable
+  , module Data.Word
+  , module System.IO
+  , module System.IO.Unsafe
+  , module GHC.Stack
+  , Message
+  , Ciphertext
+  , LazyCiphertext
+  , Plaintext
+  , unsafePerformIO1
+  , unsafePerformIO2
+  , unsafePerformIO3
+  , unsafePerformIO4
+  -- , strictReturn
+  -- , strictly
+  -- , strictPerformIO
+  -- , strictPerformIO1
+  -- , strictPerformIO2
+  -- , strictPerformIO3
+  , showText
+  , showBytes
+  --
+  , module Data.IORef
+  , track
+  --
+  , splitBlocks
+  ) where
 
 -- Re-exported modules
 
@@ -165,19 +165,6 @@ track val = do
         ( unsafePerformIO (writeIORef ref True) `seq` val
         , readIORef ref
         )
-
--- A name type
-
-data Name
-    = Name ByteString           -- Foo
-    | NameFn ByteString [Name]  -- Foo(a,b,...,c)
-    | Names [Name]              -- a/b/.../c
-    | Param Int
-
-nameBytes :: Name -> ByteString
-nameBytes (Name name) = name
-nameBytes (NameFn name args) = name <> "(" <> inner <> ")" where
-    inner = ByteString.intercalate "," $ fmap nameBytes args
 
 -- TODO: Name parser
 

@@ -1,12 +1,15 @@
-module Botan.MAC.Class
-( MAC(..)
-, MACKey(..)
-, MACAuth(..)
-, macProxy
-, macFile
-, IncrementalMAC(..)
-, macFileLazy
-) where
+{-# LANGUAGE DefaultSignatures #-}
+{-# LANGUAGE TypeFamilies      #-}
+
+module Botan.MAC.Class (
+    MAC (..)
+  , MACKey
+  , MACAuth
+  , macProxy
+  , macFile
+  , IncrementalMAC(..)
+  , macFileLazy
+  ) where
 
 import           Botan.Prelude
 
@@ -36,7 +39,7 @@ macProxy _ = mac
 macFile :: (MAC mac, MonadIO m) => MACKey mac -> FilePath -> m (MACAuth mac)
 macFile k fp = mac k <$> liftIO (ByteString.readFile fp)
 
-class (MAC mac) => IncrementalMAC mac where
+class IncrementalMAC mac where
     macLazy :: MACKey mac -> Lazy.ByteString -> MACAuth mac
 
 macFileLazy :: (IncrementalMAC mac, MonadIO m) => MACKey mac -> FilePath -> m (MACAuth mac)

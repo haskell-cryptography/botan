@@ -1,19 +1,21 @@
-module Botan.Cipher.Class
-( Cipher(..)
-, SecretKey(..)
-, Nonce(..)
-, Ciphertext(..)
-, LazyCiphertext(..)
-, cipherEncryptProxy
-, cipherDecryptProxy
-, cipherEncryptFile
-, cipherDecryptFile
-, IncrementalCipher(..)
-, cipherEncryptFileLazy
-, cipherDecryptFileLazy
--- , MutableCipher(..)
--- , MutableCtx(..)
-) where
+{-# LANGUAGE DefaultSignatures #-}
+
+module Botan.Cipher.Class (
+    Cipher(..)
+  , SecretKey
+  , Nonce
+  , Ciphertext
+  , LazyCiphertext
+  , cipherEncryptProxy
+  , cipherDecryptProxy
+  , cipherEncryptFile
+  , cipherDecryptFile
+  , IncrementalCipher(..)
+  , cipherEncryptFileLazy
+  , cipherDecryptFileLazy
+  -- , MutableCipher(..)
+  -- , MutableCtx(..)
+  ) where
 
 import           Botan.Prelude hiding (Ciphertext, LazyCiphertext)
 
@@ -22,7 +24,6 @@ import           Data.Proxy (Proxy (..))
 import qualified Data.ByteString as ByteString
 import qualified Data.ByteString.Lazy as Lazy
 
-import           Botan.RNG
 import           Botan.Types.Class
 
 -- NOTE: I think that CBC NoPadding is the only cipher that doesn't accept arbitrary length input
@@ -49,7 +50,7 @@ cipherEncryptFile k n fp = cipherEncrypt k n <$> liftIO (ByteString.readFile fp)
 cipherDecryptFile :: (Cipher c, MonadIO m) => SecretKey c -> Nonce c -> FilePath -> m (Maybe ByteString)
 cipherDecryptFile k n fp = cipherDecrypt k n . unsafeDecode <$> liftIO (ByteString.readFile fp)
 
-class (Cipher c, HasLazyCiphertext c) => IncrementalCipher c where
+class HasLazyCiphertext c => IncrementalCipher c where
 
     cipherEncryptLazy :: SecretKey c -> Nonce c -> Lazy.ByteString -> LazyCiphertext c
     cipherDecryptLazy :: SecretKey c -> Nonce c -> LazyCiphertext c -> Maybe Lazy.ByteString

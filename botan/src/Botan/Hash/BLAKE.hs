@@ -1,16 +1,18 @@
-module Botan.Hash.BLAKE
-( BLAKE2b(..)
-, BLAKE2bDigest(..)
-, blake2b
-, blake2bLazy
-) where
+{-# LANGUAGE DataKinds    #-}
+{-# LANGUAGE TypeFamilies #-}
+
+module Botan.Hash.BLAKE (
+    BLAKE2b
+  , BLAKE2bDigest
+  , blake2b
+  , blake2bLazy
+  ) where
 
 import           GHC.TypeLits
 
 import           Data.Maybe
 import           Data.Proxy
 
-import qualified Data.ByteString as ByteString
 import qualified Data.ByteString.Lazy as Lazy
 import qualified Data.Text as Text
 
@@ -29,7 +31,7 @@ type BLAKE2bSize (n :: Nat) = (KnownNat n, (1 <=? n) ~ True, Mod n 8 ~ 0, (n <=?
 type BLAKE2bDigest n = Digest (BLAKE2b n)
 
 newtype instance Digest (BLAKE2b n) = BLAKE2bDigest
-    { getBLAKE2bByteString :: ByteString {- ByteVector n -} }
+    { _getBLAKE2bByteString :: ByteString {- ByteVector n -} }
     deriving newtype (Eq, Ord)
 
 instance Show (Digest (BLAKE2b n)) where

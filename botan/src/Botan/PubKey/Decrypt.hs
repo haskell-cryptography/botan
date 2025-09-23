@@ -9,47 +9,42 @@ Stability   : experimental
 Portability : POSIX
 -}
 
-module Botan.PubKey.Decrypt
-(
+module Botan.PubKey.Decrypt (
 
--- * Thing
--- $introduction
+  -- * Thing
+  -- $introduction
 
--- * Usage
--- $usage
+  -- * Usage
+  -- $usage
 
--- * Public Key Decryption
+  -- * Public Key Decryption
 
-  pkDecrypt
-, pkDecryptOutputLength
+    pkDecrypt
+  , pkDecryptOutputLength
 
--- * Mutable interface
+  -- * Mutable interface
 
--- ** Data type
-, PKDecrypt(..)
+  -- ** Data type
+  , PKDecrypt
 
--- ** Destructor
-, destroyPKDecrypt
+  -- ** Destructor
+  , destroyPKDecrypt
 
--- ** Initializers
-, newPKDecrypt
+  -- ** Initializers
+  , newPKDecrypt
 
--- ** Accessors
-, getPKDecryptOutputLength
+  -- ** Accessors
+  , getPKDecryptOutputLength
 
--- ** Algorithm
-, pkDecryptWith
+  -- ** Algorithm
+  , pkDecryptWith
 
-) where
-
-import qualified Data.ByteString as ByteString
+  ) where
 
 import qualified Botan.Low.PubKey.Decrypt as Low
 
-import           Botan.Error
 import           Botan.Prelude
 import           Botan.PubKey
-import           Botan.RNG
 
 
 {- $introduction

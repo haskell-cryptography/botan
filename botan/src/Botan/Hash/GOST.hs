@@ -1,11 +1,12 @@
-module Botan.Hash.GOST
-( GOST_34_11(..)
-, GOST_34_11Digest(..)
-, gost_34_11
-, gost_34_11Lazy
-) where
+{-# LANGUAGE TypeFamilies #-}
 
-import qualified Data.ByteString as ByteString
+module Botan.Hash.GOST (
+    GOST_34_11
+  , GOST_34_11Digest
+  , gost_34_11
+  , gost_34_11Lazy
+  ) where
+
 import qualified Data.ByteString.Lazy as Lazy
 import qualified Data.Text as Text
 
@@ -20,7 +21,7 @@ import           Botan.Prelude
 data GOST_34_11
 
 newtype instance Digest GOST_34_11 = GOST_34_11Digest
-    { getGOST_34_11ByteString :: ByteString {- ByteVector n -} }
+    { _getGOST_34_11ByteString :: ByteString {- ByteVector n -} }
     deriving newtype (Eq, Ord)
 
 type GOST_34_11Digest = Digest GOST_34_11

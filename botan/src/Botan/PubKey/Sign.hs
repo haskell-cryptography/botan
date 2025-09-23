@@ -9,48 +9,47 @@ Stability   : experimental
 Portability : POSIX
 -}
 
-module Botan.PubKey.Sign
-(
+module Botan.PubKey.Sign (
 
--- * Thing
--- $introduction
+  -- * Thing
+  -- $introduction
 
--- * Usage
--- $usage
+  -- * Usage
+  -- $usage
 
--- * Public Key Signatures
+  -- * Public Key Signatures
 
-  pkSign
--- , pkSignatureLength
+    pkSign
+  -- , pkSignatureLength
 
--- ** Data type
-,  PKSign(..)
+  -- ** Data type
+  , PKSign
 
--- ** Associated types
+  -- ** Associated types
 
-, PKSignAlgo(..)
-, signAlgoName
-, PKSignatureFormat(..)
-, PKSignature(..)
+  , PKSignAlgo
+  , signAlgoName
+  , PKSignatureFormat
+  , PKSignature
 
--- ** Destructor
-, destroyPKSign
+  -- ** Destructor
+  , destroyPKSign
 
--- ** Initializers
-, newPKSign
+  -- ** Initializers
+  , newPKSign
 
--- ** Accessors
-, pkSignOutputLength
+  -- ** Accessors
+  , pkSignOutputLength
 
--- ** Algorithm
-, pkSignUpdate
-, pkSignFinish
+  -- ** Algorithm
+  , pkSignUpdate
+  , pkSignFinish
 
--- PENDING REFACTOR
-, SignAlgo(..)
-, EMSA(..)
+  -- PENDING REFACTOR
+  , SignAlgo(..)
+  , EMSA(..)
 
-) where
+  ) where
 
 import qualified Data.ByteString as ByteString
 
@@ -59,7 +58,6 @@ import           Data.Bool
 import qualified Botan.Low.PubKey as Low
 import qualified Botan.Low.PubKey.Sign as Low
 
-import           Botan.Error
 import           Botan.Hash
 import           Botan.Prelude
 import           Botan.PubKey
@@ -163,29 +161,7 @@ data SignAlgo
     | Ed25519Hash Hash  -- NOTE: Ed25519 is not the only key type to accept arbitary hashes.
     | SM2SignParam ByteString Hash
     | XMSSEmptyParam
-    deriving (Show, Eq)
-
-{- REFACTORING STAB 1 -}
-
-data PKSignAlgo'
-    = RSASign' EMSA
-    | SM2Sign' ByteString Hash
-    | DSASign' Hash
-    | ECDSASign' Hash
-    | ECKCDSASign' Hash
-    | ECGDSASign' Hash
-    | GOST_34_10Sign' Hash
-    | Ed25519Sign' Ed25519Sign'
-    | XMSSSign' -- NOTE: Probably has actual params
-    | DilithiumSign' -- NOTE: Probably has actual params
-
-data Ed25519Sign'
-    = Ed25519Pure'
-    | Ed25519ph'
-    | Ed25519Hash' Hash
-    | Ed25519Empty' -- NOTE: SUSPECT DEFAULTS TO ONE OF THE OTHERS
-
-{- END REFACTORING STAB 1 -}
+    deriving stock (Show, Eq)
 
 signAlgoName :: SignAlgo -> Low.EMSAName
 signAlgoName (EMSA emsa)          = emsaName emsa
@@ -207,7 +183,7 @@ data EMSA
     | EMSA4 Hash (Maybe Int)
     | ISO_9796_DS2 Hash Bool (Maybe Int)
     | ISO_9796_DS3 Hash Bool
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)
 
 -- TODO: Use elsewhere
 mkNameArgs :: ByteString -> [ByteString] -> ByteString
@@ -237,9 +213,5 @@ iso9796Implicit = bool "exp" "imp"
 data SignatureFormat
     = StandardFormat
     | DERFormat
-    deriving (Show, Eq)
-
-signatureFormatFlag :: SignatureFormat -> Low.SigningFlags
-signatureFormatFlag StandardFormat = Low.StandardFormatSignature -- BOTAN_PUBKEY_SIGNING_FLAGS_NONE
-signatureFormatFlag DERFormat      = Low.DERFormatSignature -- BOTAN_PUBKEY_DER_FORMAT_SIGNATURE
+    deriving stock (Show, Eq)
 

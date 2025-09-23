@@ -1,21 +1,20 @@
-module Botan.BlockCipher.Noekeon
-( Noekeon(..)
-, NoekeonSecretKey(..)
-, pattern NoekeonSecretKey
-, getNoekeonSecretKey
-, NoekeonCiphertext(..)
-, noekeonEncrypt
-, noekeonDecrypt
-, noekeonEncryptLazy
-, noekeonDecryptLazy
-) where
+{-# LANGUAGE TypeFamilies #-}
 
-import qualified Data.ByteString as ByteString
+module Botan.BlockCipher.Noekeon (
+    Noekeon
+  , NoekeonSecretKey
+  , pattern NoekeonSecretKey
+  , getNoekeonSecretKey
+  , NoekeonCiphertext
+  , noekeonEncrypt
+  , noekeonDecrypt
+  , noekeonEncryptLazy
+  , noekeonDecryptLazy
+  ) where
+
 import qualified Data.ByteString.Lazy as Lazy
-import qualified Data.Text as Text
 
 import qualified Botan.BlockCipher as Botan
-import qualified Botan.Utility as Botan
 
 import           Botan.Prelude hiding (Ciphertext, LazyCiphertext)
 
@@ -30,6 +29,7 @@ data Noekeon
 newtype instance SecretKey Noekeon = MkNoekeonSecretKey GSecretKey
     deriving newtype (Eq, Ord, Show, Encodable)
 
+{-# COMPLETE NoekeonSecretKey #-}
 pattern NoekeonSecretKey :: ByteString -> SecretKey Noekeon
 pattern NoekeonSecretKey bytes = MkNoekeonSecretKey (MkGSecretKey bytes)
 
@@ -41,22 +41,18 @@ type NoekeonSecretKey = SecretKey Noekeon
 newtype instance Ciphertext Noekeon = MkNoekeonCiphertext GCiphertext
     deriving newtype (Eq, Ord, Show, Encodable)
 
+{-# COMPLETE NoekeonCiphertext #-}
 pattern NoekeonCiphertext :: ByteString -> Ciphertext Noekeon
 pattern NoekeonCiphertext bs = MkNoekeonCiphertext (MkGCiphertext bs)
-
-getNoekeonCiphertext :: Ciphertext Noekeon -> ByteString
-getNoekeonCiphertext (NoekeonCiphertext bs) = bs
 
 type NoekeonCiphertext = Ciphertext Noekeon
 
 newtype instance LazyCiphertext Noekeon = MkNoekeonLazyCiphertext GLazyCiphertext
     deriving newtype (Eq, Ord, Show, Encodable, LazyEncodable)
 
+{-# COMPLETE NoekeonLazyCiphertext #-}
 pattern NoekeonLazyCiphertext :: Lazy.ByteString -> LazyCiphertext Noekeon
 pattern NoekeonLazyCiphertext lbs = MkNoekeonLazyCiphertext (MkGLazyCiphertext lbs)
-
-getNoekeonLazyCiphertext :: LazyCiphertext Noekeon -> Lazy.ByteString
-getNoekeonLazyCiphertext (NoekeonLazyCiphertext bs) = bs
 
 type NoekeonLazyCiphertext = LazyCiphertext Noekeon
 
@@ -65,12 +61,12 @@ instance HasSecretKey Noekeon where
     secretKeySpec :: SizeSpecifier (SecretKey Noekeon)
     secretKeySpec = coerceSizeSpec $ Botan.blockCipherKeySpec Botan.noekeon
 
-instance (MonadRandomIO m )=> SecretKeyGen Noekeon m where
+instance MonadRandomIO m => SecretKeyGen Noekeon m where
 
-    newSecretKey :: MonadRandomIO m => m (SecretKey Noekeon)
+    newSecretKey :: m (SecretKey Noekeon)
     newSecretKey = NoekeonSecretKey <$> newSized (secretKeySpec @Noekeon)
 
-    newSecretKeyMaybe :: MonadRandomIO m => Int -> m (Maybe (SecretKey Noekeon))
+    newSecretKeyMaybe :: Int -> m (Maybe (SecretKey Noekeon))
     newSecretKeyMaybe i = fmap NoekeonSecretKey <$> newSizedMaybe (secretKeySpec @Noekeon) i
 
 instance HasCiphertext Noekeon where

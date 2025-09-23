@@ -1,4 +1,26 @@
-module Botan.Padding where
+module Botan.Padding (
+    Padding (..)
+  , Pad (..)
+  , EME
+  , EMSA
+  , pad
+  , padBitPadding
+  , padBytePadding
+  , padANSI_X9_23
+  , padISO_10126
+  , padPKCS_7
+  , padISO_IEC_7816_4
+  , padZeroPadding
+  , padTo
+  , padMul
+  , padBlockMul
+  , padBy
+  , padCount
+  , padLength
+  , Padded
+  , BytePadding (..)
+  , BitPadding (..)
+  ) where
 
 -- NOTE: Botan does not expose padding functions directly
 --  We will implement them here as a utility
@@ -15,7 +37,7 @@ module Botan.Padding where
 --  Botan.Low.Prelude.paddingInfo
 
 import           Botan.Hash
-import           Botan.Prelude
+import           Botan.Prelude hiding (length)
 
 data Padding
     = Pad Pad
@@ -38,6 +60,7 @@ data EMSA   -- ...
 
 pad :: Pad -> Int -> ByteString -> ByteString
 pad BitPadding i bs = undefined $ padBitPadding i (undefined bs)
+pad _ _ _           = undefined
 
 padBitPadding :: Int -> [Bool] -> [Bool]
 padBitPadding = undefined
@@ -58,7 +81,7 @@ padISO_IEC_7816_4 :: Int -> ByteString -> ByteString
 padISO_IEC_7816_4 = undefined
 
 padZeroPadding :: Int -> ByteString -> ByteString
-padZeroPadding i = undefined
+padZeroPadding _i = undefined
 
 -- NOTE: (padCount,finalLength)
 padTo :: Int -> Int -> (Int,Int)

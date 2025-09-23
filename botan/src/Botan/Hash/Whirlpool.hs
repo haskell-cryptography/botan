@@ -1,11 +1,12 @@
-module Botan.Hash.Whirlpool
-( Whirlpool(..)
-, WhirlpoolDigest(..)
-, whirlpool
-, whirlpoolLazy
-) where
+{-# LANGUAGE TypeFamilies #-}
 
-import qualified Data.ByteString as ByteString
+module Botan.Hash.Whirlpool (
+    Whirlpool
+  , WhirlpoolDigest
+  , whirlpool
+  , whirlpoolLazy
+  ) where
+
 import qualified Data.ByteString.Lazy as Lazy
 import qualified Data.Text as Text
 
@@ -20,7 +21,7 @@ import           Botan.Prelude
 data Whirlpool
 
 newtype instance Digest Whirlpool = WhirlpoolDigest
-    { getWhirlpoolByteString :: ByteString {- ByteVector n -} }
+    { _getWhirlpoolByteString :: ByteString {- ByteVector n -} }
     deriving newtype (Eq, Ord)
 
 type WhirlpoolDigest = Digest Whirlpool

@@ -1,57 +1,60 @@
-module Botan.Types.Class
-( Encodable(..)
-, unsafeDecode
-, encodeDefault
-, decodeDefault
-, LazyEncodable(..)
-, unsafeDecodeLazy
--- , EncodableF(..)
--- , unsafeDecodeF
--- , Encoded(..)
--- , IsEncoding(..)
-, SizeSpecifier(..)
-, sizeSpec
-, coerceSizeSpec
-, monoMapSizes
-, minSize
-, maxSize
-, allSizes
-, defaultSize
-, sizeIsValid
-, newSized
-, newSizedMaybe
-, SecretKey(..)
-, HasSecretKey(..)
-, SecretKeyGen(..)
-, GSecretKey(..)
-, IsNonce(..)
-, Nonce(..)
-, HasNonce(..)
-, NonceGen(..)
-, GNonce(..)
-, Salt(..)
-, HasSalt(..)
-, SaltGen(..)
-, GSalt(..)
-, Password(..)
-, GPassword(..)
-, Digest(..)
-, HasDigest(..)
-, GDigest(..)
-, Ciphertext(..)
-, HasCiphertext(..)
-, GCiphertext(..)
-, LazyCiphertext(..)
-, HasLazyCiphertext(..)
-, GLazyCiphertext(..)
-) where
+{-# LANGUAGE PolyKinds    #-}
+{-# LANGUAGE TypeFamilies #-}
 
-import           Botan.Prelude hiding (Ciphertext, LazyCiphertext)
+module Botan.Types.Class (
+    Encodable(..)
+  , unsafeDecode
+  , encodeDefault
+  , decodeDefault
+  , LazyEncodable(..)
+  , unsafeDecodeLazy
+  -- , EncodableF(..)
+  -- , unsafeDecodeF
+  -- , Encoded(..)
+  -- , IsEncoding(..)
+  , SizeSpecifier(..)
+  , sizeSpec
+  , coerceSizeSpec
+  , monoMapSizes
+  , minSize
+  , maxSize
+  , allSizes
+  , defaultSize
+  , sizeIsValid
+  , newSized
+  , newSizedMaybe
+  , SecretKey
+  , HasSecretKey(..)
+  , SecretKeyGen(..)
+  , GSecretKey(..)
+  , IsNonce(..)
+  , Nonce
+  , HasNonce(..)
+  , NonceGen(..)
+  , GNonce(..)
+  , Salt
+  , HasSalt(..)
+  , SaltGen(..)
+  , GSalt(..)
+  , Password
+  , GPassword(..)
+  , Digest
+  , HasDigest
+  , GDigest(..)
+  , Ciphertext
+  , HasCiphertext
+  , GCiphertext(..)
+  , LazyCiphertext
+  , HasLazyCiphertext(..)
+  , GLazyCiphertext(..)
+  ) where
+
+import           Botan.Prelude hiding (Ciphertext, LazyCiphertext, max, min,
+                     mod)
+import qualified Botan.Prelude as P
 
 import           Data.Coerce
-import           Data.Either
 import           Data.Maybe
-import           Data.Proxy
 
 import qualified Data.ByteString as ByteString
 import qualified Data.ByteString.Lazy as Lazy
@@ -63,15 +66,13 @@ import           Botan.RNG
 
 import           Botan.Utility
 
--- FOR BlockSize
-import           GHC.TypeLits
-
 -- TODO: gnewSecretKey, gnewNonce, etc
 
 --
 -- Helpers
 --
 
+showByteStringHex :: ByteString -> String
 showByteStringHex bs =  Text.unpack $ hexEncode bs Lower
 
 --
@@ -156,7 +157,7 @@ data SizeSpecifier a
     -- | SizeRange Int Int  -- ^ min max 1
     | SizeEnum [ Int ]      -- ^ one of several sizes
     | SizeExact Int         -- ^ Fixed: exact size
-    deriving (Eq, Ord, Show)
+    deriving stock (Eq, Ord, Show)
 
 sizeSpec :: Int -> Int -> Int -> SizeSpecifier a
 sizeSpec mn mx _a | mn == mx = SizeExact mn
@@ -164,7 +165,7 @@ sizeSpec mn mx md           = SizeRange mn mx md
 
 -- TODO: Get rid of this (maybe), after moving the spec values from the
 -- ADT tree to individual algorithms (definitely do this though)
-coerceSizeSpec :: SizeSpecifier a -> SizeSpecifier b
+coerceSizeSpec :: forall {k} (a :: k) (b :: k). SizeSpecifier a -> SizeSpecifier b
 coerceSizeSpec = coerce
 
 monoMapSizes :: (Int -> Int) -> SizeSpecifier a -> SizeSpecifier a
@@ -174,12 +175,12 @@ monoMapSizes f (SizeExact size)     = SizeExact (f size)
 
 minSize :: SizeSpecifier a -> Int
 minSize (SizeRange mn _ _) = mn
-minSize (SizeEnum sizes)   = foldr min maxBound sizes
+minSize (SizeEnum sizes)   = foldr P.min maxBound sizes
 minSize (SizeExact size)   = size
 
 maxSize :: SizeSpecifier a  -> Int
 maxSize (SizeRange _ mx _) = mx
-maxSize (SizeEnum sizes)   = foldr max 0 sizes
+maxSize (SizeEnum sizes)   = foldr P.max 0 sizes
 maxSize (SizeExact size)   = size
 
 allSizes :: SizeSpecifier a -> [Int]
@@ -201,7 +202,7 @@ defaultSize = maxSize
 
 -- NOTE: Maybe flip this back?
 sizeIsValid :: SizeSpecifier a -> Int -> Bool
-sizeIsValid (SizeRange mn mx md) sz = mn <= sz && sz <= mx && mod sz md == 0
+sizeIsValid (SizeRange mn mx md) sz = mn <= sz && sz <= mx && P.mod sz md == 0
 sizeIsValid (SizeEnum sizes)     sz = sz `elem` sizes
 sizeIsValid (SizeExact size)     sz = sz == size
 

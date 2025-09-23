@@ -1,16 +1,17 @@
-module Botan.MAC.CMAC
-( CMAC(..)
-, CMACKey(..)
-, CMACAuth(..)
-, cmac
-, cmacLazy
-, newCMACKey
-) where
+{-# LANGUAGE TypeFamilies #-}
+
+module Botan.MAC.CMAC (
+    CMAC
+  , CMACKey
+  , CMACAuth
+  , cmac
+  , cmacLazy
+  , newCMACKey
+  ) where
 
 import           Data.Maybe
 import           Data.Proxy
 
-import qualified Data.ByteString as ByteString
 import qualified Data.ByteString.Lazy as Lazy
 import qualified Data.Text as Text
 
@@ -19,7 +20,6 @@ import qualified Botan.MAC as Botan
 import qualified Botan.Utility as Botan
 
 import           Botan.BlockCipher.AES
-import           Botan.BlockCipher.Class
 import           Botan.MAC.Class
 import           Botan.Prelude
 
@@ -30,7 +30,7 @@ import           Botan.RNG
 data CMAC bc
 
 newtype instance MACKey (CMAC bc) = CMACKey
-    { getCMACKey :: ByteString {- ByteVector n -} }
+    { _getCMACKey :: ByteString {- ByteVector n -} }
     deriving newtype (Eq, Ord)
 
 instance Show (MACKey (CMAC bc)) where
@@ -40,7 +40,7 @@ instance Show (MACKey (CMAC bc)) where
 type CMACKey bc = MACKey (CMAC bc)
 
 newtype instance MACAuth (CMAC bc) = CMACAuth
-    { getCMACAuth :: ByteString {- ByteVector n -} }
+    { _getCMACAuth :: ByteString {- ByteVector n -} }
     deriving newtype (Eq, Ord)
 
 instance Show (MACAuth (CMAC bc)) where
@@ -86,8 +86,9 @@ instance BotanBlockCipher AES128 where
 class BotanMAC mac where
     botanMAC :: Proxy mac -> Botan.MAC
 instance (BotanBlockCipher bc) => BotanMAC (CMAC bc) where
-    botanMAC :: BotanBlockCipher bc => Proxy (CMAC bc) -> Botan.MAC
+    botanMAC :: Proxy (CMAC bc) -> Botan.MAC
     botanMAC _ = Botan.cmac (botanBlockCipher $ Proxy @bc)
+
 instance (BotanBlockCipher bc) => MAC (CMAC bc) where
     mac :: MACKey (CMAC bc) -> ByteString -> MACAuth (CMAC bc)
     mac (CMACKey k) = CMACAuth . fromJust . Botan.mac (botanMAC $ Proxy @(CMAC bc)) k

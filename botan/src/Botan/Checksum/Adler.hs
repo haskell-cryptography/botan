@@ -1,11 +1,12 @@
-module Botan.Checksum.Adler
-( Adler32(..)
-, Adler32Digest(..)
-, adler32
-, adler32Lazy
-) where
+{-# LANGUAGE TypeFamilies #-}
 
-import qualified Data.ByteString as ByteString
+module Botan.Checksum.Adler (
+    Adler32
+  , Adler32Digest
+  , adler32
+  , adler32Lazy
+  ) where
+
 import qualified Data.ByteString.Lazy as Lazy
 import qualified Data.Text as Text
 
@@ -20,7 +21,7 @@ import           Botan.Prelude
 data Adler32
 
 newtype instance Digest Adler32 = Adler32Digest
-    { getAdler32ByteString :: ByteString {- ByteVector n -} }
+    { _getAdler32ByteString :: ByteString {- ByteVector n -} }
     deriving newtype (Eq, Ord)
 
 type Adler32Digest = Digest Adler32

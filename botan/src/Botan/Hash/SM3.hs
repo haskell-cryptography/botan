@@ -1,11 +1,12 @@
-module Botan.Hash.SM3
-( SM3(..)
-, SM3Digest(..)
-, sm3
-, sm3Lazy
-) where
+{-# LANGUAGE TypeFamilies #-}
 
-import qualified Data.ByteString as ByteString
+module Botan.Hash.SM3 (
+    SM3
+  , SM3Digest
+  , sm3
+  , sm3Lazy
+  ) where
+
 import qualified Data.ByteString.Lazy as Lazy
 import qualified Data.Text as Text
 
@@ -20,7 +21,7 @@ import           Botan.Prelude
 data SM3
 
 newtype instance Digest SM3 = SM3Digest
-    { getSM3ByteString :: ByteString {- ByteVector n -} }
+    { _getSM3ByteString :: ByteString {- ByteVector n -} }
     deriving newtype (Eq, Ord)
 
 type SM3Digest = Digest SM3

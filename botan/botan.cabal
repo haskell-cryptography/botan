@@ -1,6 +1,6 @@
 cabal-version:   3.0
 name:            botan
-version:         0.0.1.0
+version:         0.1.0.0
 synopsis:        High-level Botan bindings
 description:
   Welcome to botan
@@ -49,32 +49,31 @@ source-repository this
   type:     git
   location: https://github.com/haskellfoundation/botan
   subdir:   botan
-  tag:      botan-0.0.1.0
+  tag:      botan-0.1.0.0
+
+common warnings
+  ghc-options:
+    -Wall -Wcompat -Wincomplete-uni-patterns
+    -Wincomplete-record-updates -Wpartial-fields -Widentities
+    -Wredundant-constraints -Wmissing-export-lists
+    -Wno-unticked-promoted-constructors -Wunused-packages
+    -Wmissing-deriving-strategies
+
+common language
+  default-language:   GHC2021
+  default-extensions:
+    DerivingStrategies
+    PatternSynonyms
+    RecordWildCards
+    RoleAnnotations
 
 library
+  import:             warnings, language
   hs-source-dirs:     src
-  default-language:   Haskell2010
   default-extensions:
-    ConstraintKinds
-    DataKinds
-    DefaultSignatures
-    DerivingStrategies
-    FlexibleContexts
-    FlexibleInstances
-    GeneralizedNewtypeDeriving
-    InstanceSigs
-    MultiParamTypeClasses
     NoImplicitPrelude
     OverloadedStrings
-    PatternSynonyms
-    ScopedTypeVariables
-    TupleSections
-    TypeApplications
-    TypeFamilies
-    TypeOperators
 
-  -- NOTE: Botan does not directly expose padding
-  -- Botan.Padding
   exposed-modules:
     Botan.Bcrypt
     Botan.BlockCipher
@@ -88,6 +87,7 @@ library
     Botan.BlockCipher.GOST
     Botan.BlockCipher.IDEA
     Botan.BlockCipher.Noekeon
+    Botan.BlockCipher.SEED
     Botan.BlockCipher.Serpent
     Botan.BlockCipher.SHALCAL
     Botan.BlockCipher.SM4
@@ -125,6 +125,7 @@ library
     Botan.MAC.CMAC
     Botan.OneTimeAuth.Class
     Botan.OneTimeAuth.Poly1305
+    Botan.Padding
     Botan.PubKey
     Botan.PubKey.Decrypt
     Botan.PubKey.Encrypt
@@ -148,12 +149,11 @@ library
 
   autogen-modules:    Paths_botan
   build-depends:
-    , base            >=4.16 && <4.22
-    , botan-bindings  ^>=0.0 || ^>=0.1
-    , botan-low       ^>=0.0
-    , bytestring      >=0.11 && <0.13
-    , deepseq         >=1.1  && <2
-    , text            >=1.2  && <1.3   || >=2.0 && <2.2
+    , base        >=4.16 && <4.22
+    , botan-low   ^>=0.0
+    , bytestring  >=0.11 && <0.13
+    , deepseq     >=1.1  && <2
+    , text        >=1.2  && <1.3  || >=2.0 && <2.2
 
   if flag(mtl)
     build-depends: mtl >=2.2 && <2.4

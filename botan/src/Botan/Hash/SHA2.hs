@@ -1,13 +1,16 @@
-module Botan.Hash.SHA2
-( SHA2(..)
-, SHA2Digest(..)
-, sha2
-, sha2Lazy
-, SHA2_512_256(..)
-, SHA2_512_256Digest(..)
-, sha2_512_256
-, sha2_512_256Lazy
-) where
+{-# LANGUAGE DataKinds    #-}
+{-# LANGUAGE TypeFamilies #-}
+
+module Botan.Hash.SHA2 (
+    SHA2
+  , SHA2Digest
+  , sha2
+  , sha2Lazy
+  , SHA2_512_256
+  , SHA2_512_256Digest
+  , sha2_512_256
+  , sha2_512_256Lazy
+  ) where
 
 import           GHC.TypeLits
 
@@ -17,7 +20,6 @@ import           Data.Proxy
 import           Data.Type.Bool
 import           Data.Type.Equality
 
-import qualified Data.ByteString as ByteString
 import qualified Data.ByteString.Lazy as Lazy
 import qualified Data.Text as Text
 
@@ -36,7 +38,7 @@ type SHA2Size (n :: Nat) = (KnownNat n, (n == 224 || n == 256 || n == 384 || n =
 type SHA2Digest n = Digest (SHA2 n)
 
 newtype instance Digest (SHA2 n) = SHA2Digest
-    { getSHA2ByteString :: ByteString {- ByteVector n -} }
+    { _getSHA2ByteString :: ByteString {- ByteVector n -} }
     deriving newtype (Eq, Ord)
 
 instance Show (Digest (SHA2 n)) where
@@ -68,7 +70,7 @@ sha2Lazy = hashLazy
 data SHA2_512_256
 
 newtype instance Digest SHA2_512_256 = SHA2_512_256Digest
-    { getSHA2_512_256ByteString :: ByteString {- ByteVector n -} }
+    { _getSHA2_512_256ByteString :: ByteString {- ByteVector n -} }
     deriving newtype (Eq, Ord)
 
 type SHA2_512_256Digest = Digest SHA2_512_256

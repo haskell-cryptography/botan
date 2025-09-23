@@ -1,8 +1,17 @@
-module Botan.X509 where
+module Botan.X509 (
+    DistinguishedName (..)
+  , fromDN
+  , toDN
+  , KeyConstraint (..)
+  , allKeyConstraints
+  , allConstraints
+  , X509VerifyStatusCode
+  , X509CertificateAuthority
+  , X509CertificateStore
+  , X509CRL
+  ) where
 
 import           Botan.Prelude
-
-import           Data.Bits
 
 import qualified Botan.Low.X509 as Low
 import           Data.List (nub)
@@ -53,7 +62,7 @@ data KeyConstraint
     | EncipherOnly
     | DecipherOnly
     | KeyConstraints [KeyConstraint]
-    deriving (Eq)
+    deriving stock (Eq)
 
 allKeyConstraints :: [KeyConstraint]
 allKeyConstraints =
@@ -112,6 +121,7 @@ instance (Enum KeyConstraint) where
     fromEnum EncipherOnly               = fromIntegral Low.EncipherOnly     -- 256
     fromEnum DecipherOnly               = fromIntegral Low.DecipherOnly     -- 128
     fromEnum (KeyConstraints (kc:kcs))  = fromEnum kc .|. fromEnum (KeyConstraints kcs)
+    fromEnum _                          = error "fromEnum: KeyConstraint"
 
 -- TODO: https://x509errors.org/
 data X509VerifyStatusCode

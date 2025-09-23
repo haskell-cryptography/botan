@@ -1,22 +1,24 @@
-module Botan.BlockCipher.Class
-( BlockCipher(..)
-, SecretKey(..)
-, Ciphertext(..)
-, LazyCiphertext(..)
-, blockCipherEncryptProxy
-, blockCipherDecryptProxy
-, blockCipherEncryptFile
-, blockCipherDecryptFile
-, IncrementalBlockCipher(..)
-, blockCipherEncryptFileLazy
-, blockCipherDecryptFileLazy
-, unsafeBlockCipherEncrypt
-, unsafeBlockCipherDecrypt
-, unsafeBlockCipherEncryptLazy
-, unsafeBlockCipherDecryptLazy
-, BlockCipher128(..)
-, IncrementalBlockCipher128(..)
-) where
+{-# LANGUAGE DefaultSignatures #-}
+
+module Botan.BlockCipher.Class (
+    BlockCipher(..)
+  , SecretKey
+  , Ciphertext
+  , LazyCiphertext
+  , blockCipherEncryptProxy
+  , blockCipherDecryptProxy
+  , blockCipherEncryptFile
+  , blockCipherDecryptFile
+  , IncrementalBlockCipher(..)
+  , blockCipherEncryptFileLazy
+  , blockCipherDecryptFileLazy
+  , unsafeBlockCipherEncrypt
+  , unsafeBlockCipherDecrypt
+  , unsafeBlockCipherEncryptLazy
+  , unsafeBlockCipherDecryptLazy
+  , BlockCipher128
+  , IncrementalBlockCipher128
+  ) where
 
 import           Botan.Prelude hiding (Ciphertext, LazyCiphertext)
 
@@ -26,7 +28,6 @@ import           Data.Proxy (Proxy (..))
 import qualified Data.ByteString as ByteString
 import qualified Data.ByteString.Lazy as Lazy
 
-import           Botan.RNG
 import           Botan.Types.Class
 
 -- TODO: Maybe make take Block instead of ByteString, where Block (n :: Nat) ~ ByteString | length bs == natVal n
@@ -62,7 +63,7 @@ blockCipherEncryptFile k fp = blockCipherEncrypt k <$> liftIO (ByteString.readFi
 blockCipherDecryptFile :: (BlockCipher bc, MonadIO m) => SecretKey bc -> FilePath -> m (Maybe ByteString)
 blockCipherDecryptFile k fp = blockCipherDecrypt k . unsafeDecode <$> liftIO (ByteString.readFile fp)
 
-class (BlockCipher bc, HasLazyCiphertext bc) => IncrementalBlockCipher bc where
+class HasLazyCiphertext bc => IncrementalBlockCipher bc where
     blockCipherEncryptLazy :: SecretKey bc -> Lazy.ByteString -> Maybe (LazyCiphertext bc)
     blockCipherDecryptLazy :: SecretKey bc -> LazyCiphertext bc -> Maybe Lazy.ByteString
 
