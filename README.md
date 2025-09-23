@@ -17,7 +17,7 @@
 
 This project has received support from the [Haskell Foundation](https://haskell.foundation/), and was made possible through funding provided by [Mercury](https://mercury.com/).
 
-<a href="https://mercury.com/" alt="Mercury"><img src="https://github.com/haskellfoundation/botan/blob/main/contributors/mercury.svg" width="320"></a>
+<a href="https://mercury.com/" alt="Mercury"><img src="https://github.com/haskellfoundation/botan/blob/main/doc/mercury.svg" width="320"></a>
 
 # Navigation
 
