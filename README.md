@@ -8,13 +8,16 @@
 
 `botan` is a set of Haskell bindings for the [Botan](https://botan.randombit.net/) cryptography library.
 
-> Botan's goal is to be the best option for cryptography in C++ by offering the tools necessary to implement a range of practical systems, such as TLS protocol, X.509 certificates, modern AEAD ciphers, PKCS#11 and TPM hardware support, password hashing, and post quantum crypto schemes.
+> Botan's goal is to be the best option for cryptography in C++ by offering the
+> tools necessary to implement a range of practical systems, such as TLS
+> protocol, X.509 certificates, modern AEAD ciphers, PKCS#11 and TPM hardware
+> support, password hashing, and post quantum crypto schemes.
 
 # Acknowledgements
 
 This project has received support from the [Haskell Foundation](https://haskell.foundation/), and was made possible through funding provided by [Mercury](https://mercury.com/).
 
-<a href="https://mercury.com/" alt="Mercury"><img src="https://github.com/haskellfoundation/botan/blob/main/contributors/mercury.svg" width="320"></a>
+<a href="https://mercury.com/" alt="Mercury"><img src="https://github.com/haskellfoundation/botan/blob/main/doc/mercury.svg" width="320"></a>
 
 # Navigation
 
