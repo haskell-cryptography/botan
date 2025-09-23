@@ -34,10 +34,10 @@ module Botan.Low.SRP6
 
 -- * SRP6 Types
 
-, SRP6Verifier(..)
-, SRP6BValue(..)
-, SRP6AValue(..)
-, SRP6SharedSecret(..)
+, SRP6Verifier
+, SRP6BValue
+, SRP6AValue
+, SRP6SharedSecret
 
 -- * SRP discrete logarithm groups
 
@@ -50,8 +50,6 @@ module Botan.Low.SRP6
 , pattern MODP_SRP_8192
 
 ) where
-
-import qualified Data.ByteString as ByteString
 
 import           Botan.Bindings.SRP6
 
@@ -185,12 +183,11 @@ type SRP6SharedSecret = ByteString
 
 newtype SRP6ServerSession = MkSRP6ServerSession { getSRP6ServerSessionForeignPtr :: ForeignPtr BotanSRP6ServerSessionStruct }
 
-newSRP6ServerSession      :: BotanSRP6ServerSession -> IO SRP6ServerSession
 withSRP6ServerSession     :: SRP6ServerSession -> (BotanSRP6ServerSession -> IO a) -> IO a
 -- | Destroy a SRP6 server session object immediately
 srp6ServerSessionDestroy  :: SRP6ServerSession -> IO ()
 createSRP6ServerSession   :: (Ptr BotanSRP6ServerSession -> IO CInt) -> IO SRP6ServerSession
-(newSRP6ServerSession, withSRP6ServerSession, srp6ServerSessionDestroy, createSRP6ServerSession, _)
+(_, withSRP6ServerSession, srp6ServerSessionDestroy, createSRP6ServerSession, _)
     = mkBindings
         MkBotanSRP6ServerSession runBotanSRP6ServerSession
         MkSRP6ServerSession getSRP6ServerSessionForeignPtr
@@ -200,10 +197,6 @@ createSRP6ServerSession   :: (Ptr BotanSRP6ServerSession -> IO CInt) -> IO SRP6S
 srp6ServerSessionInit
     :: IO SRP6ServerSession -- ^ __srp6__: SRP-6 server session object
 srp6ServerSessionInit = createSRP6ServerSession botan_srp6_server_session_init
-
--- WARNING: withFooInit-style limited lifetime functions moved to high-level botan
-withSRP6ServerSessionInit :: (SRP6ServerSession -> IO a) -> IO a
-withSRP6ServerSessionInit = mkWithTemp srp6ServerSessionInit srp6ServerSessionDestroy
 
 -- | SRP-6 Server side step 1: Generate a server B-value
 srp6ServerSessionStep1

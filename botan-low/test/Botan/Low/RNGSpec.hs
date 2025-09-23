@@ -1,4 +1,4 @@
-module Main where
+module Main (main) where
 
 import           Test.Prelude
 
@@ -21,11 +21,11 @@ main = hspec $ do
         ByteString.length bs `shouldBe` 8
     testSuite rngs chars $ \ rng -> do
         it "rngInit" $ do
-            ctx <- rngInit rng
+            _ctx <- rngInit rng
             pass
         it "rngGet" $ do
             ctx <- rngInit rng
-            bs <- rngGet ctx 8
+            _bs <- rngGet ctx 8
             pass
         it "rngReseed" $ do
             ctx <- rngInit rng

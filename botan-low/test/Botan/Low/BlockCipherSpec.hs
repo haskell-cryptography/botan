@@ -1,23 +1,18 @@
-module Main where
+module Main (main) where
 
 import           Test.Prelude
-
-import qualified Data.ByteString as ByteString
-import qualified Data.ByteString.Char8 as Char8
 
 import           Botan.Low.BlockCipher
 import           Botan.Low.RNG
 
-message = "Fee fi fo fum! I smell the blood of an Englishman!"
-
 main :: IO ()
 main = hspec $ testSuite allBlockCiphers chars $ \ bc -> do
     it "can initialize a block cipher context" $ do
-        ctx <- blockCipherInit bc
+        _ctx <- blockCipherInit bc
         pass
     it "has a name" $ do
         ctx <- blockCipherInit bc
-        name <- blockCipherName ctx
+        _name <- blockCipherName ctx
         -- name `shouldBe` bc -- Name expands to include default parameters - need to record
         pass
     it "has a key spec" $ do
@@ -41,7 +36,7 @@ main = hspec $ testSuite allBlockCiphers chars $ \ bc -> do
         blockCipherSetKey ctx k
         bsz <- blockCipherBlockSize ctx
         msg <- systemRNGGet $ bsz * 10
-        encmsg <- blockCipherEncryptBlocks ctx msg
+        _encmsg <- blockCipherEncryptBlocks ctx msg
         pass
     -- NOTE: It does not actually throw an error - this is slightly concerning.
     -- it "can only encipher messages that are a multiple of the block size" $ do

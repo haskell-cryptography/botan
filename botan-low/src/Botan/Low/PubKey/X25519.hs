@@ -9,17 +9,16 @@ Stability   : experimental
 Portability : POSIX
 -}
 
-module Botan.Low.PubKey.X25519 where
-
-import qualified Data.ByteString as ByteString
-
-import           Botan.Bindings.PubKey
+module Botan.Low.PubKey.X25519 (
+    privKeyLoadX25519
+  , pubKeyLoadX25519
+  , privKeyX25519GetPrivKey
+  , pubKeyX25519GetPubKey
+  ) where
 
 import           Botan.Bindings.PubKey.X25519
 
 import           Botan.Low.Error
-import           Botan.Low.Make
-import           Botan.Low.MPI
 import           Botan.Low.Prelude
 import           Botan.Low.PubKey
 import           Botan.Low.Remake

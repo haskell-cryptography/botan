@@ -12,15 +12,17 @@ Public key cryptography is a collection of techniques allowing
 for encryption, signatures, and key agreement.
 -}
 
+{-# LANGUAGE LambdaCase #-}
+
 module Botan.Low.PubKey
 (
 
 -- * Private keys
   PrivKey(..)
-, CheckKeyFlags(..)
+, CheckKeyFlags
 , pattern CheckKeyNormalTests
 , pattern CheckKeyExpensiveTests
-, PrivKeyExportFlags(..)
+, PrivKeyExportFlags
 , pattern PrivKeyExportDER
 , pattern PrivKeyExportPEM
 , withPrivKey
@@ -48,7 +50,7 @@ module Botan.Low.PubKey
 
 -- * PK Algorithms
 
-, PKName(..)
+, PKName
 , pattern RSA
 , pattern SM2
 , pattern ElGamal
@@ -68,7 +70,7 @@ module Botan.Low.PubKey
 
 -- ** DLGroup
 
-, DLGroupName(..)
+, DLGroupName
 , pattern FFDHE_IETF_2048
 , pattern FFDHE_IETF_3072
 , pattern FFDHE_IETF_4096
@@ -94,7 +96,7 @@ module Botan.Low.PubKey
 
 -- ** ECGroup
 
-, ECGroupName(..)
+, ECGroupName
 , pattern Secp160k1
 , pattern Secp160r1
 , pattern Secp160r2
@@ -125,7 +127,7 @@ module Botan.Low.PubKey
 
 -- ** XMSS
 
-, XMSSName(..)
+, XMSSName
 , pattern XMSS_SHA2_10_256
 , pattern XMSS_SHA2_16_256
 , pattern XMSS_SHA2_20_256
@@ -141,7 +143,7 @@ module Botan.Low.PubKey
 
 -- * EME
 
-, EMEName(..)
+, EMEName
 , pattern EME_RAW
 , pattern EME_PKCS1_v1_5
 , pattern EME_OAEP
@@ -154,7 +156,7 @@ module Botan.Low.PubKey
 
 -- * EMSA
 
-, EMSAName(..)
+, EMSAName
 , emsa_none
 , emsa_emsa4
 , emsa_hash
@@ -179,7 +181,6 @@ module Botan.Low.PubKey
 ) where
 
 import qualified Data.ByteString as ByteString
-import qualified Data.ByteString.Unsafe as ByteString
 
 import           Botan.Bindings.MPI
 import           Botan.Bindings.PubKey
@@ -192,7 +193,6 @@ import           Botan.Low.MPI
 import           Botan.Low.Prelude
 import           Botan.Low.Remake
 import           Botan.Low.RNG
-import           Botan.Low.View
 
 {- $introduction
 
@@ -272,25 +272,20 @@ Verify a message:
 
 -- Associated types
 
-type PKPaddingName = ByteString
-
 -- /*
 -- * Public/private key creation, import, ...
 -- */
 
 newtype PrivKey = MkPrivKey { getPrivKeyForeignPtr :: ForeignPtr BotanPrivKeyStruct }
 
-newPrivKey      :: BotanPrivKey -> IO PrivKey
 withPrivKey     :: PrivKey -> (BotanPrivKey -> IO a) -> IO a
 privKeyDestroy  :: PrivKey -> IO ()
 createPrivKey   :: (Ptr BotanPrivKey -> IO CInt) -> IO PrivKey
-(newPrivKey, withPrivKey, privKeyDestroy, createPrivKey, _)
+(_, withPrivKey, privKeyDestroy, createPrivKey, _)
     = mkBindings
         MkBotanPrivKey runBotanPrivKey
         MkPrivKey getPrivKeyForeignPtr
         botan_privkey_destroy
-
-type PrivKeyName = ByteString
 
 type PKName = ByteString
 
@@ -503,15 +498,6 @@ eme_hash = id
 eme_sm2EncParam :: HashName -> EMEName
 eme_sm2EncParam h = h
 
-type MGFName = ByteString
-
-pattern MGF1
-    :: MGFName
-
-pattern MGF1 = BOTAN_MGF_MGF1
-
-mgf1 :: HashName -> MGFName
-mgf1 h = MGF1 /$ h
 
 {- |
 Encoding Method for Signature with Appendix
@@ -561,10 +547,6 @@ privKeyCreate name params rng = asCString name $ \ namePtr -> do
                 (ConstPtr namePtr)
                 (ConstPtr paramsPtr)
                 botanRNG
-
--- WARNING: withFooInit-style limited lifetime functions moved to high-level botan
-withPrivKeyCreate :: ByteString -> ByteString -> RNG -> (PrivKey -> IO a) -> IO a
-withPrivKeyCreate = mkWithTemp3 privKeyCreate privKeyDestroy
 
 type CheckKeyFlags = Word32
 
@@ -688,26 +670,19 @@ privKeyAlgoName = mkGetCString withPrivKey botan_privkey_algo_name
 
 newtype PubKey = MkPubKey { getPubKeyForeignPtr :: ForeignPtr BotanPubKeyStruct }
 
-newPubKey      :: BotanPubKey -> IO PubKey
 withPubKey     :: PubKey -> (BotanPubKey -> IO a) -> IO a
 pubKeyDestroy  :: PubKey -> IO ()
 createPubKey   :: (Ptr BotanPubKey -> IO CInt) -> IO PubKey
-(newPubKey, withPubKey, pubKeyDestroy, createPubKey, _)
+(_, withPubKey, pubKeyDestroy, createPubKey, _)
     = mkBindings
         MkBotanPubKey runBotanPubKey
         MkPubKey getPubKeyForeignPtr
         botan_pubkey_destroy
 
-type PubKeyName = ByteString
-
 pubKeyLoad
     :: ByteString   -- ^ __bits[]__
     -> IO PubKey    -- ^ __key__
 pubKeyLoad = mkCreateObjectCBytesLen createPubKey botan_pubkey_load
-
--- WARNING: withFooInit-style limited lifetime functions moved to high-level botan
-withPubKeyLoad :: ByteString -> (PubKey -> IO a) -> IO a
-withPubKeyLoad = mkWithTemp1 pubKeyLoad pubKeyDestroy
 
 privKeyExportPubKey
     :: PrivKey      -- ^ __in__
@@ -716,12 +691,6 @@ privKeyExportPubKey = mkCreateObjectWith createPubKey withPrivKey botan_privkey_
 
 type PubKeyExportFlags = PrivKeyExportFlags
 
-pattern PubKeyExportDER
-    ,   PubKeyExportPEM
-    ::  PubKeyExportFlags
-
-pattern PubKeyExportDER = PrivKeyExportDER
-pattern PubKeyExportPEM = PrivKeyExportPEM
 
 -- NOTE: Different from allocBytesQuerying / INSUFFICIENT_BUFFER_SPACE
 pubKeyExport
@@ -757,7 +726,7 @@ pubKeyCheckKey pk rng flags = withPubKey pk $ \ pkPtr -> do
 pubKeyEstimatedStrength
     :: PubKey   -- ^ __key__
     -> IO Int   -- ^ __estimate__
-pubKeyEstimatedStrength pk = fromIntegral <$> mkGetSize withPubKey botan_pubkey_estimated_strength pk
+pubKeyEstimatedStrength pk = mkGetSize withPubKey botan_pubkey_estimated_strength pk
 
 pubKeyFingerprint
     :: PubKey           -- ^ __key__
@@ -811,38 +780,50 @@ mkPrivKeyLoad1_name load a name = withMP a $ \ aPtr -> do
 mkPrivKeyLoad3
     :: (Ptr BotanPrivKey -> BotanMP -> BotanMP -> BotanMP -> IO BotanErrorCode)
     -> MP -> MP -> MP -> IO PrivKey
-mkPrivKeyLoad3 load a b c = withMany withMP [a,b,c] $ \ [aPtr,bPtr,cPtr] -> do
-    createPrivKey $ \ out -> load out aPtr bPtr cPtr
+mkPrivKeyLoad3 load a b c = withMany withMP [a,b,c] $ \case
+    [aPtr,bPtr,cPtr] -> do
+      createPrivKey $ \ out -> load out aPtr bPtr cPtr
+    _ -> error "mkPrivKeyLoad3: impossible"
 
 mkPrivKeyLoad4
     :: (Ptr BotanPrivKey -> BotanMP -> BotanMP -> BotanMP -> BotanMP -> IO BotanErrorCode)
     -> MP -> MP -> MP -> MP -> IO PrivKey
-mkPrivKeyLoad4 load a b c d = withMany withMP [a,b,c,d] $ \ [aPtr,bPtr,cPtr,dPtr] -> do
-    createPrivKey $ \ out -> load out aPtr bPtr cPtr dPtr
+mkPrivKeyLoad4 load a b c d = withMany withMP [a,b,c,d] $ \case
+    [aPtr,bPtr,cPtr,dPtr] -> do
+      createPrivKey $ \ out -> load out aPtr bPtr cPtr dPtr
+    _ -> error "mkPrivKeyLoad4: impossible"
 
 --
 
 mkPubKeyLoad2
     :: (Ptr BotanPubKey -> BotanMP -> BotanMP -> IO BotanErrorCode)
     -> MP -> MP -> IO PubKey
-mkPubKeyLoad2 load a b = withMany withMP [a,b] $ \ [aPtr,bPtr] -> do
-    createPubKey $ \ out -> load out aPtr bPtr
+mkPubKeyLoad2 load a b = withMany withMP [a,b] $ \case
+    [aPtr,bPtr] -> do
+      createPubKey $ \ out -> load out aPtr bPtr
+    _ -> error "mkPubKeyLoad2: impossible"
 
 mkPubKeyLoad2_name
     :: (Ptr BotanPubKey -> BotanMP -> BotanMP -> ConstPtr CChar -> IO BotanErrorCode)
     -> MP -> MP -> ByteString -> IO PubKey
-mkPubKeyLoad2_name load x y name = withMany withMP [x,y] $ \ [xPtr,yPtr] -> do
-    asCString name $ \ namePtr -> do
+mkPubKeyLoad2_name load x y name = withMany withMP [x,y] $ \case
+    [xPtr,yPtr] -> do
+      asCString name $ \ namePtr -> do
         createPubKey $ \ out -> load out xPtr yPtr (ConstPtr namePtr)
+    _ -> error "mkPubKeyLoad2_name: impossible"
 
 mkPubKeyLoad3
     :: (Ptr BotanPubKey -> BotanMP -> BotanMP -> BotanMP -> IO BotanErrorCode)
     -> MP -> MP -> MP -> IO PubKey
-mkPubKeyLoad3 load a b c = withMany withMP [a,b,c] $ \ [aPtr,bPtr,cPtr] -> do
-    createPubKey $ \ out -> load out aPtr bPtr cPtr
+mkPubKeyLoad3 load a b c = withMany withMP [a,b,c] $ \case
+    [aPtr,bPtr,cPtr] -> do
+      createPubKey $ \ out -> load out aPtr bPtr cPtr
+    _ -> error "mkPubKeyLoad3: impossible"
 
 mkPubKeyLoad4
     :: (Ptr BotanPubKey -> BotanMP -> BotanMP -> BotanMP -> BotanMP -> IO BotanErrorCode)
     -> MP -> MP -> MP -> MP -> IO PubKey
-mkPubKeyLoad4 load a b c d = withMany withMP [a,b,c,d] $ \ [aPtr,bPtr,cPtr,dPtr] -> do
-    createPubKey $ \ out -> load out aPtr bPtr cPtr dPtr
+mkPubKeyLoad4 load a b c d = withMany withMP [a,b,c,d] $ \case
+    [aPtr,bPtr,cPtr,dPtr] -> do
+      createPubKey $ \ out -> load out aPtr bPtr cPtr dPtr
+    _ -> error "mkPubKeyLoad4: impossible"

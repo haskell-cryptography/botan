@@ -1,8 +1,7 @@
-module Main where
+module Main (main) where
 
 import           Test.Prelude
 
-import           Botan.Bindings.MAC
 import           Botan.Low.MAC
 
 import           Botan.Low.RNG
@@ -24,9 +23,6 @@ import           Botan.Low.RNG
 --     , [ "Poly1305", "SipHash(2,4)", "X9.19-MAC" ]
 --     ]
 
-macs :: [MACName]
-macs = fmap fst macsAndNonceSzs
-
 macsAndNonceSzs :: [(MACName, Int)]
 macsAndNonceSzs =
     [ ("CMAC(AES-256)", 0)
@@ -44,15 +40,15 @@ message = "Fee fi fo fum! I smell the blood of an Englishman!"
 main :: IO ()
 main = hspec $ testSuite macsAndNonceSzs (chars . fst) $ \ (h,nonceSz) -> do
     it "can initialize a mac context" $ do
-        ctx <- macInit h
+        _ctx <- macInit h
         pass
     it "has a name" $ do
         ctx <- macInit h
-        name <- macName ctx
+        _name <- macName ctx
         pass
     it "has an output length" $ do
         ctx <- macInit h
-        olen <- macOutputLength ctx
+        _olen <- macOutputLength ctx
         pass
     -- it "can copy the internal state" $ do
     --     ctx <- macInit h
@@ -128,5 +124,5 @@ main = hspec $ testSuite macsAndNonceSzs (chars . fst) $ \ (h,nonceSz) -> do
                 macSetNonce ctx n
             else pass
         macUpdate ctx message
-        d <- macFinal ctx
+        _d <- macFinal ctx
         pass

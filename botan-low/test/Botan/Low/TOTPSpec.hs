@@ -1,6 +1,5 @@
-module Main where
+module Main (main) where
 
-import           Botan.Low.Hash (HashName (..))
 import           Test.Prelude
 
 import           Botan.Low.TOTP
@@ -18,11 +17,11 @@ timestamp = 1698109812
 main :: IO ()
 main = hspec $ testSuite totpHashes chars $ \ h -> do
     it "totpInit" $ do
-        ctx <- totpInit key h 6 timestep
+        _ctx <- totpInit key h 6 timestep
         pass
     it "totpGenerate" $ do
         ctx <- totpInit key h 6 timestep
-        code <- totpGenerate ctx timestamp
+        _code <- totpGenerate ctx timestamp
         pass
     it "totpCheck" $ do
         ctx <- totpInit key h 6 timestep

@@ -28,9 +28,9 @@ module Botan.Low.HOTP
 -- * HOTP
 
   HOTP(..)
-, HOTPHashName(..)
-, HOTPCounter(..)
-, HOTPCode(..)
+, HOTPHashName
+, HOTPCounter
+, HOTPCode
 , withHOTP
 , hotpInit
 , hotpDestroy
@@ -49,13 +49,10 @@ module Botan.Low.HOTP
 
 ) where
 
-import qualified Data.ByteString as ByteString
-
 import           Botan.Bindings.HOTP
 import           Botan.Low.Hash
 
 import           Botan.Low.Error
-import           Botan.Low.Make
 import           Botan.Low.Prelude
 import           Botan.Low.Remake
 
@@ -164,11 +161,10 @@ The user should then be notified.
 
 newtype HOTP = MkHOTP { getHOTPForeignPtr :: ForeignPtr BotanHOTPStruct }
 
-newHOTP      :: BotanHOTP -> IO HOTP
 withHOTP     :: HOTP -> (BotanHOTP -> IO a) -> IO a
 hotpDestroy  :: HOTP -> IO ()
 createHOTP   :: (Ptr BotanHOTP -> IO CInt) -> IO HOTP
-(newHOTP, withHOTP, hotpDestroy, createHOTP, _)
+(_, withHOTP, hotpDestroy, createHOTP, _)
     = mkBindings
         MkBotanHOTP runBotanHOTP
         MkHOTP getHOTPForeignPtr
@@ -186,6 +182,7 @@ pattern HOTP_SHA256 = SHA256
 pattern HOTP_SHA512 = SHA512
 
 -- TODO: Do any other hashes work?
+hotpHashes :: [HOTPHashName]
 hotpHashes =
     [ HOTP_SHA1
     , HOTP_SHA256
@@ -210,10 +207,6 @@ hotpInit key algo digits = asBytesLen key $ \ keyPtr keyLen -> do
             (ConstPtr algoPtr)
             (fromIntegral digits)
 
--- WARNING: withFooInit-style limited lifetime functions moved to high-level botan
-withHOTPInit :: ByteString -> ByteString -> Int -> (HOTP -> IO a) -> IO a
-withHOTPInit = mkWithTemp3 hotpInit hotpDestroy
-
 -- NOTE: User is responsible for incrementing counter at this level
 hotpGenerate
     :: HOTP         -- ^ __hotp__
@@ -221,7 +214,7 @@ hotpGenerate
     -> IO HOTPCode  -- ^ __hotp_code__
 hotpGenerate hotp counter = withHOTP hotp $ \ hotpPtr -> do
     alloca $ \ outPtr -> do
-        throwBotanIfNegative $ botan_hotp_generate hotpPtr outPtr counter
+        void $ throwBotanIfNegative $ botan_hotp_generate hotpPtr outPtr counter
         peek outPtr
 
 -- NOTE:

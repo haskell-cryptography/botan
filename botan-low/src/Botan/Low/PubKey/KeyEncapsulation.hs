@@ -18,8 +18,8 @@ module Botan.Low.PubKey.KeyEncapsulation
 -- $usage
 
 -- * KEM Encryption
-  KEMSharedKey(..)
-, KEMEncapsulatedKey(..)
+  KEMSharedKey
+, KEMEncapsulatedKey
 , KEMEncrypt(..)
 , withKEMEncrypt
 , kemEncryptDestroy
@@ -117,11 +117,10 @@ type KEMEncapsulatedKey = ByteString
 
 newtype KEMEncrypt = MkKEMEncrypt { getKEMEncryptForeignPtr :: ForeignPtr BotanPKOpKEMEncryptStruct }
 
-newKEMEncrypt      :: BotanPKOpKEMEncrypt -> IO KEMEncrypt
 withKEMEncrypt     :: KEMEncrypt -> (BotanPKOpKEMEncrypt -> IO a) -> IO a
 kemEncryptDestroy  :: KEMEncrypt -> IO ()
 createKEMEncrypt   :: (Ptr BotanPKOpKEMEncrypt -> IO CInt) -> IO KEMEncrypt
-(newKEMEncrypt, withKEMEncrypt, kemEncryptDestroy, createKEMEncrypt, _)
+(_, withKEMEncrypt, kemEncryptDestroy, createKEMEncrypt, _)
     = mkBindings
         MkBotanPKOpKEMEncrypt runBotanPKOpKEMEncrypt
         MkKEMEncrypt getKEMEncryptForeignPtr
@@ -141,10 +140,6 @@ kemEncryptCreate pk algo = withPubKey pk $ \ pkPtr -> do
             out
             pkPtr
             (ConstPtr algoPtr)
-
--- WARNING: withFooInit-style limited lifetime functions moved to high-level botan
-withKEMEncryptCreate :: PubKey -> KDFName -> (KEMEncrypt -> IO a) -> IO a
-withKEMEncryptCreate = mkWithTemp2 kemEncryptCreate kemEncryptDestroy
 
 kemEncryptSharedKeyLength
     :: KEMEncrypt   -- ^ __op__
@@ -193,11 +188,10 @@ kemEncryptCreateSharedKey ke rng salt desiredLen = withKEMEncrypt ke $ \ kePtr -
 
 newtype KEMDecrypt = MkKEMDecrypt { getKEMDecryptForeignPtr :: ForeignPtr BotanPKOpKEMDecryptStruct }
 
-newKEMDecrypt      :: BotanPKOpKEMDecrypt -> IO KEMDecrypt
 withKEMDecrypt     :: KEMDecrypt -> (BotanPKOpKEMDecrypt -> IO a) -> IO a
 kemDecryptDestroy  :: KEMDecrypt -> IO ()
 createKEMDecrypt   :: (Ptr BotanPKOpKEMDecrypt -> IO CInt) -> IO KEMDecrypt
-(newKEMDecrypt, withKEMDecrypt, kemDecryptDestroy, createKEMDecrypt, _)
+(_, withKEMDecrypt, kemDecryptDestroy, createKEMDecrypt, _)
     = mkBindings
         MkBotanPKOpKEMDecrypt runBotanPKOpKEMDecrypt
         MkKEMDecrypt getKEMDecryptForeignPtr
@@ -213,10 +207,6 @@ kemDecryptCreate sk algo = withPrivKey sk $ \ skPtr -> do
             out
             skPtr
             (ConstPtr algoPtr)
-
--- WARNING: withFooInit-style limited lifetime functions moved to high-level botan
-withKEMDecryptCreate :: PrivKey -> KDFName -> (KEMDecrypt -> IO a) -> IO a
-withKEMDecryptCreate = mkWithTemp2 kemDecryptCreate kemDecryptDestroy
 
 kemDecryptSharedKeyLength
     :: KEMDecrypt   -- ^ __op__

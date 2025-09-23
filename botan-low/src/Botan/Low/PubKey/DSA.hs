@@ -9,15 +9,14 @@ Stability   : experimental
 Portability : POSIX
 -}
 
-module Botan.Low.PubKey.DSA where
+module Botan.Low.PubKey.DSA (
+    privKeyCreateDSA
+  , privKeyLoadDSA
+  , pubKeyLoadDSA
+  ) where
 
-import qualified Data.ByteString as ByteString
-
-import           Botan.Bindings.PubKey
 import           Botan.Bindings.PubKey.DSA
 
-import           Botan.Low.Error
-import           Botan.Low.Make
 import           Botan.Low.MPI
 import           Botan.Low.Prelude
 import           Botan.Low.PubKey

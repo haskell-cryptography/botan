@@ -22,13 +22,7 @@ module Botan.Low.Utility
 ) where
 
 import           Data.Bool
-
-import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
-
-import qualified Data.ByteString as ByteString
-
-import           System.IO.Unsafe
 
 import           Botan.Bindings.Utility
 
@@ -45,12 +39,12 @@ constantTimeCompare
     -> Int          -- ^ __len__
     -> IO Bool
 constantTimeCompare x y len = do
-    asBytesLen x $ \ xPtr xlen -> do
-        asBytesLen y $ \ yPtr ylen -> do
+    asBytesLen x $ \ xPtr _xlen -> do
+        asBytesLen y $ \ yPtr _ylen -> do
             result <- botan_constant_time_compare
                 (ConstPtr xPtr)
                 (ConstPtr yPtr)
-                xlen
+                (fromIntegral len)
             case result of
                 0 -> return True
                 _ -> return False

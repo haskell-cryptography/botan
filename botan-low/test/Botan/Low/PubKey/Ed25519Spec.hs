@@ -1,4 +1,4 @@
-module Main where
+module Main (main) where
 
 import           Test.Prelude
 
@@ -11,24 +11,24 @@ main = hspec $ do
     it "privKeyEd25519GetPrivKey" $ do
         rng <- rngInit "system"
         privKey <- privKeyCreate "Ed25519" "" rng
-        exportedPrivKey <- privKeyEd25519GetPrivKey privKey
+        _exportedPrivKey <- privKeyEd25519GetPrivKey privKey
         pass
     it "pubKeyEd25519GetPubKey" $ do
         rng <- rngInit "system"
         privKey <- privKeyCreate "Ed25519" "" rng
         pubKey <- privKeyExportPubKey privKey
-        exportedPubKey <- pubKeyEd25519GetPubKey pubKey
+        _exportedPubKey <- pubKeyEd25519GetPubKey pubKey
         pass
     it "privKeyLoadEd25519" $ do
         rng <- rngInit "system"
         privKey <- privKeyCreate "Ed25519" "" rng
         exportedPrivKey <- privKeyEd25519GetPrivKey privKey
-        loadedPrivKey <- privKeyLoadEd25519 exportedPrivKey
+        _loadedPrivKey <- privKeyLoadEd25519 exportedPrivKey
         pass
     it "pubKeyLoadEd25519" $ do
         rng <- rngInit "system"
         privKey <- privKeyCreate "Ed25519" "" rng
         pubKey <- privKeyExportPubKey privKey
         exportedPubKey <- pubKeyEd25519GetPubKey pubKey
-        loadedPubKey <- pubKeyLoadEd25519 exportedPubKey
+        _loadedPubKey <- pubKeyLoadEd25519 exportedPubKey
         pass

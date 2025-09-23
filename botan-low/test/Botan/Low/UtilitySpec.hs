@@ -1,15 +1,19 @@
-module Main where
+module Main (main) where
 
 import           Test.Prelude
 
 import           Botan.Low.Utility
 
 import qualified Data.ByteString as ByteString
+import           Data.Text
 
+message :: ByteString
 message = "Fee fi fo fum!"
 
+hexMessage :: Text
 hexMessage = "46656520666920666F2066756D21"
 
+base64Message :: Text
 base64Message = "RmVlIGZpIGZvIGZ1bSE="
 
 -- hexUpperMessage

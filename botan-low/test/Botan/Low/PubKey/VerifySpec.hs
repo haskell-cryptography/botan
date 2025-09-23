@@ -1,8 +1,6 @@
-module Main where
+module Main (main) where
 
 import           Test.Prelude
-
-import qualified Data.ByteString as ByteString
 
 import           Botan.Low.PubKey
 import           Botan.Low.PubKey.Sign
@@ -17,6 +15,7 @@ ecGroup = "secp256r1"
 dlGroup :: ByteString
 dlGroup = "modp/ietf/1024"
 
+sha :: ByteString
 sha = "SHA-256"
 
 pks :: [(ByteString, ByteString, ByteString)]
@@ -54,7 +53,7 @@ main = hspec $ testSuite pks pkTestName $ \ (pk, param, algo) -> do
         rng <- rngInit "system"
         privKey <- privKeyCreate pk param rng
         pubKey <- privKeyExportPubKey privKey
-        ctx <- verifyCreate pubKey algo StandardFormatSignature
+        _ctx <- verifyCreate pubKey algo StandardFormatSignature
         pass
     it "verifyUpdate" $ do
         rng <- rngInit "system"

@@ -1,6 +1,6 @@
-module Main where
+module Main (main) where
 
-import           Test.Prelude
+import           Test.Prelude hiding (mod)
 
 import           Botan.Low.MPI
 import           Botan.Low.RNG
@@ -12,7 +12,7 @@ import           Botan.Low.RNG
 main :: IO ()
 main = hspec $ do
     it "can initialize a mutable MPI reference" $ do
-        mp <- mpInit
+        _mp <- mpInit
         pass
     it "can set the value from an int" $ do
         mp <- mpInit
@@ -145,7 +145,7 @@ main = hspec $ do
         n <- mpInit
         mpSetFromInt n (-512)
         mpFlipSign p
-        isEqual <- mpEqual p n
+        _isEqual <- mpEqual p n
         pass
     it "can check whether a value is zero" $ do
         mp <- mpInit

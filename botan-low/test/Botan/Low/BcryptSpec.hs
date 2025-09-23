@@ -1,4 +1,4 @@
-module Main where
+module Main (main) where
 
 import           Test.Prelude
 
@@ -8,6 +8,7 @@ import           Botan.Low.RNG
 password :: ByteString
 password = "Fee fi fo fum!"
 
+factor :: BcryptWorkFactor
 factor = 12
 
 main :: IO ()

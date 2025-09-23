@@ -1,4 +1,4 @@
-module Main where
+module Main (main) where
 
 import           Test.Prelude
 
@@ -19,7 +19,7 @@ main = hspec $ testSuite blockCipher128s chars $ \ algo -> do
     it "nistKeyWrapEncode" $ do
         (_,keklen,_) <- blockCipherGetKeyspec =<< blockCipherInit algo
         kek <- systemRNGGet keklen
-        wrappedKey <- nistKeyWrapEncode algo 0 kwKey kek
+        _wrappedKey <- nistKeyWrapEncode algo 0 kwKey kek
         pass
     it "nistKeyWrapDecode" $ do
         (_,keklen,_) <- blockCipherGetKeyspec =<< blockCipherInit algo
@@ -31,7 +31,7 @@ main = hspec $ testSuite blockCipher128s chars $ \ algo -> do
     it "nistKeyWrapEncode padded" $ do
         (_,keklen,_) <- blockCipherGetKeyspec =<< blockCipherInit algo
         kek <- systemRNGGet keklen
-        wrappedKey <- nistKeyWrapEncode algo 1 kwpKey kek
+        _wrappedKey <- nistKeyWrapEncode algo 1 kwpKey kek
         pass
     it "nistKeyWrapDecode padded" $ do
         (_,keklen,_) <- blockCipherGetKeyspec =<< blockCipherInit algo

@@ -23,18 +23,13 @@ module Botan.Low.ZFEC
 -- $usage
 
 -- * ZFEC
-  ZFECShare(..)
+  ZFECShare
 , zfecEncode
 , zfecDecode
 
 ) where
 
-import           Control.Concurrent
-
-import           Data.Foldable
-
 import qualified Data.ByteString as ByteString
-import qualified Data.ByteString.Unsafe as ByteString
 
 import           Botan.Bindings.ZFEC
 

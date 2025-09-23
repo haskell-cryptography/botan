@@ -1,4 +1,6 @@
-module Main where
+module Main (main) where
+
+import           Data.Word
 
 import           Test.Prelude
 
@@ -69,60 +71,61 @@ Jj0gfU4amaj07pBHDPzbW3kCAwEAAQ==
 testCertHostname :: ByteString
 testCertHostname = "www.example.com"
 
+testCertValidTimestamp :: Word64
 testCertValidTimestamp = 1420092000
 
 main :: IO ()
 main = hspec $ do
     it "x509CertLoad" $ do
-        cert <- x509CertLoad testCert
+        _cert <- x509CertLoad testCert
         pass
     it "x509CertLoadFile" $ do
-        cert <- x509CertLoadFile =<< getDataFileName testCertFile
+        _cert <- x509CertLoadFile =<< getDataFileName testCertFile
         pass
     it "x509CertDup" $ do
         cert <- x509CertLoad testCert
-        dup <- x509CertDup cert
+        _dup <- x509CertDup cert
         -- TODO: parity check, eg:  x509CertGetPublicKey cert == x509CertGetPublicKey dup
         pass
     it "x509CertGetTimeStarts" $ do
         cert <- x509CertLoad testCert
-        ts <- x509CertGetTimeStarts cert
+        _ts <- x509CertGetTimeStarts cert
         pass
     it "x509CertGetTimeExpires" $ do
         cert <- x509CertLoad testCert
-        te <- x509CertGetTimeExpires cert
+        _te <- x509CertGetTimeExpires cert
         pass
     it "x509CertNotBefore" $ do
         cert <- x509CertLoad testCert
-        nb <- x509CertNotBefore cert
+        _nb <- x509CertNotBefore cert
         pass
     it "x509CertNotAfter" $ do
         cert <- x509CertLoad testCert
-        na <- x509CertNotAfter cert
+        _na <- x509CertNotAfter cert
         pass
     it "x509CertGetPubKeyFingerprint" $ do
         cert <- x509CertLoad testCert
-        fp <- x509CertGetPubKeyFingerprint cert "SHA-256" -- TODO: HashName
+        _fp <- x509CertGetPubKeyFingerprint cert "SHA-256" -- TODO: HashName
         pass
     it "x509CertGetSerialNumber" $ do
         cert <- x509CertLoad testCert
-        sn <- x509CertGetSerialNumber cert
+        _sn <- x509CertGetSerialNumber cert
         pass
     it "x509CertGetAuthorityKeyId" $ do
         cert <- x509CertLoad testCert
-        akid <- x509CertGetAuthorityKeyId cert
+        _akid <- x509CertGetAuthorityKeyId cert
         pass
     it "x509CertGetSubjectKeyId" $ do
         cert <- x509CertLoad testCert
-        sid <- x509CertGetSubjectKeyId cert
+        _sid <- x509CertGetSubjectKeyId cert
         pass
     it "x509CertGetPublicKeyBits" $ do
         cert <- x509CertLoad testCert
-        pkbits <- x509CertGetPublicKeyBits cert
+        _pkbits <- x509CertGetPublicKeyBits cert
         pass
     it "x509CertGetPublicKey" $ do
         cert <- x509CertLoad testCert
-        pk <- x509CertGetPublicKey cert
+        _pk <- x509CertGetPublicKey cert
         pass
     it "x509CertGetIssuerDN" $ do
         cert <- x509CertLoad testCert
@@ -133,39 +136,39 @@ main = hspec $ do
         _ <- x509CertGetSubjectDN cert "CN" 0 -- TODO: Distinguished names, etc
         pass
     it "x509CertToString" $ do
-        cert <- x509CertLoad testCert
+        _cert <- x509CertLoad testCert
         pass
     it "x509CertAllowedUsage" $ do
         cert <- x509CertLoad testCert
-        allowed <- x509CertAllowedUsage cert NoConstraints
+        _allowed <- x509CertAllowedUsage cert NoConstraints
         pass
     it "x509CertHostnameMatch" $ do
         cert <- x509CertLoad testCert
-        matched <- x509CertHostnameMatch cert testCertHostname
+        _matched <- x509CertHostnameMatch cert testCertHostname
         pass
     it "x509CertVerify" $ do
         cert <- x509CertLoad testCert
-        (success, status) <- x509CertVerify cert [] [] Nothing 0 testCertHostname testCertValidTimestamp
+        (_success, _status) <- x509CertVerify cert [] [] Nothing 0 testCertHostname testCertValidTimestamp
         pass
     it "x509CertValidationStatus" $ do
-        cert <- x509CertLoad testCert
+        _cert <- x509CertLoad testCert
         _ <- x509CertValidationStatus 0
         pending
     -- NOTE: May need to generate a proper test cert with CA and CRL
     it "x509CRLLoad" $ do
-        cert <- x509CertLoad testCert
+        _cert <- x509CertLoad testCert
         -- x509CRLLoad cert
         pending
     it "x509CRLLoadFile" $ do
-        cert <- x509CertLoad testCert
+        _cert <- x509CertLoad testCert
         -- x509CRLLoadFile cert
         pending
     it "x509IsRevoked" $ do
-        cert <- x509CertLoad testCert
+        _cert <- x509CertLoad testCert
         -- x509IsRevoked cert
         pending
     it "x509CertVerifyWithCLR" $ do
-        cert <- x509CertLoad testCert
+        _cert <- x509CertLoad testCert
         -- x509CertVerifyWithCLR cert
         pending
 

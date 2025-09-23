@@ -9,15 +9,14 @@ Stability   : experimental
 Portability : POSIX
 -}
 
-module Botan.Low.PubKey.ElGamal where
+module Botan.Low.PubKey.ElGamal (
+    privKeyCreateElGamal
+  , privKeyLoadElGamal
+  , pubKeyLoadElGamal
+  ) where
 
-import qualified Data.ByteString as ByteString
-
-import           Botan.Bindings.PubKey
 import           Botan.Bindings.PubKey.ElGamal
 
-import           Botan.Low.Error
-import           Botan.Low.Make
 import           Botan.Low.MPI
 import           Botan.Low.Prelude
 import           Botan.Low.PubKey

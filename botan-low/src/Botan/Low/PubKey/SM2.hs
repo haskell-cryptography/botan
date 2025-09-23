@@ -1,6 +1,8 @@
-module Botan.Low.PubKey.SM2 where
+module Botan.Low.PubKey.SM2 (
+    privKeyLoadSM2
+  , pubKeyLoadSM2
+  ) where
 
-import           Botan.Bindings.PubKey
 import           Botan.Bindings.PubKey.SM2
 
 import           Botan.Low.MPI

@@ -1,4 +1,6 @@
-module Main where
+module Main (main) where
+
+import           Data.String
 
 import           Test.Prelude
 
@@ -51,12 +53,17 @@ pkTestName (pk, param) = chars $ pk <> " " <> param
 --  RSA PubKey: p, q, d, c, d1, d2
 --  RSA PrivKey: n, e, d, p, q, d1, d2, c
 
+ecGroupPrivFields :: [ByteString]
 ecGroupPrivFields = [ "x" , "public_x", "public_y", "base_x", "base_y", "p", "a", "b", "cofactor", "order" ]
+ecGroupPubFields :: [ByteString]
 ecGroupPubFields = [ "public_x", "public_y", "base_x", "base_y", "p", "a", "b", "cofactor", "order" ]
 
+dlGroupPrivFields :: [ByteString]
 dlGroupPrivFields = [ "p", "q", "g", "x", "y" ]
+dlGroupPubFields :: [ByteString]
 dlGroupPubFields = [ "p", "q", "g", "y" ]
 
+privKeyFields :: (Eq a, IsString a) => a -> [ByteString]
 privKeyFields "RSA"        = [ "p", "q", "d", "n", "e"] -- TODO: Check
 privKeyFields "SM2"        = ecGroupPrivFields
 privKeyFields "ElGamal"    = dlGroupPrivFields
@@ -73,7 +80,9 @@ privKeyFields "Curve25519" = [] -- TODO
 privKeyFields "Dilithium"  = [] -- TODO
 privKeyFields "Kyber"      = [] -- TODO
 privKeyFields "McEliece"   = [] -- TODO
+privKeyFields _            = error "privKeyFields"
 
+pubKeyFields :: (Eq a, IsString a) => a -> [ByteString]
 pubKeyFields "RSA"        = [ "n", "e" ]
 pubKeyFields "SM2"        = ecGroupPubFields
 pubKeyFields "ElGamal"    = dlGroupPubFields
@@ -90,13 +99,14 @@ pubKeyFields "Curve25519" = [] -- TODO
 pubKeyFields "Dilithium"  = [] -- TODO
 pubKeyFields "Kyber"      = [] -- TODO
 pubKeyFields "McEliece"   = [] -- TODO
+pubKeyFields _            = error "pubKeyFields"
 
 -- NOTE: These tests are going to be very slow if we create new keys every time
 main :: IO ()
 main = hspec $ testSuite pks pkTestName $ \ (pk, param) -> do
     it "privKeyCreate" $ do
         rng <- rngInit "system"
-        privKey <- privKeyCreate pk param rng
+        _privKey <- privKeyCreate pk param rng
         pass
     it "privKeyCheckKey" $ do
         rng <- rngInit "system"
@@ -107,40 +117,40 @@ main = hspec $ testSuite pks pkTestName $ \ (pk, param) -> do
     it "privKeyExport" $ do
         rng <- rngInit "system"
         privKey <- privKeyCreate pk param rng
-        privKeyDER <- privKeyExport privKey PrivKeyExportDER
-        privKeyPEM <- privKeyExport privKey PrivKeyExportPEM
+        _privKeyDER <- privKeyExport privKey PrivKeyExportDER
+        _privKeyPEM <- privKeyExport privKey PrivKeyExportPEM
         pass
     it "privKeyLoad" $ do
         rng <- rngInit "system"
         privKey <- privKeyCreate pk param rng
         privKeyDER <- privKeyExport privKey PrivKeyExportDER
         privKeyPEM <- privKeyExport privKey PrivKeyExportPEM
-        privKeyLoad privKeyDER ""
-        privKeyLoad privKeyPEM ""
+        void $ privKeyLoad privKeyDER ""
+        void $ privKeyLoad privKeyPEM ""
         pass
     it "privKeyAlgoName" $ do
         rng <- rngInit "system"
         privKey <- privKeyCreate pk param rng
-        privKeyAlgoName privKey
+        void $ privKeyAlgoName privKey
         pass
     it "privKeyExportPubKey" $ do
         rng <- rngInit "system"
         privKey <- privKeyCreate pk param rng
-        pubKey <- privKeyExportPubKey privKey
+        _pubKey <- privKeyExportPubKey privKey
         pass
     it "pubKeyCheckKey" $ do
         rng <- rngInit "system"
         privKey <- privKeyCreate pk param rng
         pubKey <- privKeyExportPubKey privKey
-        pubKeyCheckKey pubKey rng CheckKeyNormalTests
+        void $ pubKeyCheckKey pubKey rng CheckKeyNormalTests
         -- pubKeyCheckKey pubKey rng CheckKeyExpensiveTests
         pass
     it "pubKeyExport" $ do
         rng <- rngInit "system"
         privKey <- privKeyCreate pk param rng
         pubKey <- privKeyExportPubKey privKey
-        pubKeyDER <- pubKeyExport pubKey PrivKeyExportDER
-        pubKeyPEM <- pubKeyExport pubKey PrivKeyExportPEM
+        _pubKeyDER <- pubKeyExport pubKey PrivKeyExportDER
+        _pubKeyPEM <- pubKeyExport pubKey PrivKeyExportPEM
         pass
     it "pubKeyLoad" $ do
         rng <- rngInit "system"
@@ -148,26 +158,26 @@ main = hspec $ testSuite pks pkTestName $ \ (pk, param) -> do
         pubKey <- privKeyExportPubKey privKey
         pubKeyDER <- pubKeyExport pubKey PrivKeyExportDER
         pubKeyPEM <- pubKeyExport pubKey PrivKeyExportPEM
-        pubKeyLoad pubKeyDER
-        pubKeyLoad pubKeyPEM
+        void $ pubKeyLoad pubKeyDER
+        void $ pubKeyLoad pubKeyPEM
         pass
     it "pubKeyAlgoName" $ do
         rng <- rngInit "system"
         privKey <- privKeyCreate pk param rng
         pubKey <- privKeyExportPubKey privKey
-        pubKeyAlgoName pubKey
+        void $ pubKeyAlgoName pubKey
         pass
     it "pubKeyEstimatedStrength" $ do
         rng <- rngInit "system"
         privKey <- privKeyCreate pk param rng
         pubKey <- privKeyExportPubKey privKey
-        pubKeyEstimatedStrength pubKey
+        void $ pubKeyEstimatedStrength pubKey
         pass
     it "pubKeyFingerprint" $ do
         rng <- rngInit "system"
         privKey <- privKeyCreate pk param rng
         pubKey <- privKeyExportPubKey privKey
-        pubKeyFingerprint pubKey "SHA-256"
+        void $ pubKeyFingerprint pubKey "SHA-256"
         pass
     describe "privKeyGetField" $ do
         forM_ (privKeyFields pk) $ \ field -> do

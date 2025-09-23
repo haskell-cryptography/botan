@@ -14,7 +14,7 @@ module Botan.Low.PubKey.Sign
 
 -- * Public key signatures
   Sign(..)
-, SigningFlags(..)
+, SigningFlags
 , pattern StandardFormatSignature
 , pattern DERFormatSignature
 , withSign
@@ -43,18 +43,14 @@ import           Botan.Low.RNG
 
 newtype Sign = MkSign { getSignForeignPtr :: ForeignPtr BotanPKOpSignStruct }
 
-newSign      :: BotanPKOpSign -> IO Sign
 withSign     :: Sign -> (BotanPKOpSign -> IO a) -> IO a
 signDestroy  :: Sign -> IO ()
 createSign   :: (Ptr BotanPKOpSign -> IO CInt) -> IO Sign
-(newSign, withSign, signDestroy, createSign, _)
+(_, withSign, signDestroy, createSign, _)
     = mkBindings
         MkBotanPKOpSign runBotanPKOpSign
         MkSign getSignForeignPtr
         botan_pk_op_sign_destroy
-
--- TODO: Rename SignAlgoParams / SigningParams
-type SignAlgoName = ByteString
 
 type SigningFlags = Word32
 
@@ -76,10 +72,6 @@ signCreate sk algo flags = withPrivKey sk $ \ skPtr -> do
             skPtr
             (ConstPtr algoPtr)
             flags
-
--- WARNING: withFooInit-style limited lifetime functions moved to high-level botan
-withSignCreate :: PrivKey -> EMSAName -> SigningFlags -> (Sign -> IO a) -> IO a
-withSignCreate = mkWithTemp3 signCreate signDestroy
 
 signOutputLength
     :: Sign     -- ^ __op__

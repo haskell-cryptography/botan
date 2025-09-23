@@ -9,15 +9,16 @@ Stability   : experimental
 Portability : POSIX
 -}
 
-module Botan.Low.PubKey.Ed25519 where
+module Botan.Low.PubKey.Ed25519 (
+    privKeyLoadEd25519
+  , pubKeyLoadEd25519
+  , privKeyEd25519GetPrivKey
+  , pubKeyEd25519GetPubKey
+  ) where
 
-import qualified Data.ByteString as ByteString
-
-import           Botan.Bindings.PubKey
 import           Botan.Bindings.PubKey.Ed25519
 
 import           Botan.Low.Error
-import           Botan.Low.Make
 import           Botan.Low.Prelude
 import           Botan.Low.PubKey
 import           Botan.Low.Remake

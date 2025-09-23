@@ -48,9 +48,13 @@ import           Control.Exception
 import           Control.Monad
 
 import           Data.ByteString (ByteString)
+import qualified Data.ByteString as ByteString
+import qualified Data.ByteString.Char8 as Char8
+import qualified Data.ByteString.Internal as ByteString
+import qualified Data.ByteString.Unsafe as ByteString
 import           Data.String (IsString (..))
 import           Data.Text (Text)
-
+import qualified Data.Text.Encoding as Text
 import           Data.Word
 
 import           System.IO
@@ -65,16 +69,6 @@ import           Foreign.Ptr
 import           Foreign.Storable
 
 import           GHC.Stack
-
--- Other Imports
-
-import qualified Data.ByteString as ByteString
-import qualified Data.ByteString.Internal as ByteString
-import qualified Data.ByteString.Unsafe as ByteString
-
-import qualified Data.ByteString.Char8 as Char8
-
-import qualified Data.Text.Encoding as Text
 
 import           Botan.Bindings.Prelude (ConstPtr (..))
 
@@ -114,13 +108,6 @@ withCString = ByteString.useAsCString
 
 -- type CStringLen = (Ptr CChar, Int)
 
-peekCStringLen :: CStringLen -> IO ByteString
-peekCStringLen = ByteString.packCStringLen
-
--- Replaces 'asCStringLen'
-withCStringLen :: ByteString -> (CStringLen -> IO a) -> IO a
-withCStringLen = ByteString.useAsCStringLen
-
 type CBytes = Ptr Word8
 
 -- peekCBytes :: CBytes -> Int -> IO ByteString
@@ -130,9 +117,6 @@ withCBytes :: ByteString -> (CBytes -> IO a) -> IO a
 withCBytes bs act = ByteString.useAsCStringLen bs (\ (ptr,_) -> act (castPtr ptr))
 
 type CBytesLen = (Ptr Word8, Int)
-
-peekCBytesLen :: CBytesLen -> IO ByteString
-peekCBytesLen (ptr, len) = ByteString.packCStringLen (castPtr ptr, len)
 
 -- Replaces 'asBytesLen'
 withCBytesLen :: ByteString -> (CBytesLen -> IO a) -> IO a
@@ -164,8 +148,8 @@ withMany
     -> [object]
     -> ([cobject] -> IO b)
     -> IO b
-withMany withObject []         act = act []
-withMany withObject (obj:objs) act = withObject obj $ \ cobj -> withMany withObject objs (act . (cobj:))
+withMany _withObject []         act = act []
+withMany withObject  (obj:objs) act = withObject obj $ \ cobj -> withMany withObject objs (act . (cobj:))
 
 {-
 OLD
@@ -204,14 +188,6 @@ allocBytesWith sz f
         -- NOTE: The safety of this function is suspect, may require deepseq
         let bs = ByteString.PS fptr 0 sz
             in bs `deepseq` return (a,bs)
-
--- ByteString.create' doesn't exist
--- TODO: Replace allocBytesWith with this
-createByteString' :: Int -> (Ptr byte -> IO a) -> IO (ByteString,a)
-createByteString' sz action = ByteString.createUptoN' sz $ \ ptr -> do
-    a <- action (castPtr ptr)
-    return (sz,a)
-{-# INLINE createByteString' #-}
 
 --
 

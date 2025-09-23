@@ -1,4 +1,4 @@
-module Main where
+module Main (main) where
 
 import           Test.Prelude
 
@@ -59,7 +59,7 @@ main = hspec $ testSuite ecGroups chars $ \ ecGroup -> do
         rng <- rngInit "system"
         privKey <- privKeyCreate "SM2" ecGroup rng
         x <- privKeyField privKey "x"
-        loadedPrivKey <- privKeyLoadSM2 x ecGroup
+        _loadedPrivKey <- privKeyLoadSM2 x ecGroup
         pass
     it "pubKeyLoadSM2" $ do
         rng <- rngInit "system"
@@ -67,5 +67,5 @@ main = hspec $ testSuite ecGroups chars $ \ ecGroup -> do
         pubKey <- privKeyExportPubKey privKey
         public_x <- pubKeyField pubKey "public_x"
         public_y <- pubKeyField pubKey "public_y"
-        loadedPubKey <- pubKeyLoadSM2 public_x public_y ecGroup
+        _loadedPubKey <- pubKeyLoadSM2 public_x public_y ecGroup
         pass

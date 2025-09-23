@@ -82,11 +82,10 @@ import           Botan.Low.RNG
 
 newtype MP = MkMP { getMPForeignPtr :: ForeignPtr BotanMPStruct }
 
-newMP      :: BotanMP -> IO MP
 withMP     :: MP -> (BotanMP -> IO a) -> IO a
 mpDestroy  :: MP -> IO ()
 createMP   :: (Ptr BotanMP -> IO CInt) -> IO MP
-(newMP, withMP, mpDestroy, createMP, _)
+(_, withMP, mpDestroy, createMP, _)
     = mkBindings
         MkBotanMP runBotanMP
         MkMP getMPForeignPtr

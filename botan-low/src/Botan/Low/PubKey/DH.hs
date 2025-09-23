@@ -9,14 +9,13 @@ Stability   : experimental
 Portability : POSIX
 -}
 
-module Botan.Low.PubKey.DH where
-
-import qualified Data.ByteString as ByteString
+module Botan.Low.PubKey.DH (
+    privKeyLoadDH
+  , pubKeyLoadDH
+  ) where
 
 import           Botan.Bindings.PubKey.DH
 
-import           Botan.Low.Error
-import           Botan.Low.Make
 import           Botan.Low.MPI
 import           Botan.Low.Prelude
 import           Botan.Low.PubKey

@@ -22,16 +22,12 @@ module Botan.Low.PubKey.Decrypt
 
 ) where
 
-import qualified Data.ByteString as ByteString
-
 import           Botan.Bindings.PubKey.Decrypt
 
-import           Botan.Low.Error
 import           Botan.Low.Make
 import           Botan.Low.Prelude
 import           Botan.Low.PubKey
 import           Botan.Low.Remake
-import           Botan.Low.RNG
 
 -- /*
 -- * Public Key Decryption
@@ -39,11 +35,10 @@ import           Botan.Low.RNG
 
 newtype Decrypt = MkDecrypt { getDecryptForeignPtr :: ForeignPtr BotanPKOpDecryptStruct }
 
-newDecrypt      :: BotanPKOpDecrypt -> IO Decrypt
 withDecrypt     :: Decrypt -> (BotanPKOpDecrypt -> IO a) -> IO a
 decryptDestroy  :: Decrypt -> IO ()
 createDecrypt   :: (Ptr BotanPKOpDecrypt -> IO CInt) -> IO Decrypt
-(newDecrypt, withDecrypt, decryptDestroy, createDecrypt, _)
+(_, withDecrypt, decryptDestroy, createDecrypt, _)
     = mkBindings
         MkBotanPKOpDecrypt runBotanPKOpDecrypt
         MkDecrypt getDecryptForeignPtr
@@ -60,10 +55,6 @@ decryptCreate sk padding =  withPrivKey sk $ \ skPtr -> do
             skPtr
             paddingPtr
             BOTAN_PUBKEY_DECRYPT_FLAGS_NONE
-
--- WARNING: withFooInit-style limited lifetime functions moved to high-level botan
-withDecryptCreate :: PrivKey -> EMEName -> (Decrypt -> IO a) -> IO a
-withDecryptCreate = mkWithTemp2 decryptCreate decryptDestroy
 
 decryptOutputLength
     :: Decrypt  -- ^ __op__

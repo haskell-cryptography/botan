@@ -50,7 +50,7 @@ module Botan.Low.X509
 
 -- * X509 Key constraints
 
-, X509KeyConstraints(..)
+, X509KeyConstraints
 , pattern NoConstraints
 , pattern DigitalSignature
 , pattern NonRepudiation
@@ -73,28 +73,22 @@ module Botan.Low.X509
 , x509CertVerifyWithCLR
 
 -- * Convenience
-, DistinguishedName(..)
+, DistinguishedName
 
 ) where
 
-import qualified Data.ByteString as ByteString
+import           Data.ByteString (packCString)
 import qualified Data.ByteString.Char8 as Char8
+import qualified Foreign.C.String as String (withCString)
 
-import           Botan.Bindings.PubKey
 import           Botan.Bindings.X509
 
-import           Botan.Low.Hash (HashName (..))
-
 import           Botan.Low.Error
+import           Botan.Low.Hash (HashName)
 import           Botan.Low.Make
 import           Botan.Low.Prelude
 import           Botan.Low.PubKey
-import           Botan.Low.PubKey (createPubKey)
 import           Botan.Low.Remake
-import           Botan.Low.Remake (mkCreateObjectCBytesLen)
-import           Data.ByteString (packCString)
-import           Data.Maybe (fromMaybe)
-import qualified Foreign.C.String as String (withCString)
 
 -- TODO: Use *.Make module to ensure consistency
 
@@ -106,12 +100,11 @@ type DistinguishedName = ByteString
 
 newtype X509Cert = MkX509Cert { getX509CertForeignPtr :: ForeignPtr BotanX509CertStruct }
 
-newX509Cert      :: BotanX509Cert -> IO X509Cert
 withX509Cert     :: X509Cert -> (BotanX509Cert -> IO a) -> IO a
 -- | Destroy an x509 cert object immediately
 x509CertDestroy  :: X509Cert -> IO ()
 createX509Cert   :: (Ptr BotanX509Cert -> IO CInt) -> IO X509Cert
-(newX509Cert, withX509Cert, x509CertDestroy, createX509Cert, _)
+(_, withX509Cert, x509CertDestroy, createX509Cert, _)
     = mkBindings MkBotanX509Cert runBotanX509Cert MkX509Cert getX509CertForeignPtr botan_x509_cert_destroy
 
 x509CertLoad
@@ -145,10 +138,10 @@ x509CertNotBefore
     -> IO Word64    -- ^ __time_since_epoch__
 x509CertNotBefore cert = withX509Cert cert $ \ certPtr -> do
     alloca $ \ timePtr -> do
-        botan_x509_cert_not_before
+        void $ botan_x509_cert_not_before
             certPtr
             timePtr
-        fromIntegral <$> peek timePtr
+        peek timePtr
 
 -- TODO: mkGetIntegral
 x509CertNotAfter
@@ -156,10 +149,10 @@ x509CertNotAfter
     -> IO Word64    -- ^ __time_since_epoch__
 x509CertNotAfter cert = withX509Cert cert $ \ certPtr -> do
     alloca $ \ timePtr -> do
-        botan_x509_cert_not_after
+        void $ botan_x509_cert_not_after
             certPtr
             timePtr
-        fromIntegral <$> peek timePtr
+        peek timePtr
 
 
 x509CertGetPubKeyFingerprint
@@ -366,11 +359,10 @@ x509CertValidationStatus code = do
 
 newtype X509CRL = MkX509CRL { getX509CRLForeignPtr :: ForeignPtr BotanX509CRLStruct }
 
-newX509CRL      :: BotanX509CRL -> IO X509CRL
 withX509CRL     :: X509CRL -> (BotanX509CRL -> IO a) -> IO a
 x509CRLDestroy  :: X509CRL -> IO ()
 createX509CRL   :: (Ptr BotanX509CRL -> IO CInt) -> IO X509CRL
-(newX509CRL, withX509CRL, x509CRLDestroy, createX509CRL, _)
+(_, withX509CRL, x509CRLDestroy, createX509CRL, _)
     = mkBindings MkBotanX509CRL runBotanX509CRL MkX509CRL getX509CRLForeignPtr botan_x509_crl_destroy
 
 x509CRLLoad

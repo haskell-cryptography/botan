@@ -1,4 +1,4 @@
-module Main where
+module Main (main) where
 
 import           Test.Prelude
 
@@ -59,7 +59,7 @@ main = hspec $ testSuite ecGroups chars $ \ ecGroup -> do
         rng <- rngInit "system"
         privKey <- privKeyCreate "ECDH" ecGroup rng
         x <- privKeyField privKey "x"
-        loadedPrivKey <- privKeyLoadECDH x ecGroup
+        _loadedPrivKey <- privKeyLoadECDH x ecGroup
         -- Inscrutible >_> but shows key equality
         -- pubKeyBytes <- privKeyExportPubKey privKey >>= \ pubKey -> pubKeyExport pubKey PubKeyExportPEM
         -- loadedPubKeyBytes <- privKeyExportPubKey loadedPrivKey >>= \ loadedPubKey -> pubKeyExport loadedPubKey PubKeyExportPEM
@@ -71,7 +71,7 @@ main = hspec $ testSuite ecGroups chars $ \ ecGroup -> do
         pubKey <- privKeyExportPubKey privKey
         public_x <- pubKeyField pubKey "public_x"
         public_y <- pubKeyField pubKey "public_y"
-        loadedPubKey <- pubKeyLoadECDH public_x public_y ecGroup
+        _loadedPubKey <- pubKeyLoadECDH public_x public_y ecGroup
         -- pubKeyBytes <- pubKeyExport pubKey PubKeyExportPEM
         -- loadedPubKeyBytes <- pubKeyExport loadedPubKey PubKeyExportPEM
         -- pubKeyBytes `shouldBe` loadedPubKeyBytes
