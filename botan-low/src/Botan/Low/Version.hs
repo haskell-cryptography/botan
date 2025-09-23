@@ -9,15 +9,15 @@ Stability   : experimental
 Portability : POSIX
 -}
 
-module Botan.Low.Version
-( botanFFIAPIVersion
-, botanFFISupportsAPI
-, botanVersionString
-, botanVersionMajor
-, botanVersionMinor
-, botanVersionPatch
-, botanVersionDatestamp
-) where
+module Botan.Low.Version (
+    botanFFIAPIVersion
+  , botanFFISupportsAPI
+  , botanVersionString
+  , botanVersionMajor
+  , botanVersionMinor
+  , botanVersionPatch
+  , botanVersionDatestamp
+  ) where
 
 import           Data.Bool
 

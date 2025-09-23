@@ -1,43 +1,43 @@
-module Botan.Low.Prelude
-( module Prelude
-, module Control.Monad
-, module Control.Exception
-, module Control.DeepSeq
-, module Data.ByteString
-, module Data.String
-, module Data.Text
-, module Data.Word
-, module System.IO
-, module Foreign.C.String
-, module Foreign.C.Types
-, module Foreign.ForeignPtr
-, module Foreign.Marshal.Alloc
-, module Foreign.Marshal.Array
-, module Foreign.Ptr
-, module Foreign.Storable
-, module GHC.Stack
-, ConstPtr(..)
-, peekCString
-, withCString
-, withCBytes
-, withCBytesLen
-, withConstCString
-, withMany
--- Old
-, peekCStringText
-, allocBytes
-, allocBytesWith
-, asCString
-, asCStringLen
-, asBytes
-, unsafeAsBytes
-, asBytesLen
-, unsafeAsBytesLen
--- Helpers
-, (//)
-, (/$)
-, showBytes
-) where
+module Botan.Low.Prelude (
+    module Prelude
+  , module Control.Monad
+  , module Control.Exception
+  , module Control.DeepSeq
+  , module Data.ByteString
+  , module Data.String
+  , module Data.Text
+  , module Data.Word
+  , module System.IO
+  , module Foreign.C.String
+  , module Foreign.C.Types
+  , module Foreign.ForeignPtr
+  , module Foreign.Marshal.Alloc
+  , module Foreign.Marshal.Array
+  , module Foreign.Ptr
+  , module Foreign.Storable
+  , module GHC.Stack
+  , ConstPtr(..)
+  , peekCString
+  , withCString
+  , withCBytes
+  , withCBytesLen
+  , withConstCString
+  , withMany
+  -- Old
+  , peekCStringText
+  , allocBytes
+  , allocBytesWith
+  , asCString
+  , asCStringLen
+  , asBytes
+  , unsafeAsBytes
+  , asBytesLen
+  , unsafeAsBytesLen
+  -- Helpers
+  , (//)
+  , (/$)
+  , showBytes
+  ) where
 
 -- Re-exported modules
 

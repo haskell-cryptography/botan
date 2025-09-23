@@ -13,72 +13,71 @@ Most applications want the higher level cipher API which provides authenticated 
 This API exists as an escape hatch for applications which need to implement custom primitives using a PRP.
 -}
 
-module Botan.Low.BlockCipher
-(
+module Botan.Low.BlockCipher (
 
--- * Block ciphers
--- $introduction
+  -- * Block ciphers
+  -- $introduction
 
--- * Usage
--- $usage
+  -- * Usage
+  -- $usage
 
-  BlockCipher(..)
-, BlockCipherName
-, BlockCipher128Name
-, BlockCipherKey
-, BlockCipherCiphertext
-, withBlockCipher
-, blockCipherInit
-, blockCipherDestroy
-, blockCipherName
-, blockCipherBlockSize
-, blockCipherGetKeyspec
-, blockCipherSetKey
-, blockCipherEncryptBlocks
-, blockCipherDecryptBlocks
-, blockCipherClear
+    BlockCipher(..)
+  , BlockCipherName
+  , BlockCipher128Name
+  , BlockCipherKey
+  , BlockCipherCiphertext
+  , withBlockCipher
+  , blockCipherInit
+  , blockCipherDestroy
+  , blockCipherName
+  , blockCipherBlockSize
+  , blockCipherGetKeyspec
+  , blockCipherSetKey
+  , blockCipherEncryptBlocks
+  , blockCipherDecryptBlocks
+  , blockCipherClear
 
--- * 64-bit block ciphers
+  -- * 64-bit block ciphers
 
-, pattern Blowfish
-, pattern CAST128
-, pattern DES
-, pattern TripleDES
-, pattern GOST_28147_89
-, pattern IDEA
+  , pattern Blowfish
+  , pattern CAST128
+  , pattern DES
+  , pattern TripleDES
+  , pattern GOST_28147_89
+  , pattern IDEA
 
--- * 128-bit block ciphers
+  -- * 128-bit block ciphers
 
-, pattern AES128
-, pattern AES192
-, pattern AES256
-, pattern ARIA128
-, pattern ARIA192
-, pattern ARIA256
-, pattern Camellia128
-, pattern Camellia192
-, pattern Camellia256
-, pattern Noekeon
-, pattern SEED
-, pattern SM4
-, pattern Serpent
-, pattern Twofish
+  , pattern AES128
+  , pattern AES192
+  , pattern AES256
+  , pattern ARIA128
+  , pattern ARIA192
+  , pattern ARIA256
+  , pattern Camellia128
+  , pattern Camellia192
+  , pattern Camellia256
+  , pattern Noekeon
+  , pattern SEED
+  , pattern SM4
+  , pattern Serpent
+  , pattern Twofish
 
--- * 256-bit block ciphers
+  -- * 256-bit block ciphers
 
-, pattern SHACAL2
+  , pattern SHACAL2
 
--- * 512-bit block ciphers
+  -- * 512-bit block ciphers
 
-, pattern Threefish512
+  , pattern Threefish512
 
--- * Convenience
+  -- * Convenience
 
-, blockCiphers
-, blockCipher128s
-, allBlockCiphers
+  , blockCiphers
+  , blockCipher128s
+  , allBlockCiphers
 
-) where
+  ) where
 
 import           Botan.Bindings.BlockCipher
 

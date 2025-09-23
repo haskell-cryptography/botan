@@ -11,28 +11,27 @@ Portability : POSIX
 Derive a key from a passphrase
 -}
 
-module Botan.Low.PwdHash
-(
+module Botan.Low.PwdHash (
 
--- * Password hashing
+  -- * Password hashing
 
-  PBKDFName
-, pwdhash
-, pwdhashTimed
+    PBKDFName
+  , pwdhash
+  , pwdhashTimed
 
--- * Password hashing algorithms
+  -- * Password hashing algorithms
 
-, pattern PBKDF2
-, pbkdf2
-, pattern Scrypt
-, pattern Argon2d
-, pattern Argon2i
-, pattern Argon2id
-, pattern Bcrypt_PBKDF
-, pattern OpenPGP_S2K
-, openPGP_S2K
+  , pattern PBKDF2
+  , pbkdf2
+  , pattern Scrypt
+  , pattern Argon2d
+  , pattern Argon2i
+  , pattern Argon2id
+  , pattern Bcrypt_PBKDF
+  , pattern OpenPGP_S2K
+  , openPGP_S2K
 
-) where
+  ) where
 
 import           Botan.Bindings.PwdHash
 

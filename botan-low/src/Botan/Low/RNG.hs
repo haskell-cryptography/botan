@@ -11,34 +11,33 @@ Portability : POSIX
 Pseudo-random number generation.
 -}
 
-module Botan.Low.RNG
-(
+module Botan.Low.RNG (
 
--- * Random number generators
--- $introduction
+  -- * Random number generators
+  -- $introduction
 
--- * Usage
--- $usage
+  -- * Usage
+  -- $usage
 
-  RNG(..)
-, RNGType
-, withRNG
-, rngInit
-, rngDestroy
-, rngGet
-, systemRNGGet
-, rngReseed
-, rngReseedFromRNG
-, rngAddEntropy
+    RNG(..)
+  , RNGType
+  , withRNG
+  , rngInit
+  , rngDestroy
+  , rngGet
+  , systemRNGGet
+  , rngReseed
+  , rngReseedFromRNG
+  , rngAddEntropy
 
--- * RNG Types
+  -- * RNG Types
 
-, pattern SystemRNG
-, pattern UserRNG
-, pattern UserThreadsafeRNG
-, pattern RDRandRNG
+  , pattern SystemRNG
+  , pattern UserRNG
+  , pattern UserThreadsafeRNG
+  , pattern RDRandRNG
 
-) where
+  ) where
 
 import           Botan.Bindings.RNG
 

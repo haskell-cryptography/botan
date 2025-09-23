@@ -22,13 +22,12 @@ implementations (such as in OpenSSL) do also allow other ciphers.
 Use AES for best interop.
 -}
 
-module Botan.Low.KeyWrap
-(
+module Botan.Low.KeyWrap (
 
-  nistKeyWrapEncode
-, nistKeyWrapDecode
+    nistKeyWrapEncode
+  , nistKeyWrapDecode
 
-) where
+  ) where
 
 import           Botan.Bindings.KeyWrap
 

@@ -9,15 +9,14 @@ Stability   : experimental
 Portability : POSIX
 -}
 
-module Botan.Low.View
-( BotanViewBinFn
-, BotanViewBinCallback
-, viewBin
-, BotanViewStrFn
-, BotanViewStrCallback
-, viewStr
-
-)where
+module Botan.Low.View (
+    BotanViewBinFn
+  , BotanViewBinCallback
+  , viewBin
+  , BotanViewStrFn
+  , BotanViewStrCallback
+  , viewStr
+  ) where
 
 import           System.IO
 

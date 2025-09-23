@@ -33,20 +33,19 @@ the words by their lexicographical order, and choose the modulus to be
 the number of words in the dictionary.
 -}
 
-module Botan.Low.FPE
-(
+module Botan.Low.FPE (
 
-  FPE(..)
-, FPEFlags
-, pattern FPENone
-, pattern FPEFE1CompatMode
-, withFPE
-, fpeInitFE1
-, fpeDestroy
-, fpeEncrypt
-, fpeDecrypt
+    FPE(..)
+  , FPEFlags
+  , pattern FPENone
+  , pattern FPEFE1CompatMode
+  , withFPE
+  , fpeInitFE1
+  , fpeDestroy
+  , fpeEncrypt
+  , fpeDecrypt
 
-) where
+  ) where
 
 import           Botan.Bindings.FPE
 

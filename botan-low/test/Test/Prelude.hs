@@ -1,16 +1,16 @@
-module Test.Prelude
-( module Prelude
-, module Test.Hspec
-, module Test.QuickCheck
-, module Control.Monad
-, module Data.ByteString
-, chars
-, splitBlocks
-, testSuite
-, ftestSuite
-, pass
-, anyBotanException
-) where
+module Test.Prelude (
+    module Prelude
+  , module Test.Hspec
+  , module Test.QuickCheck
+  , module Control.Monad
+  , module Data.ByteString
+  , chars
+  , splitBlocks
+  , testSuite
+  , ftestSuite
+  , pass
+  , anyBotanException
+  ) where
 
 import           Prelude
 

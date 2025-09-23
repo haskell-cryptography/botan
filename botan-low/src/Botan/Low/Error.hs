@@ -9,63 +9,63 @@ Stability   : experimental
 Portability : POSIX
 -}
 
-module Botan.Low.Error
-( BotanErrorCode
-, pattern Success
-, pattern InvalidIdentifier
-, pattern InvalidInput
-, pattern BadMAC
-, pattern InsufficientBufferSpace
-, pattern StringConversionError
-, pattern ExceptionThrown
-, pattern OutOfMemory
-, pattern SystemError
-, pattern InternalError
-, pattern BadFlag
-, pattern NullPointer
-, pattern BadParameter
-, pattern KeyNotSet
-, pattern InvalidKeyLength
-, pattern InvalidObjectState
-, pattern NotImplemented
-, pattern InvalidObject
-, pattern TLSError
-, pattern HttpError
-, pattern RoughtimeError
-, pattern UnknownError
-, botanErrorDescription
-, botanErrorLastExceptionMessage
-, SomeBotanException(..)
-, toBotanException
-, fromBotanException
-, InvalidInputException(..)
-, BadMACException(..)
-, InsufficientBufferSpaceException(..)
-, StringConversionException(..)
-, ExceptionThrownException(..)
-, OutOfMemoryException(..)
-, SystemErrorException(..)
-, InternalErrorException(..)
-, BadFlagException(..)
-, NullPointerException(..)
-, BadParameterException(..)
-, KeyNotSetException(..)
-, InvalidKeyLengthException(..)
-, InvalidObjectStateException(..)
-, NotImplementedException(..)
-, InvalidObjectException(..)
-, UnknownException(..)
-, throwBotanError
-, throwBotanIfNegative
-, throwBotanIfNegative_
-, throwBotanCatchingSuccess
-, throwBotanCatchingBool
-, throwBotanCatchingInt
-, throwBotanErrorWithCallstack
-, tryBotan
-, catchBotan
-, handleBotan
-) where
+module Botan.Low.Error (
+    BotanErrorCode
+  , pattern Success
+  , pattern InvalidIdentifier
+  , pattern InvalidInput
+  , pattern BadMAC
+  , pattern InsufficientBufferSpace
+  , pattern StringConversionError
+  , pattern ExceptionThrown
+  , pattern OutOfMemory
+  , pattern SystemError
+  , pattern InternalError
+  , pattern BadFlag
+  , pattern NullPointer
+  , pattern BadParameter
+  , pattern KeyNotSet
+  , pattern InvalidKeyLength
+  , pattern InvalidObjectState
+  , pattern NotImplemented
+  , pattern InvalidObject
+  , pattern TLSError
+  , pattern HttpError
+  , pattern RoughtimeError
+  , pattern UnknownError
+  , botanErrorDescription
+  , botanErrorLastExceptionMessage
+  , SomeBotanException(..)
+  , toBotanException
+  , fromBotanException
+  , InvalidInputException(..)
+  , BadMACException(..)
+  , InsufficientBufferSpaceException(..)
+  , StringConversionException(..)
+  , ExceptionThrownException(..)
+  , OutOfMemoryException(..)
+  , SystemErrorException(..)
+  , InternalErrorException(..)
+  , BadFlagException(..)
+  , NullPointerException(..)
+  , BadParameterException(..)
+  , KeyNotSetException(..)
+  , InvalidKeyLengthException(..)
+  , InvalidObjectStateException(..)
+  , NotImplementedException(..)
+  , InvalidObjectException(..)
+  , UnknownException(..)
+  , throwBotanError
+  , throwBotanIfNegative
+  , throwBotanIfNegative_
+  , throwBotanCatchingSuccess
+  , throwBotanCatchingBool
+  , throwBotanCatchingInt
+  , throwBotanErrorWithCallstack
+  , tryBotan
+  , catchBotan
+  , handleBotan
+  ) where
 
 import           Data.Typeable
 

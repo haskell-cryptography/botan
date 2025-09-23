@@ -14,89 +14,88 @@ a mode of operation applies the block cipher’s single block operation
 repeatedly to encrypt an entire message.
 -}
 
-module Botan.Low.Cipher
-(
+module Botan.Low.Cipher (
 
--- * Cipher
--- $introduction
+  -- * Cipher
+  -- $introduction
 
--- * Usage
--- $usage
+  -- * Usage
+  -- $usage
 
-  Cipher(..)
-, CipherName
-, CipherKey
-, CipherNonce
-, CipherInitFlags
-, pattern MaskDirection
-, pattern Encrypt
-, pattern Decrypt
-, CipherUpdateFlags
-, pattern CipherUpdate
-, pattern CipherFinal
-, withCipher
-, cipherInit
-, cipherDestroy
-, cipherName
-, cipherOutputLength
-, cipherValidNonceLength
-, cipherGetTagLength
-, cipherGetDefaultNonceLength
-, cipherGetUpdateGranularity
-, cipherGetIdealUpdateGranularity
-, cipherQueryKeylen
-, cipherGetKeyspec
-, cipherSetKey
-, cipherReset
-, cipherSetAssociatedData
-, cipherStart
-, cipherUpdate
-, cipherEncrypt
-, cipherDecrypt
-, cipherClear
+    Cipher(..)
+  , CipherName
+  , CipherKey
+  , CipherNonce
+  , CipherInitFlags
+  , pattern MaskDirection
+  , pattern Encrypt
+  , pattern Decrypt
+  , CipherUpdateFlags
+  , pattern CipherUpdate
+  , pattern CipherFinal
+  , withCipher
+  , cipherInit
+  , cipherDestroy
+  , cipherName
+  , cipherOutputLength
+  , cipherValidNonceLength
+  , cipherGetTagLength
+  , cipherGetDefaultNonceLength
+  , cipherGetUpdateGranularity
+  , cipherGetIdealUpdateGranularity
+  , cipherQueryKeylen
+  , cipherGetKeyspec
+  , cipherSetKey
+  , cipherReset
+  , cipherSetAssociatedData
+  , cipherStart
+  , cipherUpdate
+  , cipherEncrypt
+  , cipherDecrypt
+  , cipherClear
 
--- * Cipher modes
-, CipherMode
-, cbcMode
-, cfbMode
-, cfbModeWith
-, xtsMode
+  -- * Cipher modes
+  , CipherMode
+  , cbcMode
+  , cfbMode
+  , cfbModeWith
+  , xtsMode
 
--- ** CBC padding
-, CBCPaddingName
-, pattern PKCS7
-, pattern OneAndZeros
-, pattern X9_23
-, pattern ESP
-, pattern CTS
-, pattern NoPadding
+  -- ** CBC padding
+  , CBCPaddingName
+  , pattern PKCS7
+  , pattern OneAndZeros
+  , pattern X9_23
+  , pattern ESP
+  , pattern CTS
+  , pattern NoPadding
 
--- * AEAD
-, AEADName
-, pattern ChaCha20Poly1305
-, chaCha20Poly1305
+  -- * AEAD
+  , AEADName
+  , pattern ChaCha20Poly1305
+  , chaCha20Poly1305
 
--- * AEAD modes
-, AEADMode
-, gcmMode
-, gcmModeWith
-, ocbMode
-, ocbModeWith
-, eaxMode
-, eaxModeWith
-, sivMode
-, ccmMode
-, ccmModeWith
+  -- * AEAD modes
+  , AEADMode
+  , gcmMode
+  , gcmModeWith
+  , ocbMode
+  , ocbModeWith
+  , eaxMode
+  , eaxModeWith
+  , sivMode
+  , ccmMode
+  , ccmModeWith
 
--- * Convenience
-, cipherEncryptOnline
-, cipherDecryptOnline
-, cipherModes
-, cbcPaddings
-, aeads
-, allCiphers
+  -- * Convenience
+  , cipherEncryptOnline
+  , cipherDecryptOnline
+  , cipherModes
+  , cbcPaddings
+  , aeads
+  , allCiphers
 
-) where
+  ) where
 
 import qualified Data.ByteString as ByteString
 
