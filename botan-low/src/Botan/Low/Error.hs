@@ -7,9 +7,14 @@ License     : BSD-3-Clause
 Maintainer  : joris@well-typed.com, leo@apotheca.io
 Stability   : experimental
 Portability : POSIX
+
+This module is based on the [Return
+codes](https://botan.randombit.net/handbook/api_ref/ffi.html#return-codes)
+section of the C Botan FFI documentation.
 -}
 
 module Botan.Low.Error (
+    -- * Error codes
     BotanErrorCode
   , pattern Success
   , pattern InvalidIdentifier
@@ -33,8 +38,10 @@ module Botan.Low.Error (
   , pattern HttpError
   , pattern RoughtimeError
   , pattern UnknownError
+    -- ** Functions
   , botanErrorDescription
   , botanErrorLastExceptionMessage
+    -- * Exceptions
   , SomeBotanException(..)
   , toBotanException
   , fromBotanException
@@ -55,6 +62,7 @@ module Botan.Low.Error (
   , NotImplementedException(..)
   , InvalidObjectException(..)
   , UnknownException(..)
+    -- ** Throwing and catching
   , throwBotanError
   , throwBotanIfNegative
   , throwBotanIfNegative_
@@ -73,12 +81,13 @@ import           Botan.Bindings.Error
 
 import           Botan.Low.Prelude
 
--- | Botan error code data type
-type BotanErrorCode = CInt
+-- TODO: we are missing some exceptions for return codes. See issue #45.
 
-{-
-Botan error code patterns
--}
+{-------------------------------------------------------------------------------
+  Error codes
+-------------------------------------------------------------------------------}
+
+type BotanErrorCode = CInt
 
 pattern Success
     ,   InvalidIdentifier
@@ -127,9 +136,9 @@ pattern HttpError = BOTAN_FFI_ERROR_HTTP_ERROR
 pattern RoughtimeError = BOTAN_FFI_ERROR_ROUGHTIME_ERROR
 pattern UnknownError = BOTAN_FFI_ERROR_UNKNOWN_ERROR
 
-{-
-Botan error code functions
--}
+{-------------------------------------------------------------------------------
+  Error codes: functions
+-------------------------------------------------------------------------------}
 
 -- | Convert an error code into a string. Returns "Unknown error" if the error code is not a known one.
 botanErrorDescription :: BotanErrorCode -> IO ByteString
@@ -146,9 +155,9 @@ botanErrorLastExceptionMessage = do
 
 type ErrorMessage = ByteString
 
-{-
-Exceptions
--}
+{-------------------------------------------------------------------------------
+  Exceptions
+-------------------------------------------------------------------------------}
 
 -- | The SomeBotanException type is the root of the botan exception type hierarchy.
 data SomeBotanException = forall e . Exception e => SomeBotanException e
@@ -310,9 +319,9 @@ instance Exception UnknownException where
     toException = toBotanException
     fromException = fromBotanException
 
-{-
-Throwing exceptions
--}
+{-------------------------------------------------------------------------------
+  Exceptions: throwing and catching
+-------------------------------------------------------------------------------}
 
 throwBotanError :: HasCallStack => BotanErrorCode -> IO a
 throwBotanError r = throwBotanErrorWithCallstack r callStack
@@ -328,14 +337,11 @@ throwBotanIfNegative_ act = do
     e <- act
     when (e < 0) $ throwBotanErrorWithCallstack e callStack
 
--- TODO: Rename to throwBotanCatchingInvalidIdentifier, make:
--- throwBotanCatchingSuccess :: HasCallStack => IO BotanErrorCode -> IO Bool
--- throwBotanCatchingSuccess act = do
---     result <- act
---     case result of
---         BOTAN_FFI_SUCCESS           -> return True
---         _                           -> throwBotanErrorWithCallstack (fromIntegral result) callStack
--- NOTE: Catches 0 / Success as True and 1 / InvalidIdentifier as False, throws all other values
+-- TODO: Rename to throwBotanCatchingInvalidIdentifier, add new
+-- throwBotanCatchingSuccess. See issue #46.
+--
+-- NOTE: Catches 0 / Success as True and 1 / InvalidIdentifier as False, throws
+-- all other values
 throwBotanCatchingSuccess :: HasCallStack => IO BotanErrorCode -> IO Bool
 throwBotanCatchingSuccess act = do
     result <- act
@@ -353,7 +359,8 @@ throwBotanCatchingBool act = do
         1 -> return True
         _ -> throwBotanErrorWithCallstack result callStack
 
-
+-- TODO: remove throwBotanCatchingInt. See issue #60.
+--
 -- NOTE: Catches positive numbers including zero, throws all other values
 -- Equivalent to fromIntegral . throwBotanIfNegative
 throwBotanCatchingInt :: HasCallStack => IO BotanErrorCode -> IO Int
@@ -366,7 +373,8 @@ throwBotanErrorWithCallstack :: BotanErrorCode -> CallStack -> IO a
 throwBotanErrorWithCallstack e cs =  do
     emsg <- botanErrorLastExceptionMessage
     case e of
-        -- BOTAN_FFI_SUCCESS                           -> throwIO $ SUCCESS e cs
+        -- Note: we do not include a case for @BOTAN_FFI_SUCCESS@ since it
+        -- signals that the function call was successful.
         BOTAN_FFI_INVALID_VERIFIER                  -> throwIO $ InvalidVerifierException e emsg cs
         BOTAN_FFI_ERROR_INVALID_INPUT               -> throwIO $ InvalidInputException e emsg cs
         BOTAN_FFI_ERROR_BAD_MAC                     -> throwIO $ BadMACException e emsg cs
@@ -385,13 +393,6 @@ throwBotanErrorWithCallstack e cs =  do
         BOTAN_FFI_ERROR_NOT_IMPLEMENTED             -> throwIO $ NotImplementedException e emsg cs
         BOTAN_FFI_ERROR_INVALID_OBJECT              -> throwIO $ InvalidObjectException e emsg cs
         _                                           -> throwIO $ UnknownException e emsg cs
-
--- TODO: catchingBotan
--- r0 <- botan_foo
--- if r0 < 0
---   then pure r0
---   else do
---     r1 <- botan_bar
 
 tryBotan :: IO a -> IO (Either SomeBotanException a)
 tryBotan = try

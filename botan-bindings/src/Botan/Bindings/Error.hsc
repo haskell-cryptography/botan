@@ -8,6 +8,10 @@ Maintainer  : joris@well-typed.com, leo@apotheca.io
 Stability   : experimental
 Portability : POSIX
 
+This module is based on the [Return
+codes](https://botan.randombit.net/handbook/api_ref/ffi.html#return-codes)
+section of the C Botan FFI documentation.
+
 Error values below -10000 are reserved for the application (these can be returned from view functions).
 -}
 
@@ -44,6 +48,9 @@ import Botan.Bindings.Prelude
 
 #include <botan/ffi.h>
 
+-- TODO: consider making bindings in this module unsafe. See issue #61.
+
+-- TODO: make the representation of BOTAN_FFI_ERROR a CInt. See issue #59.
 pattern BOTAN_FFI_SUCCESS
     ,   BOTAN_FFI_INVALID_VERIFIER
     ,   BOTAN_FFI_ERROR_INVALID_INPUT
@@ -122,12 +129,19 @@ pattern BOTAN_FFI_ERROR_NOT_IMPLEMENTED = #const BOTAN_FFI_ERROR_NOT_IMPLEMENTED
 -- | This is used if an object provided did not match the function. For example calling botan_hash_destroy on a botan_rng_t object will cause this error.
 pattern BOTAN_FFI_ERROR_INVALID_OBJECT = #const BOTAN_FFI_ERROR_INVALID_OBJECT
 
+-- | Note: this code is undocumented in @botan/ffi.h@.
 pattern BOTAN_FFI_ERROR_TLS_ERROR = #const BOTAN_FFI_ERROR_TLS_ERROR
+
+-- | Note: this code is undocumented in @botan/ffi.h@.
 pattern BOTAN_FFI_ERROR_HTTP_ERROR = #const BOTAN_FFI_ERROR_HTTP_ERROR
+
+-- | Note: this code is undocumented in @botan/ffi.h@.
 pattern BOTAN_FFI_ERROR_ROUGHTIME_ERROR = #const BOTAN_FFI_ERROR_ROUGHTIME_ERROR
 
 -- | Something bad happened, but we are not sure why or how.
 pattern BOTAN_FFI_ERROR_UNKNOWN_ERROR = #const BOTAN_FFI_ERROR_UNKNOWN_ERROR
+
+-- TODO: add a binding for BOTAN_FFI_TEMP_ERROR. See issue #44.
 
 foreign import capi safe "botan/ffi.h botan_error_description"
     botan_error_description

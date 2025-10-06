@@ -7,6 +7,10 @@ License     : BSD-3-Clause
 Maintainer  : joris@well-typed.com, leo@apotheca.io
 Stability   : experimental
 Portability : POSIX
+
+This module is based on the [Utility
+Functions](https://botan.randombit.net/handbook/api_ref/ffi.html#utility-functions)
+section of the C Botan FFI documentation.
 -}
 
 module Botan.Low.Utility (
@@ -29,8 +33,6 @@ import           Botan.Bindings.Utility
 import           Botan.Low.Error
 import           Botan.Low.Make (allocBytesQuerying, allocBytesQueryingCString)
 import           Botan.Low.Prelude
-
--- NOTE: Use of Text is unique here - leave for Text for `botan`
 
 -- | Returns 0 if x[0..len] == y[0..len], -1 otherwise.
 constantTimeCompare
@@ -64,9 +66,10 @@ pattern HexUpperCase    -- ^ NOTE: Not an actual flag
 pattern HexUpperCase = BOTAN_FFI_HEX_UPPER_CASE
 pattern HexLowerCase = BOTAN_FFI_HEX_LOWER_CASE
 
--- | Performs hex encoding of binary data in x of size len bytes. The output buffer out must be of at least x*2 bytes in size. If flags contains BOTAN_FFI_HEX_LOWER_CASE, hex encoding will only contain lower-case letters, upper-case letters otherwise. Returns 0 on success, 1 otherwise.
--- DISCUSS: Handling of positive return code / BOTAN_FFI_INVALID_VERIFIER?
--- DISCUSS: Use of Text.decodeUtf8 - bad, partial function! - but safe here?
+-- | Performs hex encoding of binary data in x of size len bytes. The output
+-- buffer out must be of at least x*2 bytes in size. If flags contains
+-- BOTAN_FFI_HEX_LOWER_CASE, hex encoding will only contain lower-case letters,
+-- upper-case letters otherwise. Returns 0 on success, 1 otherwise.
 hexEncode
     :: ByteString           -- ^ __x__
     -> HexEncodingFlags     -- ^ __flags__
@@ -80,10 +83,7 @@ hexEncode bytes flags =  Text.decodeUtf8 <$> do
                 hexPtr
                 flags
 
--- | "Hex decode some data"
--- DISCUSS: Return value, maybe vs exception
--- DISCUSS: Botan documentation is lacking here
--- WARNING: Does not actually check that len is a multiple of 2
+-- | Hex decode some data
 hexDecode
     :: Text             -- ^ __hex_str__
     -> IO ByteString    -- ^ __out__
@@ -96,7 +96,6 @@ hexDecode txt = do
                 bytesPtr
                 szPtr
 
--- NOTE: Does not check tht base64Len == peek sizePtr
 base64Encode
     :: ByteString   -- ^ __x__
     -> IO Text      -- ^ __out__
@@ -109,7 +108,6 @@ base64Encode bytes = Text.decodeUtf8 <$> do
                 base64Ptr
                 szPtr
 
--- | Ditto everything hexDecode
 base64Decode
     :: Text             -- ^ __base64_str__
     -> IO ByteString    -- ^ __out__
