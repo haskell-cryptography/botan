@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Test.Prelude (
     module Prelude
   , module Test.Hspec

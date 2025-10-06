@@ -1,12 +1,19 @@
-module Main (main) where
+{-# LANGUAGE OverloadedStrings #-}
 
-import           Data.ByteString (isPrefixOf)
+module Test.Botan.Low.PwdHash (tests) where
 
-import           Botan.Low.Hash
-import           Botan.Low.MAC
 import           Botan.Low.PwdHash
-
+import           Data.ByteString
 import           Test.Prelude
+import           Test.Tasty
+import           Test.Tasty.Hspec
+
+tests :: IO TestTree
+tests = do
+    specs <- testSpec "spec_pwdhash" spec_pwdhash
+    pure $ testGroup "Test.Botan.Low.PwdHash" [
+        specs
+      ]
 
 -- NOTE: Needs more exhaustive tests, and to validate parameter order for
 --  Scrypt and the Argons. We've got tests that pass, but that doesn't
@@ -43,13 +50,13 @@ passphrase = "Fee fi fo fum!"
 salt :: ByteString
 salt = "salt"
 
-main :: IO ()
-main = hspec $ testSuite pbkdfs (\(n,_,_,_) -> chars n) $ \ (pbkdf, iterations, parallelism, memoryParam) -> do
+spec_pwdhash :: Spec
+spec_pwdhash = testSuite pbkdfs (\(n,_,_,_) -> chars n) $ \ (pbkdf, iterations, parallelism, memoryParam) -> do
     it "pwdhash" $ do
         _ <- pwdhash pbkdf iterations parallelism memoryParam 64 passphrase salt
         pass
     it "pwdhashTimed" $ do
-        timed@(iterations', parallelism', memoryParam', pwd) <- pwdhashTimed pbkdf 200 64 passphrase salt
+        _timed@(iterations', parallelism', memoryParam', pwd) <- pwdhashTimed pbkdf 200 64 passphrase salt
         -- For Argon2 and Scrypt functions' botan_pwdhash_timed returns
         -- parameters in a different order than what botan_pwdhash takes in
         -- https://github.com/randombit/botan/issues/2144

@@ -128,6 +128,24 @@ library
     , deepseq         >=1.1  && <2
     , text            >=1.2  && <1.3   || >=2.0 && <2.2
 
+test-suite test
+  import:         warnings, language
+  type:           exitcode-stdio-1.0
+  main-is:        Main.hs
+  hs-source-dirs: test/
+  build-depends:
+    , base
+    , botan-low
+    , bytestring
+    , hspec
+    , QuickCheck
+    , tasty
+    , tasty-hspec
+
+  other-modules:
+    Test.Botan.Low.PwdHash
+    Test.Prelude
+
 --
 -- Unit tests
 --
@@ -696,27 +714,6 @@ test-suite botan-low-pubkey-x25519-tests
     OverloadedStrings
 
 -- TODO: Pubkey folder tests
-
-test-suite botan-low-pwdhash-tests
-  import:             warnings, language
-  type:               exitcode-stdio-1.0
-  main-is:            Botan/Low/PwdHashSpec.hs
-  hs-source-dirs:     test/
-  build-depends:
-    , base
-    , botan-low
-    , bytestring
-    , hspec
-    , QuickCheck
-
-  other-modules:
-    Paths_botan_low
-    Test.Prelude
-
-  autogen-modules:    Paths_botan_low
-  default-extensions:
-    NoImplicitPrelude
-    OverloadedStrings
 
 test-suite botan-low-rng-tests
   import:             warnings, language
