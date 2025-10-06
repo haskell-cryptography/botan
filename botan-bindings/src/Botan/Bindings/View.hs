@@ -7,16 +7,22 @@ License     : BSD-3-Clause
 Maintainer  : joris@well-typed.com, leo@apotheca.io
 Stability   : experimental
 Portability : POSIX
+
+This module is based on the [View
+Functions](https://botan.randombit.net/handbook/api_ref/ffi.html#view-functions)
+section of the C Botan FFI documentation.
 -}
 
 {-# LANGUAGE CApiFFI #-}
 
 module Botan.Bindings.View (
     BotanViewContext
+    -- * View binary
   , BotanViewBinFn
   , BotanViewBinCallback
   , mallocBotanViewBinCallback
   , freeBotanViewBinCallback
+    -- * View string
   , BotanViewStrFn
   , BotanViewStrCallback
   , mallocBotanViewStrCallback
@@ -25,12 +31,12 @@ module Botan.Bindings.View (
 
 import           Botan.Bindings.Prelude
 
--- View context
 
--- NOTE: If the type variable proves problematic, we will revert back to Ptr Void
 type BotanViewContext a = Ptr a
 
--- View binary
+{-------------------------------------------------------------------------------
+  View binary
+-------------------------------------------------------------------------------}
 
 type BotanViewBinFn ctx
     =   BotanViewContext ctx    -- ^ __view_ctx__: some application context
@@ -40,7 +46,7 @@ type BotanViewBinFn ctx
 
 type BotanViewBinCallback ctx = FunPtr (BotanViewBinFn ctx)
 
--- NOTE: "Wrapper stubs can't be used with CApiFFI."
+-- NOTE: Wrapper stubs can't be used with CApiFFI.
 foreign import ccall "wrapper"
     mallocBotanViewBinCallback
         :: BotanViewBinFn ctx
@@ -49,7 +55,9 @@ foreign import ccall "wrapper"
 freeBotanViewBinCallback :: BotanViewBinCallback ctx -> IO ()
 freeBotanViewBinCallback = freeHaskellFunPtr
 
--- View string
+{-------------------------------------------------------------------------------
+  View string
+-------------------------------------------------------------------------------}
 
 type BotanViewStrFn ctx
     =   BotanViewContext ctx    -- ^ __view_ctx__: some application context
@@ -59,7 +67,7 @@ type BotanViewStrFn ctx
 
 type BotanViewStrCallback ctx = FunPtr (BotanViewStrFn ctx)
 
--- NOTE: "Wrapper stubs can't be used with CApiFFI."
+-- NOTE: Wrapper stubs can't be used with CApiFFI.
 foreign import ccall "wrapper"
     mallocBotanViewStrCallback
         :: BotanViewStrFn ctx

@@ -7,6 +7,10 @@ License     : BSD-3-Clause
 Maintainer  : joris@well-typed.com, leo@apotheca.io
 Stability   : experimental
 Portability : POSIX
+
+This module is based on the
+[Versioning](https://botan.randombit.net/handbook/api_ref/ffi.html#versioning)
+section of the C Botan FFI documentation.
 -}
 
 module Botan.Low.Version (
@@ -25,8 +29,6 @@ import           Botan.Bindings.Version
 
 import           Botan.Low.Prelude
 
--- https://botan.randombit.net/handbook/api_ref/ffi.html#versioning
-
 -- | Returns the version of the currently supported FFI API. This is expressed in the form YYYYMMDD of the release date of this version of the API.
 botanFFIAPIVersion :: IO Int
 botanFFIAPIVersion = fromIntegral <$> botan_ffi_api_version
@@ -35,11 +37,10 @@ botanFFIAPIVersion = fromIntegral <$> botan_ffi_api_version
 botanFFISupportsAPI :: Int -> IO Bool
 botanFFISupportsAPI version = do
     supports <- botan_ffi_supports_api $ fromIntegral version
+    -- TODO: use new @throwBotanCachingSuccess@. See issue #46
     case supports of
         0 -> return True
         _ -> return False
--- TODO: botanFFISupportsAPI = throwBotanCatchingSuccess . botan_ffi_supports_api . fromIntegral
---      AFTER renaming current throwBotanCatchingSuccess to throwBotanCatchingInvalidIdentifier
 
 botanVersionString :: IO ByteString
 botanVersionString = botan_version_string >>= peekCString . unConstPtr

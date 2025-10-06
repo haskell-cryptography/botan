@@ -7,6 +7,10 @@ License     : BSD-3-Clause
 Maintainer  : joris@well-typed.com, leo@apotheca.io
 Stability   : experimental
 Portability : POSIX
+
+This module is based on the [Utility
+Functions](https://botan.randombit.net/handbook/api_ref/ffi.html#utility-functions)
+section of the C Botan FFI documentation.
 -}
 
 {-# LANGUAGE CApiFFI #-}
@@ -25,6 +29,8 @@ module Botan.Bindings.Utility (
 import Botan.Bindings.Prelude
 
 #include <botan/ffi.h>
+
+-- TODO: consider making bindings in this module unsafe. See issue #48.
 
 -- | Returns 0 if x[0..len] == y[0..len], -1 otherwise.
 foreign import capi safe "botan/ffi.h botan_constant_time_compare"
