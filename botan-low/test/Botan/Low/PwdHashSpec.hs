@@ -44,18 +44,36 @@ salt :: ByteString
 salt = "salt"
 
 main :: IO ()
-main = hspec $ testSuite pbkdfs (\(n,_,_,_) -> chars n) $ \ (pbkdf, i, j, k) -> do
+main = hspec $ testSuite pbkdfs (\(n,_,_,_) -> chars n) $ \ (pbkdf, iterations, parallelism, memoryParam) -> do
     it "pwdhash" $ do
-        _ <- pwdhash pbkdf i j k 64 passphrase salt
+        _ <- pwdhash pbkdf iterations parallelism memoryParam 64 passphrase salt
         pass
     it "pwdhashTimed" $ do
-        timed@(i',j',k',pwd) <- pwdhashTimed pbkdf 200 64 passphrase salt
-        -- NOTE: Fails parity for Scrypt and the Argons due to parameter order
-        -- pwd' <- pwdhash pbkdf i' j' k' 64 passphrase salt
-        --NOTE: Scrypt still fails parity and flipping j and k doesn't matter.
+        timed@(iterations', parallelism', memoryParam', pwd) <- pwdhashTimed pbkdf 200 64 passphrase salt
+        -- For Argon2 and Scrypt functions' botan_pwdhash_timed returns
+        -- parameters in a different order than what botan_pwdhash takes in
+        -- https://github.com/randombit/botan/issues/2144
+        --
+        -- botan_pwdhash_timed always returns parameters in this order:
+        -- (iterations, parallelism, memoryParam)
+        --
+        -- Argon2 function takes parameters in this order:
+        -- M = memoryParam
+        -- t = iterations
+        -- p = parallelism
+        --
+        -- Scrypt function takes parameters in this order:
+        -- N = memoryParam
+        -- r = iterations
+        -- p = parallelism
+        --
+        -- Sources of truth from Botan source code:
+        -- botan/src/lib/pbkdf/argon2/argon2.h
+        -- botan/src/lib/pbkdf/scrypt/scrypt.h
+        -- botan/src/lib/ffi/ffi_kdf.cpp
         pwd' <- case pbkdf of
-            "Scrypt"                        -> pwdhash pbkdf j' k' i' 64 passphrase salt
-            _ | "Argon" `isPrefixOf` pbkdf  -> pwdhash pbkdf k' j' i' 64 passphrase salt
-            _                               -> pwdhash pbkdf i' j' k' 64 passphrase salt
+            "Scrypt"                        -> pwdhash pbkdf memoryParam' iterations' parallelism' 64 passphrase salt
+            _ | "Argon" `isPrefixOf` pbkdf  -> pwdhash pbkdf memoryParam' iterations' parallelism' 64 passphrase salt
+            _                               -> pwdhash pbkdf iterations' parallelism' memoryParam' 64 passphrase salt
         pwd `shouldBe` pwd'
         pass
