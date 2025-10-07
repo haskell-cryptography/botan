@@ -200,6 +200,16 @@ jobs:
       run: |
         cabal test all -j1 --test-show-details=direct
 
+    - name: 🛠️ Setup cabal-docspec (Linux)
+      if: ${{ runner.os == 'Linux' }}
+      uses: jorisdral/actions/setup-cabal-docspec@main
+
+    - name: 🧪 Test with cabal-docspec (Linux)
+      if: ${{ runner.os == 'Linux' }}
+      run: ./scripts/test-cabal-docspec.sh
+      env:
+        SKIP_CABAL_BUILD: true
+
   ################################################################################
   # Lint with cabal-fmt
   ################################################################################
@@ -211,7 +221,7 @@ jobs:
       uses: actions/checkout@v5
 
     - name: 🛠️ Setup cabal-fmt
-      uses: intersectMBO/lsm-tree/.github/actions/setup-cabal-fmt@main
+      uses: jorisdral/actions/setup-cabal-fmt@main
       with:
         cabal-fmt-version: "0.1.12"
         ghc-version: "9.6"
@@ -277,7 +287,7 @@ jobs:
       uses: actions/checkout@v5
 
     - name: 🛠️ Setup stylish-haskell
-      uses: intersectMBO/lsm-tree/.github/actions/setup-stylish-haskell@main
+      uses: jorisdral/actions/setup-stylish-haskell@main
       with:
         stylish-haskell-version: "0.15.1.0"
         ghc-version: "9.10"
