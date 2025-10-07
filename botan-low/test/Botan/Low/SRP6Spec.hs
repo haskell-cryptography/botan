@@ -14,7 +14,7 @@ password :: ByteString
 password = "password"
 
 salt :: ByteString
-salt = "salt"
+salt = "saltsaltsaltsalt"
 
 -- NOTE: Consolidate with DLGroup
 groupIds :: [DLGroupName]
@@ -55,6 +55,6 @@ main = hspec $ testSuite groupIds chars $ \ groupId -> do
         ctx <- srp6ServerSessionInit
         b <- srp6ServerSessionStep1 ctx verifier groupId hashId rng
         (a,sharedSecret) <- srp6ClientAgree username password groupId hashId salt b rng
-        sharedSecret' <- srp6ServerSessionStep2 ctx a
+        sharedSecret' <- srp6ServerSessionStep2 ctx groupId a
         sharedSecret `shouldBe` sharedSecret'
         pass
