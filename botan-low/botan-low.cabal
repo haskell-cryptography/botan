@@ -65,9 +65,11 @@ common language
   default-language:   GHC2021
   default-extensions:
     DerivingStrategies
+    LambdaCase
     PatternSynonyms
     RecordWildCards
     RoleAnnotations
+    ViewPatterns
 
 library
   import:             warnings, language
@@ -127,6 +129,25 @@ library
     , bytestring      >=0.11 && <0.13
     , deepseq         >=1.1  && <2
     , text            >=1.2  && <1.3   || >=2.0 && <2.2
+
+test-suite test
+  import:         warnings, language
+  type:           exitcode-stdio-1.0
+  main-is:        Main.hs
+  hs-source-dirs: test/
+  build-depends:
+    , base
+    , botan-low
+    , bytestring
+    , hspec
+    , QuickCheck
+    , tasty
+    , tasty-hspec
+    , tasty-hunit
+
+  other-modules:
+    Test.Botan.Low.PwdHash
+    Test.Prelude
 
 --
 -- Unit tests
@@ -696,31 +717,6 @@ test-suite botan-low-pubkey-x25519-tests
     OverloadedStrings
 
 -- TODO: Pubkey folder tests
-
-test-suite botan-low-pwdhash-tests
-  import:             warnings, language
-
-  -- TODO: temporarily disabled because the test suite fails. See issue #33.
-  buildable:          False
-  type:               exitcode-stdio-1.0
-  main-is:            Botan/Low/PwdHashSpec.hs
-  hs-source-dirs:     test/
-  build-depends:
-    , base
-    , botan-bindings
-    , botan-low
-    , bytestring
-    , hspec
-    , QuickCheck
-
-  other-modules:
-    Paths_botan_low
-    Test.Prelude
-
-  autogen-modules:    Paths_botan_low
-  default-extensions:
-    NoImplicitPrelude
-    OverloadedStrings
 
 test-suite botan-low-rng-tests
   import:             warnings, language
