@@ -53,6 +53,13 @@ foreign import capi safe "botan/ffi.h botan_srp6_server_session_init"
     -> IO CInt
 
 -- | SRP-6 Server side step 1
+--
+-- NOTE: this function should be not be invoked twice on the same server
+-- session. Regardless of the result of the first invocation, the second
+-- invocation will result in an error. See
+-- https://github.com/randombit/botan/issues/5112 for more information. If a
+-- second invocation can not be prevented, try it on a newly initialised server
+-- session instead.
 foreign import capi safe "botan/ffi.h botan_srp6_server_session_step1"
   botan_srp6_server_session_step1
     :: BotanSRP6ServerSession -- ^ __srp6__: SRP-6 server session object

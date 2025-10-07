@@ -236,6 +236,13 @@ srp6ServerSessionInit ::
 srp6ServerSessionInit = createSRP6ServerSession botan_srp6_server_session_init
 
 -- | SRP-6 Server side step 1
+--
+-- NOTE: this function should be not be invoked twice on the same server
+-- session. Regardless of the result of the first invocation, the second
+-- invocation will result in an error. See
+-- https://github.com/randombit/botan/issues/5112 for more information. If a
+-- second invocation can not be prevented, try it on a newly initialised server
+-- session instead.
 srp6ServerSessionStep1 ::
      SRP6ServerSession -- ^ __srp6__: SRP-6 server session object
   -> SRP6Verifier      -- ^ __verifier[]__: the verification value saved from client registration
