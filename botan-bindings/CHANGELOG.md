@@ -18,6 +18,7 @@
   experimental `x509` code is moved.
 * PATCH: enable `-Wall` in addition to a number of other GHC warnings.
 * PATCH: use `GHC2021` as the default language.
+* PATCH: update documentation in the `Botan.Bindings.PwdHash` module.
 
 ## 0.1.0.0 -- 2025-09-17
 

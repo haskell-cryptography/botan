@@ -65,9 +65,11 @@ common language
   default-language:   GHC2021
   default-extensions:
     DerivingStrategies
+    LambdaCase
     PatternSynonyms
     RecordWildCards
     RoleAnnotations
+    ViewPatterns
 
 library
   import:             warnings, language
@@ -141,6 +143,7 @@ test-suite test
     , QuickCheck
     , tasty
     , tasty-hspec
+    , tasty-hunit
 
   other-modules:
     Test.Botan.Low.PwdHash

@@ -24,23 +24,35 @@ Haskell modules in the three packages are called:
 * `botan`: `Botan.Error`
 
 Note that all three packages use the same suffix `.Error`. What follows below is
-a list of how sections in the C++ FFI documentation correspond to such module
+a list of how sections in the C FFI documentation correspond to such module
 suffixes.
 
-* Return codes: `Error`
-* Versioning: `Version`
-* View Functions: `View`
-* Utility Functions: `Utility`
+* [Return codes][botan:ffi:return-codes]: `Error`
+* [Versioning][botan:ffi:versioning]: `Version`
+* [View Functions][botan:ffi:view-functions]: `View`
+* [Utility Functions][botan:ffi:utility-functions]: `Utility`
 
 Note that the C FFI documentation is not complete, so some Haskell modules
 export bindings to C entities that are not described in the C FFI documentation.
+Such modules are instead based on the [C++ API reference
+documentation][botan:api:pwdhash]. Again, all three packages use the same module
+suffixes:
+
+* [Password Based Key Derivation][botan:api:pwdhash]: `PwdHash`
+
 Moreover, some modules export Haskell-only definitions that do not correspond
-directly to C entities, and some modules do not directly correspond to a C FFI
+directly to C entities, and some modules do not directly correspond to a C FFI or C++
 documentation section. Such is the case specially in the higher-level packages
 `botan-low` and `botan`, but it is true for `botan-bindings` to a lesser degree
 as well.
 
 [hs-botan:README]: ../README.md
+
 [botan:ffi]: https://botan.randombit.net/handbook/api_ref/ffi.html
 [botan:ffi:return-codes]: https://botan.randombit.net/handbook/api_ref/ffi.html#return-codes
-[botan:ffi:versioning]: https://botan.randombit.net/handbook/api_ref/ffi.html#return-codes
+[botan:ffi:versioning]: https://botan.randombit.net/handbook/api_ref/ffi.html#versioning
+[botan:ffi:view-functions]: https://botan.randombit.net/handbook/api_ref/ffi.html#view-functions
+[botan:ffi:utility-functions]: https://botan.randombit.net/handbook/api_ref/ffi.html#utility-functions
+
+[botan:api]: https://botan.randombit.net/handbook/api_ref/contents.html
+[botan:api:pwdhash]: https://botan.randombit.net/handbook/api_ref/pbkdf.html#available-schemes
