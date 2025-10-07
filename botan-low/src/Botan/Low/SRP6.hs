@@ -52,38 +52,84 @@ import           Botan.Low.PubKey
 import           Botan.Low.Remake
 import           Botan.Low.RNG
 
-{- $introduction
-
-A SRP client provides what is called a SRP verifier to the server.
-This verifier is based on a password, but the password cannot be
-easily derived from the verifier (however brute force attacks are
-possible). Later, the client and server can perform an SRP exchange,
-which results in a shared secret key. This key can be used for
-mutual authentication and/or encryption.
-
-SRP works in a discrete logarithm group. Special parameter sets for
-SRP6 are defined, denoted in the library as @modp\/srp\/<size>@, for
-example @modp\/srp\/2048@.
-
-Warning
-
-While knowledge of the verifier does not easily allow an attacker to
-get the raw password, they could still use the verifier to impersonate
-the server to the client, so verifiers should be protected as carefully
-as a plaintext password would be.
-
-SRP6 may be used as part of SSL/TLS: https://www.rfc-editor.org/rfc/rfc5054
-
--}
-
 {- $usage
 
-On signup, the client generates a salt and verifier, and securely sends them to a server:
+On signup, the client generates a salt and verifier, and securely sends them to
+a server:
 
-> import Botan.Low.SRP6
-> import Botan.Low.Hash
-> import Botan.Low.RNG
-> import Botan.Low.MAC
+>>> :{
+{-# OPTIONS_GHC -threaded -Wall #-}
+import Botan.Low.Hash
+import Botan.Low.MAC
+import Botan.Low.PubKey
+import Botan.Low.RNG
+import Botan.Low.SRP6
+import Control.Concurrent
+import Control.Concurrent.Async
+import Control.Concurrent.MVar
+import Control.Exception
+import Control.Monad
+import Data.ByteString hiding (group)
+import Text.Printf
+:}
+
+>>> :{
+type Identifier = ByteString
+data Msg =
+    SendVerifier SRP6Verifier DLGroupName HashName
+  | SendServerKey SRP6BValue
+  | SendClientKey SRP6AValue
+  | SendSharedSecret SRP6SharedSecret
+:}
+
+>>> :{
+client :: MVar Msg -> IO ()
+client msgVar = do
+    rng <- rngInit UserRNG
+    let group = MODP_SRP_4096
+        hash = SHA512
+        identifier = "alice"
+        password = "Fee fi fo fum!"
+    salt <- rngGet rng 12
+    verifier <- srp6GenerateVerifier identifier password salt group hash
+    putMVar msgVar $ SendVerifier verifier group hash
+    SendServerKey serverKey <- takeMVar msgVar
+    (clientKey, clientSessionKey) <- srp6ClientAgree identifier password group hash salt serverKey rng
+    putMVar msgVar $ SendClientKey clientKey
+    SendSharedSecret serverSessionKey <- takeMVar msgVar
+    let match = clientSessionKey == serverSessionKey
+    if match then
+      print @String "client secret == server secret"
+    else
+      error $
+        printf "%s /= %s"
+               (show clientSessionKey)
+               (show serverSessionKey)
+:}
+
+>>> :{
+server :: MVar Msg -> IO ()
+server msgVar = do
+    rng <- rngInit UserRNG
+    session <- srp6ServerSessionInit
+    SendVerifier verifier group hash <- takeMVar msgVar
+    serverKey <- srp6ServerSessionStep1 session verifier group hash rng
+    putMVar msgVar $ SendServerKey serverKey
+    SendClientKey clientKey <- takeMVar msgVar
+    serverSessionKey <- srp6ServerSessionStep2 session clientKey
+    putMVar msgVar $ SendSharedSecret serverSessionKey
+:}
+
+>>> :{
+main :: IO ()
+main = do
+  msgVar <- newEmptyMVar
+  void $ concurrently (client msgVar) (server msgVar)
+:}
+
+>>> main
+"client secret == server secret"
+
 > rng <- rngInit UserRNG
 > group = MODP_SRP_4096
 > hash = SHA512

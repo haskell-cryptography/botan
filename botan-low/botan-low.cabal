@@ -136,6 +136,7 @@ test-suite test
   main-is:        Main.hs
   hs-source-dirs: test/
   build-depends:
+    , async
     , base
     , botan-low
     , bytestring
@@ -147,6 +148,7 @@ test-suite test
 
   other-modules:
     Test.Botan.Low.PwdHash
+    Test.Botan.Low.SRP6
     Test.Prelude
 
 --
