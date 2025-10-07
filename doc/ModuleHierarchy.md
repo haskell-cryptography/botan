@@ -38,6 +38,7 @@ Such modules are instead based on the [C++ API reference][botan:api:pwdhash].
 Again, all three packages use the same module suffixes:
 
 * [Password Based Key Derivation][botan:api:pwdhash]: `PwdHash`
+* [Secure Remote Password][botan:api:pwdhash]: `SRP6`
 
 Moreover, some modules export Haskell-only definitions that do not correspond
 directly to C entities, and some modules do not directly correspond to a C FFI or C++
@@ -55,3 +56,4 @@ as well.
 
 [botan:api]: https://botan.randombit.net/handbook/api_ref/contents.html
 [botan:api:pwdhash]: https://botan.randombit.net/handbook/api_ref/pbkdf.html
+[botan:api:srp6]: https://botan.randombit.net/handbook/api_ref/srp.html
