@@ -21,10 +21,10 @@ tests :: IO TestTree
 tests = do
     specs <- testSpec "spec_pwdhash" spec_pwdhash
     pure $ testGroup "Test.Botan.Low.PwdHash" [
-        testCase "test_pwdhash_PBKDF2_badSchemeName" $
-          test_pwdhash_PBKDF2_badSchemeName False
-      , testCase "test_pwdhashTimed_PBKDF2_badSchemeName" $
-          test_pwdhash_PBKDF2_badSchemeName True
+        testCase "test_pwdhash_badSchemeName" $
+          test_pwdhash_badSchemeName False
+      , testCase "test_pwdhashTimed_badSchemeName" $
+          test_pwdhash_badSchemeName True
       , specs
       ]
 
@@ -99,8 +99,8 @@ salt = "salt"
 
 -- | Test that using 'pwdhash' or 'pwdhashTimed' with bad scheme names results
 -- in errors.
-test_pwdhash_PBKDF2_badSchemeName :: Bool -> Assertion
-test_pwdhash_PBKDF2_badSchemeName useTimed = do
+test_pwdhash_badSchemeName :: Bool -> Assertion
+test_pwdhash_badSchemeName useTimed = do
     -- PBKDF2
     go PBKDF2 >>= \case
       Left BadParameterException{} -> pure ()
