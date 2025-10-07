@@ -10,7 +10,7 @@ Portability : POSIX
 
 This module is based on the [Password Based Key
 Deriviation](https://botan.randombit.net/handbook/api_ref/pbkdf.html) section of
-the C++ Botan documentation.
+the C++ API reference.
 -}
 
 module Botan.Low.PwdHash (
@@ -46,8 +46,8 @@ import           Botan.Low.Prelude
 -- There are a number of schemes available to be used as the PBKDF algorithm for
 -- 'pwdhash' and 'pwdhashTimed', which are listed in the [Available
 -- Schemes](https://botan.randombit.net/handbook/api_ref/pbkdf.html#available-schemes)
--- section of the C++ Botan documentation. A pattern synonym for the name of
--- each of the available schemes is included in these Haskell bindings.
+-- section of the C++ API reference. A pattern synonym for the
+-- name of each of the available schemes is included in these Haskell bindings.
 
 -- | The name of a key derivation scheme used as a PBKDF algorithm
 type PBKDFName = ByteString
@@ -67,7 +67,7 @@ pattern PBKDF2
 -- 'pwdhashTimed' directly. Instead, the scheme name should be parameterised by
 -- a hash function using 'pbkdf2'. For more information see the [Available
 -- Schemes](https://botan.randombit.net/handbook/api_ref/pbkdf.html#available-schemes)
--- section of the C++ Botan documentation
+-- section of the C++ API reference.
 pattern PBKDF2 = BOTAN_PBKDF_PBKDF2
 
 -- | Create a valid scheme name for @PBKDF2@ parameterised over a hash function
@@ -100,7 +100,7 @@ pattern Bcrypt_PBKDF = BOTAN_PBKDF_BCRYPT_PBKDF
 -- 'pwdhashTimed' directly. Instead, the scheme name should be parameterised by
 -- a hash function using 'openPGP_S2K'. For more information see the [Available
 -- Schemes](https://botan.randombit.net/handbook/api_ref/pbkdf.html#available-schemes)
--- section of the C++ Botan documentation
+-- section of the C++ API reference.
 pattern OpenPGP_S2K = BOTAN_PBKDF_OPENPGP_S2K
 
 

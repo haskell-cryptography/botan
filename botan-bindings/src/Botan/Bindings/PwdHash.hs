@@ -10,7 +10,7 @@ Portability : POSIX
 
 This module is based on the [Password Based Key
 Deriviation](https://botan.randombit.net/handbook/api_ref/pbkdf.html) section of
-the C++ Botan documentation.
+the C++ API reference.
 -}
 
 {-# LANGUAGE CApiFFI #-}
@@ -41,8 +41,8 @@ import           Botan.Bindings.Prelude
 -- There are a number of schemes available to be used as the PBKDF algorithm for
 -- 'botan_pwdhash' and 'botan_pwdhash_timed', which are listed in the [Available
 -- Schemes](https://botan.randombit.net/handbook/api_ref/pbkdf.html#available-schemes)
--- section of the C++ Botan documentation. A pattern synonym for the name of
--- each of the available schemes is included in these Haskell bindings.
+-- section of the C++ API reference. A pattern synonym for the
+-- name of each of the available schemes is included in these Haskell bindings.
 
 pattern BOTAN_PBKDF_PBKDF2
       , BOTAN_PBKDF_SCRYPT
@@ -59,7 +59,7 @@ pattern BOTAN_PBKDF_PBKDF2
 -- 'botan_pwdhash_timed' directly. Instead, the scheme name should be
 -- parameterised by a hash function. For more information see the [Available
 -- Schemes](https://botan.randombit.net/handbook/api_ref/pbkdf.html#available-schemes)
--- section of the C++ Botan documentation
+-- section of the C++ API reference.
 pattern BOTAN_PBKDF_PBKDF2 = "PBKDF2"
 
 -- | Name of the @Scrypt@ scheme
@@ -83,7 +83,7 @@ pattern BOTAN_PBKDF_BCRYPT_PBKDF = "Bcrypt-PBKDF"
 -- 'botan_pwdhash_timed' directly. Instead, the scheme name should be
 -- parameterised by a hash function. For more information see the [Available
 -- Schemes](https://botan.randombit.net/handbook/api_ref/pbkdf.html#available-schemes)
--- section of the C++ Botan documentation
+-- section of the C++ API reference.
 pattern BOTAN_PBKDF_OPENPGP_S2K = "OpenPGP-S2K"
 
 {-------------------------------------------------------------------------------
@@ -99,19 +99,19 @@ pattern BOTAN_PBKDF_OPENPGP_S2K = "OpenPGP-S2K"
 -- C++ function for more information about the meaning of the parameters.
 --
 foreign import capi safe "botan/ffi.h botan_pwdhash"
-    botan_pwdhash
-        :: ConstPtr CChar  -- ^ __algo__: PBKDF algorithm, e.g., "PBKDF2(SHA-256)" or "Scrypt"
-        -> CSize           -- ^ __param1__: the first PBKDF algorithm parameter
-        -> CSize           -- ^ __param2__: the second PBKDF algorithm parameter (may be zero if unneeded)
-        -> CSize           -- ^ __param3__: the third PBKDF algorithm parameter (may be zero if unneeded)
-        -> Ptr Word8       -- ^ __out[]__: buffer to store the derived key, must be of out_len bytes
-        -> CSize           -- ^ __out_len__: the desired length of the key to produce
-        -> ConstPtr CChar  -- ^ __passphrase__: the password to derive the key from
-        -> CSize           -- ^ __passphrase_len__: if > 0, specifies length of password. If len == 0, then
-                           -- strlen will be called on passphrase to compute the length.
-        -> ConstPtr Word8  -- ^ __salt[]__: a randomly chosen salt
-        -> CSize           -- ^ __salt_len__: length of salt in bytes
-        -> IO CInt         -- ^ 0 on success, a negative value on failure
+  botan_pwdhash
+    :: ConstPtr CChar  -- ^ __algo__: PBKDF algorithm, e.g., "PBKDF2(SHA-256)" or "Scrypt"
+    -> CSize           -- ^ __param1__: the first PBKDF algorithm parameter
+    -> CSize           -- ^ __param2__: the second PBKDF algorithm parameter (may be zero if unneeded)
+    -> CSize           -- ^ __param3__: the third PBKDF algorithm parameter (may be zero if unneeded)
+    -> Ptr Word8       -- ^ __out[]__: buffer to store the derived key, must be of out_len bytes
+    -> CSize           -- ^ __out_len__: the desired length of the key to produce
+    -> ConstPtr CChar  -- ^ __passphrase__: the password to derive the key from
+    -> CSize           -- ^ __passphrase_len__: if > 0, specifies length of password. If len == 0, then
+                       -- strlen will be called on passphrase to compute the length.
+    -> ConstPtr Word8  -- ^ __salt[]__: a randomly chosen salt
+    -> CSize           -- ^ __salt_len__: length of salt in bytes
+    -> IO CInt         -- ^ 0 on success, a negative value on failure
 
 -- | Derive a cryptographic key from a passphrase using algorithm-specific
 -- parameters that are tuned automatically for a desired running time of the
@@ -135,17 +135,17 @@ foreign import capi safe "botan/ffi.h botan_pwdhash"
 -- > param3 = parallelism
 --
 foreign import capi safe "botan/ffi.h botan_pwdhash_timed"
-    botan_pwdhash_timed
-        :: ConstPtr CChar  -- ^ __algo__: PBKDF algorithm, e.g., "Scrypt" or "PBKDF2(SHA-256)"
-        -> Word32          -- ^ __msec__: the desired runtime in milliseconds
-        -> Ptr CSize       -- ^ __param1__: will be set to the first PBKDF algorithm parameter
-        -> Ptr CSize       -- ^ __param2__: will be set to the second PBKDF algorithm parameter (may be zero if unneeded)
-        -> Ptr CSize       -- ^ __param3__: will be set to the third PBKDF algorithm parameter (may be zero if unneeded)
-        -> Ptr Word8       -- ^ __out[]__: buffer to store the derived key, must be of out_len bytes
-        -> CSize           -- ^ __out_len__: the desired length of the key to produce
-        -> ConstPtr CChar  -- ^ __passphrase__: the password to derive the key from
-        -> CSize           -- ^ __passphrase_len__: if > 0, specifies length of password. If len == 0, then
-                           --   strlen will be called on passphrase to compute the length.
-        -> ConstPtr Word8  -- ^ __salt[]__: a randomly chosen salt
-        -> CSize           -- ^ __salt_len__: length of salt in bytes
-        -> IO CInt         -- ^ 0 on success, a negative value on failure
+  botan_pwdhash_timed
+    :: ConstPtr CChar  -- ^ __algo__: PBKDF algorithm, e.g., "Scrypt" or "PBKDF2(SHA-256)"
+    -> Word32          -- ^ __msec__: the desired runtime in milliseconds
+    -> Ptr CSize       -- ^ __param1__: will be set to the first PBKDF algorithm parameter
+    -> Ptr CSize       -- ^ __param2__: will be set to the second PBKDF algorithm parameter (may be zero if unneeded)
+    -> Ptr CSize       -- ^ __param3__: will be set to the third PBKDF algorithm parameter (may be zero if unneeded)
+    -> Ptr Word8       -- ^ __out[]__: buffer to store the derived key, must be of out_len bytes
+    -> CSize           -- ^ __out_len__: the desired length of the key to produce
+    -> ConstPtr CChar  -- ^ __passphrase__: the password to derive the key from
+    -> CSize           -- ^ __passphrase_len__: if > 0, specifies length of password. If len == 0, then
+                       --   strlen will be called on passphrase to compute the length.
+    -> ConstPtr Word8  -- ^ __salt[]__: a randomly chosen salt
+    -> CSize           -- ^ __salt_len__: length of salt in bytes
+    -> IO CInt         -- ^ 0 on success, a negative value on failure
