@@ -1,11 +1,3 @@
-{-# LANGUAGE CPP #-}
-
-#if defined(MIN_VERSION_GLASGOW_HASKELL)
-#if MIN_VERSION_GLASGOW_HASKELL(9,8,0,0)
-{-# OPTIONS_GHC -Wwarn=x-partial #-}
-#endif
-#endif
-
 module Main (main) where
 
 import           Test.Prelude
@@ -50,9 +42,6 @@ groupIds =
     , "dsa/botan/2048"
     , "dsa/botan/3072"
     ]
-
-groupId :: DLGroupName
-groupId = head groupIds
 
 -- TODO: Test which hashes work
 hashId :: HashName
