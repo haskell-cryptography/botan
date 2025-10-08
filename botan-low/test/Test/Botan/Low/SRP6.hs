@@ -1,11 +1,24 @@
-module Main (main) where
+{-# LANGUAGE OverloadedStrings #-}
 
-import           Test.Prelude
+module Test.Botan.Low.SRP6 (
+    tests
+  ) where
 
 import           Botan.Low.Hash
 import           Botan.Low.PubKey
 import           Botan.Low.RNG
 import           Botan.Low.SRP6
+import           Data.ByteString
+import           Test.Prelude
+import           Test.Tasty
+import           Test.Tasty.Hspec
+
+tests :: IO TestTree
+tests = do
+    specs <- testSpec "spec_srp6" spec_srp6
+    pure $ testGroup "Test.Botan.Low.SRP6" [
+        specs
+      ]
 
 username :: ByteString
 username = "username"
@@ -47,8 +60,8 @@ groupIds =
 hashId :: HashName
 hashId = "SHA-256"
 
-main :: IO ()
-main = hspec $ testSuite groupIds chars $ \ groupId -> do
+spec_srp6 :: Spec
+spec_srp6 = testSuite groupIds chars $ \ groupId -> do
     it "can negotiate a shared secret" $ do
         rng <- rngInit "system"
         verifier <- srp6GenerateVerifier username password salt groupId hashId
