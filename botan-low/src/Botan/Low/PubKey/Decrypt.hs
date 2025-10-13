@@ -37,7 +37,7 @@ newtype Decrypt = MkDecrypt { getDecryptForeignPtr :: ForeignPtr BotanPKOpDecryp
 withDecrypt     :: Decrypt -> (BotanPKOpDecrypt -> IO a) -> IO a
 decryptDestroy  :: Decrypt -> IO ()
 createDecrypt   :: (Ptr BotanPKOpDecrypt -> IO CInt) -> IO Decrypt
-(_, withDecrypt, decryptDestroy, createDecrypt, _)
+(withDecrypt, decryptDestroy, createDecrypt)
     = mkBindings
         MkBotanPKOpDecrypt runBotanPKOpDecrypt
         MkDecrypt getDecryptForeignPtr

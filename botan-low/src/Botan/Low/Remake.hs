@@ -87,14 +87,12 @@ mkBindings
     ->  (ForeignPtr struct -> object)                           -- mkForeign
     ->  (object -> ForeignPtr struct)                           -- runForeign
     ->  FinalizerPtr struct                                     -- destroy / finalizer
-    ->  (   botan -> IO object                                  -- newObject
-        ,   object -> (botan -> IO a) -> IO a                   -- withObject
+    ->  (   object -> (botan -> IO a) -> IO a                   -- withObject
         ,   object -> IO ()                                     -- destroyObject
         ,   (Ptr botan -> IO CInt) -> IO object                 -- createObject
-        ,   (Ptr botan -> Ptr CSize -> IO CInt) -> IO [object]  -- createObjects
         )
 mkBindings mkBotan runBotan mkForeign runForeign destroy = bindings where
-    bindings = (newObject, withObject, objectDestroy, createObject, createObjects)
+    bindings = (withObject, objectDestroy, createObject)
     newObject botan = do
         foreignPtr <- newForeignPtr destroy (runBotan botan)
         return $ mkForeign foreignPtr
@@ -105,7 +103,6 @@ mkBindings mkBotan runBotan mkForeign runForeign destroy = bindings where
     --      objectFinalize obj = new stable foreign ptr ... destroy
     --      objectDestroy obj = withObject obj destroy
     createObject = mkCreateObject newObject
-    createObjects = mkCreateObjects newObject
 
 {-
 Create functions

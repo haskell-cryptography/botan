@@ -119,7 +119,7 @@ newtype KEMEncrypt = MkKEMEncrypt { getKEMEncryptForeignPtr :: ForeignPtr BotanP
 withKEMEncrypt     :: KEMEncrypt -> (BotanPKOpKEMEncrypt -> IO a) -> IO a
 kemEncryptDestroy  :: KEMEncrypt -> IO ()
 createKEMEncrypt   :: (Ptr BotanPKOpKEMEncrypt -> IO CInt) -> IO KEMEncrypt
-(_, withKEMEncrypt, kemEncryptDestroy, createKEMEncrypt, _)
+(withKEMEncrypt, kemEncryptDestroy, createKEMEncrypt)
     = mkBindings
         MkBotanPKOpKEMEncrypt runBotanPKOpKEMEncrypt
         MkKEMEncrypt getKEMEncryptForeignPtr
@@ -190,7 +190,7 @@ newtype KEMDecrypt = MkKEMDecrypt { getKEMDecryptForeignPtr :: ForeignPtr BotanP
 withKEMDecrypt     :: KEMDecrypt -> (BotanPKOpKEMDecrypt -> IO a) -> IO a
 kemDecryptDestroy  :: KEMDecrypt -> IO ()
 createKEMDecrypt   :: (Ptr BotanPKOpKEMDecrypt -> IO CInt) -> IO KEMDecrypt
-(_, withKEMDecrypt, kemDecryptDestroy, createKEMDecrypt, _)
+(withKEMDecrypt, kemDecryptDestroy, createKEMDecrypt)
     = mkBindings
         MkBotanPKOpKEMDecrypt runBotanPKOpKEMDecrypt
         MkKEMDecrypt getKEMDecryptForeignPtr

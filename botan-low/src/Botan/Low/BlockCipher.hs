@@ -137,7 +137,7 @@ withBlockCipher     :: BlockCipher -> (BotanBlockCipher -> IO a) -> IO a
 -- | Destroy a block cipher object immediately
 blockCipherDestroy  :: BlockCipher -> IO ()
 createBlockCipher   :: (Ptr BotanBlockCipher -> IO CInt) -> IO BlockCipher
-(_, withBlockCipher, blockCipherDestroy, createBlockCipher, _)
+(withBlockCipher, blockCipherDestroy, createBlockCipher)
     = mkBindings
         MkBotanBlockCipher runBotanBlockCipher
         MkBlockCipher getBlockCipherForeignPtr
