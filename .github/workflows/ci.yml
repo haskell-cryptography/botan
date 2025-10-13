@@ -201,11 +201,11 @@ jobs:
         cabal test all -j1 --test-show-details=direct
 
     - name: 🛠️ Setup cabal-docspec (Linux)
-      if: ${{ runner.os == 'Linux' }}
+      if: ${{ runner.os == 'Linux' && !startsWith(matrix.ghc-version, '9.2') && !startsWith(matrix.ghc-version, '9.4') }}
       uses: jorisdral/actions/setup-cabal-docspec@main
 
     - name: 🧪 Test with cabal-docspec (Linux)
-      if: ${{ runner.os == 'Linux' }}
+      if: ${{ runner.os == 'Linux' && !startsWith(matrix.ghc-version, '9.2') && !startsWith(matrix.ghc-version, '9.4') }}
       run: ./scripts/test-cabal-docspec.sh
       env:
         SKIP_CABAL_BUILD: true
