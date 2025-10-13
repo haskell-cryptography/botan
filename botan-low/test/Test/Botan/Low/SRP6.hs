@@ -1,19 +1,24 @@
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE OverloadedStrings #-}
 
-#if defined(MIN_VERSION_GLASGOW_HASKELL)
-#if MIN_VERSION_GLASGOW_HASKELL(9,8,0,0)
-{-# OPTIONS_GHC -Wwarn=x-partial #-}
-#endif
-#endif
-
-module Main (main) where
-
-import           Test.Prelude
+module Test.Botan.Low.SRP6 (
+    tests
+  ) where
 
 import           Botan.Low.Hash
 import           Botan.Low.PubKey
 import           Botan.Low.RNG
 import           Botan.Low.SRP6
+import           Data.ByteString
+import           Test.Prelude
+import           Test.Tasty
+import           Test.Tasty.Hspec
+
+tests :: IO TestTree
+tests = do
+    specs <- testSpec "spec_srp6" spec_srp6
+    pure $ testGroup "Test.Botan.Low.SRP6" [
+        specs
+      ]
 
 username :: ByteString
 username = "username"
@@ -22,7 +27,7 @@ password :: ByteString
 password = "password"
 
 salt :: ByteString
-salt = "salt"
+salt = "saltsaltsaltsalt"
 
 -- NOTE: Consolidate with DLGroup
 groupIds :: [DLGroupName]
@@ -51,21 +56,18 @@ groupIds =
     , "dsa/botan/3072"
     ]
 
-groupId :: DLGroupName
-groupId = head groupIds
-
 -- TODO: Test which hashes work
 hashId :: HashName
 hashId = "SHA-256"
 
-main :: IO ()
-main = hspec $ testSuite groupIds chars $ \ groupId -> do
+spec_srp6 :: Spec
+spec_srp6 = testSuite groupIds chars $ \ groupId -> do
     it "can negotiate a shared secret" $ do
         rng <- rngInit "system"
         verifier <- srp6GenerateVerifier username password salt groupId hashId
         ctx <- srp6ServerSessionInit
         b <- srp6ServerSessionStep1 ctx verifier groupId hashId rng
         (a,sharedSecret) <- srp6ClientAgree username password groupId hashId salt b rng
-        sharedSecret' <- srp6ServerSessionStep2 ctx a
+        sharedSecret' <- srp6ServerSessionStep2 ctx groupId a
         sharedSecret `shouldBe` sharedSecret'
         pass

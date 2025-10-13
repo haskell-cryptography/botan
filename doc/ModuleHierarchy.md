@@ -34,11 +34,11 @@ suffixes.
 
 Note that the C FFI documentation is not complete, so some Haskell modules
 export bindings to C entities that are not described in the C FFI documentation.
-Such modules are instead based on the [C++ API reference
-documentation][botan:api:pwdhash]. Again, all three packages use the same module
-suffixes:
+Such modules are instead based on the [C++ API reference][botan:api].
+Again, all three packages use the same module suffixes:
 
 * [Password Based Key Derivation][botan:api:pwdhash]: `PwdHash`
+* [Secure Remote Password][botan:api:srp6]: `SRP6`
 
 Moreover, some modules export Haskell-only definitions that do not correspond
 directly to C entities, and some modules do not directly correspond to a C FFI or C++
@@ -55,4 +55,5 @@ as well.
 [botan:ffi:utility-functions]: https://botan.randombit.net/handbook/api_ref/ffi.html#utility-functions
 
 [botan:api]: https://botan.randombit.net/handbook/api_ref/contents.html
-[botan:api:pwdhash]: https://botan.randombit.net/handbook/api_ref/pbkdf.html#available-schemes
+[botan:api:pwdhash]: https://botan.randombit.net/handbook/api_ref/pbkdf.html
+[botan:api:srp6]: https://botan.randombit.net/handbook/api_ref/srp.html

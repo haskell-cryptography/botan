@@ -267,8 +267,9 @@ generateSRP6ClientKeys group hash ident pass salt skey = do
 
 generateSRP6SessionKey
     :: (MonadIO m)
-    => SRP6ServerSession
+    => SRP6Group
+    -> SRP6ServerSession
     -> SRP6ClientKey
     -> m SRP6SessionKey
-generateSRP6SessionKey session ckey = liftIO $ Low.srp6ServerSessionStep2 session ckey
+generateSRP6SessionKey group session ckey = liftIO $ Low.srp6ServerSessionStep2 session (dlGroupName group) ckey
 

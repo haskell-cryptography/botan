@@ -147,6 +147,7 @@ test-suite test
 
   other-modules:
     Test.Botan.Low.PwdHash
+    Test.Botan.Low.SRP6
     Test.Prelude
 
 --
@@ -730,31 +731,6 @@ test-suite botan-low-rng-tests
   hs-source-dirs:     test/
   build-depends:
     , base
-    , botan-low
-    , bytestring
-    , hspec
-    , QuickCheck
-
-  other-modules:
-    Paths_botan_low
-    Test.Prelude
-
-  autogen-modules:    Paths_botan_low
-  default-extensions:
-    NoImplicitPrelude
-    OverloadedStrings
-
-test-suite botan-low-srp6-tests
-  import:             warnings, language
-
-  -- TODO: temporarily disabled because the test suite fails. See issue #33.
-  buildable:          False
-  type:               exitcode-stdio-1.0
-  main-is:            Botan/Low/SRP6Spec.hs
-  hs-source-dirs:     test/
-  build-depends:
-    , base
-    , botan-bindings
     , botan-low
     , bytestring
     , hspec

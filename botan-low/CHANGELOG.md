@@ -20,6 +20,13 @@
 * BREAKING: `Botan.Low.PwdHash.pbkdf2` now takes a `HashName` instead of a
   `MacName`.
 * PATCH: update documentation in the `Botan.Low.PwdHash` module.
+* PATCH: introduce a work-around for a bug found in
+  `Botan.Low.SRP6.srp6ServerSessionStep1`, which would always throw an
+  exception. See issue
+  [#28](https://github.com/haskell-cryptography/botan/issues/28).
+* BREAKING: add a `DLGroupName` function argument to
+  `Botan.Low.SRP6.srp6ServerSessionStep2`.
+* PATCH: update documentation in the `Botan.Low.SRP6` module.
 
 ## 0.0.2.0 -- 2025-09-17
 
