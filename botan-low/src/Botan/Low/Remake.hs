@@ -14,17 +14,13 @@ Generate low-level bindings automatically
 module Botan.Low.Remake (
     mkBindings
   , mkCreateObject
-  , mkCreateObjects
   , mkCreateObjectWith
   , mkCreateObjectCString
   , mkCreateObjectCString1
   , mkCreateObjectCBytes
   , mkCreateObjectCBytesLen
-  , mkCreateObjectCBytesLen1
   , mkWithObjectAction
-  , mkWithObjectGetterCBytesLen
   , mkWithObjectGetterCBytesLen1
-  , mkWithObjectSetterCString
   , mkWithObjectSetterCBytesLen
   ) where
 
@@ -32,54 +28,6 @@ import           Botan.Low.Error
 import           Botan.Low.Make (allocBytesQuerying)
 import           Botan.Low.Prelude hiding (init)
 
--- ByteString Helpers
-
--- NOTE: Was allocBytesWith
--- createByteString' :: Int -> (Ptr byte -> IO a) -> IO (a, ByteString)
-
--- NOTE: Was allocBytesQuerying
--- createByteStringQuerying :: (Ptr byte -> Ptr CSize -> IO CInt) -> IO ByteString
--- createByteStringQuerying fn = do
---     alloca $ \ szPtr -> do
---         -- TODO: Maybe poke szPtr 0 for extra safety in cas its not initially zero
---         code <- fn nullPtr szPtr
---         case code of
---             InsufficientBufferSpace -> do
---                 sz <- fromIntegral <$> peek szPtr
---                 allocBytes sz $ \ outPtr -> throwBotanIfNegative_ $ fn outPtr szPtr
---             _                       -> do
---                 throwBotanError code
-
--- NOTE: Was allocBytesQueryingCString
--- NOTE: Does not check length of taken string, vulnerable to null byte injection
--- createByteStringQueryingCString :: (Ptr byte -> Ptr CSize -> IO CInt) -> IO ByteString
--- createByteStringQueryingCString action = do
---     cstring <- allocBytesQuerying action
---     return $!! ByteString.takeWhile (/= 0) cstring
-
---
-
--- type NewObject      object botan = botan -> IO object
--- type WithObject     object botan = (forall a . object -> (botan -> IO a) -> IO a)
--- type DestroyObject  object botan = object -> IO ()
--- type CreateObject   object botan = (Ptr botan -> IO CInt) -> IO object
--- type CreateObjects  object botan = (Ptr botan -> Ptr CSize -> IO CInt) -> IO object
-
--- Example usage
-{-
-newtype RNG = MkRNG { getRNGForeignPtr :: ForeignPtr BotanRNGStruct }
-
-newRNG      :: BotanRNG -> IO RNG
-withRNG     :: RNG -> (BotanRNG -> IO a) -> IO a
-rngDestroy  :: RNG -> IO ()
-createRNG   :: (Ptr BotanRNG -> IO CInt) -> IO RNG
-(newRNG, withRNG, rngDestroy, createRNG, _)
-    = mkBindings MkBotanRNG runBotanRNG MkRNG getRNGForeignPtr botan_rng_destroy
-
-rngInit :: RNGType -> IO RNG
-rngInit name = asCString name $ \ namePtr -> do
-    createRNG $ \ outPtr -> botan_rng_init outPtr (ConstPtr namePtr)
--}
 mkBindings
     ::  (Storable botan)
     =>  (Ptr struct -> botan)                                   -- mkBotan
@@ -118,23 +66,6 @@ mkCreateObject newObject init = mask_ $ alloca $ \ outPtr -> do
         throwBotanIfNegative_ $ init outPtr
         out <- peek outPtr
         newObject out
-
--- TODO: Rename mkCreates
-mkCreateObjects
-    :: (Storable botan)
-    => (botan -> IO object)
-    -> (Ptr botan -> Ptr CSize -> IO CInt)
-    -> IO [object]
-mkCreateObjects newObject inits = mask_ $ alloca $ \ szPtr -> do
-        code <- inits nullPtr szPtr
-        case code of
-            InsufficientBufferSpace -> do
-                sz <- fromIntegral <$> peek szPtr
-                allocaArray sz $ \ arrPtr -> do
-                    throwBotanIfNegative_ $ inits arrPtr szPtr
-                    outs <- peekArray sz arrPtr
-                    forM outs newObject
-            _ -> throwBotanError code
 
 mkCreateObjectWith
     :: ((Ptr botan -> IO CInt) -> IO object)
@@ -185,15 +116,6 @@ mkCreateObjectCBytesLen
 mkCreateObjectCBytesLen createObject init bytes = withCBytesLen bytes $ \ (cbytes,len) -> do
     createObject $ \ out -> init out (ConstPtr cbytes) (fromIntegral len)
 
-mkCreateObjectCBytesLen1
-    :: ((Ptr botan -> IO CInt) -> IO object)
-    -> (Ptr botan -> ConstPtr Word8 -> CSize -> a -> IO CInt)
-    -> ByteString
-    -> a
-    -> IO object
-mkCreateObjectCBytesLen1 createObject init bytes a = withCBytesLen bytes $ \ (cbytes,len) -> do
-    createObject $ \ out -> init out (ConstPtr cbytes) (fromIntegral len) a
-
 {-
 Action
 -}
@@ -212,18 +134,6 @@ Getters
 -}
 
 -- TODO: getter parameter order may be improper - switch up if problematic
-mkWithObjectGetterCBytesLen
-    :: (forall a . object -> (botan -> IO a) -> IO a)
-    -> (botan -> Ptr Word8 -> Ptr CSize -> IO CInt)
-    -> object
-    -> IO ByteString
-mkWithObjectGetterCBytesLen withObject getter obj = withObject obj $ \ cobj -> do
-    allocBytesQuerying $ \ outPtr outLen -> getter
-        cobj
-        outPtr
-        outLen
-
--- TODO: getter parameter order may be improper - switch up if problematic
 mkWithObjectGetterCBytesLen1
     :: (forall b . object -> (botan -> IO b) -> IO b)
     -> (botan -> a -> Ptr Word8 -> Ptr CSize -> IO CInt)
@@ -240,17 +150,6 @@ mkWithObjectGetterCBytesLen1 withObject getter obj a = withObject obj $ \ cobj -
 {-
 Setters
 -}
-
--- TODO: Rename mkSetterCString
-mkWithObjectSetterCString
-    :: (forall a . object -> (botan -> IO a) -> IO a)
-    -> (botan -> ConstPtr CChar -> IO BotanErrorCode)
-    -> object
-    -> ByteString
-    -> IO ()
-mkWithObjectSetterCString withObject setter obj str = withObject obj $ \ cobj -> do
-    withCString str $ \ cstr -> do
-        throwBotanIfNegative_ $ setter cobj (ConstPtr cstr)
 
 -- Replaces mkSetBytesLen
 -- TODO: Rename mkSetterCBytesLen
