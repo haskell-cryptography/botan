@@ -32,8 +32,8 @@ ${cabal_docspec} \
     -Wno-cpphs \
     -Wno-missing-module-file \
     -Wno-skipped-property \
-    -XOverloadedStrings \
     --extra-package async \
+    --extra-package containers \
     || exit 1
 
 # Check whether any warning was issued; on CI, warnings are errors
