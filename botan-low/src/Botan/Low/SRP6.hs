@@ -276,7 +276,7 @@ withSRP6ServerSession     :: SRP6ServerSession -> (BotanSRP6ServerSession -> IO 
 -- | Frees all resources of the SRP-6 server session object
 srp6ServerSessionDestroy  :: SRP6ServerSession -> IO ()
 createSRP6ServerSession   :: (Ptr BotanSRP6ServerSession -> IO CInt) -> IO SRP6ServerSession
-(_, withSRP6ServerSession, srp6ServerSessionDestroy, createSRP6ServerSession, _)
+(withSRP6ServerSession, srp6ServerSessionDestroy, createSRP6ServerSession)
     = mkBindings
         MkBotanSRP6ServerSession runBotanSRP6ServerSession
         MkSRP6ServerSession getSRP6ServerSessionForeignPtr

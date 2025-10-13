@@ -74,7 +74,7 @@ newtype FPE = MkFPE { getFPEForeignPtr :: ForeignPtr BotanFPEStruct }
 withFPE     :: FPE -> (BotanFPE -> IO a) -> IO a
 fpeDestroy  :: FPE -> IO ()
 createFPE   :: (Ptr BotanFPE -> IO CInt) -> IO FPE
-(_, withFPE, fpeDestroy, createFPE, _)
+(withFPE, fpeDestroy, createFPE)
     = mkBindings
         MkBotanFPE runBotanFPE
         MkFPE getFPEForeignPtr

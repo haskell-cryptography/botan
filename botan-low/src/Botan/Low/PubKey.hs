@@ -280,7 +280,7 @@ newtype PrivKey = MkPrivKey { getPrivKeyForeignPtr :: ForeignPtr BotanPrivKeyStr
 withPrivKey     :: PrivKey -> (BotanPrivKey -> IO a) -> IO a
 privKeyDestroy  :: PrivKey -> IO ()
 createPrivKey   :: (Ptr BotanPrivKey -> IO CInt) -> IO PrivKey
-(_, withPrivKey, privKeyDestroy, createPrivKey, _)
+(withPrivKey, privKeyDestroy, createPrivKey)
     = mkBindings
         MkBotanPrivKey runBotanPrivKey
         MkPrivKey getPrivKeyForeignPtr
@@ -672,7 +672,7 @@ newtype PubKey = MkPubKey { getPubKeyForeignPtr :: ForeignPtr BotanPubKeyStruct 
 withPubKey     :: PubKey -> (BotanPubKey -> IO a) -> IO a
 pubKeyDestroy  :: PubKey -> IO ()
 createPubKey   :: (Ptr BotanPubKey -> IO CInt) -> IO PubKey
-(_, withPubKey, pubKeyDestroy, createPubKey, _)
+(withPubKey, pubKeyDestroy, createPubKey)
     = mkBindings
         MkBotanPubKey runBotanPubKey
         MkPubKey getPubKeyForeignPtr

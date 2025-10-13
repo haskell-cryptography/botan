@@ -161,7 +161,7 @@ newtype MAC = MkMAC { getMACForeignPtr :: ForeignPtr BotanMACStruct }
 withMAC     :: MAC -> (BotanMAC -> IO a) -> IO a
 macDestroy  :: MAC -> IO ()
 createMAC   :: (Ptr BotanMAC -> IO CInt) -> IO MAC
-(_, withMAC, macDestroy, createMAC, _)
+(withMAC, macDestroy, createMAC)
     = mkBindings
         MkBotanMAC runBotanMAC
         MkMAC getMACForeignPtr

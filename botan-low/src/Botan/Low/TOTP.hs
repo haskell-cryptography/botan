@@ -157,7 +157,7 @@ newtype TOTP = MkTOTP { getTOTPForeignPtr :: ForeignPtr BotanTOTPStruct }
 withTOTP     :: TOTP -> (BotanTOTP -> IO a) -> IO a
 totpDestroy  :: TOTP -> IO ()
 createTOTP   :: (Ptr BotanTOTP -> IO CInt) -> IO TOTP
-(_, withTOTP, totpDestroy, createTOTP, _)
+(withTOTP, totpDestroy, createTOTP)
     = mkBindings
         MkBotanTOTP runBotanTOTP
         MkTOTP getTOTPForeignPtr

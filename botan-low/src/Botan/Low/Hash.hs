@@ -138,7 +138,7 @@ newtype Hash = MkHash { getHashForeignPtr :: ForeignPtr BotanHashStruct }
 withHash     :: Hash -> (BotanHash -> IO a) -> IO a
 hashDestroy  :: Hash -> IO ()
 createHash   :: (Ptr BotanHash -> IO CInt) -> IO Hash
-(_, withHash, hashDestroy, createHash, _)
+(withHash, hashDestroy, createHash)
     = mkBindings
         MkBotanHash runBotanHash
         MkHash getHashForeignPtr

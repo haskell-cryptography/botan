@@ -84,7 +84,7 @@ newtype MP = MkMP { getMPForeignPtr :: ForeignPtr BotanMPStruct }
 withMP     :: MP -> (BotanMP -> IO a) -> IO a
 mpDestroy  :: MP -> IO ()
 createMP   :: (Ptr BotanMP -> IO CInt) -> IO MP
-(_, withMP, mpDestroy, createMP, _)
+(withMP, mpDestroy, createMP)
     = mkBindings
         MkBotanMP runBotanMP
         MkMP getMPForeignPtr

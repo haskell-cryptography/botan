@@ -103,7 +103,7 @@ withX509Cert     :: X509Cert -> (BotanX509Cert -> IO a) -> IO a
 -- | Destroy an x509 cert object immediately
 x509CertDestroy  :: X509Cert -> IO ()
 createX509Cert   :: (Ptr BotanX509Cert -> IO CInt) -> IO X509Cert
-(_, withX509Cert, x509CertDestroy, createX509Cert, _)
+(withX509Cert, x509CertDestroy, createX509Cert)
     = mkBindings MkBotanX509Cert runBotanX509Cert MkX509Cert getX509CertForeignPtr botan_x509_cert_destroy
 
 x509CertLoad
@@ -361,7 +361,7 @@ newtype X509CRL = MkX509CRL { getX509CRLForeignPtr :: ForeignPtr BotanX509CRLStr
 withX509CRL     :: X509CRL -> (BotanX509CRL -> IO a) -> IO a
 x509CRLDestroy  :: X509CRL -> IO ()
 createX509CRL   :: (Ptr BotanX509CRL -> IO CInt) -> IO X509CRL
-(_, withX509CRL, x509CRLDestroy, createX509CRL, _)
+(withX509CRL, x509CRLDestroy, createX509CRL)
     = mkBindings MkBotanX509CRL runBotanX509CRL MkX509CRL getX509CRLForeignPtr botan_x509_crl_destroy
 
 x509CRLLoad

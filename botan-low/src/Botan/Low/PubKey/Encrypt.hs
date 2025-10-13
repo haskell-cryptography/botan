@@ -38,7 +38,7 @@ newtype Encrypt = MkEncrypt { getEncryptForeignPtr :: ForeignPtr BotanPKOpEncryp
 withEncrypt     :: Encrypt -> (BotanPKOpEncrypt -> IO a) -> IO a
 encryptDestroy  :: Encrypt -> IO ()
 createEncrypt   :: (Ptr BotanPKOpEncrypt -> IO CInt) -> IO Encrypt
-(_, withEncrypt, encryptDestroy, createEncrypt, _)
+(withEncrypt, encryptDestroy, createEncrypt)
     = mkBindings
         MkBotanPKOpEncrypt runBotanPKOpEncrypt
         MkEncrypt getEncryptForeignPtr

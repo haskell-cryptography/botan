@@ -45,7 +45,7 @@ newtype Sign = MkSign { getSignForeignPtr :: ForeignPtr BotanPKOpSignStruct }
 withSign     :: Sign -> (BotanPKOpSign -> IO a) -> IO a
 signDestroy  :: Sign -> IO ()
 createSign   :: (Ptr BotanPKOpSign -> IO CInt) -> IO Sign
-(_, withSign, signDestroy, createSign, _)
+(withSign, signDestroy, createSign)
     = mkBindings
         MkBotanPKOpSign runBotanPKOpSign
         MkSign getSignForeignPtr

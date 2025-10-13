@@ -194,7 +194,7 @@ withCipher     :: Cipher -> (BotanCipher -> IO a) -> IO a
 -- | Destroy the cipher object immediately
 cipherDestroy  :: Cipher -> IO ()
 createCipher   :: (Ptr BotanCipher -> IO CInt) -> IO Cipher
-(_, withCipher, cipherDestroy, createCipher, _)
+(withCipher, cipherDestroy, createCipher)
     = mkBindings
         MkBotanCipher runBotanCipher
         MkCipher getCipherForeignPtr

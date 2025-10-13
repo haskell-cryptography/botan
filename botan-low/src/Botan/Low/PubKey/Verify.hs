@@ -38,7 +38,7 @@ newtype Verify = MkVerify { getVerifyForeignPtr :: ForeignPtr BotanPKOpVerifyStr
 withVerify     :: Verify -> (BotanPKOpVerify -> IO a) -> IO a
 verifyDestroy  :: Verify -> IO ()
 createVerify   :: (Ptr BotanPKOpVerify -> IO CInt) -> IO Verify
-(_, withVerify, verifyDestroy, createVerify, _)
+(withVerify, verifyDestroy, createVerify)
     = mkBindings
         MkBotanPKOpVerify runBotanPKOpVerify
         MkVerify getVerifyForeignPtr

@@ -92,7 +92,7 @@ withRNG     :: RNG -> (BotanRNG -> IO a) -> IO a
 -- | Destroy a random number generator object immediately
 rngDestroy  :: RNG -> IO ()
 createRNG   :: (Ptr BotanRNG -> IO CInt) -> IO RNG
-(_, withRNG, rngDestroy, createRNG, _)
+(withRNG, rngDestroy, createRNG)
     = mkBindings MkBotanRNG runBotanRNG MkRNG getRNGForeignPtr botan_rng_destroy
 
 type RNGType = ByteString

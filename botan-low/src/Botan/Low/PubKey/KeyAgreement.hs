@@ -115,7 +115,7 @@ newtype KeyAgreement = MkKeyAgreement { getKeyAgreementForeignPtr :: ForeignPtr 
 withKeyAgreement     :: KeyAgreement -> (BotanPKOpKeyAgreement -> IO a) -> IO a
 keyAgreementDestroy  :: KeyAgreement -> IO ()
 createKeyAgreement   :: (Ptr BotanPKOpKeyAgreement -> IO CInt) -> IO KeyAgreement
-(_, withKeyAgreement, keyAgreementDestroy, createKeyAgreement, _)
+(withKeyAgreement, keyAgreementDestroy, createKeyAgreement)
     = mkBindings
         MkBotanPKOpKeyAgreement runBotanPKOpKeyAgreement
         MkKeyAgreement getKeyAgreementForeignPtr

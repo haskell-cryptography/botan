@@ -163,7 +163,7 @@ newtype HOTP = MkHOTP { getHOTPForeignPtr :: ForeignPtr BotanHOTPStruct }
 withHOTP     :: HOTP -> (BotanHOTP -> IO a) -> IO a
 hotpDestroy  :: HOTP -> IO ()
 createHOTP   :: (Ptr BotanHOTP -> IO CInt) -> IO HOTP
-(_, withHOTP, hotpDestroy, createHOTP, _)
+(withHOTP, hotpDestroy, createHOTP)
     = mkBindings
         MkBotanHOTP runBotanHOTP
         MkHOTP getHOTPForeignPtr
