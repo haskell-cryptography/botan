@@ -17,6 +17,10 @@
   experimental `x509` code is moved.
 * PATCH: enable `-Wall` in addition to a number of other GHC warnings.
 * PATCH: use `GHC2021` as the default language.
+* PATCH: update documentation in the `Botan.Low.Error` module.
+* PATCH: update documentation in the `Botan.Low.Utility` module.
+* PATCH: update documentation in the `Botan.Low.Version` module.
+* PATCH: update documentation in the `Botan.Low.View` module.
 * BREAKING: `Botan.Low.PwdHash.pbkdf2` now takes a `HashName` instead of a
   `MacName`.
 * PATCH: update documentation in the `Botan.Low.PwdHash` module.
