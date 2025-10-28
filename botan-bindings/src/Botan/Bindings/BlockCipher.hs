@@ -19,6 +19,14 @@ module Botan.Bindings.BlockCipher (
     BotanBlockCipherStruct
   , BotanBlockCipher (..)
   , botan_block_cipher_destroy
+  , botan_block_cipher_init
+  , botan_block_cipher_clear
+  , botan_block_cipher_set_key
+  , botan_block_cipher_block_size
+  , botan_block_cipher_encrypt_blocks
+  , botan_block_cipher_decrypt_blocks
+  , botan_block_cipher_name
+  , botan_block_cipher_get_keyspec
   , pattern BOTAN_BLOCK_CIPHER_128_AES_128
   , pattern BOTAN_BLOCK_CIPHER_128_AES_192
   , pattern BOTAN_BLOCK_CIPHER_128_AES_256
@@ -42,14 +50,6 @@ module Botan.Bindings.BlockCipher (
   , pattern BOTAN_BLOCK_CIPHER_IDEA
   , pattern BOTAN_BLOCK_CIPHER_SHACAL2
   , pattern BOTAN_BLOCK_CIPHER_THREEFISH_512
-  , botan_block_cipher_init
-  , botan_block_cipher_clear
-  , botan_block_cipher_set_key
-  , botan_block_cipher_block_size
-  , botan_block_cipher_encrypt_blocks
-  , botan_block_cipher_decrypt_blocks
-  , botan_block_cipher_name
-  , botan_block_cipher_get_keyspec
   ) where
 
 import           Botan.Bindings.Prelude
@@ -66,56 +66,6 @@ newtype {-# CTYPE "botan/ffi.h" "botan_block_cipher_t" #-} BotanBlockCipher
 foreign import capi safe "botan/ffi.h &botan_block_cipher_destroy"
     botan_block_cipher_destroy
         :: FinalizerPtr BotanBlockCipherStruct
-
-pattern BOTAN_BLOCK_CIPHER_128_AES_128
-    ,   BOTAN_BLOCK_CIPHER_128_AES_192
-    ,   BOTAN_BLOCK_CIPHER_128_AES_256
-    ,   BOTAN_BLOCK_CIPHER_128_ARIA_128
-    ,   BOTAN_BLOCK_CIPHER_128_ARIA_192
-    ,   BOTAN_BLOCK_CIPHER_128_ARIA_256
-    ,   BOTAN_BLOCK_CIPHER_128_CAMELLIA_128
-    ,   BOTAN_BLOCK_CIPHER_128_CAMELLIA_192
-    ,   BOTAN_BLOCK_CIPHER_128_CAMELLIA_256
-    ,   BOTAN_BLOCK_CIPHER_128_NOEKEON
-    ,   BOTAN_BLOCK_CIPHER_128_SEED
-    ,   BOTAN_BLOCK_CIPHER_128_SM4
-    ,   BOTAN_BLOCK_CIPHER_128_SERPENT
-    ,   BOTAN_BLOCK_CIPHER_128_TWOFISH
-    :: (Eq a, IsString a) => a
-
-pattern BOTAN_BLOCK_CIPHER_128_AES_128      = "AES-128"
-pattern BOTAN_BLOCK_CIPHER_128_AES_192      = "AES-192"
-pattern BOTAN_BLOCK_CIPHER_128_AES_256      = "AES-256"
-pattern BOTAN_BLOCK_CIPHER_128_ARIA_128     = "ARIA-128"
-pattern BOTAN_BLOCK_CIPHER_128_ARIA_192     = "ARIA-192"
-pattern BOTAN_BLOCK_CIPHER_128_ARIA_256     = "ARIA-256"
-pattern BOTAN_BLOCK_CIPHER_128_CAMELLIA_128 = "Camellia-128"
-pattern BOTAN_BLOCK_CIPHER_128_CAMELLIA_192 = "Camellia-192"
-pattern BOTAN_BLOCK_CIPHER_128_CAMELLIA_256 = "Camellia-256"
-pattern BOTAN_BLOCK_CIPHER_128_NOEKEON      = "Noekeon"
-pattern BOTAN_BLOCK_CIPHER_128_SEED         = "SEED"
-pattern BOTAN_BLOCK_CIPHER_128_SM4          = "SM4"
-pattern BOTAN_BLOCK_CIPHER_128_SERPENT      = "Serpent"
-pattern BOTAN_BLOCK_CIPHER_128_TWOFISH      = "Twofish"
-
-pattern BOTAN_BLOCK_CIPHER_BLOWFISH
-    ,   BOTAN_BLOCK_CIPHER_CAST_128
-    ,   BOTAN_BLOCK_CIPHER_DES
-    ,   BOTAN_BLOCK_CIPHER_TRIPLEDES
-    ,   BOTAN_BLOCK_CIPHER_GOST_28147_89
-    ,   BOTAN_BLOCK_CIPHER_IDEA
-    ,   BOTAN_BLOCK_CIPHER_SHACAL2
-    ,   BOTAN_BLOCK_CIPHER_THREEFISH_512
-    :: (Eq a, IsString a) => a
-
-pattern BOTAN_BLOCK_CIPHER_BLOWFISH         = "Blowfish"
-pattern BOTAN_BLOCK_CIPHER_CAST_128         = "CAST-128"
-pattern BOTAN_BLOCK_CIPHER_DES              = "DES"
-pattern BOTAN_BLOCK_CIPHER_TRIPLEDES        = "TripleDES"
-pattern BOTAN_BLOCK_CIPHER_GOST_28147_89    = "GOST-28147-89"
-pattern BOTAN_BLOCK_CIPHER_IDEA             = "IDEA"
-pattern BOTAN_BLOCK_CIPHER_SHACAL2          = "SHACAL2"
-pattern BOTAN_BLOCK_CIPHER_THREEFISH_512    = "Threefish-512"
 
 -- | Initialize a block cipher object
 foreign import capi safe "botan/ffi.h botan_block_cipher_init"
@@ -178,3 +128,53 @@ foreign import capi safe "botan/ffi.h botan_block_cipher_get_keyspec"
         -> Ptr CSize        -- ^ __out_maximum_keylength__: if non-NULL, will be set to maximum keylength of cipher
         -> Ptr CSize        -- ^ __out_keylength_modulo__: if non-NULL will be set to byte multiple of valid keys
         -> IO CInt
+
+pattern BOTAN_BLOCK_CIPHER_128_AES_128
+    ,   BOTAN_BLOCK_CIPHER_128_AES_192
+    ,   BOTAN_BLOCK_CIPHER_128_AES_256
+    ,   BOTAN_BLOCK_CIPHER_128_ARIA_128
+    ,   BOTAN_BLOCK_CIPHER_128_ARIA_192
+    ,   BOTAN_BLOCK_CIPHER_128_ARIA_256
+    ,   BOTAN_BLOCK_CIPHER_128_CAMELLIA_128
+    ,   BOTAN_BLOCK_CIPHER_128_CAMELLIA_192
+    ,   BOTAN_BLOCK_CIPHER_128_CAMELLIA_256
+    ,   BOTAN_BLOCK_CIPHER_128_NOEKEON
+    ,   BOTAN_BLOCK_CIPHER_128_SEED
+    ,   BOTAN_BLOCK_CIPHER_128_SM4
+    ,   BOTAN_BLOCK_CIPHER_128_SERPENT
+    ,   BOTAN_BLOCK_CIPHER_128_TWOFISH
+    :: (Eq a, IsString a) => a
+
+pattern BOTAN_BLOCK_CIPHER_128_AES_128      = "AES-128"
+pattern BOTAN_BLOCK_CIPHER_128_AES_192      = "AES-192"
+pattern BOTAN_BLOCK_CIPHER_128_AES_256      = "AES-256"
+pattern BOTAN_BLOCK_CIPHER_128_ARIA_128     = "ARIA-128"
+pattern BOTAN_BLOCK_CIPHER_128_ARIA_192     = "ARIA-192"
+pattern BOTAN_BLOCK_CIPHER_128_ARIA_256     = "ARIA-256"
+pattern BOTAN_BLOCK_CIPHER_128_CAMELLIA_128 = "Camellia-128"
+pattern BOTAN_BLOCK_CIPHER_128_CAMELLIA_192 = "Camellia-192"
+pattern BOTAN_BLOCK_CIPHER_128_CAMELLIA_256 = "Camellia-256"
+pattern BOTAN_BLOCK_CIPHER_128_NOEKEON      = "Noekeon"
+pattern BOTAN_BLOCK_CIPHER_128_SEED         = "SEED"
+pattern BOTAN_BLOCK_CIPHER_128_SM4          = "SM4"
+pattern BOTAN_BLOCK_CIPHER_128_SERPENT      = "Serpent"
+pattern BOTAN_BLOCK_CIPHER_128_TWOFISH      = "Twofish"
+
+pattern BOTAN_BLOCK_CIPHER_BLOWFISH
+    ,   BOTAN_BLOCK_CIPHER_CAST_128
+    ,   BOTAN_BLOCK_CIPHER_DES
+    ,   BOTAN_BLOCK_CIPHER_TRIPLEDES
+    ,   BOTAN_BLOCK_CIPHER_GOST_28147_89
+    ,   BOTAN_BLOCK_CIPHER_IDEA
+    ,   BOTAN_BLOCK_CIPHER_SHACAL2
+    ,   BOTAN_BLOCK_CIPHER_THREEFISH_512
+    :: (Eq a, IsString a) => a
+
+pattern BOTAN_BLOCK_CIPHER_BLOWFISH         = "Blowfish"
+pattern BOTAN_BLOCK_CIPHER_CAST_128         = "CAST-128"
+pattern BOTAN_BLOCK_CIPHER_DES              = "DES"
+pattern BOTAN_BLOCK_CIPHER_TRIPLEDES        = "TripleDES"
+pattern BOTAN_BLOCK_CIPHER_GOST_28147_89    = "GOST-28147-89"
+pattern BOTAN_BLOCK_CIPHER_IDEA             = "IDEA"
+pattern BOTAN_BLOCK_CIPHER_SHACAL2          = "SHACAL2"
+pattern BOTAN_BLOCK_CIPHER_THREEFISH_512    = "Threefish-512"
