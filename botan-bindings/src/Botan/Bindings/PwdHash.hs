@@ -16,75 +16,21 @@ the C++ API reference.
 {-# LANGUAGE CApiFFI #-}
 
 module Botan.Bindings.PwdHash (
+    botan_pwdhash
+  , botan_pwdhash_timed
     -- * Available schemes
     -- $schemes
-    pattern BOTAN_PBKDF_PBKDF2
+  , pattern BOTAN_PBKDF_PBKDF2
   , pattern BOTAN_PBKDF_SCRYPT
   , pattern BOTAN_PBKDF_ARGON2D
   , pattern BOTAN_PBKDF_ARGON2I
   , pattern BOTAN_PBKDF_ARGON2ID
   , pattern BOTAN_PBKDF_BCRYPT_PBKDF
   , pattern BOTAN_PBKDF_OPENPGP_S2K
-    -- * Password hashing
-  , botan_pwdhash
-  , botan_pwdhash_timed
   ) where
 
 import           Botan.Bindings.Prelude
 
-{-------------------------------------------------------------------------------
-  Available schemes
--------------------------------------------------------------------------------}
-
--- $schemes
---
--- There are a number of schemes available to be used as the PBKDF algorithm for
--- 'botan_pwdhash' and 'botan_pwdhash_timed', which are listed in the [Available
--- Schemes](https://botan.randombit.net/handbook/api_ref/pbkdf.html#available-schemes)
--- section of the C++ API reference. A pattern synonym for the
--- name of each of the available schemes is included in these Haskell bindings.
-
-pattern BOTAN_PBKDF_PBKDF2
-      , BOTAN_PBKDF_SCRYPT
-      , BOTAN_PBKDF_ARGON2D
-      , BOTAN_PBKDF_ARGON2I
-      , BOTAN_PBKDF_ARGON2ID
-      , BOTAN_PBKDF_BCRYPT_PBKDF
-      , BOTAN_PBKDF_OPENPGP_S2K
-      :: (Eq a, IsString a) => a
-
--- | Name of the @PBKDF2@ scheme
---
--- NOTE: @PBKDF2@ is not a valid scheme name to pass to 'botan_pwdhash' or
--- 'botan_pwdhash_timed' directly. Instead, the scheme name should be
--- parameterised by a hash function. For more information see the [Available
--- Schemes](https://botan.randombit.net/handbook/api_ref/pbkdf.html#available-schemes)
--- section of the C++ API reference.
-pattern BOTAN_PBKDF_PBKDF2 = "PBKDF2"
-
--- | Name of the @Scrypt@ scheme
-pattern BOTAN_PBKDF_SCRYPT = "Scrypt"
-
--- | Name of the @Argon2d@ scheme
-pattern BOTAN_PBKDF_ARGON2D = "Argon2d"
-
--- | Name of the @Argon2i@ scheme
-pattern BOTAN_PBKDF_ARGON2I = "Argon2i"
-
--- | Name of the @Argon2d@ scheme
-pattern BOTAN_PBKDF_ARGON2ID = "Argon2id"
-
--- | Name of the @Bcrypt-PBKDF@ scheme
-pattern BOTAN_PBKDF_BCRYPT_PBKDF = "Bcrypt-PBKDF"
-
--- | Name of the @OpenPGP-S2K@ scheme
---
--- NOTE: @OpenPGP-S2K@ is not a valid scheme name to pass to 'botan_pwdhash' or
--- 'botan_pwdhash_timed' directly. Instead, the scheme name should be
--- parameterised by a hash function. For more information see the [Available
--- Schemes](https://botan.randombit.net/handbook/api_ref/pbkdf.html#available-schemes)
--- section of the C++ API reference.
-pattern BOTAN_PBKDF_OPENPGP_S2K = "OpenPGP-S2K"
 
 {-------------------------------------------------------------------------------
   Password hashing
@@ -149,3 +95,57 @@ foreign import capi safe "botan/ffi.h botan_pwdhash_timed"
     -> ConstPtr Word8  -- ^ __salt[]__: a randomly chosen salt
     -> CSize           -- ^ __salt_len__: length of salt in bytes
     -> IO CInt         -- ^ 0 on success, a negative value on failure
+
+{-------------------------------------------------------------------------------
+  Available schemes
+-------------------------------------------------------------------------------}
+
+-- $schemes
+--
+-- There are a number of schemes available to be used as the PBKDF algorithm for
+-- 'botan_pwdhash' and 'botan_pwdhash_timed', which are listed in the [Available
+-- Schemes](https://botan.randombit.net/handbook/api_ref/pbkdf.html#available-schemes)
+-- section of the C++ API reference. A pattern synonym for the
+-- name of each of the available schemes is included in these Haskell bindings.
+
+pattern BOTAN_PBKDF_PBKDF2
+      , BOTAN_PBKDF_SCRYPT
+      , BOTAN_PBKDF_ARGON2D
+      , BOTAN_PBKDF_ARGON2I
+      , BOTAN_PBKDF_ARGON2ID
+      , BOTAN_PBKDF_BCRYPT_PBKDF
+      , BOTAN_PBKDF_OPENPGP_S2K
+      :: (Eq a, IsString a) => a
+
+-- | Name of the @PBKDF2@ scheme
+--
+-- NOTE: @PBKDF2@ is not a valid scheme name to pass to 'botan_pwdhash' or
+-- 'botan_pwdhash_timed' directly. Instead, the scheme name should be
+-- parameterised by a hash function. For more information see the [Available
+-- Schemes](https://botan.randombit.net/handbook/api_ref/pbkdf.html#available-schemes)
+-- section of the C++ API reference.
+pattern BOTAN_PBKDF_PBKDF2 = "PBKDF2"
+
+-- | Name of the @Scrypt@ scheme
+pattern BOTAN_PBKDF_SCRYPT = "Scrypt"
+
+-- | Name of the @Argon2d@ scheme
+pattern BOTAN_PBKDF_ARGON2D = "Argon2d"
+
+-- | Name of the @Argon2i@ scheme
+pattern BOTAN_PBKDF_ARGON2I = "Argon2i"
+
+-- | Name of the @Argon2d@ scheme
+pattern BOTAN_PBKDF_ARGON2ID = "Argon2id"
+
+-- | Name of the @Bcrypt-PBKDF@ scheme
+pattern BOTAN_PBKDF_BCRYPT_PBKDF = "Bcrypt-PBKDF"
+
+-- | Name of the @OpenPGP-S2K@ scheme
+--
+-- NOTE: @OpenPGP-S2K@ is not a valid scheme name to pass to 'botan_pwdhash' or
+-- 'botan_pwdhash_timed' directly. Instead, the scheme name should be
+-- parameterised by a hash function. For more information see the [Available
+-- Schemes](https://botan.randombit.net/handbook/api_ref/pbkdf.html#available-schemes)
+-- section of the C++ API reference.
+pattern BOTAN_PBKDF_OPENPGP_S2K = "OpenPGP-S2K"

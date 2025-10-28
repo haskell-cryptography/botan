@@ -14,9 +14,11 @@ the C++ API reference.
 -}
 
 module Botan.Low.PwdHash (
+    pwdhash
+  , pwdhashTimed
     -- * Available schemes
     -- $schemes
-    PBKDFName
+  , PBKDFName
   , pattern PBKDF2
   , pbkdf2
   , pattern Scrypt
@@ -26,9 +28,6 @@ module Botan.Low.PwdHash (
   , pattern Bcrypt_PBKDF
   , pattern OpenPGP_S2K
   , openPGP_S2K
-  -- * Password hashing
-  , pwdhash
-  , pwdhashTimed
   ) where
 
 import           Botan.Bindings.PwdHash
@@ -37,77 +36,6 @@ import           Botan.Low.Error
 import           Botan.Low.Hash
 import           Botan.Low.Prelude
 
-{-------------------------------------------------------------------------------
-  Available schemes
--------------------------------------------------------------------------------}
-
--- $schemes
---
--- There are a number of schemes available to be used as the PBKDF algorithm for
--- 'pwdhash' and 'pwdhashTimed', which are listed in the [Available
--- Schemes](https://botan.randombit.net/handbook/api_ref/pbkdf.html#available-schemes)
--- section of the C++ API reference. A pattern synonym for the
--- name of each of the available schemes is included in these Haskell bindings.
-
--- | The name of a key derivation scheme used as a PBKDF algorithm
-type PBKDFName = ByteString
-
-pattern PBKDF2
-      , Scrypt
-      , Argon2d
-      , Argon2i
-      , Argon2id
-      , Bcrypt_PBKDF
-      , OpenPGP_S2K
-      :: PBKDFName
-
--- | Name of the @PBKDF2@ scheme
---
--- NOTE: @PBKDF2@ is not a valid scheme name to pass to 'pwdhash' or
--- 'pwdhashTimed' directly. Instead, the scheme name should be parameterised by
--- a hash function using 'pbkdf2'. For more information see the [Available
--- Schemes](https://botan.randombit.net/handbook/api_ref/pbkdf.html#available-schemes)
--- section of the C++ API reference.
-pattern PBKDF2 = BOTAN_PBKDF_PBKDF2
-
--- | Create a valid scheme name for @PBKDF2@ parameterised over a hash function
--- name.
---
--- NOTE: "PBKDF(HMAC(SHA-256))" is equivalent to "PBKDF(SHA-256)". 'pbkdf2'
--- always outputs the latter given a hash function name.
-pbkdf2 :: HashName -> PBKDFName
-pbkdf2 m = PBKDF2 /$ m
-
--- | Name of the @Scrypt@ scheme
---
-pattern Scrypt = BOTAN_PBKDF_SCRYPT
-
--- | Name of the @Argon2d@ scheme
-pattern Argon2d = BOTAN_PBKDF_ARGON2D
-
--- | Name of the @Argon2i@ scheme
-pattern Argon2i = BOTAN_PBKDF_ARGON2I
-
--- | Name of the @Argon2d@ scheme
-pattern Argon2id = BOTAN_PBKDF_ARGON2ID
-
--- | Name of the @Bcrypt-PBKDF@ scheme
-pattern Bcrypt_PBKDF = BOTAN_PBKDF_BCRYPT_PBKDF
-
--- | Name of the @OpenPGP-S2K@ scheme
---
--- NOTE: @OpenPGP-S2K@ is not a valid scheme name to pass to 'pwdhash' or
--- 'pwdhashTimed' directly. Instead, the scheme name should be parameterised by
--- a hash function using 'openPGP_S2K'. For more information see the [Available
--- Schemes](https://botan.randombit.net/handbook/api_ref/pbkdf.html#available-schemes)
--- section of the C++ API reference.
-pattern OpenPGP_S2K = BOTAN_PBKDF_OPENPGP_S2K
-
-
--- | Create a valid scheme name for @openPGP-S2K@ parameterised over a hash
--- function name.
-openPGP_S2K:: HashName -> PBKDFName
-openPGP_S2K h = OpenPGP_S2K /$ h
 
 {-------------------------------------------------------------------------------
   Password hashing
@@ -209,3 +137,75 @@ pwdhashTimed algo msec outLen passphrase salt =
       p2 <- fromIntegral <$> peek p2Ptr
       p3 <- fromIntegral <$> peek p3Ptr
       return (p1, p2, p3, out)
+
+{-------------------------------------------------------------------------------
+  Available schemes
+-------------------------------------------------------------------------------}
+
+-- $schemes
+--
+-- There are a number of schemes available to be used as the PBKDF algorithm for
+-- 'pwdhash' and 'pwdhashTimed', which are listed in the [Available
+-- Schemes](https://botan.randombit.net/handbook/api_ref/pbkdf.html#available-schemes)
+-- section of the C++ API reference. A pattern synonym for the
+-- name of each of the available schemes is included in these Haskell bindings.
+
+-- | The name of a key derivation scheme used as a PBKDF algorithm
+type PBKDFName = ByteString
+
+pattern PBKDF2
+      , Scrypt
+      , Argon2d
+      , Argon2i
+      , Argon2id
+      , Bcrypt_PBKDF
+      , OpenPGP_S2K
+      :: PBKDFName
+
+-- | Name of the @PBKDF2@ scheme
+--
+-- NOTE: @PBKDF2@ is not a valid scheme name to pass to 'pwdhash' or
+-- 'pwdhashTimed' directly. Instead, the scheme name should be parameterised by
+-- a hash function using 'pbkdf2'. For more information see the [Available
+-- Schemes](https://botan.randombit.net/handbook/api_ref/pbkdf.html#available-schemes)
+-- section of the C++ API reference.
+pattern PBKDF2 = BOTAN_PBKDF_PBKDF2
+
+-- | Create a valid scheme name for @PBKDF2@ parameterised over a hash function
+-- name.
+--
+-- NOTE: "PBKDF(HMAC(SHA-256))" is equivalent to "PBKDF(SHA-256)". 'pbkdf2'
+-- always outputs the latter given a hash function name.
+pbkdf2 :: HashName -> PBKDFName
+pbkdf2 m = PBKDF2 /$ m
+
+-- | Name of the @Scrypt@ scheme
+--
+pattern Scrypt = BOTAN_PBKDF_SCRYPT
+
+-- | Name of the @Argon2d@ scheme
+pattern Argon2d = BOTAN_PBKDF_ARGON2D
+
+-- | Name of the @Argon2i@ scheme
+pattern Argon2i = BOTAN_PBKDF_ARGON2I
+
+-- | Name of the @Argon2d@ scheme
+pattern Argon2id = BOTAN_PBKDF_ARGON2ID
+
+-- | Name of the @Bcrypt-PBKDF@ scheme
+pattern Bcrypt_PBKDF = BOTAN_PBKDF_BCRYPT_PBKDF
+
+-- | Name of the @OpenPGP-S2K@ scheme
+--
+-- NOTE: @OpenPGP-S2K@ is not a valid scheme name to pass to 'pwdhash' or
+-- 'pwdhashTimed' directly. Instead, the scheme name should be parameterised by
+-- a hash function using 'openPGP_S2K'. For more information see the [Available
+-- Schemes](https://botan.randombit.net/handbook/api_ref/pbkdf.html#available-schemes)
+-- section of the C++ API reference.
+pattern OpenPGP_S2K = BOTAN_PBKDF_OPENPGP_S2K
+
+
+-- | Create a valid scheme name for @openPGP-S2K@ parameterised over a hash
+-- function name.
+openPGP_S2K:: HashName -> PBKDFName
+openPGP_S2K h = OpenPGP_S2K /$ h
