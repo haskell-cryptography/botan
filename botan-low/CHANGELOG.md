@@ -31,6 +31,9 @@
 * BREAKING: add a `DLGroupName` function argument to
   `Botan.Low.SRP6.srp6ServerSessionStep2`.
 * PATCH: update documentation in the `Botan.Low.SRP6` module.
+* PATCH: update documentation in the `Botan.Low.BlockCipher` module.
+* BREAKING: remove the `BlockCipher128Name` type synonym from
+  `Botan.Low.BlockCipher`.
 
 ## 0.0.2.0 -- 2025-09-17
 
