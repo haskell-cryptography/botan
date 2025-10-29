@@ -27,6 +27,9 @@
 * PATCH: update documentation in the `Botan.Bindings.BlockCipher` module.
 * BREAKING: in the `BlockCipher` module, remove `_128` from the identifiers of
   pattern synonyms that start with `BOTAN_BLOCK_CIPHER_128`.
+* NON-BREAKING: in the `BlockCipher` module, add new pattern synonyms
+  `BOTAN_BLOCK_CIPHER_LION` and `BOTAN_BLOCK_CIPHER_CASCADE` for the "Lion" and
+  "Cascade" ciphers respectively.
 
 ## 0.1.0.0 -- 2025-09-17
 

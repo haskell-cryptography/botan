@@ -34,6 +34,9 @@
 * PATCH: update documentation in the `Botan.Low.BlockCipher` module.
 * BREAKING: remove the `BlockCipher128Name` type synonym from
   `Botan.Low.BlockCipher`.
+* NON-BREAKING: in the `BlockCipher` module, add new pattern synonyms `Lion` and
+  `Cascade` and accompanying utility functions `lion` and `cascade` for the
+  "Lion" and "Cascade" ciphers respectively.
 
 ## 0.0.2.0 -- 2025-09-17
 

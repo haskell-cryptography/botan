@@ -47,11 +47,15 @@ module Botan.Low.BlockCipher (
   , pattern Camellia128
   , pattern Camellia192
   , pattern Camellia256
+  , pattern Cascade
+  , cascade
   , pattern CAST128
   , pattern DES
   , pattern TripleDES
   , pattern GOST_28147_89
   , pattern IDEA
+  , pattern Lion
+  , lion
   , pattern Noekeon
   , pattern SEED
   , pattern Serpent
@@ -65,15 +69,19 @@ module Botan.Low.BlockCipher (
   , allBlockCiphers
   ) where
 
+import qualified Data.ByteString.Char8 as BSC
+
 import           Botan.Bindings.BlockCipher
 
 import           Botan.Low.Error
+import           Botan.Low.Hash
 import           Botan.Low.Make
 import           Botan.Low.Prelude
 import           Botan.Low.Remake
 
 {- $setup
 >>> import Control.Monad
+>>> import Botan.Low.Hash
 -}
 
 {-------------------------------------------------------------------------------
@@ -308,7 +316,13 @@ parameters. For the examples below, we pick some arbitrary parameters.
 
 >>> :{
 forM_ allBlockCiphers $ \name -> do
-  blockCipher <- blockCipherInit name
+  let name' =
+        if name == Cascade
+        then cascade Serpent AES256
+        else if name == Lion
+        then lion SHA1 "RC4" (Just 64)
+        else name
+  blockCipher <- blockCipherInit name'
   sz <- blockCipherBlockSize blockCipher
   print (name, sz * 8)
 :}
@@ -327,11 +341,13 @@ forM_ allBlockCiphers $ \name -> do
 ("SM4",128)
 ("Twofish",128)
 ("Blowfish",64)
+("Cascade",128)
 ("CAST-128",64)
 ("DES",64)
 ("TripleDES",64)
 ("GOST-28147-89",64)
 ("IDEA",64)
+("Lion",512)
 ("SHACAL2",256)
 ("Threefish-512",512)
 
@@ -351,11 +367,13 @@ pattern
   , Camellia128
   , Camellia192
   , Camellia256
+  , Cascade
   , CAST128
   , DES
   , TripleDES
   , GOST_28147_89
   , IDEA
+  , Lion
   , Noekeon
   , SEED
   , Serpent
@@ -375,11 +393,33 @@ pattern Blowfish      = BOTAN_BLOCK_CIPHER_BLOWFISH
 pattern Camellia128   = BOTAN_BLOCK_CIPHER_CAMELLIA_128
 pattern Camellia192   = BOTAN_BLOCK_CIPHER_CAMELLIA_192
 pattern Camellia256   = BOTAN_BLOCK_CIPHER_CAMELLIA_256
+pattern Cascade       = BOTAN_BLOCK_CIPHER_CASCADE
+
+-- |
+-- >>> cascade Serpent AES256
+-- "Cascade(Serpent,AES-256)"
+cascade :: BlockCipherName -> BlockCipherName -> BlockCipherName
+cascade ciph1 ciph2 = Cascade /$ ciph1 <> "," <> ciph2
+
 pattern CAST128       = BOTAN_BLOCK_CIPHER_CAST_128
 pattern DES           = BOTAN_BLOCK_CIPHER_DES
 pattern TripleDES     = BOTAN_BLOCK_CIPHER_TRIPLEDES
 pattern GOST_28147_89 = BOTAN_BLOCK_CIPHER_GOST_28147_89
 pattern IDEA          = BOTAN_BLOCK_CIPHER_IDEA
+pattern Lion          = BOTAN_BLOCK_CIPHER_LION
+
+-- |
+-- >>> lion SHA1 "RC4" Nothing
+-- "Lion(SHA-1,RC4)"
+--
+-- >>> lion SHA1 "RC4" (Just 64)
+-- "Lion(SHA-1,RC4,64)"
+lion :: HashName -> ByteString -> Maybe Word -> BlockCipherName
+lion hashFun streamCiph optBlockSize =
+    Lion /$ hashFun <> "," <> streamCiph <> case optBlockSize of
+      Nothing        -> ""
+      Just blockSize -> "," <> BSC.pack (show blockSize)
+
 pattern Noekeon       = BOTAN_BLOCK_CIPHER_NOEKEON
 pattern SEED          = BOTAN_BLOCK_CIPHER_SEED
 pattern Serpent       = BOTAN_BLOCK_CIPHER_SERPENT
@@ -409,11 +449,13 @@ blockCipher128s =
 blockCiphers :: [BlockCipherName]
 blockCiphers =
     [ Blowfish
+    , Cascade
     , CAST128
     , DES
     , TripleDES
     , GOST_28147_89
     , IDEA
+    , Lion
     , SHACAL2
     , Threefish512
     ]

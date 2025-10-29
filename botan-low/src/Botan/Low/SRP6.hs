@@ -16,7 +16,7 @@ C++ API reference.
 module Botan.Low.SRP6 (
     -- * Example usage
     -- $usage
-    -- * Algorithm
+    -- * Password hashing
     SRP6ServerSession(..)
   , withSRP6ServerSession
   , srp6ServerSessionInit
@@ -257,7 +257,7 @@ All that is left to do is run the program.
 -}
 
 {-------------------------------------------------------------------------------
-  Algorithm
+  Password hashing
 -------------------------------------------------------------------------------}
 
 -- TODO: Unify with other / move to botan

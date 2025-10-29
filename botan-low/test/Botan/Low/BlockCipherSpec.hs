@@ -3,10 +3,11 @@ module Main (main) where
 import           Test.Prelude
 
 import           Botan.Low.BlockCipher
+import           Botan.Low.Hash
 import           Botan.Low.RNG
 
 main :: IO ()
-main = hspec $ testSuite allBlockCiphers chars $ \ bc -> do
+main = hspec $ testSuite allTestBlockCiphers chars $ \ bc -> do
     it "can initialize a block cipher context" $ do
         _ctx <- blockCipherInit bc
         pass
@@ -61,3 +62,10 @@ main = hspec $ testSuite allBlockCiphers chars $ \ bc -> do
         decmsg <- blockCipherDecryptBlocks ctx encmsg
         decmsg `shouldBe` msg
         pass
+
+allTestBlockCiphers :: [BlockCipherName]
+allTestBlockCiphers = fmap adjust allBlockCiphers
+  where
+    adjust Cascade = cascade Serpent AES256
+    adjust Lion    = lion SHA1 "RC4" (Just 64)
+    adjust name    = name
