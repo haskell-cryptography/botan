@@ -143,6 +143,7 @@ test-suite test
     , bytestring
     , containers
     , hspec
+    , QuickCheck
     , tasty
     , tasty-hspec
     , tasty-hunit
@@ -165,6 +166,7 @@ test-suite test
     Test.Botan.Low.TOTP
     Test.Botan.Low.Utility
     Test.Botan.Low.X509
+    Test.Botan.Low.ZFEC
     Test.Util.ByteString
     Test.Util.Hspec
 
@@ -549,27 +551,6 @@ test-suite botan-low-pubkey-x25519-tests
     OverloadedStrings
 
 -- TODO: Pubkey folder tests
-
-test-suite botan-low-zfec-tests
-  import:             warnings, language
-  type:               exitcode-stdio-1.0
-  main-is:            Botan/Low/ZFECSpec.hs
-  hs-source-dirs:     test/
-  build-depends:
-    , base
-    , botan-low
-    , bytestring
-    , hspec
-    , QuickCheck
-
-  other-modules:
-    Paths_botan_low
-    Test.Prelude
-
-  autogen-modules:    Paths_botan_low
-  default-extensions:
-    NoImplicitPrelude
-    OverloadedStrings
 
 --
 -- Benchmarks

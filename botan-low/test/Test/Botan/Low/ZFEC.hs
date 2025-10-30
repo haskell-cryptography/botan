@@ -1,9 +1,20 @@
-module Main (main) where
+{-# LANGUAGE OverloadedStrings #-}
 
-import           Test.Prelude
+module Test.Botan.Low.ZFEC (tests) where
 
 import           Botan.Low.ZFEC
+import           Data.ByteString (ByteString)
+import           Test.Hspec
+import           Test.QuickCheck
+import           Test.Tasty
+import           Test.Tasty.Hspec
 
+tests :: IO TestTree
+tests = do
+    specs <- testSpec "spec_zfec" spec_zfec
+    pure $ testGroup "Test.Botan.Low.ZFEC" [
+        specs
+      ]
 k :: Int
 k = 5
 
@@ -13,8 +24,8 @@ n = 7
 message :: ByteString
 message = "Fee fi fo fum! I smell the blood of an Englishman!"
 
-main :: IO ()
-main = hspec $ do
+spec_zfec :: Spec
+spec_zfec = do
     describe "zfecEncode" $ do
         it "encodes a message into shares" $ do
             shares <- zfecEncode k n message
