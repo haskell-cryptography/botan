@@ -1,11 +1,21 @@
-module Main (main) where
+{-# LANGUAGE OverloadedStrings #-}
 
-import           Test.Prelude
+module Test.Botan.Low.Utility (tests) where
 
 import           Botan.Low.Utility
-
-import qualified Data.ByteString as ByteString
+import           Data.ByteString as BS
 import           Data.Text
+import           Test.Hspec
+import           Test.Tasty
+import           Test.Tasty.Hspec
+import           Test.Util.Hspec
+
+tests :: IO TestTree
+tests = do
+    specs <- testSpec "spec_utility" spec_utility
+    pure $ testGroup "Test.Botan.Low.Utility" [
+        specs
+      ]
 
 message :: ByteString
 message = "Fee fi fo fum!"
@@ -18,10 +28,10 @@ base64Message = "RmVlIGZpIGZvIGZ1bSE="
 
 -- hexUpperMessage
 
-main :: IO ()
-main = hspec $ do
+spec_utility :: Spec
+spec_utility = do
     it "constantTimeCompare" $ do
-        equal <- constantTimeCompare "compare me" "compare me" (ByteString.length "compare me")
+        equal <- constantTimeCompare "compare me" "compare me" (BS.length "compare me")
         equal `shouldBe` True
         pass
     -- TODO:

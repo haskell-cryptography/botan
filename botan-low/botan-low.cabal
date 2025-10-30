@@ -146,6 +146,7 @@ test-suite test
     , tasty
     , tasty-hspec
     , tasty-hunit
+    , text
 
   other-modules:
     Test.Botan.Low.Bcrypt
@@ -162,6 +163,7 @@ test-suite test
     Test.Botan.Low.SRP6
     Test.Botan.Low.SRP6.Example
     Test.Botan.Low.TOTP
+    Test.Botan.Low.Utility
     Test.Util.ByteString
     Test.Util.Hspec
 
@@ -543,28 +545,6 @@ test-suite botan-low-pubkey-x25519-tests
     OverloadedStrings
 
 -- TODO: Pubkey folder tests
-
-test-suite botan-low-utility-tests
-  import:             warnings, language
-  type:               exitcode-stdio-1.0
-  main-is:            Botan/Low/UtilitySpec.hs
-  hs-source-dirs:     test/
-  build-depends:
-    , base
-    , botan-low
-    , bytestring
-    , hspec
-    , QuickCheck
-    , text
-
-  other-modules:
-    Paths_botan_low
-    Test.Prelude
-
-  autogen-modules:    Paths_botan_low
-  default-extensions:
-    NoImplicitPrelude
-    OverloadedStrings
 
 test-suite botan-low-x509-tests
   import:             warnings, language
