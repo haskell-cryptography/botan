@@ -18,8 +18,18 @@
   experimental `x509` code is moved.
 * PATCH: enable `-Wall` in addition to a number of other GHC warnings.
 * PATCH: use `GHC2021` as the default language.
+* PATCH: update documentation in the `Botan.Bindings.Error` module.
+* PATCH: update documentation in the `Botan.Bindings.Utility` module.
+* PATCH: update documentation in the `Botan.Bindings.Version` module.
+* PATCH: update documentation in the `Botan.Bindings.View` module.
 * PATCH: update documentation in the `Botan.Bindings.PwdHash` module.
 * PATCH: update documentation in the `Botan.Bindings.SRP6` module.
+* PATCH: update documentation in the `Botan.Bindings.BlockCipher` module.
+* BREAKING: in the `BlockCipher` module, remove `_128` from the identifiers of
+  pattern synonyms that start with `BOTAN_BLOCK_CIPHER_128`.
+* NON-BREAKING: in the `BlockCipher` module, add new pattern synonyms
+  `BOTAN_BLOCK_CIPHER_LION` and `BOTAN_BLOCK_CIPHER_CASCADE` for the "Lion" and
+  "Cascade" ciphers respectively.
 
 ## 0.1.0.0 -- 2025-09-17
 

@@ -352,47 +352,7 @@ onUserLogin username password = do
 
 <details><summary>Botan.Low.BlockCipher</summary>
 
-A `block cipher` is a deterministic, cryptographic primitive suitable for encrypting or decrypting a single, fixed-size block of data at a time. Block ciphers are used as building blocks for more complex cryptographic operations. If you are looking to encrypt user data, you are probably looking for `Botan.Low.Cipher` instead.
-
-Unless you need a specific block cipher, it is strongly recommended that you use the `AES256` algorithm.
-
-```haskell
-import Botan.Low.BlockCipher
-blockCipher <- blockCipherInit AES256
-```
-
-To use a block cipher, we first need to generate (if we haven't already) a secret key.
-
-```haskell
-import Botan.Low.RNG
-rng <- rngInit "user"
--- We will use the maximum key size; AES256 keys are always 16 bytes
-(_,keySize,_) <- blockCipherGetKeyspec blockCipher
--- Block cipher keys are randomly generated
-key <- rngGet rng keySize
-```
-
-After the key is generated, we must set it as the block cipher key:
-
-```haskell
-blockCipherSetKey blockCipher key
-```
-
-To encrypt a message, it must be a multiple of the block size.
-
-```haskell
-blockSize <- blockCipherBlockSize blockCipher
--- AES256 block size is always 16 bytes
-message = "0000DEADBEEF0000" :: ByteString
-ciphertext <- blockCipherEncryptBlocks blockCipher message
-```
-
-To decrypt a message, simply reverse the process:
-
-```haskell
-plaintext <- blockCipherDecryptBlocks blockCipher ciphertext
-message == plaintext -- True
-```
+See the executable example in the Haddock documentation of the `Botan.Low.BlockCipher` module.
 
 </details>
 
@@ -911,7 +871,9 @@ rngAddEntropy rng "Fee fi fo fum!"
 </details>
 
 <details><summary>Botan.Low.SRP6</summary>
+
 See the executable example in the Haddock documentation of the `Botan.Low.SRP6` module.
+
 </details>
 
 <details><summary>Botan.Low.TOTP</summary>

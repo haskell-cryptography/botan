@@ -17,6 +17,10 @@
   experimental `x509` code is moved.
 * PATCH: enable `-Wall` in addition to a number of other GHC warnings.
 * PATCH: use `GHC2021` as the default language.
+* PATCH: update documentation in the `Botan.Low.Error` module.
+* PATCH: update documentation in the `Botan.Low.Utility` module.
+* PATCH: update documentation in the `Botan.Low.Version` module.
+* PATCH: update documentation in the `Botan.Low.View` module.
 * BREAKING: `Botan.Low.PwdHash.pbkdf2` now takes a `HashName` instead of a
   `MacName`.
 * PATCH: update documentation in the `Botan.Low.PwdHash` module.
@@ -27,6 +31,12 @@
 * BREAKING: add a `DLGroupName` function argument to
   `Botan.Low.SRP6.srp6ServerSessionStep2`.
 * PATCH: update documentation in the `Botan.Low.SRP6` module.
+* PATCH: update documentation in the `Botan.Low.BlockCipher` module.
+* BREAKING: remove the `BlockCipher128Name` type synonym from
+  `Botan.Low.BlockCipher`.
+* NON-BREAKING: in the `BlockCipher` module, add new pattern synonyms `Lion` and
+  `Cascade` and accompanying utility functions `lion` and `cascade` for the
+  "Lion" and "Cascade" ciphers respectively.
 
 ## 0.0.2.0 -- 2025-09-17
 

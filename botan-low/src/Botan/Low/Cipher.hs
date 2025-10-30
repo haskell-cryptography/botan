@@ -248,16 +248,16 @@ chaCha20Poly1305 = BOTAN_AEAD_CHACHA20POLY1305
 
 type AEADMode = ByteString
 
-gcmMode :: BlockCipher128Name -> AEADName
+gcmMode :: BlockCipherName -> AEADName
 gcmMode bc = bc // BOTAN_AEAD_MODE_GCM
 
-gcmModeWith :: BlockCipher128Name -> Int -> AEADName
+gcmModeWith :: BlockCipherName -> Int -> AEADName
 gcmModeWith bc tagSz = gcmMode bc /$ showBytes tagSz
 
-ocbMode :: BlockCipher128Name -> AEADName
+ocbMode :: BlockCipherName -> AEADName
 ocbMode bc = bc // BOTAN_AEAD_MODE_OCB
 
-ocbModeWith :: BlockCipher128Name -> Int -> AEADName
+ocbModeWith :: BlockCipherName -> Int -> AEADName
 ocbModeWith bc tagSz = ocbMode bc /$ showBytes tagSz
 
 eaxMode :: BlockCipherName -> AEADName
@@ -266,13 +266,13 @@ eaxMode bc = bc // BOTAN_AEAD_MODE_EAX
 eaxModeWith :: BlockCipherName -> Int -> AEADName
 eaxModeWith bc tagSz = eaxMode bc /$ showBytes tagSz
 
-sivMode :: BlockCipher128Name -> AEADName
+sivMode :: BlockCipherName -> AEADName
 sivMode bc = bc // BOTAN_AEAD_MODE_SIV
 
-ccmMode :: BlockCipher128Name -> AEADName
+ccmMode :: BlockCipherName -> AEADName
 ccmMode bc = bc // BOTAN_AEAD_MODE_CCM
 
-ccmModeWith :: BlockCipher128Name -> Int -> Int -> AEADName
+ccmModeWith :: BlockCipherName -> Int -> Int -> AEADName
 ccmModeWith bc tagSz l = ccmMode bc /$ showBytes tagSz <> "," <> showBytes l
 
 cbcPaddings :: [CBCPaddingName]
