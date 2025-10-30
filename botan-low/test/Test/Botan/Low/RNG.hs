@@ -1,10 +1,27 @@
-module Main (main) where
+{-# LANGUAGE CPP               #-}
+{-# LANGUAGE OverloadedStrings #-}
 
-import           Test.Prelude
-
-import qualified Data.ByteString as ByteString
+module Test.Botan.Low.RNG (tests) where
 
 import           Botan.Low.RNG
+import           Data.ByteString as BS
+import           Test.Hspec
+import           Test.Tasty
+import           Test.Tasty.Hspec
+import           Test.Util.ByteString
+import           Test.Util.Hspec
+
+tests :: IO TestTree
+tests = do
+    specs <- testSpec "spec_rng" spec_rng
+    pure $ testGroup "Test.Botan.Low.RNG" [
+        specs
+#ifdef darwin_HOST_OS
+        -- TODO: temporarily disabled because the test suite fails. See issue
+        -- #33.
+      | False
+#endif
+      ]
 
 rngs :: [RNGType]
 rngs =
@@ -14,11 +31,11 @@ rngs =
     , RDRandRNG -- NOTES: Not available on all processors
     ]
 
-main :: IO ()
-main = hspec $ do
+spec_rng :: Spec
+spec_rng = do
     it "systemRNGGet" $ do
         bs <- systemRNGGet 8
-        ByteString.length bs `shouldBe` 8
+        BS.length bs `shouldBe` 8
     testSuite rngs chars $ \ rng -> do
         it "rngInit" $ do
             _ctx <- rngInit rng
