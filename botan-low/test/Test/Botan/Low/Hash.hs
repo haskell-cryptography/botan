@@ -1,14 +1,28 @@
-module Main (main) where
+{-# LANGUAGE OverloadedStrings #-}
 
-import           Test.Prelude
+module Test.Botan.Low.Hash (tests) where
 
 import           Botan.Low.Hash
+import           Control.Monad
+import           Data.ByteString
+import           Test.Hspec
+import           Test.Tasty
+import           Test.Tasty.Hspec
+import           Test.Util.ByteString
+import           Test.Util.Hspec
+
+tests :: IO TestTree
+tests = do
+    specs <- testSpec "spec_hash" spec_hash
+    pure $ testGroup "Test.Botan.Low.Hash" [
+        specs
+      ]
 
 message :: ByteString
 message = "Fee fi fo fum! I smell the blood of an Englishman!"
 
-main :: IO ()
-main = hspec $ testSuite allHashes chars $ \ h -> do
+spec_hash :: Spec
+spec_hash = testSuite allHashes chars $ \ h -> do
     it "can initialize a hash context" $ do
         _ctx <- hashInit h
         pass
