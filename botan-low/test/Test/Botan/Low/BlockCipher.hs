@@ -1,13 +1,25 @@
-module Main (main) where
+{-# LANGUAGE OverloadedStrings #-}
 
-import           Test.Prelude
+module Test.Botan.Low.BlockCipher (
+    tests
+  ) where
 
 import           Botan.Low.BlockCipher
 import           Botan.Low.Hash
 import           Botan.Low.RNG
+import           Test.Prelude
+import           Test.Tasty
+import           Test.Tasty.Hspec
 
-main :: IO ()
-main = hspec $ testSuite allTestBlockCiphers chars $ \ bc -> do
+tests :: IO TestTree
+tests = do
+    specs <- testSpec "spec_blockCipher" spec_blockCipher
+    pure $ testGroup "Test.Botan.Low.BlockCipher" [
+        specs
+      ]
+
+spec_blockCipher :: Spec
+spec_blockCipher = testSuite allTestBlockCiphers chars $ \ bc -> do
     it "can initialize a block cipher context" $ do
         _ctx <- blockCipherInit bc
         pass
