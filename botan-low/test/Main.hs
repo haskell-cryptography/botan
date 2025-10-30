@@ -10,6 +10,7 @@ import qualified Test.Botan.Low.KeyWrap
 import qualified Test.Botan.Low.MAC
 import qualified Test.Botan.Low.MPI
 import qualified Test.Botan.Low.PwdHash
+import qualified Test.Botan.Low.RNG
 import qualified Test.Botan.Low.SRP6
 import qualified Test.Botan.Low.SRP6.Example
 import           Test.Tasty
@@ -30,6 +31,7 @@ tests = do
     macTests <- Test.Botan.Low.MAC.tests
     mpiTests <- Test.Botan.Low.MPI.tests
     pwdHashTests <- Test.Botan.Low.PwdHash.tests
+    rngTests <- Test.Botan.Low.RNG.tests
     srp6Tests <- Test.Botan.Low.SRP6.tests
     pure $ testGroup "botan-low" [
         bcryptTests
@@ -42,6 +44,7 @@ tests = do
       , macTests
       , mpiTests
       , pwdHashTests
+      , rngTests
       , srp6Tests
       , testGroup "Test.Botan.Low.SRP6.Example" [
             testCase "example" Test.Botan.Low.SRP6.Example.main

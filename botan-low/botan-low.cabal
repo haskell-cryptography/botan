@@ -158,6 +158,7 @@ test-suite test
     Test.Botan.Low.MAC
     Test.Botan.Low.MPI
     Test.Botan.Low.PwdHash
+    Test.Botan.Low.RNG
     Test.Botan.Low.SRP6
     Test.Botan.Low.SRP6.Example
     Test.Util.ByteString
@@ -541,32 +542,6 @@ test-suite botan-low-pubkey-x25519-tests
     OverloadedStrings
 
 -- TODO: Pubkey folder tests
-
-test-suite botan-low-rng-tests
-  import:             warnings, language
-
-  if os(osx)
-    -- TODO: temporarily disabled because the test suite fails. See issue #33.
-    buildable: False
-
-  type:               exitcode-stdio-1.0
-  main-is:            Botan/Low/RNGSpec.hs
-  hs-source-dirs:     test/
-  build-depends:
-    , base
-    , botan-low
-    , bytestring
-    , hspec
-    , QuickCheck
-
-  other-modules:
-    Paths_botan_low
-    Test.Prelude
-
-  autogen-modules:    Paths_botan_low
-  default-extensions:
-    NoImplicitPrelude
-    OverloadedStrings
 
 test-suite botan-low-totp-tests
   import:             warnings, language
