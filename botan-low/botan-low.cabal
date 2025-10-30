@@ -131,10 +131,10 @@ library
     , text            >=1.2  && <1.3   || >=2.0 && <2.2
 
 test-suite test
-  import:         warnings, language
-  type:           exitcode-stdio-1.0
-  main-is:        Main.hs
-  hs-source-dirs: test/
+  import:          warnings, language
+  type:            exitcode-stdio-1.0
+  main-is:         Main.hs
+  hs-source-dirs:  test/
   build-depends:
     , async
     , base
@@ -164,8 +164,12 @@ test-suite test
     Test.Botan.Low.SRP6.Example
     Test.Botan.Low.TOTP
     Test.Botan.Low.Utility
+    Test.Botan.Low.X509
     Test.Util.ByteString
     Test.Util.Hspec
+
+  other-modules:   Paths_botan_low
+  autogen-modules: Paths_botan_low
 
 --
 -- Unit tests
@@ -545,27 +549,6 @@ test-suite botan-low-pubkey-x25519-tests
     OverloadedStrings
 
 -- TODO: Pubkey folder tests
-
-test-suite botan-low-x509-tests
-  import:             warnings, language
-  type:               exitcode-stdio-1.0
-  main-is:            Botan/Low/X509Spec.hs
-  hs-source-dirs:     test/
-  build-depends:
-    , base
-    , botan-low
-    , bytestring
-    , hspec
-    , QuickCheck
-
-  other-modules:
-    Paths_botan_low
-    Test.Prelude
-
-  autogen-modules:    Paths_botan_low
-  default-extensions:
-    NoImplicitPrelude
-    OverloadedStrings
 
 test-suite botan-low-zfec-tests
   import:             warnings, language
