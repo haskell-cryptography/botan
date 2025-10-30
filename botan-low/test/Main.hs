@@ -15,6 +15,7 @@ import qualified Test.Botan.Low.SRP6
 import qualified Test.Botan.Low.SRP6.Example
 import qualified Test.Botan.Low.TOTP
 import qualified Test.Botan.Low.Utility
+import qualified Test.Botan.Low.X509
 import           Test.Tasty
 import           Test.Tasty.HUnit
 
@@ -37,6 +38,7 @@ tests = do
     srp6Tests <- Test.Botan.Low.SRP6.tests
     totpTests <- Test.Botan.Low.TOTP.tests
     utilityTests <- Test.Botan.Low.Utility.tests
+    x509Tests <- Test.Botan.Low.X509.tests
     pure $ testGroup "botan-low" [
         bcryptTests
       , blockCipherTests
@@ -55,4 +57,5 @@ tests = do
           ]
       , totpTests
       , utilityTests
+      , x509Tests
       ]

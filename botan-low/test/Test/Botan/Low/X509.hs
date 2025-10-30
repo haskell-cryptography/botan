@@ -1,12 +1,24 @@
-module Main (main) where
+{-# LANGUAGE OverloadedStrings #-}
 
-import           Data.Word
-
-import           Test.Prelude
+module Test.Botan.Low.X509 (tests) where
 
 import           Botan.Low.X509
-
+import           Data.ByteString
+import           Data.Word
 import           Paths_botan_low
+import           Test.Hspec
+import           Test.Tasty
+import           Test.Tasty.Hspec
+import           Test.Util.Hspec
+
+tests :: IO TestTree
+tests = do
+    specs <- testSpec "spec_x509" spec_x509
+    -- TODO: implement pending tests
+    pure $ localOption TreatPendingAsSuccess
+         $ testGroup "Test.Botan.Low.X509" [
+        specs
+      ]
 
 -- NOTE: Taken from https://fm4dd.com/openssl/certexamples.shtm
 testCert :: ByteString
@@ -74,8 +86,8 @@ testCertHostname = "www.example.com"
 testCertValidTimestamp :: Word64
 testCertValidTimestamp = 1420092000
 
-main :: IO ()
-main = hspec $ do
+spec_x509 :: Spec
+spec_x509 = do
     it "x509CertLoad" $ do
         _cert <- x509CertLoad testCert
         pass
