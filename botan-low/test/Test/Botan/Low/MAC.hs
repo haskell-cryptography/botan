@@ -1,10 +1,23 @@
-module Main (main) where
+{-# LANGUAGE OverloadedStrings #-}
 
-import           Test.Prelude
+module Test.Botan.Low.MAC (tests) where
 
 import           Botan.Low.MAC
-
 import           Botan.Low.RNG
+import           Control.Monad
+import           Data.ByteString
+import           Test.Hspec
+import           Test.Tasty
+import           Test.Tasty.Hspec
+import           Test.Util.ByteString
+import           Test.Util.Hspec
+
+tests :: IO TestTree
+tests = do
+    specs <- testSpec "spec_mac" spec_mac
+    pure $ testGroup "Test.Botan.Low.MAC" [
+        specs
+      ]
 
 -- NOTE: Full testing of all algorithms will require botan ADT types instead
 -- of names, to be able to query for acceptable key and nonce parameters
@@ -37,8 +50,8 @@ macsAndNonceSzs =
 message :: ByteString
 message = "Fee fi fo fum! I smell the blood of an Englishman!"
 
-main :: IO ()
-main = hspec $ testSuite macsAndNonceSzs (chars . fst) $ \ (h,nonceSz) -> do
+spec_mac :: Spec
+spec_mac = testSuite macsAndNonceSzs (chars . fst) $ \ (h,nonceSz) -> do
     it "can initialize a mac context" $ do
         _ctx <- macInit h
         pass

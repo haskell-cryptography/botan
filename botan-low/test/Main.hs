@@ -7,6 +7,7 @@ import qualified Test.Botan.Low.Hash
 import qualified Test.Botan.Low.HOTP
 import qualified Test.Botan.Low.KDF
 import qualified Test.Botan.Low.KeyWrap
+import qualified Test.Botan.Low.MAC
 import qualified Test.Botan.Low.PwdHash
 import qualified Test.Botan.Low.SRP6
 import qualified Test.Botan.Low.SRP6.Example
@@ -25,6 +26,7 @@ tests = do
     hotpTests <- Test.Botan.Low.HOTP.tests
     kdfTests <- Test.Botan.Low.KDF.tests
     keyWrapTests <- Test.Botan.Low.KeyWrap.tests
+    macTests <- Test.Botan.Low.MAC.tests
     pwdHashTests <- Test.Botan.Low.PwdHash.tests
     srp6Tests <- Test.Botan.Low.SRP6.tests
     pure $ testGroup "botan-low" [
@@ -35,6 +37,7 @@ tests = do
       , hotpTests
       , kdfTests
       , keyWrapTests
+      , macTests
       , pwdHashTests
       , srp6Tests
       , testGroup "Test.Botan.Low.SRP6.Example" [
