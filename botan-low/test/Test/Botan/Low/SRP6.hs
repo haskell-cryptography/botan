@@ -9,9 +9,10 @@ import           Botan.Low.PubKey
 import           Botan.Low.RNG
 import           Botan.Low.SRP6
 import           Data.ByteString
-import           Test.Prelude
+import           Test.Hspec
 import           Test.Tasty
 import           Test.Tasty.Hspec
+import           Test.Util.HSpec
 
 tests :: IO TestTree
 tests = do

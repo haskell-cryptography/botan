@@ -37,6 +37,8 @@
 * NON-BREAKING: in the `BlockCipher` module, add new pattern synonyms `Lion` and
   `Cascade` and accompanying utility functions `lion` and `cascade` for the
   "Lion" and "Cascade" ciphers respectively.
+* PATCH: fix an "address out of bounds" bug in `blockCipherEncryptBlocks` and
+  `blockCipherDecryptBlocks` that occasionally caused segfaults.
 
 ## 0.0.2.0 -- 2025-09-17
 

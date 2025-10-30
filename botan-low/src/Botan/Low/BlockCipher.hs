@@ -69,15 +69,14 @@ module Botan.Low.BlockCipher (
   , allBlockCiphers
   ) where
 
-import qualified Data.ByteString.Char8 as BSC
-
 import           Botan.Bindings.BlockCipher
-
 import           Botan.Low.Error
 import           Botan.Low.Hash
 import           Botan.Low.Make
 import           Botan.Low.Prelude
 import           Botan.Low.Remake
+import qualified Data.ByteString as BS
+import qualified Data.ByteString.Char8 as BSC
 
 {- $setup
 >>> import Control.Monad
@@ -232,39 +231,60 @@ blockCipherBlockSize = mkGetIntCode withBlockCipher botan_block_cipher_block_siz
 
 -- | Encrypt one or more blocks with a block cipher
 --
--- The plaintext length should be a multiple of the block size.
+-- Precondition: the length of the plaintext should be a multiple of the block
+-- size, or this function throws an error.
 blockCipherEncryptBlocks ::
      BlockCipher              -- ^ __bc__: The cipher object
   -> ByteString               -- ^ __in[]__: The plaintext
   -> IO BlockCipherCiphertext -- ^ __out[]__: The ciphertext
-blockCipherEncryptBlocks blockCipher bytes =
-    withBlockCipher blockCipher $ \ blockCipherPtr ->
-    asBytesLen bytes $ \ bytesPtr bytesLen ->
-    allocBytes (fromIntegral bytesLen) $ \ destPtr ->
-    throwBotanIfNegative_ $ botan_block_cipher_encrypt_blocks
-        blockCipherPtr
-        (ConstPtr bytesPtr)
-        destPtr
-        bytesLen
+blockCipherEncryptBlocks blockCipher bytes = do
+    blockSize <- blockCipherBlockSize blockCipher
+    let (numBlocks,remBytes) = BS.length bytes `quotRem` blockSize
+    when (remBytes /= 0) $
+      error "blockCipherEncryptBlocks: length of the input plaintext is not a\
+            \multiple of the block size"
+    go (fromIntegral numBlocks)
+  where
+    go :: CSize -> IO BlockCipherCiphertext
+    go numBlocks =
+      withBlockCipher blockCipher $ \ blockCipherPtr ->
+      asBytesLen bytes $ \ bytesPtr bytesLen ->
+      allocBytes (fromIntegral bytesLen) $ \ destPtr ->
+      throwBotanIfNegative_ $ botan_block_cipher_encrypt_blocks
+          blockCipherPtr
+          (ConstPtr bytesPtr)
+          destPtr
+          numBlocks
 
 -- | Decrypt one or more blocks with a block cipher.
 --
--- The ciphertext length should be a multiple of the block size.
+-- Precondition: the length of the ciphertext should be a multiple of the block size,
+-- or this function throws an error.
 --
--- If an incorrect key was set, the content of the decrypted plaintext is unspecified.
+-- If an incorrect key was set, the content of the decrypted plaintext is
+-- unspecified.
 blockCipherDecryptBlocks ::
      BlockCipher              -- ^ __bc__: The cipher object
   -> BlockCipherCiphertext    -- ^ __in[]__: The ciphertext
   -> IO ByteString            -- ^ __out[]__: The plaintext
-blockCipherDecryptBlocks blockCipher bytes =
-    withBlockCipher blockCipher $ \ blockCipherPtr ->
-    asBytesLen bytes $ \ bytesPtr bytesLen ->
-    allocBytes (fromIntegral bytesLen) $ \ destPtr ->
-    throwBotanIfNegative_ $ botan_block_cipher_decrypt_blocks
-        blockCipherPtr
-        (ConstPtr bytesPtr)
-        destPtr
-        bytesLen
+blockCipherDecryptBlocks blockCipher bytes = do
+    blockSize <- blockCipherBlockSize blockCipher
+    let (numBlocks,remBytes) = BS.length bytes `quotRem` blockSize
+    when (remBytes /= 0) $
+      error "blockCipherDecryptBlocks: length of the input plaintext is not a\
+            \multiple of the block size"
+    go (fromIntegral numBlocks)
+  where
+    go :: CSize -> IO ByteString
+    go numBlocks =
+      withBlockCipher blockCipher $ \ blockCipherPtr ->
+      asBytesLen bytes $ \ bytesPtr bytesLen ->
+      allocBytes (fromIntegral bytesLen) $ \ destPtr ->
+      throwBotanIfNegative_ $ botan_block_cipher_decrypt_blocks
+          blockCipherPtr
+          (ConstPtr bytesPtr)
+          destPtr
+          numBlocks
 
 -- | Get the name of a block cipher.
 --
