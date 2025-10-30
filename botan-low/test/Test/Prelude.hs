@@ -14,18 +14,15 @@ module Test.Prelude (
   , anyBotanException
   ) where
 
-import           Prelude
-
-import           Test.Hspec
-import           Test.QuickCheck
-
+import           Botan.Low.Error
+import           Control.Exception
 import           Control.Monad
-
 import           Data.ByteString (ByteString)
 import qualified Data.ByteString as ByteString
 import qualified Data.ByteString.Char8 as Char8
-
-import           Botan.Low.Error
+import           Prelude
+import           Test.Hspec
+import           Test.QuickCheck
 
 chars :: ByteString -> [Char]
 chars = Char8.unpack

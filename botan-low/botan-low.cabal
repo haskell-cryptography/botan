@@ -142,7 +142,6 @@ test-suite test
     , bytestring
     , containers
     , hspec
-    , QuickCheck
     , tasty
     , tasty-hspec
     , tasty-hunit
@@ -152,7 +151,7 @@ test-suite test
     Test.Botan.Low.PwdHash
     Test.Botan.Low.SRP6
     Test.Botan.Low.SRP6.Example
-    Test.Prelude
+    Test.Util.HSpec
 
 --
 -- Unit tests

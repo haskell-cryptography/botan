@@ -7,9 +7,11 @@ module Test.Botan.Low.BlockCipher (
 import           Botan.Low.BlockCipher
 import           Botan.Low.Hash
 import           Botan.Low.RNG
-import           Test.Prelude
+import qualified Data.ByteString as BS
+import           Test.Hspec
 import           Test.Tasty
 import           Test.Tasty.Hspec
+import           Test.Util.HSpec
 
 tests :: IO TestTree
 tests = do
@@ -17,6 +19,10 @@ tests = do
     pure $ testGroup "Test.Botan.Low.BlockCipher" [
         specs
       ]
+
+{-------------------------------------------------------------------------------
+  Specs
+-------------------------------------------------------------------------------}
 
 spec_blockCipher :: Spec
 spec_blockCipher = testSuite allTestBlockCiphers chars $ \ bc -> do
@@ -51,18 +57,16 @@ spec_blockCipher = testSuite allTestBlockCiphers chars $ \ bc -> do
         msg <- systemRNGGet $ bsz * 10
         _encmsg <- blockCipherEncryptBlocks ctx msg
         pass
-    -- NOTE: It does not actually throw an error - this is slightly concerning.
-    -- it "can only encipher messages that are a multiple of the block size" $ do
-    --     ctx <- blockCipherInitName bc
-    --     bsz <- blockCipherBlockSize ctx
-    --     if bsz == 1
-    --         then pass
-    --         else do
-    --             (_,mx,_) <- blockCipherGetKeyspec ctx
-    --             k <- systemRNGGetIO mx
-    --             blockCipherSetKey ctx k
-    --             msg <- systemRNGGetIO $ bsz + 1
-    --             blockCipherEncryptBlocks ctx msg `shouldThrow` anyBotanException
+    it "can only encipher a message that is a multiple of the block size" $ do
+        ctx <- blockCipherInit bc
+        (_,mx,_) <- blockCipherGetKeyspec ctx
+        k <- systemRNGGet mx
+        blockCipherSetKey ctx k
+        bsz <- blockCipherBlockSize ctx
+        msg <- systemRNGGet $ bsz * 10
+        let msgCorrupted = msg <> BS.pack [17]
+        blockCipherEncryptBlocks ctx msgCorrupted
+          `shouldThrow` anyErrorCall
     it "can decipher an enciphered message" $ do
         ctx <- blockCipherInit bc
         (_,mx,_) <- blockCipherGetKeyspec ctx
@@ -74,6 +78,17 @@ spec_blockCipher = testSuite allTestBlockCiphers chars $ \ bc -> do
         decmsg <- blockCipherDecryptBlocks ctx encmsg
         decmsg `shouldBe` msg
         pass
+    it "can only decipher an enciphered message that is a multiple of the block size" $ do
+        ctx <- blockCipherInit bc
+        (_,mx,_) <- blockCipherGetKeyspec ctx
+        k <- systemRNGGet mx
+        blockCipherSetKey ctx k
+        bsz <- blockCipherBlockSize ctx
+        msg <- systemRNGGet $ bsz * 10
+        encmsg <- blockCipherEncryptBlocks ctx msg
+        let encmsgCorrupted = BS.take (BS.length encmsg - 1) encmsg
+        blockCipherDecryptBlocks ctx encmsgCorrupted
+          `shouldThrow` anyErrorCall
 
 allTestBlockCiphers :: [BlockCipherName]
 allTestBlockCiphers = fmap adjust allBlockCiphers

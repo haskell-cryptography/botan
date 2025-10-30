@@ -11,11 +11,13 @@ import           Botan.Low.Hash
 import           Botan.Low.MAC
 import           Botan.Low.PwdHash
 import           Control.Exception
+import           Control.Monad
 import           Data.ByteString
-import           Test.Prelude
+import           Test.Hspec
 import           Test.Tasty
 import           Test.Tasty.Hspec
 import           Test.Tasty.HUnit
+import           Test.Util.HSpec
 
 tests :: IO TestTree
 tests = do
@@ -137,6 +139,10 @@ test_pwdhash_badSchemeName useTimed = do
           void $ pwdhashTimed schemeName 200 64 passphrase salt
       | otherwise = try $
           void $ pwdhash schemeName 1 0 0 64 passphrase salt
+
+{-------------------------------------------------------------------------------
+  Specs
+-------------------------------------------------------------------------------}
 
 -- | Run 'pwdhash' and 'pwdhashTimed', and check that their outputs match.
 spec_pwdhash :: Spec
