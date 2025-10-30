@@ -1,11 +1,24 @@
-module Main (main) where
+{-# LANGUAGE OverloadedStrings #-}
 
-import           Test.Prelude
+module Test.Botan.Low.FPE (tests) where
 
 import           Botan.Bindings.FPE
 import           Botan.Low.FPE
 import           Botan.Low.MPI
 import           Botan.Low.RNG
+import           Control.Monad
+import           Data.ByteString
+import           Test.Hspec
+import           Test.Tasty
+import           Test.Tasty.Hspec
+import           Test.Util.HSpec
+
+tests :: IO TestTree
+tests = do
+    specs <- testSpec "spec_fpe" spec_fpe
+    pure $ testGroup "Test.Botan.Low.FPE" [
+        specs
+      ]
 
 -- NOTE: FPE operations encrypt/decrypt integers less than n
 nStr :: ByteString
@@ -45,8 +58,8 @@ newFE1CtxCompatMode = do
     ctx <- fpeInitFE1 n key rounds BOTAN_FPE_FLAG_FE1_COMPAT_MODE
     return (n,ctx)
 
-main :: IO ()
-main = hspec $ do
+spec_fpe :: Spec
+spec_fpe = do
     describe "fpeInitFE1" $ do
         it "initializes an FE1 FPE context" $ do
             void newFE1Ctx

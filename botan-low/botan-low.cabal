@@ -138,6 +138,7 @@ test-suite test
   build-depends:
     , async
     , base
+    , botan-bindings
     , botan-low
     , bytestring
     , containers
@@ -149,6 +150,7 @@ test-suite test
   other-modules:
     Test.Botan.Low.Bcrypt
     Test.Botan.Low.BlockCipher
+    Test.Botan.Low.FPE
     Test.Botan.Low.PwdHash
     Test.Botan.Low.SRP6
     Test.Botan.Low.SRP6.Example
@@ -165,28 +167,6 @@ test-suite botan-low-cipher-tests
   buildable:          False
   type:               exitcode-stdio-1.0
   main-is:            Botan/Low/CipherSpec.hs
-  hs-source-dirs:     test/
-  build-depends:
-    , base
-    , botan-bindings
-    , botan-low
-    , bytestring
-    , hspec
-    , QuickCheck
-
-  other-modules:
-    Paths_botan_low
-    Test.Prelude
-
-  autogen-modules:    Paths_botan_low
-  default-extensions:
-    NoImplicitPrelude
-    OverloadedStrings
-
-test-suite botan-low-fpe-tests
-  import:             warnings, language
-  type:               exitcode-stdio-1.0
-  main-is:            Botan/Low/FPESpec.hs
   hs-source-dirs:     test/
   build-depends:
     , base
