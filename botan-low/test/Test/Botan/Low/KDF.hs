@@ -1,8 +1,21 @@
-module Main (main) where
+{-# LANGUAGE OverloadedStrings #-}
 
-import           Test.Prelude
+module Test.Botan.Low.KDF (tests) where
 
 import           Botan.Low.KDF
+import           Test.Hspec
+import           Test.Tasty
+import           Test.Tasty.Hspec
+import           Test.Util.ByteString
+import           Test.Util.Hspec
+
+tests :: IO TestTree
+tests = do
+    specs <- testSpec "spec_kdf" spec_kdf
+    pure $ testGroup "Test.Botan.Low.KDF" [
+        specs
+      ]
+
 
 --  NOTE: Many of these tests fail because different kdfs / macs / hashes have different requirements
 --  such as input or output lengths.
@@ -23,8 +36,8 @@ import           Botan.Low.KDF
 --  TODO: Exhaustive algorithm testing (see Botan.KDF notes)
 
 -- NOTE: Some kdfs (HKDF-Extract) do not support label input arguments
-main :: IO ()
-main = hspec $ testSuite kdfs chars $ \ algo -> do
+spec_kdf :: Spec
+spec_kdf = testSuite kdfs chars $ \ algo -> do
     describe "kdf" $ do
         it "can derive a key" $ do
             _key <- kdf algo 3 "secret" "salt" "" -- "label"
