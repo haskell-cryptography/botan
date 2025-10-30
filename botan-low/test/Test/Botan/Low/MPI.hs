@@ -1,16 +1,28 @@
-module Main (main) where
+{-# LANGUAGE OverloadedStrings #-}
 
-import           Test.Prelude hiding (mod)
+module Test.Botan.Low.MPI (tests) where
 
 import           Botan.Low.MPI
 import           Botan.Low.RNG
+import           Prelude hiding (mod)
+import           Test.Hspec
+import           Test.Tasty
+import           Test.Tasty.Hspec
+import           Test.Util.Hspec
+
+tests :: IO TestTree
+tests = do
+    specs <- testSpec "spec_mpi" spec_mpi
+    pure $ testGroup "Test.Botan.Low.MPI" [
+        specs
+      ]
 
 -- NOTE: These unit tests are mostly checking that the functions are bound correctly.
 --  These are kind of crappy and repetative, but that also exposes what needs to be done
 --  in the higher libraries to make things ergonomic.
 
-main :: IO ()
-main = hspec $ do
+spec_mpi :: Spec
+spec_mpi = do
     it "can initialize a mutable MPI reference" $ do
         _mp <- mpInit
         pass
