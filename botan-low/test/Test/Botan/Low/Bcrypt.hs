@@ -1,9 +1,21 @@
-module Main (main) where
+{-# LANGUAGE OverloadedStrings #-}
 
-import           Test.Prelude
+module Test.Botan.Low.Bcrypt (tests) where
 
 import           Botan.Low.Bcrypt
 import           Botan.Low.RNG
+import           Data.ByteString
+import           Test.Hspec
+import           Test.Tasty
+import           Test.Tasty.Hspec
+import           Test.Util.HSpec
+
+tests :: IO TestTree
+tests = do
+    specs <- testSpec "spec_bcrypt" spec_bcrypt
+    pure $ testGroup "Test.Botan.Low.Bcrypt" [
+        specs
+      ]
 
 password :: ByteString
 password = "Fee fi fo fum!"
@@ -11,8 +23,8 @@ password = "Fee fi fo fum!"
 factor :: BcryptWorkFactor
 factor = 12
 
-main :: IO ()
-main = hspec $ do
+spec_bcrypt :: Spec
+spec_bcrypt = do
     describe "bcryptGenerate" $ do
         it "generates a bcrypt hash" $ do
             rng <- rngInit "user-threadsafe"
