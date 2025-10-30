@@ -11,7 +11,7 @@ import           Data.ByteString
 import           Test.Hspec
 import           Test.Tasty
 import           Test.Tasty.Hspec
-import           Test.Util.HSpec
+import           Test.Util.Hspec
 
 tests :: IO TestTree
 tests = do

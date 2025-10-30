@@ -154,7 +154,8 @@ test-suite test
     Test.Botan.Low.PwdHash
     Test.Botan.Low.SRP6
     Test.Botan.Low.SRP6.Example
-    Test.Util.HSpec
+    Test.Util.ByteString
+    Test.Util.Hspec
 
 --
 -- Unit tests
