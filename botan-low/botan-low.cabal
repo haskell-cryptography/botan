@@ -161,6 +161,7 @@ test-suite test
     Test.Botan.Low.RNG
     Test.Botan.Low.SRP6
     Test.Botan.Low.SRP6.Example
+    Test.Botan.Low.TOTP
     Test.Util.ByteString
     Test.Util.Hspec
 
@@ -542,27 +543,6 @@ test-suite botan-low-pubkey-x25519-tests
     OverloadedStrings
 
 -- TODO: Pubkey folder tests
-
-test-suite botan-low-totp-tests
-  import:             warnings, language
-  type:               exitcode-stdio-1.0
-  main-is:            Botan/Low/TOTPSpec.hs
-  hs-source-dirs:     test/
-  build-depends:
-    , base
-    , botan-low
-    , bytestring
-    , hspec
-    , QuickCheck
-
-  other-modules:
-    Paths_botan_low
-    Test.Prelude
-
-  autogen-modules:    Paths_botan_low
-  default-extensions:
-    NoImplicitPrelude
-    OverloadedStrings
 
 test-suite botan-low-utility-tests
   import:             warnings, language

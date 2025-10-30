@@ -13,6 +13,7 @@ import qualified Test.Botan.Low.PwdHash
 import qualified Test.Botan.Low.RNG
 import qualified Test.Botan.Low.SRP6
 import qualified Test.Botan.Low.SRP6.Example
+import qualified Test.Botan.Low.TOTP
 import           Test.Tasty
 import           Test.Tasty.HUnit
 
@@ -33,6 +34,7 @@ tests = do
     pwdHashTests <- Test.Botan.Low.PwdHash.tests
     rngTests <- Test.Botan.Low.RNG.tests
     srp6Tests <- Test.Botan.Low.SRP6.tests
+    totpTests <- Test.Botan.Low.TOTP.tests
     pure $ testGroup "botan-low" [
         bcryptTests
       , blockCipherTests
@@ -49,4 +51,5 @@ tests = do
       , testGroup "Test.Botan.Low.SRP6.Example" [
             testCase "example" Test.Botan.Low.SRP6.Example.main
           ]
+      , totpTests
       ]
