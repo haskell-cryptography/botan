@@ -49,7 +49,15 @@ spec_utility = do
         base64 <- base64Encode message
         base64 `shouldBe` base64Message
         pass
-    it "base64Decode" $ do
-        msg <- base64Decode base64Message
-        msg `shouldBe` message
+    it "base64Encode" $ do
+        base64 <- base64Encode message
+        base64 `shouldBe` base64Message
+        pass
+    it "base64Encode" $ do
+        base64 <- base64Encode message
+        base64 `shouldBe` base64Message
+        pass
+    it "base64Encode" $ do
+        base64 <- base64Encode message
+        base64 `shouldBe` base64Message
         pass

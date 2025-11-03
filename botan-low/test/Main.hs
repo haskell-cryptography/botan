@@ -1,5 +1,6 @@
 module Main (main) where
 
+import           GHC.GHCi.Helpers
 import qualified Test.Botan.Low.Bcrypt
 import qualified Test.Botan.Low.BlockCipher
 import qualified Test.Botan.Low.Cipher
@@ -42,6 +43,7 @@ main = tests >>= defaultMain
 
 tests :: IO TestTree
 tests = do
+    disableBuffering
     bcryptTests <- Test.Botan.Low.Bcrypt.tests
     blockCipherTests <- Test.Botan.Low.BlockCipher.tests
     cipherTests <- Test.Botan.Low.Cipher.tests
