@@ -1,10 +1,23 @@
-module Main (main) where
+{-# LANGUAGE OverloadedStrings #-}
 
-import           Test.Prelude
+module Test.Botan.Low.PubKey.Sign (tests) where
 
 import           Botan.Low.PubKey
 import           Botan.Low.PubKey.Sign
 import           Botan.Low.RNG
+import           Data.ByteString
+import           Test.Hspec
+import           Test.Tasty
+import           Test.Tasty.Hspec
+import           Test.Util.ByteString
+import           Test.Util.Hspec
+
+tests :: IO TestTree
+tests = do
+    specs <- testSpec "spec_sign" spec_sign
+    pure $ testGroup "Test.Botan.Low.PubKey.Sign" [
+        specs
+      ]
 
 ecGroup :: ByteString
 ecGroup = "secp256r1"
@@ -37,8 +50,8 @@ pkTestName :: (ByteString, ByteString, ByteString) -> String
 pkTestName (pk, param, padding) = chars $ pk <> " " <> param <> " " <> padding
 
 -- NOTE: Some algorithms do not support DER format encoding.
-main :: IO ()
-main = hspec $ testSuite pks pkTestName $ \ (pk, param, algo) -> do
+spec_sign :: Spec
+spec_sign = testSuite pks pkTestName $ \ (pk, param, algo) -> do
     it "signCreate" $ do
         rng <- rngInit "system"
         privKey <- privKeyCreate pk param rng
