@@ -13,6 +13,7 @@ import qualified Test.Botan.Low.PubKey
 import qualified Test.Botan.Low.PubKey.DH
 import qualified Test.Botan.Low.PubKey.ECDH
 import qualified Test.Botan.Low.PubKey.ECDSA
+import qualified Test.Botan.Low.PubKey.Ed25519
 import qualified Test.Botan.Low.PwdHash
 import qualified Test.Botan.Low.RNG
 import qualified Test.Botan.Low.SRP6
@@ -42,6 +43,7 @@ tests = do
     pubKeyDhTests <- Test.Botan.Low.PubKey.DH.tests
     pubKeyEcdhTests <- Test.Botan.Low.PubKey.ECDH.tests
     pubKeyEcdsaTests <- Test.Botan.Low.PubKey.ECDSA.tests
+    pubKeyEd25519Tests <-  Test.Botan.Low.PubKey.Ed25519.tests
     pwdHashTests <- Test.Botan.Low.PwdHash.tests
     rngTests <- Test.Botan.Low.RNG.tests
     srp6Tests <- Test.Botan.Low.SRP6.tests
@@ -63,6 +65,7 @@ tests = do
       , pubKeyDhTests
       , pubKeyEcdhTests
       , pubKeyEcdsaTests
+      , pubKeyEd25519Tests
       , pwdHashTests
       , rngTests
       , srp6Tests
