@@ -17,6 +17,7 @@ import qualified Test.Botan.Low.PubKey.Ed25519
 import qualified Test.Botan.Low.PubKey.ElGamal
 import qualified Test.Botan.Low.PubKey.KeyAgreement
 import qualified Test.Botan.Low.PubKey.KeyEncapsulation
+import qualified Test.Botan.Low.PubKey.RSA
 import qualified Test.Botan.Low.PwdHash
 import qualified Test.Botan.Low.RNG
 import qualified Test.Botan.Low.SRP6
@@ -50,6 +51,7 @@ tests = do
     pubKeyElGamalTests <- Test.Botan.Low.PubKey.ElGamal.tests
     pubKeyKeyAgreementTests <- Test.Botan.Low.PubKey.KeyAgreement.tests
     pubKeyKeyEncapsulationTests <- Test.Botan.Low.PubKey.KeyEncapsulation.tests
+    pubKeyRsaTests <- Test.Botan.Low.PubKey.RSA.tests
     pwdHashTests <- Test.Botan.Low.PwdHash.tests
     rngTests <- Test.Botan.Low.RNG.tests
     srp6Tests <- Test.Botan.Low.SRP6.tests
@@ -75,6 +77,7 @@ tests = do
       , pubKeyElGamalTests
       , pubKeyKeyAgreementTests
       , pubKeyKeyEncapsulationTests
+      , pubKeyRsaTests
       , pwdHashTests
       , rngTests
       , srp6Tests

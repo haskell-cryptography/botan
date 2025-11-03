@@ -1,11 +1,24 @@
-module Main (main) where
+{-# LANGUAGE OverloadedStrings #-}
 
-import           Test.Prelude
+module Test.Botan.Low.PubKey.RSA (tests) where
 
 import           Botan.Low.MPI
 import           Botan.Low.PubKey
 import           Botan.Low.PubKey.RSA
 import           Botan.Low.RNG
+import           Data.ByteString
+import           Test.Hspec
+import           Test.Tasty
+import           Test.Tasty.Hspec
+import           Test.Util.ByteString
+import           Test.Util.Hspec
+
+tests :: IO TestTree
+tests = do
+    specs <- testSpec "spec_rsa" spec_rsa
+    pure $ testGroup "Test.Botan.Low.PubKey.RSA" [
+        specs
+      ]
 
 rsaSizes :: [ByteString]
 rsaSizes = [ "2048" ]
@@ -24,8 +37,8 @@ pubKeyField pubKey field = do
     pubKeyGetField mp pubKey field
     return mp
 
-main :: IO ()
-main = hspec $ testSuite rsaSizes chars $ \ rsaSize -> do
+spec_rsa :: Spec
+spec_rsa = testSuite rsaSizes chars $ \ rsaSize -> do
     it "privKeyLoadRSA" $ do
         rng <- rngInit "system"
         privKey <- privKeyCreate "RSA" rsaSize rng
