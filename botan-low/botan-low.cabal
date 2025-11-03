@@ -168,6 +168,7 @@ test-suite test
     Test.Botan.Low.PubKey.ECDSA
     Test.Botan.Low.PubKey.Ed25519
     Test.Botan.Low.PubKey.ElGamal
+    Test.Botan.Low.PubKey.Encrypt
     Test.Botan.Low.PubKey.KeyAgreement
     Test.Botan.Low.PubKey.KeyEncapsulation
     Test.Botan.Low.PubKey.RSA
@@ -188,39 +189,6 @@ test-suite test
 
   other-modules:   Paths_botan_low
   autogen-modules: Paths_botan_low
-
---
--- Unit tests
---
-
-test-suite botan-low-pubkey-encrypt-tests
-  import:             warnings, language
-
-  -- TODO: temporarily disabled because the test suite fails. See issue #33.
-  buildable:          False
-  type:               exitcode-stdio-1.0
-  main-is:            Botan/Low/PubKey/EncryptSpec.hs
-  hs-source-dirs:     test/
-  build-depends:
-    , base
-    , botan-bindings
-    , botan-low
-    , bytestring
-    , hspec
-    , QuickCheck
-
-  other-modules:
-    Paths_botan_low
-    Test.Prelude
-
-  autogen-modules:    Paths_botan_low
-  default-extensions:
-    NoImplicitPrelude
-    OverloadedStrings
-
---
--- Benchmarks
---
 
 benchmark botan-low-bench
   import:             warnings, language

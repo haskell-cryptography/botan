@@ -18,6 +18,7 @@ import qualified Test.Botan.Low.PubKey.ECDH
 import qualified Test.Botan.Low.PubKey.ECDSA
 import qualified Test.Botan.Low.PubKey.Ed25519
 import qualified Test.Botan.Low.PubKey.ElGamal
+import qualified Test.Botan.Low.PubKey.Encrypt
 import qualified Test.Botan.Low.PubKey.KeyAgreement
 import qualified Test.Botan.Low.PubKey.KeyEncapsulation
 import qualified Test.Botan.Low.PubKey.RSA
@@ -59,6 +60,7 @@ tests = do
     pubKeyEcdsaTests <- Test.Botan.Low.PubKey.ECDSA.tests
     pubKeyEd25519Tests <-  Test.Botan.Low.PubKey.Ed25519.tests
     pubKeyElGamalTests <- Test.Botan.Low.PubKey.ElGamal.tests
+    pubKeyEncryptTests <-  Test.Botan.Low.PubKey.Encrypt.tests
     pubKeyKeyAgreementTests <- Test.Botan.Low.PubKey.KeyAgreement.tests
     pubKeyKeyEncapsulationTests <- Test.Botan.Low.PubKey.KeyEncapsulation.tests
     pubKeyRsaTests <- Test.Botan.Low.PubKey.RSA.tests
@@ -92,6 +94,7 @@ tests = do
       , pubKeyEcdsaTests
       , pubKeyEd25519Tests
       , pubKeyElGamalTests
+      , pubKeyEncryptTests
       , pubKeyKeyAgreementTests
       , pubKeyKeyEncapsulationTests
       , pubKeyRsaTests
