@@ -290,8 +290,6 @@ test-suite botan-low-pubkey-encrypt-tests
     NoImplicitPrelude
     OverloadedStrings
 
--- TODO: Pubkey folder tests
-
 --
 -- Benchmarks
 --
