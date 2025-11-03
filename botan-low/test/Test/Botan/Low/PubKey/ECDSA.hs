@@ -1,11 +1,24 @@
-module Main (main) where
+{-# LANGUAGE OverloadedStrings #-}
 
-import           Test.Prelude
+module Test.Botan.Low.PubKey.ECDSA (tests) where
 
 import           Botan.Low.MPI
 import           Botan.Low.PubKey
 import           Botan.Low.PubKey.ECDSA
 import           Botan.Low.RNG
+import           Data.ByteString
+import           Test.Hspec
+import           Test.Tasty
+import           Test.Tasty.Hspec
+import           Test.Util.ByteString
+import           Test.Util.Hspec
+
+tests :: IO TestTree
+tests = do
+    specs <- testSpec "spec_ecdsa" spec_ecdsa
+    pure $ testGroup "Test.Botan.Low.PubKey.ECDSA" [
+        specs
+      ]
 
 -- TODO: Consolidate
 ecGroups :: [ByteString]
@@ -54,8 +67,8 @@ pubKeyField pubKey field = do
     return mp
 
 -- TODO: Don't assume just "ECDSA", other elliptic curve DSA might be valid here
-main :: IO ()
-main = hspec $ testSuite ecGroups chars $ \ ecGroup -> do
+spec_ecdsa :: Spec
+spec_ecdsa = testSuite ecGroups chars $ \ ecGroup -> do
     it "privKeyLoadECDSA" $ do
         rng <- rngInit "system"
         privKey <- privKeyCreate "ECDSA" ecGroup rng
