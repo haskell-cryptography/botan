@@ -13,6 +13,7 @@ import qualified Test.Botan.Low.MPI
 import qualified Test.Botan.Low.PubKey
 import qualified Test.Botan.Low.PubKey.Decrypt
 import qualified Test.Botan.Low.PubKey.DH
+import qualified Test.Botan.Low.PubKey.DSA
 import qualified Test.Botan.Low.PubKey.ECDH
 import qualified Test.Botan.Low.PubKey.ECDSA
 import qualified Test.Botan.Low.PubKey.Ed25519
@@ -53,6 +54,7 @@ tests = do
     pubKeyTests <- Test.Botan.Low.PubKey.tests
     pubKeyDecryptTests <- Test.Botan.Low.PubKey.Decrypt.tests
     pubKeyDhTests <- Test.Botan.Low.PubKey.DH.tests
+    pubKeyDsaTests <- Test.Botan.Low.PubKey.DSA.tests
     pubKeyEcdhTests <- Test.Botan.Low.PubKey.ECDH.tests
     pubKeyEcdsaTests <- Test.Botan.Low.PubKey.ECDSA.tests
     pubKeyEd25519Tests <-  Test.Botan.Low.PubKey.Ed25519.tests
@@ -85,6 +87,7 @@ tests = do
       , pubKeyTests
       , pubKeyDecryptTests
       , pubKeyDhTests
+      , pubKeyDsaTests
       , pubKeyEcdhTests
       , pubKeyEcdsaTests
       , pubKeyEd25519Tests
