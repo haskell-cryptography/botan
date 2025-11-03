@@ -1,10 +1,24 @@
-module Main (main) where
+{-# LANGUAGE OverloadedStrings #-}
 
-import           Test.Prelude
+module Test.Botan.Low.PubKey.KeyEncapsulation (tests) where
 
 import           Botan.Low.PubKey
 import           Botan.Low.PubKey.KeyEncapsulation
 import           Botan.Low.RNG
+import           Data.ByteString
+import           Test.Hspec
+import           Test.Tasty
+import           Test.Tasty.Hspec
+import           Test.Util.ByteString
+import           Test.Util.Hspec
+
+tests :: IO TestTree
+tests = do
+    specs <- testSpec "spec_keyEncapsulation" spec_keyEncapsulation
+    pure $ testGroup "Test.Botan.Low.PubKey.KeyEncapsulation" [
+        specs
+      ]
+
 
 pks :: [(ByteString, ByteString, ByteString)]
 pks =
@@ -16,8 +30,8 @@ pks =
 pkTestName :: (ByteString, ByteString, ByteString) -> String
 pkTestName (pk, param, kdf) = chars $ pk <> " " <> param <> " " <> kdf
 
-main :: IO ()
-main = hspec $ testSuite pks pkTestName $ \ (pk, param, _kdf) -> do
+spec_keyEncapsulation :: Spec
+spec_keyEncapsulation = testSuite pks pkTestName $ \ (pk, param, _kdf) -> do
     it "kemEncryptCreate" $ do
         rng <- rngInit "system"
         privKey <- privKeyCreate pk param rng
