@@ -1,11 +1,25 @@
-module Main (main) where
+{-# LANGUAGE OverloadedStrings #-}
 
-import           Test.Prelude
+module Test.Botan.Low.PubKey.ElGamal (tests) where
 
 import           Botan.Low.MPI
 import           Botan.Low.PubKey
 import           Botan.Low.PubKey.ElGamal
 import           Botan.Low.RNG
+import           Data.ByteString
+import           Test.Hspec
+import           Test.Tasty
+import           Test.Tasty.Hspec
+import           Test.Util.ByteString
+import           Test.Util.Hspec
+
+tests :: IO TestTree
+tests = do
+    specs <- testSpec "spec_elGamal" spec_elGamal
+    pure $ testGroup "Test.Botan.Low.PubKey.ElGamal" [
+        specs
+      ]
+
 
 -- TODO: Consolidate
 dlGroups :: [ByteString]
@@ -41,8 +55,8 @@ privKeyField privKey field = do
     privKeyGetField mp privKey field
     return mp
 
-main :: IO ()
-main = hspec $ testSuite dlGroups chars $ \ dlGroup -> do
+spec_elGamal :: Spec
+spec_elGamal = testSuite dlGroups chars $ \ dlGroup -> do
     it "privKeyLoadELGamal" $ do
         rng <- rngInit "system"
         privKey <- privKeyCreate "DH" dlGroup rng
