@@ -11,6 +11,7 @@ import qualified Test.Botan.Low.MAC
 import qualified Test.Botan.Low.MPI
 import qualified Test.Botan.Low.PubKey
 import qualified Test.Botan.Low.PubKey.DH
+import qualified Test.Botan.Low.PubKey.ECDH
 import qualified Test.Botan.Low.PwdHash
 import qualified Test.Botan.Low.RNG
 import qualified Test.Botan.Low.SRP6
@@ -38,6 +39,7 @@ tests = do
     mpiTests <- Test.Botan.Low.MPI.tests
     pubKeyTests <- Test.Botan.Low.PubKey.tests
     pubKeyDhTests <- Test.Botan.Low.PubKey.DH.tests
+    pubKeyEcdhTests <- Test.Botan.Low.PubKey.ECDH.tests
     pwdHashTests <- Test.Botan.Low.PwdHash.tests
     rngTests <- Test.Botan.Low.RNG.tests
     srp6Tests <- Test.Botan.Low.SRP6.tests
@@ -57,6 +59,7 @@ tests = do
       , mpiTests
       , pubKeyTests
       , pubKeyDhTests
+      , pubKeyEcdhTests
       , pwdHashTests
       , rngTests
       , srp6Tests
