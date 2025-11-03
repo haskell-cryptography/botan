@@ -9,6 +9,7 @@ import qualified Test.Botan.Low.KDF
 import qualified Test.Botan.Low.KeyWrap
 import qualified Test.Botan.Low.MAC
 import qualified Test.Botan.Low.MPI
+import qualified Test.Botan.Low.PubKey
 import qualified Test.Botan.Low.PwdHash
 import qualified Test.Botan.Low.RNG
 import qualified Test.Botan.Low.SRP6
@@ -34,6 +35,7 @@ tests = do
     keyWrapTests <- Test.Botan.Low.KeyWrap.tests
     macTests <- Test.Botan.Low.MAC.tests
     mpiTests <- Test.Botan.Low.MPI.tests
+    pubKeyTests <- Test.Botan.Low.PubKey.tests
     pwdHashTests <- Test.Botan.Low.PwdHash.tests
     rngTests <- Test.Botan.Low.RNG.tests
     srp6Tests <- Test.Botan.Low.SRP6.tests
@@ -51,6 +53,7 @@ tests = do
       , keyWrapTests
       , macTests
       , mpiTests
+      , pubKeyTests
       , pwdHashTests
       , rngTests
       , srp6Tests

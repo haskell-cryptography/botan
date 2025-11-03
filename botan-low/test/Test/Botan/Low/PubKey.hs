@@ -1,12 +1,25 @@
-module Main (main) where
+{-# LANGUAGE OverloadedStrings #-}
 
-import           Data.String
-
-import           Test.Prelude
+module Test.Botan.Low.PubKey (tests) where
 
 import           Botan.Low.MPI
 import           Botan.Low.PubKey
 import           Botan.Low.RNG
+import           Control.Monad
+import           Data.ByteString
+import           Data.String
+import           Test.Hspec
+import           Test.Tasty
+import           Test.Tasty.Hspec
+import           Test.Util.ByteString
+import           Test.Util.Hspec
+
+tests :: IO TestTree
+tests = do
+    specs <- testSpec "spec_pubKey" spec_pubKey
+    pure $ testGroup "Test.Botan.Low.PubKey" [
+        specs
+      ]
 
 ecGroup :: ByteString
 ecGroup = "secp256r1"
@@ -102,8 +115,8 @@ pubKeyFields "McEliece"   = [] -- TODO
 pubKeyFields _            = error "pubKeyFields"
 
 -- NOTE: These tests are going to be very slow if we create new keys every time
-main :: IO ()
-main = hspec $ testSuite pks pkTestName $ \ (pk, param) -> do
+spec_pubKey :: Spec
+spec_pubKey = testSuite pks pkTestName $ \ (pk, param) -> do
     it "privKeyCreate" $ do
         rng <- rngInit "system"
         _privKey <- privKeyCreate pk param rng
