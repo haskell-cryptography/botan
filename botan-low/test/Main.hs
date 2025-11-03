@@ -2,6 +2,7 @@ module Main (main) where
 
 import qualified Test.Botan.Low.Bcrypt
 import qualified Test.Botan.Low.BlockCipher
+import qualified Test.Botan.Low.Cipher
 import qualified Test.Botan.Low.FPE
 import qualified Test.Botan.Low.Hash
 import qualified Test.Botan.Low.HOTP
@@ -40,6 +41,7 @@ tests :: IO TestTree
 tests = do
     bcryptTests <- Test.Botan.Low.Bcrypt.tests
     blockCipherTests <- Test.Botan.Low.BlockCipher.tests
+    cipherTests <- Test.Botan.Low.Cipher.tests
     fpeTests <- Test.Botan.Low.FPE.tests
     hashTests <- Test.Botan.Low.Hash.tests
     hotpTests <- Test.Botan.Low.HOTP.tests
@@ -70,6 +72,7 @@ tests = do
     pure $ testGroup "botan-low" [
         bcryptTests
       , blockCipherTests
+      , cipherTests
       , fpeTests
       , hashTests
       , hotpTests
