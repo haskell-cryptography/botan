@@ -11,6 +11,7 @@ import qualified Test.Botan.Low.KeyWrap
 import qualified Test.Botan.Low.MAC
 import qualified Test.Botan.Low.MPI
 import qualified Test.Botan.Low.PubKey
+import qualified Test.Botan.Low.PubKey.Decrypt
 import qualified Test.Botan.Low.PubKey.DH
 import qualified Test.Botan.Low.PubKey.ECDH
 import qualified Test.Botan.Low.PubKey.ECDSA
@@ -50,6 +51,7 @@ tests = do
     macTests <- Test.Botan.Low.MAC.tests
     mpiTests <- Test.Botan.Low.MPI.tests
     pubKeyTests <- Test.Botan.Low.PubKey.tests
+    pubKeyDecryptTests <- Test.Botan.Low.PubKey.Decrypt.tests
     pubKeyDhTests <- Test.Botan.Low.PubKey.DH.tests
     pubKeyEcdhTests <- Test.Botan.Low.PubKey.ECDH.tests
     pubKeyEcdsaTests <- Test.Botan.Low.PubKey.ECDSA.tests
@@ -81,6 +83,7 @@ tests = do
       , macTests
       , mpiTests
       , pubKeyTests
+      , pubKeyDecryptTests
       , pubKeyDhTests
       , pubKeyEcdhTests
       , pubKeyEcdsaTests
