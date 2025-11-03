@@ -1,10 +1,23 @@
-module Main (main) where
+{-# LANGUAGE OverloadedStrings #-}
 
-import           Test.Prelude
+module Test.Botan.Low.PubKey.KeyAgreement (tests) where
 
 import           Botan.Low.PubKey
 import           Botan.Low.PubKey.KeyAgreement
 import           Botan.Low.RNG
+import           Data.ByteString
+import           Test.Hspec
+import           Test.Tasty
+import           Test.Tasty.Hspec
+import           Test.Util.ByteString
+import           Test.Util.Hspec
+
+tests :: IO TestTree
+tests = do
+    specs <- testSpec "spec_keyAgreement" spec_keyAgreement
+    pure $ testGroup "Test.Botan.Low.PubKey.KeyAgreement" [
+        specs
+      ]
 
 -- TODO: More thorough test with different KDFs and curves / groups
 pks :: [(ByteString, ByteString)]
@@ -17,8 +30,8 @@ pks =
 pkTestName :: (ByteString, ByteString) -> String
 pkTestName (pk, param) = chars $ pk <> " " <> param
 
-main :: IO ()
-main = hspec $ testSuite pks pkTestName $ \ (pk, param) -> do
+spec_keyAgreement :: Spec
+spec_keyAgreement = testSuite pks pkTestName $ \ (pk, param) -> do
     it "keyAgreementCreate" $ do
         rng <- rngInit "system"
         privKey <- privKeyCreate pk param rng
