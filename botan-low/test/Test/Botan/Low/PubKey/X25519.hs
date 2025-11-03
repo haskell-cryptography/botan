@@ -1,13 +1,24 @@
-module Main (main) where
+{-# LANGUAGE OverloadedStrings #-}
 
-import           Test.Prelude
+module Test.Botan.Low.PubKey.X25519 (tests) where
 
 import           Botan.Low.PubKey
 import           Botan.Low.PubKey.X25519
 import           Botan.Low.RNG
+import           Test.Hspec
+import           Test.Tasty
+import           Test.Tasty.Hspec
+import           Test.Util.Hspec
 
-main :: IO ()
-main = hspec $ do
+tests :: IO TestTree
+tests = do
+    specs <- testSpec "spec_x25519" spec_x25519
+    pure $ testGroup "Test.Botan.Low.PubKey.X25519" [
+        specs
+      ]
+
+spec_x25519 :: Spec
+spec_x25519 = do
     it "privKeyX25519GetPrivKey" $ do
         rng <- rngInit "system"
         privKey <- privKeyCreate "Curve25519" "" rng
