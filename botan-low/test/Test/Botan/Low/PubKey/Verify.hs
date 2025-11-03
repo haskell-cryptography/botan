@@ -1,11 +1,24 @@
-module Main (main) where
+{-# LANGUAGE OverloadedStrings #-}
 
-import           Test.Prelude
+module Test.Botan.Low.PubKey.Verify (tests) where
 
 import           Botan.Low.PubKey
 import           Botan.Low.PubKey.Sign
 import           Botan.Low.PubKey.Verify
 import           Botan.Low.RNG
+import           Data.ByteString
+import           Test.Hspec
+import           Test.Tasty
+import           Test.Tasty.Hspec
+import           Test.Util.ByteString
+import           Test.Util.Hspec
+
+tests :: IO TestTree
+tests = do
+    specs <- testSpec "spec_verify" spec_verify
+    pure $ testGroup "Test.Botan.Low.PubKey.Verify" [
+        specs
+      ]
 
 -- TODO: Consolidate test values with SignSpec
 
@@ -47,8 +60,8 @@ pkTestName (pk, param, padding) = chars $ pk <> " " <> param <> " " <> padding
 --  it is coincidence that the EMSA4 / empty params are the ones that are failing.
 --  Yet, it works for standard format.
 
-main :: IO ()
-main = hspec $ testSuite pks pkTestName $ \ (pk, param, algo) -> do
+spec_verify :: Spec
+spec_verify = testSuite pks pkTestName $ \ (pk, param, algo) -> do
     it "verifyCreate" $ do
         rng <- rngInit "system"
         privKey <- privKeyCreate pk param rng

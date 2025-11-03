@@ -20,6 +20,7 @@ import qualified Test.Botan.Low.PubKey.KeyEncapsulation
 import qualified Test.Botan.Low.PubKey.RSA
 import qualified Test.Botan.Low.PubKey.Sign
 import qualified Test.Botan.Low.PubKey.SM2
+import qualified Test.Botan.Low.PubKey.Verify
 import qualified Test.Botan.Low.PwdHash
 import qualified Test.Botan.Low.RNG
 import qualified Test.Botan.Low.SRP6
@@ -56,6 +57,7 @@ tests = do
     pubKeyRsaTests <- Test.Botan.Low.PubKey.RSA.tests
     pubKeySignTests <- Test.Botan.Low.PubKey.Sign.tests
     pubKeySm2Tests <- Test.Botan.Low.PubKey.SM2.tests
+    pubKeyVerifyTests <- Test.Botan.Low.PubKey.Verify.tests
     pwdHashTests <- Test.Botan.Low.PwdHash.tests
     rngTests <- Test.Botan.Low.RNG.tests
     srp6Tests <- Test.Botan.Low.SRP6.tests
@@ -84,6 +86,7 @@ tests = do
       , pubKeyRsaTests
       , pubKeySignTests
       , pubKeySm2Tests
+      , pubKeyVerifyTests
       , pwdHashTests
       , rngTests
       , srp6Tests
