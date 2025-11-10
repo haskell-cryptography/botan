@@ -22,11 +22,13 @@ module Botan.Low.PubKey.Decrypt (
   ) where
 
 import           Botan.Bindings.PubKey.Decrypt
-
+import           Botan.Low.Error (throwBotanIfNegative_)
 import           Botan.Low.Make
 import           Botan.Low.Prelude
 import           Botan.Low.PubKey
 import           Botan.Low.Remake
+import qualified Data.ByteString as BS
+import qualified Data.ByteString.Internal as BSI
 
 -- /*
 -- * Public Key Decryption
@@ -61,15 +63,22 @@ decryptOutputLength
     -> IO Int   -- ^ __ptext_len__
 decryptOutputLength = mkGetSize_csize withDecrypt botan_pk_op_decrypt_output_length
 
-decrypt
-    :: Decrypt          -- ^ __op__
-    -> ByteString       -- ^ __ciphertext__
-    -> IO ByteString    -- ^ __plaintext__
-decrypt dec ctext = withDecrypt dec $ \ decPtr -> do
-    asBytesLen ctext $ \ ctextPtr ctextLen -> do
-        allocBytesQuerying $ \ outPtr szPtr -> botan_pk_op_decrypt
+decrypt ::
+     Decrypt          -- ^ __op__
+  -> ByteString       -- ^ __ciphertext__
+  -> IO ByteString    -- ^ __plaintext__
+decrypt dec ctext =
+    withDecrypt dec $ \ decPtr ->
+    asBytesLen ctext $ \ ctextPtr ctextLen ->
+    alloca $ \szPtr -> do
+      sz <- decryptOutputLength dec (BS.length ctext)
+      poke szPtr (fromIntegral sz)
+      BSI.createUptoN sz $ \outPtr -> do
+        throwBotanIfNegative_ $
+          botan_pk_op_decrypt
             decPtr
             outPtr
             szPtr
             (ConstPtr ctextPtr)
             ctextLen
+        fromIntegral <$> peek szPtr

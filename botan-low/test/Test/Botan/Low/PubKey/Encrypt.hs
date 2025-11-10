@@ -17,13 +17,7 @@ tests = do
     specs <- testSpec "spec_encrypt" spec_encrypt
     pure $ testGroup "Test.Botan.Low.PubKey.Encrypt" [
         specs
-        -- TODO: temporarily disabled because the test suite fails. See issue
-        -- #33.
-      | False
       ]
-
--- NOTE: SM2 encrypt fails with InsufficientBufferSpace unless sm2p256v1 is used as the
---  curve when creating the key (but creating the key and the encryption context do not fail)
 
 pks :: [(ByteString, ByteString, ByteString)]
 pks =

@@ -22,12 +22,14 @@ module Botan.Low.PubKey.Encrypt (
   ) where
 
 import           Botan.Bindings.PubKey.Encrypt
-
+import           Botan.Low.Error (throwBotanIfNegative_)
 import           Botan.Low.Make
 import           Botan.Low.Prelude
 import           Botan.Low.PubKey
 import           Botan.Low.Remake
 import           Botan.Low.RNG
+import qualified Data.ByteString as BS
+import qualified Data.ByteString.Internal as BSI
 
 -- /*
 -- * Public Key Encryption
@@ -62,24 +64,25 @@ encryptOutputLength
     -> IO Int   -- ^ __ctext_len__
 encryptOutputLength = mkGetSize_csize withEncrypt botan_pk_op_encrypt_output_length
 
--- NOTE: This properly takes advantage of szPtr, queries the buffer size - do this elsewhere
--- NOTE: SM2 take a hash instead of a padding, and encrypt fails with InsufficientBufferSpace
---  if sm2p256v1 is not used as the curve when creating the key (but creating the key and
---  the encryption context do not fail)
---  This implies that encryptOutputLength may be wrong or hardcoded for SM2 or that we
---  are not supposed to use curves other than sm2p256v1 - this needs investigating
-encrypt
-    :: Encrypt          -- ^ __op__
-    -> RNG              -- ^ __rng__
-    -> ByteString       -- ^ __plaintext[]__
-    -> IO ByteString    -- ^ __ciphertext[]__
-encrypt enc rng ptext = withEncrypt enc $ \ encPtr -> do
-    withRNG rng $ \ botanRNG -> do
-        asBytesLen ptext $ \ ptextPtr ptextLen -> do
-            allocBytesQuerying $ \ outPtr szPtr -> botan_pk_op_encrypt
-                encPtr
-                botanRNG
-                outPtr
-                szPtr
-                ptextPtr
-                ptextLen
+encrypt ::
+     Encrypt          -- ^ __op__
+  -> RNG              -- ^ __rng__
+  -> ByteString       -- ^ __plaintext[]__
+  -> IO ByteString    -- ^ __ciphertext[]__
+encrypt enc rng ptext =
+    withEncrypt enc $ \ encPtr ->
+    withRNG rng $ \ botanRNG ->
+    asBytesLen ptext $ \ ptextPtr ptextLen ->
+    alloca $ \szPtr -> do
+      sz <- encryptOutputLength enc (BS.length ptext)
+      poke szPtr (fromIntegral sz)
+      BSI.createUptoN sz $ \outPtr -> do
+        throwBotanIfNegative_ $
+          botan_pk_op_encrypt
+            encPtr
+            botanRNG
+            outPtr
+            szPtr
+            ptextPtr
+            ptextLen
+        fromIntegral <$> peek szPtr
