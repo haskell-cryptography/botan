@@ -39,6 +39,9 @@
   "Lion" and "Cascade" ciphers respectively.
 * PATCH: fix an "address out of bounds" bug in `blockCipherEncryptBlocks` and
   `blockCipherDecryptBlocks` that occasionally caused segfaults.
+* PATCH: fix an "insufficient buffer space" bug in
+  `Botan.Low.PubKey.Encrypt.encrypt` and `Botan.Low.PubKey.Decrypt.decrypt`. See
+  PR [#79](https://github.com/haskell-cryptography/botan/pull/79).
 
 ## 0.0.2.0 -- 2025-09-17
 

@@ -18,15 +18,12 @@ tests = do
     specs <- testSpec "spec_decrypt" spec_decrypt
     pure $ testGroup "Test.Botan.Low.PubKey.Decrypt" [
         specs
-        -- TODO: temporarily disabled because the test suite fails. See issue
-        -- #33.
-      | False
       ]
 
 pks :: [(ByteString, ByteString, ByteString)]
 pks =
     [ ("RSA", "2048", "PKCS1v15")
-    , ("SM2", "sm2p256v1", "SHA-256") -- NOTE: Decrypt fails with InsufficientBufferSpace
+    , ("SM2", "sm2p256v1", "SHA-256") -- NOTE: SM2 takes a hash rather than a padding
     , ("ElGamal", "modp/ietf/1024", "PKCS1v15")
     ]
 
