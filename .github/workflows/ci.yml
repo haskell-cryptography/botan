@@ -35,7 +35,7 @@ jobs:
       #
       # * Build and test with all combinations of OS/GHC/Cabal, but with a fixed
       #   Botan version, preferably the latest version which is currently
-      #   Botan-3.9.0.
+      #   Botan-3.10.0.
       #
       # * Build and test with all Botan versions, but with a fixed OS/GHC/Cabal
       #   combination, preferably Linux/GHC-9.6/Cabal-3.16
@@ -45,7 +45,7 @@ jobs:
       # that matter). The setup-botan action already contains a TODO that would
       # allow us to specify incomplete Botan versions like 3 and 3.8 that would
       # then automatically be resolved to the greatest complete versions, e.g.,
-      # 3.9.0 and 3.8.1. Similarly, haskell-actions/setup@v2 allows specifying
+      # 3.10.0 and 3.8.1. Similarly, haskell-actions/setup@v2 allows specifying
       # incomplete GHC and Cabal versions that are resolved to complete
       # versions. However, if a new Botan MAJOR and/or MINOR version is released
       # (or a new GHC major version), then we would want to include it as a new
@@ -58,7 +58,7 @@ jobs:
           - { os: macos-latest, shell: bash }
         ghc-version: ["9.2", "9.4", "9.6", "9.8", "9.10", "9.12"]
         cabal-version: ["3.16"]
-        botan-version: ["3.9.0"]
+        botan-version: ["3.10.0"]
         include:
         - sys: { os: ubuntu-latest, shell: bash }
           ghc-version: "9.6"
@@ -96,6 +96,10 @@ jobs:
           ghc-version: "9.6"
           cabal-version: "3.16"
           botan-version: "3.8.1"
+        - sys: { os: ubuntu-latest, shell: bash }
+          ghc-version: "9.6"
+          cabal-version: "3.12"
+          botan-version: "3.9.0"
 
     steps:
     - name: 📥 Checkout repository
