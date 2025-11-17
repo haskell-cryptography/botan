@@ -6,6 +6,8 @@ module Test.Botan.Low.Cipher (tests) where
 import           Botan.Low.Cipher
 import           Botan.Low.RNG
 import           Control.Monad
+import           Data.ByteString (ByteString)
+import qualified Data.ByteString as BS
 import           Test.Hspec
 import           Test.Tasty
 import           Test.Tasty.Hspec
@@ -17,13 +19,16 @@ tests = do
     specs <- testSpec "spec_cipher" spec_cipher
     pure $ testGroup "Test.Botan.Low.Cipher" [
         specs
-        -- TODO: temporarily disabled because the test suite fails. See issue
-        -- #33.
-      | False
       ]
 
+testModes :: [ByteString]
+testModes = filter p (cipherModes ++ aeads)
+  where
+    -- TODO: also test "Lion" and "Cascade"
+    p s = not ("Lion" `BS.isInfixOf` s || "Cascade" `BS.isInfixOf` s)
+
 spec_cipher :: Spec
-spec_cipher = testSuite (cipherModes ++ aeads) chars $ \ cipher -> do
+spec_cipher = testSuite testModes chars $ \ cipher -> do
     it "can initialize a cipher encryption context" $ do
         _ctx <- cipherInit cipher Encrypt
         pass
