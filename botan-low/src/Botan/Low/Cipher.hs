@@ -97,15 +97,14 @@ module Botan.Low.Cipher (
 
   ) where
 
-import qualified Data.ByteString as ByteString
-
 import           Botan.Bindings.Cipher
-
 import           Botan.Low.BlockCipher
 import           Botan.Low.Error
 import           Botan.Low.Make
 import           Botan.Low.Prelude
 import           Botan.Low.Remake
+import           Data.Bits ((.&.))
+import qualified Data.ByteString as ByteString
 
 {- $introduction
 
@@ -442,31 +441,50 @@ cipherStart = mkWithObjectSetterCBytesLen withCipher botan_cipher_start
 --  https://github.com/randombit/botan/blob/72dc18bbf598f2c3bef81a4fb2915e9c3c524ac4/src/lib/ffi/ffi_cipher.cpp#L133
 --
 -- Some ciphers (ChaChaPoly, EAX) may consume less input than the reported ideal granularity
-cipherUpdate
-    :: Cipher               -- ^ __cipher__
-    -> CipherUpdateFlags    -- ^ __flags__
-    -> Int                  -- ^ __output_size__
-    -> ByteString           -- ^ __input_bytes[]__
-    -> IO (Int,ByteString)  -- ^ __(input_consumed,output[])__
-cipherUpdate ctx flags outputSz input = withCipher ctx $ \ ctxPtr -> do
-    unsafeAsBytesLen input $ \ inputPtr inputSz -> do
-        alloca $ \ consumedPtr -> do
-            alloca $ \ writtenPtr -> do
-                output <- allocBytes outputSz $ \ outputPtr -> do
-                    throwBotanIfNegative_ $ botan_cipher_update
-                        ctxPtr
-                        (fromIntegral flags)
-                        outputPtr
-                        (fromIntegral outputSz)
-                        writtenPtr
-                        (ConstPtr inputPtr)
-                        inputSz
-                        consumedPtr
-                consumed <- fromIntegral <$> peek consumedPtr
-                written <- fromIntegral <$> peek writtenPtr
-                -- NOTE: The safety of this function is suspect - may require deepseq
-                let processed = ByteString.take written output
-                    in processed `seq` return (consumed,processed)
+cipherUpdate ::
+     Cipher               -- ^ __cipher__
+  -> CipherUpdateFlags    -- ^ __flags__
+  -> Int                  -- ^ __output_size__
+  -> ByteString           -- ^ __input_bytes[]__
+  -> IO (Int,ByteString)  -- ^ __(input_consumed,output[])__
+cipherUpdate ctx flags outputSz input =
+    withCipher ctx $ \ ctxPtr ->
+    unsafeAsBytesLen input $ \ inputPtr inputSz ->
+    alloca $ \ consumedPtr ->
+    alloca $ \ writtenPtr -> do
+      eithOutput <-
+        try $ allocBytes outputSz $ \ outputPtr ->do
+          throwBotanIfNegative_ $ botan_cipher_update
+              ctxPtr
+              (fromIntegral flags)
+              outputPtr
+              (fromIntegral outputSz)
+              writtenPtr
+              (ConstPtr inputPtr)
+              inputSz
+              consumedPtr
+      -- If inssuficient buffer space, try again
+      output <- case eithOutput of
+        Left InsufficientBufferSpaceException{} -> do
+          outputSz' <- peek writtenPtr
+          allocBytes (fromIntegral outputSz') $ \ outputPtr ->do
+            throwBotanIfNegative_ $ botan_cipher_update
+                ctxPtr
+                (fromIntegral flags)
+                outputPtr
+                outputSz'
+                writtenPtr
+                (ConstPtr inputPtr)
+                -- No input should be provided on the second try if the first
+                -- try had the FINAL flag set
+                (if flags .&. BOTAN_CIPHER_UPDATE_FLAG_FINAL /= 0 then 0 else inputSz)
+                consumedPtr
+        Right bs -> pure bs
+      consumed <- fromIntegral <$> peek consumedPtr
+      written <- fromIntegral <$> peek writtenPtr
+      -- NOTE: The safety of this function is suspect - may require deepseq
+      let processed = ByteString.take written output
+          in processed `seq` return (consumed,processed)
 
 {- |
 Encrypt and finalize a complete piece of data.
