@@ -3,9 +3,14 @@
 
 module Test.Botan.Low.Cipher (tests) where
 
+import           Botan.Bindings.Version (botan_version_major,
+                     botan_version_minor)
 import           Botan.Low.Cipher
 import           Botan.Low.RNG
 import           Control.Monad
+import           Data.ByteString (ByteString)
+import qualified Data.ByteString as BS
+import           System.IO.Unsafe (unsafePerformIO)
 import           Test.Hspec
 import           Test.Tasty
 import           Test.Tasty.Hspec
@@ -17,13 +22,25 @@ tests = do
     specs <- testSpec "spec_cipher" spec_cipher
     pure $ testGroup "Test.Botan.Low.Cipher" [
         specs
-        -- TODO: temporarily disabled because the test suite fails. See issue
-        -- #33.
-      | False
       ]
 
+testModes :: [ByteString]
+testModes = filter p (cipherModes ++ aeads)
+  where
+    p s
+      -- TODO: also test "Lion" and "Cascade"
+      | "Lion" `BS.isPrefixOf` s || "Cascade" `BS.isPrefixOf` s
+      = False
+      -- SIV and CCM have bugs on versions earlier than 3.5
+      | unsafePerformIO botan_version_major == 3
+      , unsafePerformIO botan_version_minor <= 4
+      , "SIV" `BS.isSuffixOf` s || "CCM" `BS.isSuffixOf` s
+      = False
+      | otherwise
+      = True
+
 spec_cipher :: Spec
-spec_cipher = testSuite (cipherModes ++ aeads) chars $ \ cipher -> do
+spec_cipher = testSuite testModes chars $ \ cipher -> do
     it "can initialize a cipher encryption context" $ do
         _ctx <- cipherInit cipher Encrypt
         pass
@@ -221,10 +238,7 @@ spec_cipher = testSuite (cipherModes ++ aeads) chars $ \ cipher -> do
         cipherStart offlinectx n
         g <- cipherGetIdealUpdateGranularity onlinectx
         msg <- systemRNGGet (8 * g)
-        putStrLn "    Testing online encryption:"
         onlinemsg <- cipherEncryptOnline onlinectx msg
-        putStrLn "    Testing offline encryption:"
         offlinemsg <- cipherEncrypt offlinectx msg
-        putStrLn "    Result:"
         onlinemsg `shouldBe` offlinemsg
         pass
