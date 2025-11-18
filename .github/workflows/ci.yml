@@ -58,7 +58,7 @@ jobs:
           - { os: macos-latest, shell: bash }
         ghc-version: ["9.2", "9.4", "9.6", "9.8", "9.10", "9.12"]
         cabal-version: ["3.12"]
-        botan-version: ["3.9.0"]
+        botan-version: ["3.10.0"]
         include:
         - sys: { os: ubuntu-latest, shell: bash }
           ghc-version: "9.6"
@@ -96,6 +96,10 @@ jobs:
           ghc-version: "9.6"
           cabal-version: "3.12"
           botan-version: "3.8.1"
+        - sys: { os: ubuntu-latest, shell: bash }
+          ghc-version: "9.6"
+          cabal-version: "3.12"
+          botan-version: "3.9.0"
 
     steps:
     - name: 📥 Checkout repository
