@@ -99,7 +99,7 @@ jobs:
 
     steps:
     - name: 📥 Checkout repository
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
 
     - name: 🛠️ Setup Haskell
       id: setup-haskell
@@ -218,7 +218,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: 📥 Checkout repository
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
 
     - name: 🛠️ Setup cabal-fmt
       uses: jorisdral/actions/setup-cabal-fmt@main
@@ -242,7 +242,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: 📥 Checkout repository
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
 
     - name: 🛠️ Setup Haskell
       id: setup-haskell
@@ -264,7 +264,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Download fix-whitespace
         run: |
@@ -284,7 +284,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: 📥 Checkout repository
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
 
     - name: 🛠️ Setup stylish-haskell
       uses: jorisdral/actions/setup-stylish-haskell@main
