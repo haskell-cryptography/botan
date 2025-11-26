@@ -14,6 +14,7 @@ section of the C Botan FFI documentation.
 -}
 
 {-# LANGUAGE CApiFFI #-}
+{-# LANGUAGE CPP     #-}
 
 module Botan.Bindings.Version (
     botan_ffi_api_version
@@ -24,6 +25,8 @@ module Botan.Bindings.Version (
   , botan_version_patch
   , botan_version_datestamp
   ) where
+
+#include "HsBotanBindings.h"
 
 import           Botan.Bindings.Prelude
 
