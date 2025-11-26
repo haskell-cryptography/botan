@@ -181,6 +181,7 @@ procHsBindgen opts dir = do
         , "--unique-id=botan-bindings"
         , "--hs-output-dir=" <> outputDirectory opts
         , "--module=" <> baseModuleName opts
+        , "--create-output-dirs"
         , "botan/ffi.h"
         ]
     hsBindgenProc = proc hsBindgenCmd hsBindgenArgs

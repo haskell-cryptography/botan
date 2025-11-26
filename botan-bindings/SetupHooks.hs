@@ -6,6 +6,7 @@ module SetupHooks where
 import           Control.Monad
 import qualified Data.List as List
 import           Data.Maybe
+import           Distribution.ModuleName
 import           Distribution.Simple.LocalBuildInfo hiding (LibraryName)
 import           Distribution.Simple.Setup
 import qualified Distribution.Simple.Setup as CommonSetupFlags
@@ -16,10 +17,14 @@ import qualified Distribution.Simple.SetupHooks as PostConfPackageInputs
                      (PostConfPackageInputs (..))
 import qualified Distribution.Simple.SetupHooks as PreConfComponentInputs
                      (PreConfComponentInputs (..))
+import qualified Distribution.Simple.SetupHooks as PreConfComponentOutputs
+                     (PreConfComponentOutputs (..))
 import           Distribution.Types.LocalBuildConfig
 import qualified Distribution.Types.LocalBuildConfig as PackageBuildDescr
                      (PackageBuildDescr (..))
-import           Distribution.Utils.Path (interpretSymbolicPath)
+import           Distribution.Utils.Path (FileOrDir (..), Include, RelativePath,
+                     interpretSymbolicPath, makeRelativePathEx)
+import qualified Distribution.Utils.Path as DUP
 import           System.Directory
 import           System.Exit
 import           System.FilePath (FilePath, takeDirectory, (<.>), (</>))
@@ -76,9 +81,33 @@ myPreConfComponentHook :: PreConfComponentInputs -> IO PreConfComponentOutputs
 myPreConfComponentHook pcci = do
     let bdir = getBuildDir (PreConfComponentInputs.packageBuildDescr pcci)
     v <- readVersionsInfoFile bdir
-    print v
-    -- TODO
-    pure $ noPreConfComponentOutputs pcci
+    let mods = getModuleNames v
+    printf "Including modules in the build plan: %s\n" (show mods)
+    printf "Including modules in the build plan: %s\n" (show versionsHeaderPath)
+    let
+      bi' = emptyBuildInfo {
+          otherModules = getModuleNames v
+        , installIncludes = [versionsHeaderPath]
+        }
+    return (noPreConfComponentOutputs pcci) {
+        PreConfComponentOutputs.componentDiff =
+          buildInfoComponentDiff (componentName $ PreConfComponentInputs.component pcci) bi'
+      }
+
+getModuleNames :: Version -> [ModuleName]
+getModuleNames (Version major minor patch) = fmap fromString [
+      baseName
+    , baseName `dot` "FunPtr"
+    , baseName `dot` "Safe"
+    , baseName `dot` "Unsafe"
+    ]
+  where
+    dot x y = x <> "." <> y
+    ucase x y = x <> "_" <> y
+
+    baseName =
+        "Botan" `dot` "Bindings" `dot` "Generated" `dot`
+        "Botan" `ucase` show major `ucase` show minor `ucase` show patch
 
 {-------------------------------------------------------------------------------
   Finding programs
@@ -255,6 +284,10 @@ writeVersionsHeaderFile bdir v = do
 versionsHeaderFilePath :: BuildDir -> FilePath
 versionsHeaderFilePath (BuildDir dir) =
     dir </> "build" </> "include" </> "HsBotanBindingsVersions" <.> "h"
+
+versionsHeaderPath :: RelativePath Include 'File
+versionsHeaderPath  = makeRelativePathEx $
+    "HsBotanBindingsVersions" <.> "h"
 
 versionsHeaderFileContents :: Version -> String
 versionsHeaderFileContents (Version major minor patch) = unlines $ fmap unwords $ [

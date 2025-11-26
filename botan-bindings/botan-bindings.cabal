@@ -31,9 +31,7 @@ extra-doc-files:
   CHANGELOG.md
   README.md
 
-extra-source-files:
-  include/HsBotanBindings.h
-
+extra-source-files: include/HsBotanBindings.h
 extra-tmp-files:
   include/HsBotanBindingsVersions.h
   include/HsBotanBindingsVersions.info
@@ -128,10 +126,17 @@ library
   else
     extra-libraries: botan-3
 
-  include-dirs: include
+  include-dirs:       include
   install-includes:
     HsBotanBindings.h
-    HsBotanBindingsVersions.h
+
+  -- * Generated bindings
+  hs-source-dirs:     src-generated
+  build-depends:      hs-bindgen-runtime ^>=0.1
+  cc-options: -Wno-deprecated-declarations
+  ghc-options:
+    -Wno-missing-export-lists
+    -optc -Wno-deprecated-declarations
 
 custom-setup
   setup-depends:
