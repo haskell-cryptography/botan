@@ -11,9 +11,6 @@ inputs:
   botan-version:
     required: true
     description: "Botan version"
-  run-tests:
-    required: false
-    description: "Run Botan tests before installing"
 runs:
   using: composite
   steps:
@@ -23,6 +20,8 @@ runs:
       repository: randombit/botan
       path: ./tmp-botan
       ref: ${{ inputs.botan-version }}
+
+  ### Cache ###
 
   # The use of ccache/sccache drastically improves build times. The running time
   # of the setup-botan action went from 10-20 minutes to ~1-2 minute at the time
@@ -40,8 +39,7 @@ runs:
   ### Build ###
   #
   # We only build the static and dynamic libraries and the executable, but not
-  # the documentation. If tests are configured to run by setting
-  # 'inputs.run-tests', then the tests are built as well.
+  # the documentation or the tests.
 
   - name: "🛠️ [Unix]: Build Botan"
     if: ${{ runner.os == 'Linux' || runner.os == 'MacOS' }}
@@ -50,7 +48,7 @@ runs:
     run: |
       python3 ./configure.py \
         --compiler-cache=ccache \
-        --build-targets=static,shared,cli${{ inputs.run-tests == 'true' && ',tests' || '' }} \
+        --build-targets=static,shared,cli \
         --without-documentation
       make
 
@@ -66,50 +64,15 @@ runs:
     run: |
       python3 ./configure.py --cc=gcc --os=mingw \
         --compiler-cache=sccache \
-        --build-targets=static,shared,cli${{ inputs.run-tests == 'true' && ',tests' || '' }} \
+        --build-targets=static,shared,cli \
         --without-documentation \
         --prefix="C:\msys64\mingw64"
       make
 
-  ### Run tests ###
-
-  - name: "🛠️ [Unix]: Run tests"
-    if: ${{ inputs.run-tests == 'true' && (runner.os == 'Linux' || runner.os == 'MacOS') }}
-    shell: sh
-    working-directory: ./tmp-botan
-    run: |
-      make check
-
-  # TODO: on Windows, 'make check' will fail to start running the tests because
-  # of wrong backwards/forward slashes in paths and calling the test executable
-  # the wrong way. More precisely, 'make check' will run:
-  #
-  # > ./botan-test.exe --data-dir=.\src\tests/data
-  #
-  # Where it should be running:
-  #
-  # > ./botan-test --data-dir=./src/tests/data
-  #
-  # This might be because we are using bash where 'make check' is expecting a
-  # different shell, maybe? See issue #39.
-  - name: "🛠️ [Windows]: Run tests"
-    if: ${{ inputs.run-tests == 'true' && runner.os == 'Windows' }}
-    shell: C:/msys64/usr/bin/bash.exe -e '{0}'
-    working-directory: ./tmp-botan
-    run: |
-      make check
-
   ### Install ###
   #
   # The install script can be run with debug logging enabled, but as far as we
-  # can see you would have to run the script manually instead of via make. That
-  # is, replace ...
-  #
-  # > make install
-  #
-  # ... by ...
-  #
-  # > python3 ./src/scripts/install.py --verbose --build-dir="build"
+  # can see you would have to run the script manually instead of via make.
 
   - name: "🛠️ [Unix]: Install Botan"
     if: ${{ runner.os == 'Linux' || runner.os == 'MacOS' }}
