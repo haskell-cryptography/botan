@@ -76,7 +76,7 @@ encrypt enc rng ptext =
     alloca $ \szPtr -> do
       sz <- encryptOutputLength enc (BS.length ptext)
       poke szPtr (fromIntegral sz)
-      BSI.createUptoN sz $ \outPtr -> do
+      BSI.createAndTrim sz $ \outPtr -> do
         throwBotanIfNegative_ $
           botan_pk_op_encrypt
             encPtr

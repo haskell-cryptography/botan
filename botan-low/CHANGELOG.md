@@ -41,7 +41,8 @@
   `blockCipherDecryptBlocks` that occasionally caused segfaults.
 * PATCH: fix an "insufficient buffer space" bug in
   `Botan.Low.PubKey.Encrypt.encrypt` and `Botan.Low.PubKey.Decrypt.decrypt`. See
-  PR [#79](https://github.com/haskell-cryptography/botan/pull/79).
+  PR [#79](https://github.com/haskell-cryptography/botan/pull/79), PR
+  [#87](https://github.com/haskell-cryptography/botan/pull/87).
 * PATCH: Fix an "insufficient buffer space" bug in
   `Botan.Low.Cipher.cipherUpdate`. See PR
   [#84](https://github.com/haskell-cryptography/botan/pull/84)
