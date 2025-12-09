@@ -433,8 +433,8 @@ srp6GroupSize groupId =
   Utility
 -------------------------------------------------------------------------------}
 
--- | A version of 'BS.create' that determines the size of the byte string based
--- on an argument 'DLGroupName'.
+-- | Like 'createWithSize', but we determine the maximum size of the byte string
+-- based on an argument 'DLGroupName'.
 createWithGroupSize ::
      DLGroupName
   -> (Ptr Word8 -> Ptr CSize -> IO ())
@@ -443,21 +443,27 @@ createWithGroupSize groupId k = do
     sz <- srp6GroupSize groupId
     createWithSize sz k
 
--- | A version of 'BS.create' that also creates a pointer for the size of the
--- byte string.
+-- | Given the maximum size needed and a function to make the contents of a
+-- 'ByteString', 'createWithSize' makes the 'ByteString'.
+--
+-- The generating function is required to write the actual final size (<= the
+-- maximum size) to the 'CSize' pointer, and the resulting byte array is
+-- reallocated to this size.
+--
+-- NOTE: this is based on 'BS.createAndTrim'.
 createWithSize ::
      Int
   -> (Ptr Word8 -> Ptr CSize -> IO ())
   -> IO ByteString
 createWithSize sz k =
-    BS.createUptoN sz $ \bytesPtr ->
+    BS.createAndTrim sz $ \bytesPtr ->
     alloca $ \lenPtr -> do
       poke lenPtr (fromIntegral sz)
       k bytesPtr lenPtr
       fromIntegral <$> peek lenPtr
 
--- | A version of 'BS.createUptoN'' that determines the size of the byte string
--- based on an argument 'DLGroupName'.
+-- | Like 'createWithGroupSize', but also returns an additional value created by
+-- the action.
 createWithGroupSize' ::
      DLGroupName
   -> (Ptr Word8 -> Ptr CSize -> IO a)
@@ -466,16 +472,18 @@ createWithGroupSize' groupId k = do
     sz <- srp6GroupSize groupId
     createWithSize' sz k
 
--- | A version of 'BS.createUptoN'' that also creates a pointer for the size of
--- the byte string.
+-- | Like 'createWithSize', but also returns an additional value created by the
+-- action.
+--
+-- NOTE: this is based on 'BS.createAndTrim''.
 createWithSize' ::
      Int
   -> (Ptr Word8 -> Ptr CSize -> IO a)
   -> IO (ByteString, a)
 createWithSize' sz k =
-    BS.createUptoN' sz $ \bytesPtr ->
+    BS.createAndTrim' sz $ \bytesPtr ->
     alloca $ \lenPtr -> do
       poke lenPtr (fromIntegral sz)
       x <- k bytesPtr lenPtr
       sz' <- fromIntegral <$> peek lenPtr
-      pure (sz', x)
+      pure (0, sz', x)

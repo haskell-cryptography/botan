@@ -73,7 +73,7 @@ decrypt dec ctext =
     alloca $ \szPtr -> do
       sz <- decryptOutputLength dec (BS.length ctext)
       poke szPtr (fromIntegral sz)
-      BSI.createUptoN sz $ \outPtr -> do
+      BSI.createAndTrim sz $ \outPtr -> do
         throwBotanIfNegative_ $
           botan_pk_op_decrypt
             decPtr
