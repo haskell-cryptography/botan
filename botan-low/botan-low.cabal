@@ -1,7 +1,7 @@
-cabal-version:      3.0
-name:               botan-low
-version:            0.0.2.0
-synopsis:           Low-level Botan bindings
+cabal-version: 3.0
+name: botan-low
+version: 0.0.2.0
+synopsis: Low-level Botan bindings
 description:
   Welcome to botan-low
 
@@ -14,17 +14,16 @@ description:
 
   For more information, see the [README on Github](https://github.com/haskellfoundation/botan)
 
-author:             Leo D.
-maintainer:         joris@well-typed.com, leo@apotheca.io
-license:            BSD-3-Clause
-license-file:       LICENSE
+author: Leo D.
+maintainer: joris@well-typed.com, leo@apotheca.io
+license: BSD-3-Clause
+license-file: LICENSE
 copyright:
   Copyright (c) 2023-2024, Apotheca Labs
   Copyright (c) 2024-2025, Haskell Foundation
 
-build-type:         Simple
-category:           Cryptography
-
+build-type: Simple
+category: Cryptography
 -- NOTE: Use data-files instead, if this is inappropriate
 -- NOTE: This causes a soft error:
 --      Ignoring trailing fields after sections: "extra-source-files"
@@ -40,29 +39,35 @@ extra-doc-files:
   README.md
 
 tested-with:
-  GHC ==9.2 || ==9.4 || ==9.6 || ==9.8 || ==9.10 || ==9.12
+  ghc ==9.2 || ==9.4 || ==9.6 || ==9.8 || ==9.10 || ==9.12
 
 source-repository head
-  type:     git
+  type: git
   location: https://github.com/haskellfoundation/botan
-  subdir:   botan-low
+  subdir: botan-low
 
 source-repository this
-  type:     git
+  type: git
   location: https://github.com/haskellfoundation/botan
-  subdir:   botan-low
-  tag:      botan-low-0.0.2.0
+  subdir: botan-low
+  tag: botan-low-0.0.2.0
 
 common warnings
   ghc-options:
-    -Wall -Wcompat -Wincomplete-uni-patterns
-    -Wincomplete-record-updates -Wpartial-fields -Widentities
-    -Wredundant-constraints -Wmissing-export-lists
-    -Wno-unticked-promoted-constructors -Wunused-packages
+    -Wall
+    -Wcompat
+    -Wincomplete-uni-patterns
+    -Wincomplete-record-updates
+    -Wpartial-fields
+    -Widentities
+    -Wredundant-constraints
+    -Wmissing-export-lists
+    -Wno-unticked-promoted-constructors
+    -Wunused-packages
     -Wmissing-deriving-strategies
 
 common language
-  default-language:   GHC2021
+  default-language: GHC2021
   default-extensions:
     DerivingStrategies
     LambdaCase
@@ -72,8 +77,8 @@ common language
     ViewPatterns
 
 library
-  import:             warnings, language
-  hs-source-dirs:     src
+  import: warnings, language
+  hs-source-dirs: src
   default-extensions:
     NoImplicitPrelude
     OverloadedStrings
@@ -84,16 +89,16 @@ library
     Botan.Low.Cipher
     Botan.Low.Error
     Botan.Low.FPE
-    Botan.Low.Hash
     Botan.Low.HOTP
+    Botan.Low.Hash
     Botan.Low.KDF
     Botan.Low.KeyWrap
     Botan.Low.MAC
     Botan.Low.MPI
     Botan.Low.PubKey
-    Botan.Low.PubKey.Decrypt
     Botan.Low.PubKey.DH
     Botan.Low.PubKey.DSA
+    Botan.Low.PubKey.Decrypt
     Botan.Low.PubKey.ECDH
     Botan.Low.PubKey.ECDSA
     Botan.Low.PubKey.Ed25519
@@ -102,8 +107,8 @@ library
     Botan.Low.PubKey.KeyAgreement
     Botan.Low.PubKey.KeyEncapsulation
     Botan.Low.PubKey.RSA
-    Botan.Low.PubKey.Sign
     Botan.Low.PubKey.SM2
+    Botan.Low.PubKey.Sign
     Botan.Low.PubKey.Verify
     Botan.Low.PubKey.X25519
     Botan.Low.PwdHash
@@ -122,48 +127,48 @@ library
     Botan.Low.Remake
     Paths_botan_low
 
-  autogen-modules:    Paths_botan_low
+  autogen-modules: Paths_botan_low
   build-depends:
-    , base            >=4.16 && <4.22
-    , botan-bindings  ^>=0.0 || ^>=0.1
-    , bytestring      >=0.11 && <0.13
-    , deepseq         >=1.1  && <2
-    , text            >=1.2  && <1.3   || >=2.0 && <2.2
+    base >=4.16 && <4.22,
+    botan-bindings ^>=0.0 || ^>=0.1,
+    bytestring >=0.11 && <0.13,
+    deepseq >=1.1 && <2,
+    text >=1.2 && <1.3 || >=2.0 && <2.2,
 
 test-suite test
-  import:          warnings, language
-  type:            exitcode-stdio-1.0
-  main-is:         Main.hs
-  hs-source-dirs:  test/
+  import: warnings, language
+  type: exitcode-stdio-1.0
+  main-is: Main.hs
+  hs-source-dirs: test/
   build-depends:
-    , async
-    , base
-    , botan-bindings
-    , botan-low
-    , bytestring
-    , containers
-    , hspec
-    , QuickCheck
-    , tasty
-    , tasty-hspec
-    , tasty-hunit
-    , text
+    QuickCheck,
+    async,
+    base,
+    botan-bindings,
+    botan-low,
+    bytestring,
+    containers,
+    hspec,
+    tasty,
+    tasty-hspec,
+    tasty-hunit,
+    text,
 
   other-modules:
     Test.Botan.Low.Bcrypt
     Test.Botan.Low.BlockCipher
     Test.Botan.Low.Cipher
     Test.Botan.Low.FPE
-    Test.Botan.Low.Hash
     Test.Botan.Low.HOTP
+    Test.Botan.Low.Hash
     Test.Botan.Low.KDF
     Test.Botan.Low.KeyWrap
     Test.Botan.Low.MAC
     Test.Botan.Low.MPI
     Test.Botan.Low.PubKey
-    Test.Botan.Low.PubKey.Decrypt
     Test.Botan.Low.PubKey.DH
     Test.Botan.Low.PubKey.DSA
+    Test.Botan.Low.PubKey.Decrypt
     Test.Botan.Low.PubKey.ECDH
     Test.Botan.Low.PubKey.ECDSA
     Test.Botan.Low.PubKey.Ed25519
@@ -172,8 +177,8 @@ test-suite test
     Test.Botan.Low.PubKey.KeyAgreement
     Test.Botan.Low.PubKey.KeyEncapsulation
     Test.Botan.Low.PubKey.RSA
-    Test.Botan.Low.PubKey.Sign
     Test.Botan.Low.PubKey.SM2
+    Test.Botan.Low.PubKey.Sign
     Test.Botan.Low.PubKey.Verify
     Test.Botan.Low.PubKey.X25519
     Test.Botan.Low.PwdHash
@@ -187,26 +192,26 @@ test-suite test
     Test.Util.ByteString
     Test.Util.Hspec
 
-  other-modules:   Paths_botan_low
+  other-modules: Paths_botan_low
   autogen-modules: Paths_botan_low
 
 benchmark botan-low-bench
-  import:             warnings, language
-  hs-source-dirs:     bench
-  main-is:            Bcrypt.hs
-  type:               exitcode-stdio-1.0
+  import: warnings, language
+  hs-source-dirs: bench
+  main-is: Bcrypt.hs
+  type: exitcode-stdio-1.0
   build-depends:
-    , base
-    , botan-low
-    , bytestring
-    , crypton
-    , tasty-bench
+    base,
+    botan-low,
+    bytestring,
+    crypton,
+    tasty-bench,
 
   default-extensions:
     NoImplicitPrelude
     OverloadedStrings
 
-  ghc-options:        -with-rtsopts=-A32m
+  ghc-options: -with-rtsopts=-A32m
 
   if impl(ghc >=8.6)
     ghc-options: -fproc-alignment=64
