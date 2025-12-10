@@ -211,28 +211,28 @@ jobs:
         SKIP_CABAL_BUILD: true
 
   ################################################################################
-  # Lint with cabal-fmt
+  # Lint with cabal-gild
   ################################################################################
-  lint-cabal-fmt:
-    name: Lint with cabal-fmt
+  lint-cabal-gild:
+    name: Lint with cabal-gild
     runs-on: ubuntu-latest
     steps:
     - name: 📥 Checkout repository
       uses: actions/checkout@v6
 
-    - name: 🛠️ Setup cabal-fmt
-      uses: jorisdral/actions/setup-cabal-fmt@main
+    - name: 🛠️ Setup cabal-gild
+      uses: jorisdral/actions/setup-cabal-gild@cabal-gild-v0.0.1
       with:
-        cabal-fmt-version: "0.1.12"
+        cabal-gild-version: "1.5.0.1"
         ghc-version: "9.6"
-        cabal-version: "3.12"
+        cabal-version: "3.16"
         # The index-state is fixed to enable caching and ensure that the version
         # regardless of the current state of Hackage head.
-        # If you want a newer version of cabal-fmt, use a more recent time.
-        hackage-index-state: "2025-09-15T11:44:03Z"
+        # If you want a newer version of cabal-gild, use a more recent time.
+        hackage-index-state: "2025-12-08T00:00:00Z"
 
-    - name: 🎗️ Lint with cabal-fmt
-      run: ./scripts/format-cabal-fmt.sh && git diff --exit-code
+    - name: 🎗️ Lint with cabal-gild
+      run: ./scripts/format-cabal-gild.sh && git diff --exit-code
 
   ################################################################################
   # Lint with cabal

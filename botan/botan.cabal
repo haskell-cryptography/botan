@@ -1,7 +1,7 @@
-cabal-version:   3.0
-name:            botan
-version:         0.1.0.0
-synopsis:        High-level Botan bindings
+cabal-version: 3.0
+name: botan
+version: 0.1.0.0
+synopsis: High-level Botan bindings
 description:
   Welcome to botan
 
@@ -14,53 +14,59 @@ description:
 
   For more information, see the [README on Github](https://github.com/haskellfoundation/botan)
 
-author:          Leo D.
-maintainer:      joris@well-typed.com, leo@apotheca.io
-license:         BSD-3-Clause
-license-file:    LICENSE
+author: Leo D.
+maintainer: joris@well-typed.com, leo@apotheca.io
+license: BSD-3-Clause
+license-file: LICENSE
 copyright:
   Copyright (c) 2023-2024, Apotheca Labs
   Copyright (c) 2024-2025, Haskell Foundation
 
-build-type:      Simple
-category:        Cryptography
+build-type: Simple
+category: Cryptography
 extra-doc-files:
   CHANGELOG.md
   README.md
 
-tested-with:     GHC ==9.2 || ==9.4 || ==9.6 || ==9.8 || ==9.10 || ==9.12
+tested-with: ghc ==9.2 || ==9.4 || ==9.6 || ==9.8 || ==9.10 || ==9.12
 
 flag mtl
-  default:     True
-  manual:      True
+  default: True
+  manual: True
   description: Enable @mtl@ package dependency.
 
 flag random
-  default:     True
-  manual:      True
+  default: True
+  manual: True
   description: Enable @random@ package dependency.
 
 source-repository head
-  type:     git
+  type: git
   location: https://github.com/haskellfoundation/botan
-  subdir:   botan
+  subdir: botan
 
 source-repository this
-  type:     git
+  type: git
   location: https://github.com/haskellfoundation/botan
-  subdir:   botan
-  tag:      botan-0.1.0.0
+  subdir: botan
+  tag: botan-0.1.0.0
 
 common warnings
   ghc-options:
-    -Wall -Wcompat -Wincomplete-uni-patterns
-    -Wincomplete-record-updates -Wpartial-fields -Widentities
-    -Wredundant-constraints -Wmissing-export-lists
-    -Wno-unticked-promoted-constructors -Wunused-packages
+    -Wall
+    -Wcompat
+    -Wincomplete-uni-patterns
+    -Wincomplete-record-updates
+    -Wpartial-fields
+    -Widentities
+    -Wredundant-constraints
+    -Wmissing-export-lists
+    -Wno-unticked-promoted-constructors
+    -Wunused-packages
     -Wmissing-deriving-strategies
 
 common language
-  default-language:   GHC2021
+  default-language: GHC2021
   default-extensions:
     DerivingStrategies
     PatternSynonyms
@@ -68,8 +74,8 @@ common language
     RoleAnnotations
 
 library
-  import:             warnings, language
-  hs-source-dirs:     src
+  import: warnings, language
+  hs-source-dirs: src
   default-extensions:
     NoImplicitPrelude
     OverloadedStrings
@@ -80,17 +86,17 @@ library
     Botan.BlockCipher.AES
     Botan.BlockCipher.ARIA
     Botan.BlockCipher.Blowfish
-    Botan.BlockCipher.Camellia
     Botan.BlockCipher.CAST
+    Botan.BlockCipher.Camellia
     Botan.BlockCipher.Class
     Botan.BlockCipher.DES
     Botan.BlockCipher.GOST
     Botan.BlockCipher.IDEA
     Botan.BlockCipher.Noekeon
     Botan.BlockCipher.SEED
-    Botan.BlockCipher.Serpent
     Botan.BlockCipher.SHALCAL
     Botan.BlockCipher.SM4
+    Botan.BlockCipher.Serpent
     Botan.BlockCipher.Threefish
     Botan.BlockCipher.Twofish
     Botan.Checksum.Adler
@@ -100,6 +106,7 @@ library
     Botan.Cipher.Class
     Botan.Easy
     Botan.Error
+    Botan.HOTP
     Botan.Hash
     Botan.Hash.BLAKE
     Botan.Hash.Class
@@ -112,17 +119,16 @@ library
     Botan.Hash.SHA2
     Botan.Hash.SHA3
     Botan.Hash.SHAKE
-    Botan.Hash.Skein
     Botan.Hash.SM3
+    Botan.Hash.Skein
     Botan.Hash.Streebog
     Botan.Hash.Whirlpool
-    Botan.HOTP
     Botan.KDF
     Botan.KeySpec
     Botan.KeyWrap
     Botan.MAC
-    Botan.MAC.Class
     Botan.MAC.CMAC
+    Botan.MAC.Class
     Botan.OneTimeAuth.Class
     Botan.OneTimeAuth.Poly1305
     Botan.Padding
@@ -147,18 +153,18 @@ library
     Botan.Prelude
     Paths_botan
 
-  autogen-modules:    Paths_botan
+  autogen-modules: Paths_botan
   build-depends:
-    , base        >=4.16 && <4.22
-    , botan-low   ^>=0.0
-    , bytestring  >=0.11 && <0.13
-    , deepseq     >=1.1  && <2
-    , text        >=1.2  && <1.3  || >=2.0 && <2.2
+    base >=4.16 && <4.22,
+    botan-low ^>=0.0,
+    bytestring >=0.11 && <0.13,
+    deepseq >=1.1 && <2,
+    text >=1.2 && <1.3 || >=2.0 && <2.2,
 
   if flag(mtl)
     build-depends: mtl >=2.2 && <2.4
-    cpp-options:   -DHS_BOTAN_HAS_MTL
+    cpp-options: -DHS_BOTAN_HAS_MTL
 
   if flag(random)
     build-depends: random >=1.2 && <1.3
-    cpp-options:   -DHS_BOTAN_HAS_RANDOM
+    cpp-options: -DHS_BOTAN_HAS_RANDOM
