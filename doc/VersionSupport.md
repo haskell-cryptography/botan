@@ -100,7 +100,15 @@ cabal run ./scripts/generate-bindings.hs -- generate -v X.Y.Z -m "Botan.Bindings
   those should not change unless a new version of `hs-bindgen` is used (see
   [Using a new version of `hs-bindgen`](#using-a-new-version-of-hs-bindgen)).
 
+```sh
+./scripts/generate-bindings.sh
+```
+
 * Run `./scripts/format-stylish-haskell.sh` to format the generated bindings.
+
+```sh
+./scripts/format-stylish-haskell.sh
+```
 
 We use re-export modules to aggregate conditional imports of bindings for
 specific versions, so that other modules in `botan-bindings` can just import the
@@ -154,6 +162,8 @@ features (functions / types) in the new bindings are not publicly exported yet.
   exported as values or macros by the FFI. Instead, we should manually add
   pattern synonyms for such strings to botan-bindings. Describe how this should
   work.
+
+* TODO: describe how to test the new version in CI
 
 ## Using a new version of `hs-bindgen`
 

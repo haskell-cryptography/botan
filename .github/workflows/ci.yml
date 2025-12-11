@@ -114,7 +114,7 @@ jobs:
           botan-version: "3.8.1"
         - sys: { os: ubuntu-latest, shell: bash }
           ghc-version: "9.6"
-          cabal-version: "3.12"
+          cabal-version: "3.16"
           botan-version: "3.9.0"
 
     steps:
