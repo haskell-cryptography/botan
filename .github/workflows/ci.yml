@@ -35,7 +35,7 @@ jobs:
       #
       # * Build and test with all combinations of OS/GHC/Cabal, but with a fixed
       #   Botan version, preferably the latest version which is currently
-      #   Botan-3.9.0.
+      #   Botan-3.10.0.
       #
       # * Build and test with all Botan versions, but with a fixed OS/GHC/Cabal
       #   combination, preferably Linux/GHC-9.6/Cabal-3.12
@@ -58,7 +58,7 @@ jobs:
           - { os: macos-latest, shell: bash }
         ghc-version: ["9.2", "9.4", "9.6", "9.8", "9.10", "9.12"]
         cabal-version: ["3.16"]
-        botan-version: ["3.9.0"]
+        botan-version: ["3.10.0"]
         include:
         - sys: { os: ubuntu-latest, shell: bash }
           ghc-version: "9.6"
@@ -112,6 +112,10 @@ jobs:
           ghc-version: "9.6"
           cabal-version: "3.16"
           botan-version: "3.8.1"
+        - sys: { os: ubuntu-latest, shell: bash }
+          ghc-version: "9.6"
+          cabal-version: "3.16"
+          botan-version: "3.9.0"
 
     steps:
     - name: 📥 Checkout repository

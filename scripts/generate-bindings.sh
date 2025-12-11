@@ -3,6 +3,7 @@
 # TODO: check hs-bindgen version
 
 cabal build ./scripts/generate-bindings.hs
+cabal run ./scripts/generate-bindings.hs -- generate -v 3.10.0  -m "Botan.Bindings.Generated.Botan_3_10_0"
 cabal run ./scripts/generate-bindings.hs -- generate -v 3.9.0  -m "Botan.Bindings.Generated.Botan_3_9_0"
 cabal run ./scripts/generate-bindings.hs -- generate -v 3.8.1  -m "Botan.Bindings.Generated.Botan_3_8_1"
 cabal run ./scripts/generate-bindings.hs -- generate -v 3.8.0  -m "Botan.Bindings.Generated.Botan_3_8_0"

@@ -8,7 +8,9 @@ module Botan.Bindings.Generated.FunPtr (
 
 #ifdef MIN_BOTAN_VERSION_BINDINGS
 
-#if MIN_BOTAN_VERSION_BINDINGS(3,9,0)
+#if MIN_BOTAN_VERSION_BINDINGS(3,10,0)
+import           Botan.Bindings.Generated.Botan_3_10_0.FunPtr as Reexports
+#elif MIN_BOTAN_VERSION_BINDINGS(3,9,0)
 import           Botan.Bindings.Generated.Botan_3_9_0.FunPtr as Reexports
 #elif MIN_BOTAN_VERSION_BINDINGS(3,8,1)
 import           Botan.Bindings.Generated.Botan_3_8_1.FunPtr as Reexports
