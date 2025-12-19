@@ -126,9 +126,7 @@ library
     Botan.Low.Make
     Botan.Low.Prelude
     Botan.Low.Remake
-    Paths_botan_low
 
-  autogen-modules: Paths_botan_low
   build-depends:
     base >=4.16 && <4.22,
     botan-bindings ^>=0.0 || ^>=0.1,

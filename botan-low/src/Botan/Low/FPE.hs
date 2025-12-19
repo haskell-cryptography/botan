@@ -36,9 +36,8 @@ the number of words in the dictionary.
 module Botan.Low.FPE (
 
     FPE(..)
-  , FPEFlags
-  , pattern FPENone
-  , pattern FPEFE1CompatMode
+  , FPEFlags(..)
+  , fPEFlags
   , withFPE
   , fpeInitFE1
   , fpeDestroy
@@ -80,13 +79,13 @@ createFPE   :: (Ptr BotanFPE -> IO CInt) -> IO FPE
         MkFPE getFPEForeignPtr
         botan_fpe_destroy
 
-type FPEFlags = Word32
+data FPEFlags =
+    FPENone
+  | FPEFE1CompatMode
 
-pattern FPENone
-    ,   FPEFE1CompatMode
-    ::  FPEFlags
-pattern FPENone          = BOTAN_FPE_FLAG_NONE
-pattern FPEFE1CompatMode = BOTAN_FPE_FLAG_FE1_COMPAT_MODE
+fPEFlags :: FPEFlags -> Word32
+fPEFlags FPENone          = BOTAN_FPE_FLAG_NONE
+fPEFlags FPEFE1CompatMode = BOTAN_FPE_FLAG_FE1_COMPAT_MODE
 
 -- | Initialize a FE1 FPE context
 fpeInitFE1
@@ -103,7 +102,7 @@ fpeInitFE1 n key rounds flags = withMP n $ \ nPtr -> do
             (ConstPtr keyPtr)
             keyLen
             (fromIntegral rounds)
-            flags
+            (fPEFlags flags)
 
 -- -- NOTE: Referentially transparent, move to botan
 -- fpeEncrypt :: FPE -> MP -> ByteString -> IO MP

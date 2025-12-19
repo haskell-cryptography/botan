@@ -18,12 +18,10 @@ module Botan.Low.PubKey (
 
   -- * Private keys
     PrivKey(..)
-  , CheckKeyFlags
-  , pattern CheckKeyNormalTests
-  , pattern CheckKeyExpensiveTests
-  , PrivKeyExportFlags
-  , pattern PrivKeyExportDER
-  , pattern PrivKeyExportPEM
+  , CheckKeyFlags(..)
+  , checkKeyFlags
+  , PrivKeyExportFlags(..)
+  , privKeyExportFlags
   , withPrivKey
   , privKeyCreate
   , privKeyLoad
@@ -547,13 +545,13 @@ privKeyCreate name params rng = asCString name $ \ namePtr -> do
                 (ConstPtr paramsPtr)
                 botanRNG
 
-type CheckKeyFlags = Word32
+data CheckKeyFlags =
+    CheckKeyNormalTests
+  | CheckKeyExpensiveTests
 
-pattern CheckKeyNormalTests
-    ,   CheckKeyExpensiveTests
-    ::  CheckKeyFlags
-pattern CheckKeyNormalTests    = BOTAN_CHECK_KEY_NORMAL_TESTS
-pattern CheckKeyExpensiveTests = BOTAN_CHECK_KEY_EXPENSIVE_TESTS
+checkKeyFlags :: CheckKeyFlags -> Word32
+checkKeyFlags CheckKeyNormalTests    = BOTAN_CHECK_KEY_NORMAL_TESTS
+checkKeyFlags CheckKeyExpensiveTests = BOTAN_CHECK_KEY_EXPENSIVE_TESTS
 
 -- TODO: Probably catch -1 (INVALID_INPUT), return Bool
 -- | Check the validity of a private key
@@ -564,7 +562,7 @@ privKeyCheckKey
     -> IO ()
 privKeyCheckKey sk rng flags = withPrivKey sk $ \ skPtr -> do
     withRNG rng $ \ botanRNG -> do
-        throwBotanIfNegative_ $ botan_privkey_check_key skPtr botanRNG flags
+        throwBotanIfNegative_ $ botan_privkey_check_key skPtr botanRNG (checkKeyFlags flags)
 
 -- NOTE: Expectes PKCS #8 / PEM structure
 -- botan_privkey_export -> null password? and botan_privkey_export_encrypted_... -> use a password?
@@ -592,14 +590,13 @@ privKeyLoad bits password = asBytesLen bits $ \ bitsPtr bitsLen -> do
             bitsLen
             (ConstPtr passwordPtr)
 
-type PrivKeyExportFlags = Word32
+data PrivKeyExportFlags =
+    PrivKeyExportDER
+  | PrivKeyExportPEM
 
-pattern PrivKeyExportDER
-    ,   PrivKeyExportPEM
-    ::  PrivKeyExportFlags
-
-pattern PrivKeyExportDER = BOTAN_PRIVKEY_EXPORT_FLAG_DER
-pattern PrivKeyExportPEM = BOTAN_PRIVKEY_EXPORT_FLAG_PEM
+privKeyExportFlags :: PrivKeyExportFlags -> Word32
+privKeyExportFlags PrivKeyExportDER = BOTAN_PRIVKEY_EXPORT_FLAG_DER
+privKeyExportFlags PrivKeyExportPEM = BOTAN_PRIVKEY_EXPORT_FLAG_PEM
 
 -- NOTE: Different from allocBytesQuerying / INSUFFICIENT_BUFFER_SPACE
 {- |
@@ -617,10 +614,10 @@ privKeyExport sk flags = withPrivKey sk $ \ skPtr -> do
     alloca $ \szPtr -> do
         poke szPtr 0
         -- NOTE: Presumed be -1
-        _ <- botan_privkey_export skPtr nullPtr szPtr flags
+        _ <- botan_privkey_export skPtr nullPtr szPtr (privKeyExportFlags flags)
         sz <- peek szPtr
         allocBytes (fromIntegral sz) $ \ bytesPtr -> do
-            throwBotanIfNegative_ $ botan_privkey_export skPtr bytesPtr szPtr flags
+            throwBotanIfNegative_ $ botan_privkey_export skPtr bytesPtr szPtr (privKeyExportFlags flags)
 
 -- TODO:
 -- View the private key's DER encoding
@@ -700,10 +697,10 @@ pubKeyExport pk flags = withPubKey pk $ \ pkPtr -> do
     alloca $ \szPtr -> do
         poke szPtr 0
         -- NOTE: Presumed be -1
-        _ <- botan_pubkey_export pkPtr nullPtr szPtr flags
+        _ <- botan_pubkey_export pkPtr nullPtr szPtr (privKeyExportFlags flags)
         sz <- peek szPtr
         allocBytes (fromIntegral sz) $ \ bytesPtr -> do
-            throwBotanIfNegative_ $ botan_pubkey_export pkPtr bytesPtr szPtr flags
+            throwBotanIfNegative_ $ botan_pubkey_export pkPtr bytesPtr szPtr (privKeyExportFlags flags)
 
 
 pubKeyAlgoName
@@ -718,7 +715,7 @@ pubKeyCheckKey
     -> IO Bool
 pubKeyCheckKey pk rng flags = withPubKey pk $ \ pkPtr -> do
     withRNG rng $ \ botanRNG -> do
-        throwBotanCatchingSuccess $ botan_pubkey_check_key pkPtr botanRNG flags
+        throwBotanCatchingSuccess $ botan_pubkey_check_key pkPtr botanRNG (checkKeyFlags flags)
 
 -- Annoying - this mixes cint and csize
 --  I need to consolidate getsize / getint
