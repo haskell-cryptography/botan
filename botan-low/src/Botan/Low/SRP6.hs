@@ -45,7 +45,7 @@ import qualified Data.ByteString.Internal as BS
 
 import           Botan.Bindings.SRP6
 
-import           Botan.Low.Error
+import           Botan.Low.Error.Internal
 import           Botan.Low.Hash
 import           Botan.Low.Prelude
 import           Botan.Low.PubKey

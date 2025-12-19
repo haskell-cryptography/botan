@@ -24,7 +24,7 @@ module Botan.Low.Remake (
   , mkWithObjectSetterCBytesLen
   ) where
 
-import           Botan.Low.Error
+import           Botan.Low.Error.Internal
 import           Botan.Low.Make (allocBytesQuerying)
 import           Botan.Low.Prelude hiding (init)
 
@@ -155,7 +155,7 @@ Setters
 -- TODO: Rename mkSetterCBytesLen
 mkWithObjectSetterCBytesLen
     :: (forall a . object -> (botan -> IO a) -> IO a)
-    -> (botan -> ConstPtr Word8 -> CSize -> IO BotanErrorCode)
+    -> (botan -> ConstPtr Word8 -> CSize -> IO CInt)
     -> object
     -> ByteString
     -> IO ()

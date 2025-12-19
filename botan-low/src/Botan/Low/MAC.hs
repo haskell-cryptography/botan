@@ -80,7 +80,7 @@ module Botan.Low.MAC (
 import           Botan.Bindings.MAC
 
 import           Botan.Low.BlockCipher
-import           Botan.Low.Error
+import           Botan.Low.Error.Internal
 import           Botan.Low.Make
 import           Botan.Low.Prelude
 import           Botan.Low.Remake

@@ -60,7 +60,7 @@ import qualified Data.ByteString as ByteString
 
 import           Botan.Bindings.MPI
 
-import           Botan.Low.Error
+import           Botan.Low.Error.Internal
 import           Botan.Low.Make
 import           Botan.Low.Prelude
 import           Botan.Low.Remake
@@ -259,7 +259,7 @@ mpClearBit = mkSetCSize withMP botan_mp_clear_bit
 --
 
 -- int botan_...(botan_mp_t dest, const botan_mp_t source);
-type UnaryOp ptr = ptr -> ptr -> IO BotanErrorCode
+type UnaryOp ptr = ptr -> ptr -> IO CInt
 
 mkUnaryOp :: WithPtr typ ptr -> UnaryOp ptr -> typ -> typ -> IO ()
 mkUnaryOp withPtr unary dest source = withPtr dest $ \ destPtr -> do
@@ -267,7 +267,7 @@ mkUnaryOp withPtr unary dest source = withPtr dest $ \ destPtr -> do
         throwBotanIfNegative_ $ unary destPtr sourcePtr
 
 -- int botan_...(botan_mp_t dest, const botan_mp_t source, size_t factor);
-type UnaryOp_csize ptr = ptr -> ptr -> CSize -> IO BotanErrorCode
+type UnaryOp_csize ptr = ptr -> ptr -> CSize -> IO CInt
 
 mkUnaryOp_csize :: WithPtr typ ptr -> UnaryOp_csize ptr -> typ -> typ -> Int -> IO ()
 mkUnaryOp_csize withPtr unary dest source factor  = withPtr dest $ \ destPtr -> do
@@ -275,7 +275,7 @@ mkUnaryOp_csize withPtr unary dest source factor  = withPtr dest $ \ destPtr -> 
         throwBotanIfNegative_ $ unary destPtr sourcePtr (fromIntegral factor)
 
 -- int botan_...(botan_mp_t dest, const botan_mp_t a, const botan_mp_t b);
-type BinaryOp ptr = ptr -> ptr -> ptr -> IO BotanErrorCode
+type BinaryOp ptr = ptr -> ptr -> ptr -> IO CInt
 
 mkBinaryOp :: WithPtr typ ptr -> BinaryOp ptr -> typ -> typ -> typ -> IO ()
 mkBinaryOp withPtr binary dest a b = withPtr dest $ \ destPtr -> do
@@ -284,7 +284,7 @@ mkBinaryOp withPtr binary dest a b = withPtr dest $ \ destPtr -> do
             throwBotanIfNegative_ $ binary destPtr aPtr bPtr
 
 -- int botan_...(botan_mp_t a, botan_mp_t b, const botan_mp_t x, const botan_mp_t y);
-type BinaryDuplexOp ptr = ptr -> ptr -> ptr -> ptr -> IO BotanErrorCode
+type BinaryDuplexOp ptr = ptr -> ptr -> ptr -> ptr -> IO CInt
 
 -- NOTE: Do not confuse for mkTrinaryOp
 mkBinaryDuplexOp :: WithPtr typ ptr -> BinaryDuplexOp ptr -> typ -> typ -> typ -> typ -> IO ()
@@ -295,7 +295,7 @@ mkBinaryDuplexOp withPtr binary a b x y = withPtr a $ \ aPtr -> do
                 throwBotanIfNegative_ $ binary aPtr bPtr xPtr yPtr
 
 -- int botan_...(botan_mp_t a, botan_mp_t b, const botan_mp_t x, const botan_mp_t y);
-type TrinaryOp ptr = ptr -> ptr -> ptr -> ptr -> IO BotanErrorCode
+type TrinaryOp ptr = ptr -> ptr -> ptr -> ptr -> IO CInt
 
 -- NOTE: Do not confuse for mkBinaryDuplexOp
 mkTrinaryOp :: WithPtr typ ptr -> TrinaryOp ptr -> typ -> typ -> typ -> typ -> IO ()

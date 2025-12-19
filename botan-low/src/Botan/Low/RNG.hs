@@ -41,7 +41,7 @@ module Botan.Low.RNG (
 
 import           Botan.Bindings.RNG
 
-import           Botan.Low.Error (throwBotanIfNegative_)
+import           Botan.Low.Error.Internal (throwBotanIfNegative_)
 import           Botan.Low.Prelude
 import           Botan.Low.Remake
 

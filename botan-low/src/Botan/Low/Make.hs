@@ -66,7 +66,8 @@ module Botan.Low.Make (
 
 import qualified Data.ByteString as ByteString
 
-import           Botan.Low.Error
+import           Botan.Bindings.Error
+import           Botan.Low.Error.Internal
 import           Botan.Low.Prelude hiding (init)
 
 {-
@@ -109,7 +110,7 @@ Initializers and destroyers
 {-
 type Construct struct typ = ForeignPtr struct -> typ
 type Destruct struct = FinalizerPtr struct
-type Initialize0 struct = Ptr (Ptr struct) -> IO BotanErrorCode
+type Initialize0 struct = Ptr (Ptr struct) -> IO CInt
 
 mkInit0
     :: Construct struct typ
@@ -157,11 +158,11 @@ mkFoo a b c = withA a $ \ a' -> do
 
 type Constr struct typ = ForeignPtr struct -> typ
 
-type Initializer struct = Ptr (Ptr struct) -> IO BotanErrorCode
-type Initializer_name struct = Ptr (Ptr struct) -> CString -> IO BotanErrorCode
-type Initializer_name_flags struct = Ptr (Ptr struct) -> CString -> Word32 -> IO BotanErrorCode
-type Initializer_bytes struct = Ptr (Ptr struct) -> Ptr Word8 -> IO BotanErrorCode
-type Initializer_bytes_len struct = Ptr (Ptr struct) -> Ptr Word8 -> CSize -> IO BotanErrorCode
+type Initializer struct = Ptr (Ptr struct) -> IO CInt
+type Initializer_name struct = Ptr (Ptr struct) -> CString -> IO CInt
+type Initializer_name_flags struct = Ptr (Ptr struct) -> CString -> Word32 -> IO CInt
+type Initializer_bytes struct = Ptr (Ptr struct) -> Ptr Word8 -> IO CInt
+type Initializer_bytes_len struct = Ptr (Ptr struct) -> Ptr Word8 -> CSize -> IO CInt
 
 type Destructor struct = FinalizerPtr struct
 
@@ -233,7 +234,7 @@ mkInit_bytes_len constr init destroy bytes = do
 -- Initializing with another botan object
 -- TODO: Use this in already-implemented functions as appropriate
 
-type Initializer_with struct withptr = Ptr (Ptr struct) -> withptr -> IO BotanErrorCode
+type Initializer_with struct withptr = Ptr (Ptr struct) -> withptr -> IO CInt
 
 mkInit_with
     :: Constr struct typ
@@ -252,7 +253,7 @@ mkInit_with constr init destroy withTypPtr typ = alloca $ \ outPtr -> do
 Non-effectful queries
 -}
 
--- type GetName ptr = ptr -> Ptr CChar -> Ptr CSize -> IO BotanErrorCode
+-- type GetName ptr = ptr -> Ptr CChar -> Ptr CSize -> IO CInt
 
 -- Replaced by the new mkGetCString
 -- -- TODO: Prefer mkGetBytes / mkGetCString to mkGetName
@@ -273,7 +274,7 @@ Non-effectful queries
 
 -- NOTE: This now handles both Ptr Word8 and Ptr CChar
 --  This reads the entire byte buffer, including any \NUL bytes
-type GetBytes ptr byte = ptr -> Ptr byte -> Ptr CSize -> IO BotanErrorCode
+type GetBytes ptr byte = ptr -> Ptr byte -> Ptr CSize -> IO CInt
 
 mkGetBytes
     :: WithPtr typ ptr
@@ -283,7 +284,7 @@ mkGetBytes withPtr get typ = withPtr typ $ \ typPtr -> do
     allocBytesQuerying $ \ outPtr outLen -> get typPtr outPtr outLen
 
 -- NOTE This reads a CString, up to the first \NUL
-type GetCString ptr byte = ptr -> Ptr byte -> Ptr CSize -> IO BotanErrorCode
+type GetCString ptr byte = ptr -> Ptr byte -> Ptr CSize -> IO CInt
 
 mkGetCString
     :: WithPtr typ ptr
@@ -292,7 +293,7 @@ mkGetCString
 mkGetCString withPtr get typ = withPtr typ $ \ typPtr -> do
     allocBytesQueryingCString $ \ outPtr outLen -> get typPtr outPtr outLen
 
-type GetInt ptr = ptr -> Ptr CInt -> IO BotanErrorCode
+type GetInt ptr = ptr -> Ptr CInt -> IO CInt
 
 mkGetInt
     :: WithPtr typ ptr
@@ -303,10 +304,10 @@ mkGetInt withPtr get typ = withPtr typ $ \ typPtr -> do
         throwBotanIfNegative_ $ get typPtr szPtr
         fromIntegral <$> peek szPtr
 
-type GetSize ptr = ptr -> Ptr CSize -> IO BotanErrorCode
-type GetSize_csize ptr = ptr -> CSize -> Ptr CSize -> IO BotanErrorCode
-type GetSizes2 ptr = ptr -> Ptr CSize -> Ptr CSize -> IO BotanErrorCode
-type GetSizes3 ptr = ptr -> Ptr CSize -> Ptr CSize -> Ptr CSize -> IO BotanErrorCode
+type GetSize ptr = ptr -> Ptr CSize -> IO CInt
+type GetSize_csize ptr = ptr -> CSize -> Ptr CSize -> IO CInt
+type GetSizes2 ptr = ptr -> Ptr CSize -> Ptr CSize -> IO CInt
+type GetSizes3 ptr = ptr -> Ptr CSize -> Ptr CSize -> Ptr CSize -> IO CInt
 
 mkGetSize
     :: WithPtr typ ptr
@@ -349,15 +350,15 @@ mkGetSizes3 withPtr get typ = withPtr typ $ \ typPtr -> do
         szC <- fromIntegral <$> peek szPtrC
         return (szA,szB,szC)
 
--- type GetBytes ptr = ptr -> Ptr Word8 -> CSize -> IO BotanErrorCode
+-- type GetBytes ptr = ptr -> Ptr Word8 -> CSize -> IO CInt
 
 -- NOTE: Get...Code nomenclature signifies that we get the desired return value
 --  from the error code error code, eg they use something other than throwBotanIfNegative_
 --
 
 
-type GetSuccessCode ptr = ptr -> IO BotanErrorCode
-type GetSuccessCode_csize ptr = ptr -> CSize -> IO BotanErrorCode
+type GetSuccessCode ptr = ptr -> IO CInt
+type GetSuccessCode_csize ptr = ptr -> CSize -> IO CInt
 
 mkGetSuccessCode
     :: WithPtr typ ptr
@@ -374,8 +375,8 @@ mkGetSuccessCode_csize withPtr get typ sz = withPtr typ $ \ typPtr -> do
     throwBotanCatchingSuccess $ get typPtr (fromIntegral sz)
 
 
-type GetBoolCode ptr = ptr -> IO BotanErrorCode
-type GetBoolCode_csize ptr = ptr -> CSize -> IO BotanErrorCode
+type GetBoolCode ptr = ptr -> IO CInt
+type GetBoolCode_csize ptr = ptr -> CSize -> IO CInt
 
 mkGetBoolCode
     :: WithPtr typ ptr
@@ -391,8 +392,8 @@ mkGetBoolCode_csize
 mkGetBoolCode_csize withPtr get typ sz = withPtr typ $ \ typPtr -> do
     throwBotanCatchingBool $ get typPtr (fromIntegral sz)
 
-type GetIntCode ptr = ptr -> IO BotanErrorCode
-type GetIntCode_csize ptr = ptr -> CSize -> IO BotanErrorCode
+type GetIntCode ptr = ptr -> IO CInt
+type GetIntCode_csize ptr = ptr -> CSize -> IO CInt
 
 mkGetIntCode
     :: WithPtr typ ptr
@@ -412,7 +413,7 @@ mkGetIntCode_csize withPtr get typ sz = withPtr typ $ \ typPtr -> do
 Effectful actions
 -}
 
-type Action ptr = ptr -> IO BotanErrorCode
+type Action ptr = ptr -> IO CInt
 mkAction
     :: WithPtr typ ptr
     -> Action ptr
@@ -422,7 +423,7 @@ mkAction withPtr action typ = withPtr typ $ \ typPtr -> do
 
 mkSet
     :: WithPtr typ ptr
-    -> (ptr -> a -> IO BotanErrorCode)
+    -> (ptr -> a -> IO CInt)
     -> typ -> a -> IO ()
 mkSet withPtr set typ a = withPtr typ $ \ typPtr -> do
     throwBotanIfNegative_ $ set typPtr a
@@ -430,13 +431,13 @@ mkSet withPtr set typ a = withPtr typ $ \ typPtr -> do
 mkSetOn
     :: WithPtr typ ptr
     -> (a -> b)
-    -> (ptr -> b -> IO BotanErrorCode)
+    -> (ptr -> b -> IO CInt)
     -> typ -> a -> IO ()
 mkSetOn withPtr fn set typ sz = withPtr typ $ \ typPtr -> do
     throwBotanIfNegative_ $ set typPtr (fn sz)
 
-type SetCSize ptr = ptr -> CSize -> IO BotanErrorCode
-type SetCInt ptr = ptr -> CInt -> IO BotanErrorCode
+type SetCSize ptr = ptr -> CSize -> IO CInt
+type SetCInt ptr = ptr -> CInt -> IO CInt
 
 mkSetCSize
     :: WithPtr typ ptr
@@ -452,8 +453,8 @@ mkSetCInt
 mkSetCInt withPtr set typ sz = withPtr typ $ \ typPtr -> do
     throwBotanIfNegative_ $ set typPtr (fromIntegral sz)
 
-type SetCString ptr = ptr -> CString -> IO BotanErrorCode
-type SetCString_csize ptr = ptr -> CString -> CSize -> IO BotanErrorCode
+type SetCString ptr = ptr -> CString -> IO CInt
+type SetCString_csize ptr = ptr -> CString -> CSize -> IO CInt
 
 mkSetCString
     :: WithPtr typ ptr
@@ -471,7 +472,7 @@ mkSetCString_csize withPtr set typ cstring sz = withPtr typ $ \ typPtr -> do
     asCString cstring $ \ cstringPtr -> do
         throwBotanIfNegative_ $ set typPtr cstringPtr (fromIntegral sz)
 
-type SetBytesLen ptr = ptr -> Ptr Word8 -> CSize -> IO BotanErrorCode
+type SetBytesLen ptr = ptr -> Ptr Word8 -> CSize -> IO CInt
 
 mkSetBytesLen
     :: WithPtr typ ptr
@@ -487,20 +488,20 @@ mkSetBytesLen withPtr set typ bytes = withPtr typ $ \ typPtr -> do
 
 -- NOTE: This properly takes advantage of szPtr, queries the buffer size - use this elsewhere
 -- NOTE: This throws any botan codes other than BOTAN_FFI_ERROR_INSUFFICIENT_BUFFER_SPACE
-allocBytesQuerying :: (Ptr byte -> Ptr CSize -> IO BotanErrorCode) -> IO ByteString
+allocBytesQuerying :: (Ptr byte -> Ptr CSize -> IO CInt) -> IO ByteString
 allocBytesQuerying fn = do
     alloca $ \ szPtr -> do
         poke szPtr 0
         code <- fn nullPtr szPtr
         case code of
-            InsufficientBufferSpace -> do
+            BOTAN_FFI_ERROR_INSUFFICIENT_BUFFER_SPACE -> do
                 sz <- fromIntegral <$> peek szPtr
                 allocBytes sz $ \ outPtr -> throwBotanIfNegative_ $ fn outPtr szPtr
             _                       -> do
                 throwBotanError code
 
 -- NOTE: Does not check length of taken string, vulnerable to null byte injection
-allocBytesQueryingCString :: (Ptr byte -> Ptr CSize -> IO BotanErrorCode) -> IO ByteString
+allocBytesQueryingCString :: (Ptr byte -> Ptr CSize -> IO CInt) -> IO ByteString
 allocBytesQueryingCString action = do
     cstring <- allocBytesQuerying action
     return $!! ByteString.takeWhile (/= 0) cstring

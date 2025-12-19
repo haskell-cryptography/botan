@@ -82,7 +82,7 @@ import qualified Foreign.C.String as String (withCString)
 
 import           Botan.Bindings.X509
 
-import           Botan.Low.Error
+import           Botan.Low.Error.Internal
 import           Botan.Low.Hash (HashName)
 import           Botan.Low.Make
 import           Botan.Low.Prelude

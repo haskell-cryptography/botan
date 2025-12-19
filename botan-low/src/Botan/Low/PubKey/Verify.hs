@@ -23,7 +23,7 @@ module Botan.Low.PubKey.Verify (
 
 import           Botan.Bindings.PubKey.Verify
 
-import           Botan.Low.Error
+import           Botan.Low.Error.Internal
 import           Botan.Low.Prelude
 import           Botan.Low.PubKey
 import           Botan.Low.PubKey.Sign (SigningFlags)

@@ -6,7 +6,7 @@ export LC_ALL=C.UTF-8
 warn=$(mktemp)
 
 # Check cabal-docspec version
-cabal_docspec_expect_version="0.0.0.20240703"
+cabal_docspec_expect_version="0.0.0.20250606"
 if [ "${cabal_docspec}" = "" ]; then
     cabal_docspec=$(which "cabal-docspec")
     if [ "${cabal_docspec}" = "" ]; then

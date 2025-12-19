@@ -49,7 +49,7 @@ module Botan.Low.FPE (
 
 import           Botan.Bindings.FPE
 
-import           Botan.Low.Error
+import           Botan.Low.Error.Internal
 import           Botan.Low.MPI
 import           Botan.Low.Prelude
 import           Botan.Low.Remake

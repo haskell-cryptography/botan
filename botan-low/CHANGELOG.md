@@ -46,6 +46,16 @@
 * PATCH: Fix an "insufficient buffer space" bug in
   `Botan.Low.Cipher.cipherUpdate`. See PR
   [#84](https://github.com/haskell-cryptography/botan/pull/84)
+* BREAKING: rework errors. See PR
+  [#94](https://github.com/haskell-cryptography/botan/pull/94).
+  - Change `BotanErrorCode` from a type synonym to a newtype around `CInt`.
+  - Add a new `BotanErrorMessage` newtype around `ByteString`, and use it in
+    `botanErrorLastExceptionMessage`.
+  - Remove pattern synonyms for `BotanErrorCode`. Use `BOTAN_FFI_ERROR` from
+    `botan-bindings` instead.
+  - Hide functions related to error number handling in the internals of the
+    library. This includes all function names starting with `throwBotan`.
+  - Remove `tryBotan`, `catchBotan`, and `handleBotan`.
 
 ## 0.0.2.0 -- 2025-09-17
 

@@ -39,7 +39,7 @@ import qualified Data.ByteString as ByteString
 
 import           Botan.Bindings.Bcrypt
 
-import           Botan.Low.Error
+import           Botan.Low.Error.Internal
 import           Botan.Low.Prelude
 import           Botan.Low.RNG
 

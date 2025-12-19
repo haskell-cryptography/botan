@@ -52,7 +52,7 @@ module Botan.Low.TOTP (
 
 import           Botan.Bindings.TOTP
 
-import           Botan.Low.Error
+import           Botan.Low.Error.Internal
 import           Botan.Low.Hash
 import           Botan.Low.Prelude
 import           Botan.Low.Remake

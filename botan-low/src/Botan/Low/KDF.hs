@@ -71,7 +71,7 @@ module Botan.Low.KDF (
 
 import           Botan.Bindings.KDF
 
-import           Botan.Low.Error
+import           Botan.Low.Error.Internal
 import           Botan.Low.Hash
 import           Botan.Low.MAC
 import           Botan.Low.Prelude

@@ -122,6 +122,7 @@ library
     Botan.Low.ZFEC
 
   other-modules:
+    Botan.Low.Error.Internal
     Botan.Low.Make
     Botan.Low.Prelude
     Botan.Low.Remake
