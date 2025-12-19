@@ -309,7 +309,7 @@ cipherKeySpec (CCM bc128 _ _)   = blockCipher128KeySpec bc128
 generateCipherKeySpecs :: IO ()
 generateCipherKeySpecs = do
     each <- forM ciphers  $ \ c -> do
-        ctx <- Low.cipherInit (cipherName c) Low.Encrypt
+        ctx <- Low.cipherInit (cipherName c) Low.CipherEncrypt
         (mn,mx,md) <- Low.cipherGetKeyspec ctx
         return $ concat $
             [ "cipherKeySpec "
@@ -338,7 +338,7 @@ cipherDefaultNonceSize _          = 12
 generateCipherDefaultNonceLengths :: IO ()
 generateCipherDefaultNonceLengths = do
     each <- forM ciphers  $ \ c -> do
-        ctx <- Low.cipherInit (cipherName c) Low.Encrypt
+        ctx <- Low.cipherInit (cipherName c) Low.CipherEncrypt
         nlen <- Low.cipherGetDefaultNonceLength ctx
         return $ concat $
             [ "cipherDefaultNonceLength "
@@ -372,7 +372,7 @@ cipherNonceSizeIsValid n (CCM _ _ _)        = n == 12
 generateCipherNonceLengths :: IO ()
 generateCipherNonceLengths = do
     each <- forM ciphers  $ \ c -> do
-        ctx <- Low.cipherInit (cipherName c) Low.Encrypt
+        ctx <- Low.cipherInit (cipherName c) Low.CipherEncrypt
         validLengths <- filterM (Low.cipherValidNonceLength ctx) [1..512]
         return $ concat $
             [ "cipherValidNonceLengths "
@@ -400,7 +400,7 @@ cipherTagSize (CCM _ tsz _)     = Just tsz
 generateCipherTagLength :: IO ()
 generateCipherTagLength = do
     each <- forM ciphers  $ \ c -> do
-        ctx <- Low.cipherInit (cipherName c) Low.Encrypt
+        ctx <- Low.cipherInit (cipherName c) Low.CipherEncrypt
         tag <- Low.cipherGetTagLength ctx
         return $ concat $
             [ "cipherTagLength "
@@ -429,7 +429,7 @@ cipherUpdateGranularity (CCM _ _ _)         = 1
 generateCipherUpdateGranularity :: IO ()
 generateCipherUpdateGranularity = do
     each <- forM ciphers  $ \ c -> do
-        ctx <- Low.cipherInit (cipherName c) Low.Encrypt
+        ctx <- Low.cipherInit (cipherName c) Low.CipherEncrypt
         ug <- Low.cipherGetUpdateGranularity ctx
         return $ concat $
             [ "cipherUpdateGranularity "
@@ -444,7 +444,7 @@ generateCipherUpdateGranularity = do
 
 cipherIdealUpdateGranularity :: Cipher -> Int
 cipherIdealUpdateGranularity cipher = unsafePerformIO $ do
-    ctx <- Low.cipherInit (cipherName cipher) Low.Encrypt
+    ctx <- Low.cipherInit (cipherName cipher) Low.CipherEncrypt
     Low.cipherGetIdealUpdateGranularity ctx
 {-# NOINLINE cipherIdealUpdateGranularity #-}
 -- NOTE: This is machine-dependent, but should stay consistent per-machine
@@ -533,8 +533,8 @@ data CipherDirection
     deriving stock (Eq, Ord, Show)
 
 cipherDirectionFlags :: CipherDirection -> Low.CipherInitFlags
-cipherDirectionFlags CipherEncrypt = Low.Encrypt
-cipherDirectionFlags CipherDecrypt = Low.Decrypt
+cipherDirectionFlags CipherEncrypt = Low.CipherEncrypt
+cipherDirectionFlags CipherDecrypt = Low.CipherDecrypt
 
 -- TODO: data UpdateFlags = Update | Final, leave CipherFoo- terminology for Low
 data CipherUpdate
@@ -542,9 +542,9 @@ data CipherUpdate
     | CipherFinal
     deriving stock (Eq, Ord, Show)
 
-cipherUpdateFlags :: CipherUpdate -> Low.CipherUpdateFlags
-cipherUpdateFlags CipherUpdate = Low.CipherUpdate
-cipherUpdateFlags CipherFinal  = Low.CipherFinal
+cipherUpdateFlag :: CipherUpdate -> Low.CipherUpdateFlags
+cipherUpdateFlag CipherUpdate = Low.CipherUpdate
+cipherUpdateFlag CipherFinal  = Low.CipherFinal
 
 -- Initializers
 
@@ -628,7 +628,7 @@ updateCipher
     -> m (Int, ByteString)
 updateCipher c msg = do
     o <- getCipherOutputLength c (ByteString.length msg)
-    liftIO $ Low.cipherUpdate (mutableCipherCtx c) (cipherUpdateFlags CipherUpdate) o msg
+    liftIO $ Low.cipherUpdate (mutableCipherCtx c) (cipherUpdateFlag CipherUpdate) o msg
 
 -- updateCipherChunks :: _
 -- updateCipherChunks = undefined
@@ -643,7 +643,7 @@ finalizeCipher
     -> m ByteString
 finalizeCipher c msg = do
     o <- getCipherOutputLength c (ByteString.length msg)
-    (_,out) <- liftIO $ Low.cipherUpdate (mutableCipherCtx c) (cipherUpdateFlags CipherFinal) o msg
+    (_,out) <- liftIO $ Low.cipherUpdate (mutableCipherCtx c) (cipherUpdateFlag CipherFinal) o msg
     return out
 
 finalizeResetCipher

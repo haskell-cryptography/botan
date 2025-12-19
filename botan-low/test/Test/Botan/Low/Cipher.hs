@@ -42,32 +42,32 @@ testModes = filter p (cipherModes ++ aeads)
 spec_cipher :: Spec
 spec_cipher = testSuite testModes chars $ \ cipher -> do
     it "can initialize a cipher encryption context" $ do
-        _ctx <- cipherInit cipher Encrypt
+        _ctx <- cipherInit cipher CipherEncrypt
         pass
     it "can initialize a cipher decryption context" $ do
-        _ctx <- cipherInit cipher Decrypt
+        _ctx <- cipherInit cipher CipherDecrypt
         pass
     it "has a name" $ do
-        ctx <- cipherInit cipher Encrypt
+        ctx <- cipherInit cipher CipherEncrypt
         _name <- cipherName ctx
         -- name `shouldBe` bc -- Name expands to include default parameters - need to record
         pass
     it "has a key spec" $ do
-        ctx <- cipherInit cipher Encrypt
+        ctx <- cipherInit cipher CipherEncrypt
         (_,_,_) <- cipherGetKeyspec ctx
         pass
     it "can set the key" $ do
-        ctx <- cipherInit cipher Encrypt
+        ctx <- cipherInit cipher CipherEncrypt
         (_,mx,_) <- cipherGetKeyspec ctx
         k <- systemRNGGet mx
         cipherSetKey ctx k
         pass
     it "has a valid default nonce length" $ do
-        ctx <- cipherInit cipher Encrypt
+        ctx <- cipherInit cipher CipherEncrypt
         _nlen <- cipherGetDefaultNonceLength ctx
         pass
     it "can validate nonce length" $ do
-        ctx <- cipherInit cipher Encrypt
+        ctx <- cipherInit cipher CipherEncrypt
         nlen <- cipherGetDefaultNonceLength ctx
         defaultIsValid <- cipherValidNonceLength ctx nlen
         defaultIsValid `shouldBe` True
@@ -82,25 +82,25 @@ spec_cipher = testSuite testModes chars $ \ cipher -> do
         -- absurdlyLargeIsValid `shouldBe` False
         pass
     it "can calculate output length" $ do
-        ctx <- cipherInit cipher Encrypt
+        ctx <- cipherInit cipher CipherEncrypt
         _olen <- cipherOutputLength ctx 1024
         pass
     -- NOTE: This check should be ae / aead only
     it "has a tag length" $ do
-        ctx <- cipherInit cipher Encrypt
+        ctx <- cipherInit cipher CipherEncrypt
         _ <- cipherGetTagLength ctx
         pass
     it "has an update graularity" $ do
-        ctx <- cipherInit cipher Encrypt
+        ctx <- cipherInit cipher CipherEncrypt
         _ <- cipherGetUpdateGranularity ctx
         pass
     it "has an ideal update granularity" $ do
-        ctx <- cipherInit cipher Encrypt
+        ctx <- cipherInit cipher CipherEncrypt
         _ <- cipherGetIdealUpdateGranularity ctx
         pass
     if cipher `elem` aeads
         then it "can set the associated data" $ do
-            ctx <- cipherInit cipher Encrypt
+            ctx <- cipherInit cipher CipherEncrypt
             -- NOTE: Undocumented: A cipher must set the key before setting AD
             (_,mx,_) <- cipherGetKeyspec ctx
             k <- systemRNGGet mx
@@ -111,15 +111,15 @@ spec_cipher = testSuite testModes chars $ \ cipher -> do
             pass
         else pass
     it "can reset all message state" $ do
-        ctx <- cipherInit cipher Encrypt
+        ctx <- cipherInit cipher CipherEncrypt
         cipherReset ctx
         pass
     it "can clear all internal state" $ do
-        ctx <- cipherInit cipher Encrypt
+        ctx <- cipherInit cipher CipherEncrypt
         cipherClear ctx
         pass
     it "can start processing a message" $ do
-        ctx <- cipherInit cipher Encrypt
+        ctx <- cipherInit cipher CipherEncrypt
         (_,mx,_) <- cipherGetKeyspec ctx
         k <- systemRNGGet mx
         cipherSetKey ctx k
@@ -133,7 +133,7 @@ spec_cipher = testSuite testModes chars $ \ cipher -> do
         pass
     -- TODO: More extensive testing in Botan; these are just binding sanity checks
     it "can one-shot / offline encipher a message" $ do
-        ctx <- cipherInit cipher Encrypt
+        ctx <- cipherInit cipher CipherEncrypt
         (_,mx,_) <- cipherGetKeyspec ctx
         k <- systemRNGGet mx
         cipherSetKey ctx k
@@ -150,7 +150,7 @@ spec_cipher = testSuite testModes chars $ \ cipher -> do
         pass
     it "can one-shot / offline decipher a message" $ do
         -- Same as prior test
-        ctx <- cipherInit cipher Encrypt
+        ctx <- cipherInit cipher CipherEncrypt
         (_,mx,_) <- cipherGetKeyspec ctx
         k <- systemRNGGet mx
         cipherSetKey ctx k
@@ -165,7 +165,7 @@ spec_cipher = testSuite testModes chars $ \ cipher -> do
         msg <- systemRNGGet g
         encmsg <- cipherEncrypt ctx msg
         -- Start actual test
-        dctx <- cipherInit cipher Decrypt
+        dctx <- cipherInit cipher CipherDecrypt
         cipherSetKey dctx k
         if cipher `elem` aeads
             then do
@@ -177,7 +177,7 @@ spec_cipher = testSuite testModes chars $ \ cipher -> do
         pass
     it "can incrementally / online encipher a message" $ do
         -- Same as prior test
-        ctx <- cipherInit cipher Encrypt
+        ctx <- cipherInit cipher CipherEncrypt
         (_,mx,_) <- cipherGetKeyspec ctx
         k <- systemRNGGet mx
         cipherSetKey ctx k
@@ -195,7 +195,7 @@ spec_cipher = testSuite testModes chars $ \ cipher -> do
     -- NOTE: Fails for SIV, CCM because they are offline-only algorithms
     --  This is expected, but not reflected in the tests yet
     it "can incrementally / online decipher a message" $ do
-        ctx <- cipherInit cipher Encrypt
+        ctx <- cipherInit cipher CipherEncrypt
         (_,mx,_) <- cipherGetKeyspec ctx
         k <- systemRNGGet mx
         cipherSetKey ctx k
@@ -210,7 +210,7 @@ spec_cipher = testSuite testModes chars $ \ cipher -> do
         msg <- systemRNGGet (8 * g)
         encmsg <- cipherEncryptOnline ctx msg
         -- Start actual test
-        dctx <- cipherInit cipher Decrypt
+        dctx <- cipherInit cipher CipherDecrypt
         cipherSetKey dctx k
         if cipher `elem` aeads
             then do
@@ -223,8 +223,8 @@ spec_cipher = testSuite testModes chars $ \ cipher -> do
     -- NOTE: Fails for SIV, CCM because they are offline-only algorithms
     --  This is expected, but not reflected in the tests yet
     it "has parity between online and offline" $ do
-        onlinectx <- cipherInit cipher Encrypt
-        offlinectx <- cipherInit cipher Encrypt
+        onlinectx <- cipherInit cipher CipherEncrypt
+        offlinectx <- cipherInit cipher CipherEncrypt
         (_,mx,_) <- cipherGetKeyspec onlinectx
         k <- systemRNGGet mx
         cipherSetKey onlinectx k

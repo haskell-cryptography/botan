@@ -2,7 +2,6 @@
 
 module Test.Botan.Low.FPE (tests) where
 
-import           Botan.Bindings.FPE
 import           Botan.Low.FPE
 import           Botan.Low.MPI
 import           Botan.Low.RNG
@@ -48,14 +47,14 @@ newFE1Ctx :: IO (MP, FPE)
 newFE1Ctx = do
     n <- mpInit
     mpSetFromStr n nStr
-    ctx <- fpeInitFE1 n key rounds BOTAN_FPE_FLAG_NONE
+    ctx <- fpeInitFE1 n key rounds FPENone
     return (n,ctx)
 
 newFE1CtxCompatMode :: IO (MP, FPE)
 newFE1CtxCompatMode = do
     n <- mpInit
     mpSetFromStr n nStr
-    ctx <- fpeInitFE1 n key rounds BOTAN_FPE_FLAG_FE1_COMPAT_MODE
+    ctx <- fpeInitFE1 n key rounds FPEFE1CompatMode
     return (n,ctx)
 
 spec_fpe :: Spec

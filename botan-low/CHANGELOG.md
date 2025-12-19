@@ -56,6 +56,17 @@
   - Hide functions related to error number handling in the internals of the
     library. This includes all function names starting with `throwBotan`.
   - Remove `tryBotan`, `catchBotan`, and `handleBotan`.
+* BREAKING: change flags from numbers into datatypes. See PR
+  [#95](https://github.com/haskell-cryptography/botan/pull/95) The flag
+  datatypes come with new helper functions to convert the datatype into a
+  number. For example, `CipherInitFlags` gets a `cipherInitFlags` function. The
+  changed flag types are:
+  - `CipherInitFlags`
+  - `CipherUpdateFlags`
+  - `FPEFlags`
+  - `CheckKeyFlags`
+  - `PrivKeyExportFlags`
+  - `HexEncodingFlags`
 
 ## 0.0.2.0 -- 2025-09-17
 

@@ -26,13 +26,10 @@ module Botan.Low.Cipher (
   , CipherName
   , CipherKey
   , CipherNonce
-  , CipherInitFlags
-  , pattern MaskDirection
-  , pattern Encrypt
-  , pattern Decrypt
-  , CipherUpdateFlags
-  , pattern CipherUpdate
-  , pattern CipherFinal
+  , CipherInitFlags (..)
+  , cipherInitFlags
+  , CipherUpdateFlags (..)
+  , cipherUpdateFlags
   , withCipher
   , cipherInit
   , cipherDestroy
@@ -103,7 +100,6 @@ import           Botan.Low.Error.Internal
 import           Botan.Low.Make
 import           Botan.Low.Prelude
 import           Botan.Low.Remake
-import           Data.Bits ((.&.))
 import qualified Data.ByteString as ByteString
 
 {- $introduction
@@ -199,8 +195,6 @@ createCipher   :: (Ptr BotanCipher -> IO CInt) -> IO Cipher
         MkCipher getCipherForeignPtr
         botan_cipher_destroy
 
-type CipherInitFlags = Word32
-type CipherUpdateFlags = Int
 type CipherNonce = ByteString
 type CipherKey = ByteString
 
@@ -304,30 +298,32 @@ aeads = concat
 allCiphers :: [CipherName]
 allCiphers = cipherModes ++ aeads
 
--- TODO: Rename CipherMaskDirection, CipherEncrypt, CipherDecrypt;
---  Leave slim terminology for botan
-pattern MaskDirection
-    ,   Encrypt         -- ^ May be renamed Encipher to avoid confusion with PKEncrypt
-    ,   Decrypt         -- ^ May be renamed Decipher to avoid confusion with PKDecrypt
-    ::  CipherInitFlags
+data CipherInitFlags =
+    CipherMaskDirection
+  | CipherEncrypt
+  | CipherDecrypt
+  deriving stock (Show, Eq)
 
-pattern MaskDirection = BOTAN_CIPHER_INIT_FLAG_MASK_DIRECTION
-pattern Encrypt = BOTAN_CIPHER_INIT_FLAG_ENCRYPT
-pattern Decrypt = BOTAN_CIPHER_INIT_FLAG_DECRYPT
+cipherInitFlags :: CipherInitFlags -> Word32
+cipherInitFlags CipherMaskDirection = BOTAN_CIPHER_INIT_FLAG_MASK_DIRECTION
+cipherInitFlags CipherEncrypt       = BOTAN_CIPHER_INIT_FLAG_ENCRYPT
+cipherInitFlags CipherDecrypt       = BOTAN_CIPHER_INIT_FLAG_DECRYPT
 
-pattern CipherUpdate
-    ,   CipherFinal
-    ::  CipherUpdateFlags
+data CipherUpdateFlags =
+    CipherUpdate
+  | CipherFinal
+  deriving stock (Show, Eq)
 
-pattern CipherUpdate    = BOTAN_CIPHER_UPDATE_FLAG_NONE
-pattern CipherFinal     = BOTAN_CIPHER_UPDATE_FLAG_FINAL
+cipherUpdateFlags :: CipherUpdateFlags -> Word32
+cipherUpdateFlags CipherUpdate = BOTAN_CIPHER_UPDATE_FLAG_NONE
+cipherUpdateFlags CipherFinal  = BOTAN_CIPHER_UPDATE_FLAG_FINAL
 
 -- |Initialize a cipher object
 cipherInit
     :: CipherName       -- ^ __name__
     -> CipherInitFlags  -- ^ __flags__
     -> IO Cipher        -- ^ __cipher__
-cipherInit = mkCreateObjectCString1 createCipher botan_cipher_init
+cipherInit name flags = mkCreateObjectCString1 createCipher botan_cipher_init name (cipherInitFlags flags)
 
 -- |Return the name of the cipher object
 cipherName
@@ -456,7 +452,7 @@ cipherUpdate ctx flags outputSz input =
         try $ allocBytes outputSz $ \ outputPtr ->do
           throwBotanIfNegative_ $ botan_cipher_update
               ctxPtr
-              (fromIntegral flags)
+              (cipherUpdateFlags flags)
               outputPtr
               (fromIntegral outputSz)
               writtenPtr
@@ -470,14 +466,14 @@ cipherUpdate ctx flags outputSz input =
           allocBytes (fromIntegral outputSz') $ \ outputPtr ->do
             throwBotanIfNegative_ $ botan_cipher_update
                 ctxPtr
-                (fromIntegral flags)
+                (cipherUpdateFlags flags)
                 outputPtr
                 outputSz'
                 writtenPtr
                 (ConstPtr inputPtr)
                 -- No input should be provided on the second try if the first
-                -- try had the FINAL flag set
-                (if flags .&. BOTAN_CIPHER_UPDATE_FLAG_FINAL /= 0 then 0 else inputSz)
+                -- try had the FINAL flags set
+                (if flags == CipherFinal then 0 else inputSz)
                 consumedPtr
         Right bs -> pure bs
       consumed <- fromIntegral <$> peek consumedPtr
@@ -518,7 +514,7 @@ cipherEstimateOutputLength ctx flags input = do
     o <- cipherOutputLength ctx input  -- NOTE: Flawed but usable
     u <- cipherGetUpdateGranularity ctx -- TODO: When u == 1, it should be just input + t, right?
     t <- cipherGetTagLength ctx
-    if flags == BOTAN_CIPHER_INIT_FLAG_ENCRYPT
+    if flags == CipherEncrypt
         then return (o + u + t)
         else return (o + u - t) -- TODO: Maybe just 'o'...
 
@@ -553,15 +549,15 @@ cipherProcessOffline :: Cipher -> CipherInitFlags -> ByteString -> IO ByteString
 cipherProcessOffline ctx flags msg = do
     o <- cipherEstimateOutputLength ctx flags (ByteString.length msg)
     -- snd <$> cipherUpdate ctx BOTAN_CIPHER_UPDATE_FLAG_FINAL o msg
-    fst <$> cipherProcess ctx BOTAN_CIPHER_UPDATE_FLAG_FINAL o msg
+    fst <$> cipherProcess ctx CipherFinal o msg
 
 {-# WARNING cipherEncryptOffline "May be renamed to cipherEncrypt, may be moved to botan" #-}
 cipherEncryptOffline :: Cipher -> ByteString -> IO ByteString
-cipherEncryptOffline ctx = cipherProcessOffline ctx BOTAN_CIPHER_INIT_FLAG_ENCRYPT
+cipherEncryptOffline ctx = cipherProcessOffline ctx CipherEncrypt
 
 {-# WARNING cipherDecryptOffline "May be renamed to cipherDecrypt, may be moved to botan" #-}
 cipherDecryptOffline :: Cipher -> ByteString -> IO ByteString
-cipherDecryptOffline ctx = cipherProcessOffline ctx BOTAN_CIPHER_INIT_FLAG_DECRYPT
+cipherDecryptOffline ctx = cipherProcessOffline ctx CipherDecrypt
 
 {-
 Experiments with online processing
@@ -595,11 +591,11 @@ cipherEncryptOnline ctx msg = do
     where
         go i g bs = case ByteString.splitAt g bs of
             (block,"")      -> do
-                o <- cipherEstimateFinalOutputLength ctx BOTAN_CIPHER_INIT_FLAG_ENCRYPT i (ByteString.length block)
-                (processed,_) <- cipherProcess ctx BOTAN_CIPHER_UPDATE_FLAG_FINAL o block
+                o <- cipherEstimateFinalOutputLength ctx CipherEncrypt i (ByteString.length block)
+                (processed,_) <- cipherProcess ctx CipherFinal o block
                 return [processed]
             (block,rest)    -> do
-                (processed,remaining) <- cipherProcess ctx BOTAN_CIPHER_UPDATE_FLAG_NONE g block
+                (processed,remaining) <- cipherProcess ctx CipherUpdate g block
                 (processed :) <$> go (i + g) g (remaining <> rest)
                 -- Though this following version may be more efficient especially with lazy bytestrings
                 --  or builder, though note *which* update function it uses - the original
@@ -616,9 +612,9 @@ cipherDecryptOnline ctx msg = do
     where
         go i g t bs = case ByteString.splitAt g bs of
             (block,"")      -> do
-                o <- cipherEstimateFinalOutputLength ctx BOTAN_CIPHER_INIT_FLAG_DECRYPT i (ByteString.length block)
-                (processed,_) <- cipherProcess ctx BOTAN_CIPHER_UPDATE_FLAG_FINAL o block
+                o <- cipherEstimateFinalOutputLength ctx CipherDecrypt i (ByteString.length block)
+                (processed,_) <- cipherProcess ctx CipherFinal o block
                 return [processed]
             (block,rest)    -> do
-                (processed,remaining) <- cipherProcess ctx BOTAN_CIPHER_UPDATE_FLAG_NONE g block
+                (processed,remaining) <- cipherProcess ctx CipherUpdate g block
                 (processed :) <$> go (i + g) g t (remaining <> rest)

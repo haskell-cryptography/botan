@@ -16,9 +16,7 @@ section of the C Botan FFI documentation.
 module Botan.Low.Utility (
     constantTimeCompare
   , scrubMem
-  , HexEncodingFlags
-  , pattern HexUpperCase
-  , pattern HexLowerCase
+  , HexEncodingFlags(..)
   , hexEncode
   , hexDecode
   , base64Encode
@@ -54,15 +52,13 @@ scrubMem ::
   -> IO ()
 scrubMem ptr sz = throwBotanIfNegative_ $ botan_scrub_mem (castPtr ptr) (fromIntegral sz)
 
-type HexEncodingFlags = Word32
-
-pattern
+data HexEncodingFlags =
     HexUpperCase
-  , HexLowerCase
-  :: HexEncodingFlags
+  | HexLowerCase
 
-pattern HexUpperCase = BOTAN_FFI_HEX_UPPER_CASE
-pattern HexLowerCase = BOTAN_FFI_HEX_LOWER_CASE
+hexEncodingFlags :: HexEncodingFlags -> Word32
+hexEncodingFlags HexUpperCase = BOTAN_FFI_HEX_UPPER_CASE
+hexEncodingFlags HexLowerCase = BOTAN_FFI_HEX_LOWER_CASE
 
 hexEncode ::
      ByteString           -- ^ __x__
@@ -76,7 +72,7 @@ hexEncode bytes flags =
       (ConstPtr bytesPtr)
       bytesLen
       hexPtr
-      flags
+      (hexEncodingFlags flags)
 
 hexDecode ::
      Text             -- ^ __hex_str__
