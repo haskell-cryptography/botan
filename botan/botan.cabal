@@ -151,9 +151,7 @@ library
 
   other-modules:
     Botan.Prelude
-    Paths_botan
 
-  autogen-modules: Paths_botan
   build-depends:
     base >=4.16 && <4.22,
     botan-low ^>=0.0,

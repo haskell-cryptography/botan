@@ -114,8 +114,6 @@ library
     Botan.Bindings.X509
     Botan.Bindings.ZFEC
 
-  other-modules: Paths_botan_bindings
-  autogen-modules: Paths_botan_bindings
   build-depends: base >=4.16 && <4.22
   includes: botan/ffi.h
 
