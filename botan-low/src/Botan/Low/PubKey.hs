@@ -185,7 +185,7 @@ import           Botan.Bindings.MPI
 import           Botan.Bindings.PubKey
 import           Botan.Bindings.RNG
 
-import           Botan.Low.Error
+import           Botan.Low.Error.Internal
 import           Botan.Low.Hash
 import           Botan.Low.Make
 import           Botan.Low.MPI
@@ -770,14 +770,14 @@ privKeyGetField mp sk field = withMP mp $ \ mpPtr -> do
 -- Helpers
 
 mkPrivKeyLoad1_name
-    :: (Ptr BotanPrivKey -> BotanMP -> ConstPtr CChar -> IO BotanErrorCode)
+    :: (Ptr BotanPrivKey -> BotanMP -> ConstPtr CChar -> IO CInt)
     -> MP -> ByteString -> IO PrivKey
 mkPrivKeyLoad1_name load a name = withMP a $ \ aPtr -> do
     asCString name $ \ namePtr -> do
         createPrivKey $ \ out -> load out aPtr (ConstPtr namePtr)
 
 mkPrivKeyLoad3
-    :: (Ptr BotanPrivKey -> BotanMP -> BotanMP -> BotanMP -> IO BotanErrorCode)
+    :: (Ptr BotanPrivKey -> BotanMP -> BotanMP -> BotanMP -> IO CInt)
     -> MP -> MP -> MP -> IO PrivKey
 mkPrivKeyLoad3 load a b c = withMany withMP [a,b,c] $ \case
     [aPtr,bPtr,cPtr] -> do
@@ -785,7 +785,7 @@ mkPrivKeyLoad3 load a b c = withMany withMP [a,b,c] $ \case
     _ -> error "mkPrivKeyLoad3: impossible"
 
 mkPrivKeyLoad4
-    :: (Ptr BotanPrivKey -> BotanMP -> BotanMP -> BotanMP -> BotanMP -> IO BotanErrorCode)
+    :: (Ptr BotanPrivKey -> BotanMP -> BotanMP -> BotanMP -> BotanMP -> IO CInt)
     -> MP -> MP -> MP -> MP -> IO PrivKey
 mkPrivKeyLoad4 load a b c d = withMany withMP [a,b,c,d] $ \case
     [aPtr,bPtr,cPtr,dPtr] -> do
@@ -795,7 +795,7 @@ mkPrivKeyLoad4 load a b c d = withMany withMP [a,b,c,d] $ \case
 --
 
 mkPubKeyLoad2
-    :: (Ptr BotanPubKey -> BotanMP -> BotanMP -> IO BotanErrorCode)
+    :: (Ptr BotanPubKey -> BotanMP -> BotanMP -> IO CInt)
     -> MP -> MP -> IO PubKey
 mkPubKeyLoad2 load a b = withMany withMP [a,b] $ \case
     [aPtr,bPtr] -> do
@@ -803,7 +803,7 @@ mkPubKeyLoad2 load a b = withMany withMP [a,b] $ \case
     _ -> error "mkPubKeyLoad2: impossible"
 
 mkPubKeyLoad2_name
-    :: (Ptr BotanPubKey -> BotanMP -> BotanMP -> ConstPtr CChar -> IO BotanErrorCode)
+    :: (Ptr BotanPubKey -> BotanMP -> BotanMP -> ConstPtr CChar -> IO CInt)
     -> MP -> MP -> ByteString -> IO PubKey
 mkPubKeyLoad2_name load x y name = withMany withMP [x,y] $ \case
     [xPtr,yPtr] -> do
@@ -812,7 +812,7 @@ mkPubKeyLoad2_name load x y name = withMany withMP [x,y] $ \case
     _ -> error "mkPubKeyLoad2_name: impossible"
 
 mkPubKeyLoad3
-    :: (Ptr BotanPubKey -> BotanMP -> BotanMP -> BotanMP -> IO BotanErrorCode)
+    :: (Ptr BotanPubKey -> BotanMP -> BotanMP -> BotanMP -> IO CInt)
     -> MP -> MP -> MP -> IO PubKey
 mkPubKeyLoad3 load a b c = withMany withMP [a,b,c] $ \case
     [aPtr,bPtr,cPtr] -> do
@@ -820,7 +820,7 @@ mkPubKeyLoad3 load a b c = withMany withMP [a,b,c] $ \case
     _ -> error "mkPubKeyLoad3: impossible"
 
 mkPubKeyLoad4
-    :: (Ptr BotanPubKey -> BotanMP -> BotanMP -> BotanMP -> BotanMP -> IO BotanErrorCode)
+    :: (Ptr BotanPubKey -> BotanMP -> BotanMP -> BotanMP -> BotanMP -> IO CInt)
     -> MP -> MP -> MP -> MP -> IO PubKey
 mkPubKeyLoad4 load a b c d = withMany withMP [a,b,c,d] $ \case
     [aPtr,bPtr,cPtr,dPtr] -> do

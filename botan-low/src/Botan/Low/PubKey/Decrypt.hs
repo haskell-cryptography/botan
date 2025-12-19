@@ -22,7 +22,7 @@ module Botan.Low.PubKey.Decrypt (
   ) where
 
 import           Botan.Bindings.PubKey.Decrypt
-import           Botan.Low.Error (throwBotanIfNegative_)
+import           Botan.Low.Error.Internal (throwBotanIfNegative_)
 import           Botan.Low.Make
 import           Botan.Low.Prelude
 import           Botan.Low.PubKey

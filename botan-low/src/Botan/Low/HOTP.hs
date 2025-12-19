@@ -51,7 +51,7 @@ module Botan.Low.HOTP (
 import           Botan.Bindings.HOTP
 import           Botan.Low.Hash
 
-import           Botan.Low.Error
+import           Botan.Low.Error.Internal
 import           Botan.Low.Prelude
 import           Botan.Low.Remake
 

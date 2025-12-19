@@ -31,7 +31,7 @@ import qualified Data.ByteString as ByteString
 
 import           Botan.Bindings.PubKey.KeyAgreement
 
-import           Botan.Low.Error
+import           Botan.Low.Error.Internal
 import           Botan.Low.KDF
 import           Botan.Low.Make
 import           Botan.Low.Prelude

@@ -29,7 +29,7 @@ import qualified Data.ByteString as ByteString
 
 import           Botan.Bindings.PubKey.Sign
 
-import           Botan.Low.Error
+import           Botan.Low.Error.Internal
 import           Botan.Low.Make
 import           Botan.Low.Prelude
 import           Botan.Low.PubKey

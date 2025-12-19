@@ -32,7 +32,7 @@ module Botan.Low.PwdHash (
 
 import           Botan.Bindings.PwdHash
 
-import           Botan.Low.Error
+import           Botan.Low.Error.Internal
 import           Botan.Low.Hash
 import           Botan.Low.Prelude
 

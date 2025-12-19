@@ -26,7 +26,7 @@ module Botan.Low.Utility (
   ) where
 
 import           Botan.Bindings.Utility
-import           Botan.Low.Error
+import           Botan.Low.Error.Internal
 import           Botan.Low.Make (allocBytesQuerying, allocBytesQueryingCString)
 import           Botan.Low.Prelude
 import qualified Data.Text.Encoding as Text

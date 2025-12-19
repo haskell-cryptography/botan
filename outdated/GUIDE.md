@@ -23,10 +23,10 @@ We can declare the following types and foreign imports to match:
 data FooStruct              -- botan_foo_struct*
 type FooPtr = Ptr FooStruct -- botan_foo_t
 
-foreign import ccall unsafe botan_foo_init :: Ptr FooObj -> IO BotanErrorCode
+foreign import ccall unsafe botan_foo_init :: Ptr FooObj -> IO CInt
 foreign import ccall unsafe "&botan_foo_destroy" botan_foo_destroy :: FinalizerPtr FooStruct
 
-foreign import ccall unsafe botan_foo_do_something :: FooPtr -> IO BotanErrorCode
+foreign import ccall unsafe botan_foo_do_something :: FooPtr -> IO CInt
 ```
 
 > NOTE: I have opted to adopt [glguy's terminology](https://discourse.haskell.org/t/questions-about-ffi-foreignptr-and-opaque-types/6914/12?u=apothecalabs). Note that `FooPtr` represents `botan_foo_t`, which *is* `botan_foo_struct*`, but is confusing when foreign calls only mention `botan_foo_t`. I am considering changing `type FooPtr = Ptr FooStruct` to `FooInst` or `FooRef` or `FooObj` to reflect this. For now, this terminology is fine.

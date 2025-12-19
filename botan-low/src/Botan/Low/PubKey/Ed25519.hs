@@ -18,7 +18,7 @@ module Botan.Low.PubKey.Ed25519 (
 
 import           Botan.Bindings.PubKey.Ed25519
 
-import           Botan.Low.Error
+import           Botan.Low.Error.Internal
 import           Botan.Low.Prelude
 import           Botan.Low.PubKey
 import           Botan.Low.Remake

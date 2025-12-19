@@ -70,7 +70,7 @@ module Botan.Low.BlockCipher (
   ) where
 
 import           Botan.Bindings.BlockCipher
-import           Botan.Low.Error
+import           Botan.Low.Error.Internal
 import           Botan.Low.Hash
 import           Botan.Low.Make
 import           Botan.Low.Prelude
