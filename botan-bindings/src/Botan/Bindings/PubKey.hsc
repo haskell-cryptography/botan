@@ -13,6 +13,7 @@ for encryption, signatures, and key agreement.
 -}
 
 {-# LANGUAGE CApiFFI #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Botan.Bindings.PubKey (
     BotanPrivKeyStruct

@@ -71,8 +71,6 @@ common language
 library
   import: warnings, language
   hs-source-dirs: src
-  default-extensions:
-    OverloadedStrings
 
   exposed-modules:
     Botan.Bindings.Bcrypt

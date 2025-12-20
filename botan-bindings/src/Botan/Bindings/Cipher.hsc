@@ -15,6 +15,7 @@ repeatedly to encrypt an entire message.
 -}
 
 {-# LANGUAGE CApiFFI #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Botan.Bindings.Cipher (
     BotanCipherStruct

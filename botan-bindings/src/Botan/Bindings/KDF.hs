@@ -28,6 +28,7 @@ still use different keys in the two contexts.
 -}
 
 {-# LANGUAGE CApiFFI #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Botan.Bindings.KDF (
     pattern BOTAN_KDF_HKDF

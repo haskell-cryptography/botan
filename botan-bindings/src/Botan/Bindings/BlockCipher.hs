@@ -16,6 +16,7 @@ of the C++ API reference.
 -}
 
 {-# LANGUAGE CApiFFI #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Botan.Bindings.BlockCipher (
     BotanBlockCipherStruct

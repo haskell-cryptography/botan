@@ -36,6 +36,7 @@ The Botan MAC computation is split into five stages.
 -}
 
 {-# LANGUAGE CApiFFI #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Botan.Bindings.MAC (
     BotanMACStruct

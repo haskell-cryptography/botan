@@ -10,6 +10,7 @@ Portability : POSIX
 -}
 
 {-# LANGUAGE CApiFFI #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Botan.Bindings.RNG (
     BotanRNGStruct

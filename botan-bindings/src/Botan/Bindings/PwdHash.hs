@@ -14,6 +14,7 @@ the C++ API reference.
 -}
 
 {-# LANGUAGE CApiFFI #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Botan.Bindings.PwdHash (
     botan_pwdhash
