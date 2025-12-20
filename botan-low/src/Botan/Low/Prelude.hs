@@ -70,7 +70,7 @@ import           Foreign.Storable
 
 import           GHC.Stack
 
-import           Botan.Bindings.Prelude (ConstPtr (..))
+import           Botan.Bindings.ConstPtr (ConstPtr (..))
 
 {-
 Small rant: CString is a bit of a mess

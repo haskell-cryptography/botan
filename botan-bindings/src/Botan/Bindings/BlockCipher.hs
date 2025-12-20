@@ -57,7 +57,13 @@ module Botan.Bindings.BlockCipher (
   , pattern BOTAN_BLOCK_CIPHER_TWOFISH
   ) where
 
-import           Botan.Bindings.Prelude
+import           Botan.Bindings.ConstPtr
+import           Data.String
+import           Data.Word
+import           Foreign.C.Types
+import           Foreign.ForeignPtr
+import           Foreign.Ptr
+import           Foreign.Storable
 
 {-------------------------------------------------------------------------------
   Block ciphers

@@ -18,9 +18,10 @@ module Botan.Bindings.PubKey.DSA (
   ) where
 
 import           Botan.Bindings.MPI
-import           Botan.Bindings.Prelude
 import           Botan.Bindings.PubKey
 import           Botan.Bindings.RNG
+import           Foreign.C.Types
+import           Foreign.Ptr
 
 {- |
 Generates DSA key pair. Gives to a caller control over key length

@@ -140,10 +140,16 @@ module Botan.Bindings.PubKey (
   , botan_pubkey_view_ec_public_point
   ) where
 
+import Botan.Bindings.ConstPtr
 import Botan.Bindings.MPI
-import Botan.Bindings.Prelude
 import Botan.Bindings.RNG
 import Botan.Bindings.View
+import Data.String
+import Data.Word
+import Foreign.C.Types
+import Foreign.ForeignPtr
+import Foreign.Ptr
+import Foreign.Storable
 
 #include <botan/ffi.h>
 

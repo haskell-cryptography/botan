@@ -72,13 +72,13 @@ library
   import: warnings, language
   hs-source-dirs: src
   default-extensions:
-    NoImplicitPrelude
     OverloadedStrings
 
   exposed-modules:
     Botan.Bindings.Bcrypt
     Botan.Bindings.BlockCipher
     Botan.Bindings.Cipher
+    Botan.Bindings.ConstPtr
     Botan.Bindings.Error
     Botan.Bindings.FPE
     Botan.Bindings.HOTP
@@ -87,7 +87,6 @@ library
     Botan.Bindings.KeyWrap
     Botan.Bindings.MAC
     Botan.Bindings.MPI
-    Botan.Bindings.Prelude
     Botan.Bindings.PubKey
     Botan.Bindings.PubKey.DH
     Botan.Bindings.PubKey.DSA

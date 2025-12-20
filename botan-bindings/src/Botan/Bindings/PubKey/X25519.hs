@@ -18,8 +18,11 @@ module Botan.Bindings.PubKey.X25519 (
   , botan_pubkey_x25519_get_pubkey
   ) where
 
-import           Botan.Bindings.Prelude
+import           Botan.Bindings.ConstPtr
 import           Botan.Bindings.PubKey
+import           Data.Word
+import           Foreign.C.Types
+import           Foreign.Ptr
 
 foreign import capi safe "botan/ffi.h botan_privkey_load_x25519"
     botan_privkey_load_x25519

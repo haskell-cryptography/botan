@@ -70,7 +70,13 @@ module Botan.Bindings.Hash (
   , botan_pkcs_hash_id
   ) where
 
-import           Botan.Bindings.Prelude
+import           Botan.Bindings.ConstPtr
+import           Data.String
+import           Data.Word
+import           Foreign.C.Types
+import           Foreign.ForeignPtr
+import           Foreign.Ptr
+import           Foreign.Storable
 
 -- | Opaque Hash struct
 data {-# CTYPE "botan/ffi.h" "struct botan_hash_struct" #-} BotanHashStruct

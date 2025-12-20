@@ -55,8 +55,13 @@ module Botan.Bindings.MPI (
   , botan_mp_clear_bit
   ) where
 
-import           Botan.Bindings.Prelude
+import           Botan.Bindings.ConstPtr
 import           Botan.Bindings.RNG
+import           Data.Word
+import           Foreign.C.Types
+import           Foreign.ForeignPtr
+import           Foreign.Ptr
+import           Foreign.Storable
 
 -- | Opaque MP struct
 data {-# CTYPE "botan/ffi.h" "struct botan_mp_struct" #-} BotanMPStruct

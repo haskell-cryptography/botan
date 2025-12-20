@@ -27,8 +27,13 @@ module Botan.Bindings.SRP6 (
   , botan_srp6_group_size
   ) where
 
-import           Botan.Bindings.Prelude
+import           Botan.Bindings.ConstPtr
 import           Botan.Bindings.RNG
+import           Data.Word
+import           Foreign.C.Types
+import           Foreign.ForeignPtr
+import           Foreign.Ptr
+import           Foreign.Storable
 
 -- | Opaque SRP-6 server session struct
 data {-# CTYPE "botan/ffi.h" "struct botan_srp6_server_session_struct" #-} BotanSRP6ServerSessionStruct

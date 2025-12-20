@@ -18,9 +18,10 @@ module Botan.Bindings.PubKey.ElGamal (
   ) where
 
 import           Botan.Bindings.MPI
-import           Botan.Bindings.Prelude
 import           Botan.Bindings.PubKey
 import           Botan.Bindings.RNG
+import           Foreign.C.Types
+import           Foreign.Ptr
 
 {- |
 Generates ElGamal key pair. Caller has a control over key length

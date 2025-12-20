@@ -21,8 +21,13 @@ module Botan.Bindings.PubKey.Decrypt (
   , botan_pk_op_decrypt
   ) where
 
-import Botan.Bindings.Prelude
+import Botan.Bindings.ConstPtr
 import Botan.Bindings.PubKey
+import Data.Word
+import Foreign.C.Types
+import Foreign.ForeignPtr
+import Foreign.Ptr
+import Foreign.Storable
 
 #include <botan/ffi.h>
 

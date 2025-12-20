@@ -29,7 +29,11 @@ module Botan.Bindings.PwdHash (
   , pattern BOTAN_PBKDF_OPENPGP_S2K
   ) where
 
-import           Botan.Bindings.Prelude
+import           Botan.Bindings.ConstPtr
+import           Data.String
+import           Data.Word
+import           Foreign.C.Types
+import           Foreign.Ptr
 
 {-------------------------------------------------------------------------------
   Password hashing

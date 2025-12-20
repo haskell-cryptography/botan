@@ -29,7 +29,10 @@ module Botan.Bindings.View (
   , freeBotanViewStrCallback
   ) where
 
-import           Botan.Bindings.Prelude
+import           Botan.Bindings.ConstPtr
+import           Data.Word
+import           Foreign.C.Types
+import           Foreign.Ptr
 
 
 type BotanViewContext a = Ptr a

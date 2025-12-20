@@ -44,7 +44,8 @@ module Botan.Bindings.Error (
   , botan_error_last_exception_message
   ) where
 
-import Botan.Bindings.Prelude
+import Botan.Bindings.ConstPtr
+import Foreign.C.Types
 
 #include <botan/ffi.h>
 

@@ -27,9 +27,14 @@ module Botan.Bindings.PubKey.KeyEncapsulation (
   , botan_pk_op_kem_decrypt_shared_key
   ) where
 
-import           Botan.Bindings.Prelude
+import           Botan.Bindings.ConstPtr
 import           Botan.Bindings.PubKey
 import           Botan.Bindings.RNG
+import           Data.Word
+import           Foreign.C.Types
+import           Foreign.ForeignPtr
+import           Foreign.Ptr
+import           Foreign.Storable
 
 -- | Opaque KEM encrypt struct
 data {-# CTYPE "botan/ffi.h" "struct botan_pk_op_kem_encrypt_struct" #-} BotanPKOpKEMEncryptStruct

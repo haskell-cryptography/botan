@@ -22,9 +22,14 @@ module Botan.Bindings.PubKey.Verify (
   , pattern BOTAN_PUBKEY_DER_FORMAT_SIGNATURE
   ) where
 
-import Botan.Bindings.Prelude
+import Botan.Bindings.ConstPtr
 import Botan.Bindings.PubKey
 import Botan.Bindings.PubKey.Sign
+import Data.Word
+import Foreign.C.Types
+import Foreign.ForeignPtr
+import Foreign.Ptr
+import Foreign.Storable
 
 -- | Opaque verify struct
 data {-# CTYPE "botan/ffi.h" "struct botan_pk_op_verify_struct" #-} BotanPKOpVerifyStruct

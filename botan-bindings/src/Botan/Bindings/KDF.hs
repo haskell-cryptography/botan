@@ -46,7 +46,11 @@ module Botan.Bindings.KDF (
   , botan_kdf
   ) where
 
-import           Botan.Bindings.Prelude
+import           Botan.Bindings.ConstPtr
+import           Data.String
+import           Data.Word
+import           Foreign.C.Types
+import           Foreign.Ptr
 
 pattern BOTAN_KDF_HKDF
     ,   BOTAN_KDF_HKDF_EXTRACT

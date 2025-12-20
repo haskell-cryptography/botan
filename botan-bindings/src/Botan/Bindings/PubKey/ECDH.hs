@@ -16,9 +16,11 @@ module Botan.Bindings.PubKey.ECDH (
   , botan_privkey_load_ecdh
   ) where
 
+import           Botan.Bindings.ConstPtr
 import           Botan.Bindings.MPI
-import           Botan.Bindings.Prelude
 import           Botan.Bindings.PubKey
+import           Foreign.C.Types
+import           Foreign.Ptr
 
 foreign import capi safe "botan/ffi.h botan_pubkey_load_ecdh"
     botan_pubkey_load_ecdh
