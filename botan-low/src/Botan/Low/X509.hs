@@ -282,12 +282,13 @@ pattern DecipherOnly = DECIPHER_ONLY
 -- a negative error or INVALID_IDENTIFIER to return a bool.
 --
 -- Note: unexplained function, best-guess implementation
-x509CertAllowedUsage
-    :: X509Cert             -- ^ __cert__
-    -> X509KeyConstraints   -- ^ __key_usage__
-    -> IO Bool
-x509CertAllowedUsage cert usage = withX509Cert cert $ \ certPtr -> do
-    throwBotanCatchingSuccess $ botan_x509_cert_allowed_usage certPtr usage
+x509CertAllowedUsage ::
+     X509Cert             -- ^ __cert__
+  -> X509KeyConstraints   -- ^ __key_usage__
+  -> IO Bool
+x509CertAllowedUsage cert usage =
+    withX509Cert cert $ \ certPtr ->
+    throwBotanCatchingInvalidVerifier $ botan_x509_cert_allowed_usage certPtr usage
 
 {- |
 Check if the certificate matches the specified hostname via alternative name or CN match.
@@ -295,15 +296,16 @@ RFC 5280 wildcards also supported.
 
 Note: unexplained function, best-guess implementation
 -}
-x509CertHostnameMatch
-    :: X509Cert     -- ^ __cert__
-    -> ByteString   -- ^ __hostname__
-    -> IO Bool
-x509CertHostnameMatch cert hostname = withX509Cert cert $ \ certPtr -> do
-    asCString hostname $ \ hostnamePtr -> do
-        throwBotanCatchingSuccess $ botan_x509_cert_hostname_match
-            certPtr
-            (ConstPtr hostnamePtr)
+x509CertHostnameMatch ::
+     X509Cert     -- ^ __cert__
+  -> ByteString   -- ^ __hostname__
+  -> IO Bool
+x509CertHostnameMatch cert hostname =
+    withX509Cert cert $ \ certPtr ->
+    asCString hostname $ \ hostnamePtr ->
+    throwBotanCatchingInvalidInput $ botan_x509_cert_hostname_match
+      certPtr
+      (ConstPtr hostnamePtr)
 
 {- |
 Returns 0 if the validation was successful, 1 if validation failed,
@@ -313,35 +315,35 @@ and negative on error. A status code with details is written to
 Intermediates or trusted lists can be null
 Trusted path can be null
 -}
-x509CertVerify
-    :: X509Cert         -- ^ __cert__
-    -> [X509Cert]       -- ^ __intermediates__
-    -> [X509Cert]       -- ^ __trusted__
-    -> Maybe FilePath   -- ^ __trusted_path__
-    -> Int              -- ^ __required_strength__
-    -> ByteString       -- ^ __hostname__
-    -> Word64           -- ^ __reference_time__
-    -> IO (Bool, Int)   -- ^ __(valid,validation_result)__
-x509CertVerify cert icerts tcerts tpath strength hostname time = do
-    withX509Cert cert $ \ certPtr -> do
-        withPtrs withX509Cert icerts $ flip withArrayLen $ \ icertsLen icertsPtr -> do
-            withPtrs withX509Cert tcerts $ flip withArrayLen $ \ tcertsLen tcertsPtr -> do
-                maybe ($ nullPtr) String.withCString tpath $ \ tpathPtr -> do
-                    asCString hostname $ \ hostnamePtr -> do
-                        alloca $ \ statusPtr -> do
-                            success <- throwBotanCatchingSuccess $ botan_x509_cert_verify
-                                statusPtr
-                                certPtr
-                                (ConstPtr icertsPtr)
-                                (fromIntegral icertsLen)
-                                (ConstPtr tcertsPtr)
-                                (fromIntegral tcertsLen)
-                                (ConstPtr tpathPtr)
-                                (fromIntegral strength)
-                                (ConstPtr hostnamePtr)
-                                time
-                            code <- fromIntegral <$> peek statusPtr
-                            return (success, code)
+x509CertVerify ::
+     X509Cert         -- ^ __cert__
+  -> [X509Cert]       -- ^ __intermediates__
+  -> [X509Cert]       -- ^ __trusted__
+  -> Maybe FilePath   -- ^ __trusted_path__
+  -> Int              -- ^ __required_strength__
+  -> ByteString       -- ^ __hostname__
+  -> Word64           -- ^ __reference_time__
+  -> IO (Bool, Int)   -- ^ __(valid,validation_result)__
+x509CertVerify cert icerts tcerts tpath strength hostname time =
+    withX509Cert cert $ \ certPtr ->
+    withPtrs withX509Cert icerts $ flip withArrayLen $ \ icertsLen icertsPtr ->
+    withPtrs withX509Cert tcerts $ flip withArrayLen $ \ tcertsLen tcertsPtr ->
+    maybe ($ nullPtr) String.withCString tpath $ \ tpathPtr ->
+    asCString hostname $ \ hostnamePtr ->
+    alloca $ \ statusPtr -> do
+      success <- throwBotanCatchingInvalidVerifier $ botan_x509_cert_verify
+          statusPtr
+          certPtr
+          (ConstPtr icertsPtr)
+          (fromIntegral icertsLen)
+          (ConstPtr tcertsPtr)
+          (fromIntegral tcertsLen)
+          (ConstPtr tpathPtr)
+          (fromIntegral strength)
+          (ConstPtr hostnamePtr)
+          time
+      code <- fromIntegral <$> peek statusPtr
+      return (success, code)
     -- TODO: The above works, but there's more to it
     --  Need to allow null pointer for empty lists too, something like:
     --      where
@@ -385,48 +387,49 @@ x509CRLLoadFile = mkCreateObjectCString createX509CRL botan_x509_crl_load_file .
 Given a CRL and a certificate,
 check if the certificate is revoked on that particular CRL
 -}
-x509IsRevoked
-    :: X509CRL  -- ^ __crl__
-    -> X509Cert -- ^ __cert__
-    -> IO Bool
-x509IsRevoked crl cert = withX509CRL crl $ \ crlPtr -> do
-    withX509Cert cert $ \ certPtr -> do
-        throwBotanCatchingSuccess $ botan_x509_is_revoked crlPtr certPtr
+x509IsRevoked ::
+     X509CRL  -- ^ __crl__
+  -> X509Cert -- ^ __cert__
+  -> IO Bool
+x509IsRevoked crl cert =
+    withX509CRL crl $ \ crlPtr ->
+    withX509Cert cert $ \ certPtr ->
+    throwBotanCatchingInvalidInput $ botan_x509_is_revoked crlPtr certPtr
 
 {- |
 Different flavor of `botan_x509_cert_verify`, supports revocation lists.
 CRLs are passed as an array, same as intermediates and trusted CAs
 -}
-x509CertVerifyWithCLR
-    :: X509Cert         -- ^ __cert__
-    -> [X509Cert]       -- ^ __intermediates__
-    -> [X509Cert]       -- ^ __trusted__
-    -> [X509CRL]        -- ^ __crls__
-    -> Maybe FilePath   -- ^ __trusted_path__
-    -> Int              -- ^ __required_strength__
-    -> ByteString       -- ^ __hostname__
-    -> Word64           -- ^ __reference_time__
-    -> IO (Bool, Int)   -- ^ __(valid,validation_result)__
-x509CertVerifyWithCLR cert icerts tcerts crls tpath strength hostname time = do
-    withX509Cert cert $ \ certPtr -> do
-        withPtrs withX509Cert icerts $ flip withArrayLen $ \ icertsLen icertsPtr -> do
-            withPtrs withX509Cert tcerts $ flip withArrayLen $ \ tcertsLen tcertsPtr -> do
-                withPtrs withX509CRL crls $ flip withArrayLen $ \ crlsLen crlsPtr -> do
-                    maybe ($ nullPtr) String.withCString tpath $ \ tpathPtr -> do
-                        asCString hostname $ \ hostnamePtr -> do
-                            alloca $ \ statusPtr -> do
-                                success <- throwBotanCatchingSuccess $ botan_x509_cert_verify_with_crl
-                                    statusPtr
-                                    certPtr
-                                    (ConstPtr icertsPtr)
-                                    (fromIntegral icertsLen)
-                                    (ConstPtr tcertsPtr)
-                                    (fromIntegral tcertsLen)
-                                    (ConstPtr crlsPtr)
-                                    (fromIntegral crlsLen)
-                                    (ConstPtr tpathPtr)
-                                    (fromIntegral strength)
-                                    (ConstPtr hostnamePtr)
-                                    time
-                                code <- fromIntegral <$> peek statusPtr
-                                return (success, code)
+x509CertVerifyWithCLR ::
+     X509Cert         -- ^ __cert__
+  -> [X509Cert]       -- ^ __intermediates__
+  -> [X509Cert]       -- ^ __trusted__
+  -> [X509CRL]        -- ^ __crls__
+  -> Maybe FilePath   -- ^ __trusted_path__
+  -> Int              -- ^ __required_strength__
+  -> ByteString       -- ^ __hostname__
+  -> Word64           -- ^ __reference_time__
+  -> IO (Bool, Int)   -- ^ __(valid,validation_result)__
+x509CertVerifyWithCLR cert icerts tcerts crls tpath strength hostname time =
+    withX509Cert cert $ \ certPtr ->
+    withPtrs withX509Cert icerts $ flip withArrayLen $ \ icertsLen icertsPtr ->
+    withPtrs withX509Cert tcerts $ flip withArrayLen $ \ tcertsLen tcertsPtr ->
+    withPtrs withX509CRL crls $ flip withArrayLen $ \ crlsLen crlsPtr ->
+    maybe ($ nullPtr) String.withCString tpath $ \ tpathPtr ->
+    asCString hostname $ \ hostnamePtr ->
+    alloca $ \ statusPtr -> do
+      success <- throwBotanCatchingInvalidVerifier $ botan_x509_cert_verify_with_crl
+          statusPtr
+          certPtr
+          (ConstPtr icertsPtr)
+          (fromIntegral icertsLen)
+          (ConstPtr tcertsPtr)
+          (fromIntegral tcertsLen)
+          (ConstPtr crlsPtr)
+          (fromIntegral crlsLen)
+          (ConstPtr tpathPtr)
+          (fromIntegral strength)
+          (ConstPtr hostnamePtr)
+          time
+      code <- fromIntegral <$> peek statusPtr
+      return (success, code)

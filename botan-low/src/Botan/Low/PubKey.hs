@@ -716,14 +716,15 @@ pubKeyAlgoName
     -> IO ByteString    -- ^ __out[]__
 pubKeyAlgoName = mkGetCString withPubKey botan_pubkey_algo_name
 
-pubKeyCheckKey
-    :: PubKey           -- ^ __key__
-    -> RNG              -- ^ __rng__
-    -> CheckKeyFlags    -- ^ __flags__
-    -> IO Bool
-pubKeyCheckKey pk rng flags = withPubKey pk $ \ pkPtr -> do
-    withRNG rng $ \ botanRNG -> do
-        throwBotanCatchingSuccess $ botan_pubkey_check_key pkPtr botanRNG (checkKeyFlags flags)
+pubKeyCheckKey ::
+     PubKey           -- ^ __key__
+  -> RNG              -- ^ __rng__
+  -> CheckKeyFlags    -- ^ __flags__
+  -> IO Bool
+pubKeyCheckKey pk rng flags =
+    withPubKey pk $ \ pkPtr ->
+    withRNG rng $ \ botanRNG ->
+    throwBotanCatchingInvalidInput $ botan_pubkey_check_key pkPtr botanRNG (checkKeyFlags flags)
 
 -- Annoying - this mixes cint and csize
 --  I need to consolidate getsize / getint

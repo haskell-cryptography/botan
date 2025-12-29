@@ -68,13 +68,14 @@ verifyUpdate
 verifyUpdate = mkWithObjectSetterCBytesLen withVerify botan_pk_op_verify_update
 
 -- TODO: Signature type
-verifyFinish
-    :: Verify       -- ^ __op__
-    -> ByteString   -- ^ __sig[]__
-    -> IO Bool
-verifyFinish verify sig = withVerify verify $ \ verifyPtr -> do
-    asBytesLen sig $ \ sigPtr sigLen -> do
-        throwBotanCatchingSuccess $ botan_pk_op_verify_finish
-            verifyPtr
-            (ConstPtr sigPtr)
-            sigLen
+verifyFinish ::
+     Verify       -- ^ __op__
+  -> ByteString   -- ^ __sig[]__
+  -> IO Bool
+verifyFinish verify sig =
+    withVerify verify $ \ verifyPtr ->
+    asBytesLen sig $ \ sigPtr sigLen ->
+    throwBotanCatchingInvalidVerifier $ botan_pk_op_verify_finish
+      verifyPtr
+      (ConstPtr sigPtr)
+      sigLen

@@ -68,6 +68,13 @@
   - `PrivKeyExportFlags`
   - `HexEncodingFlags`
 - BREAKING: remove the `botan-low-bench` benchmark. See PR [#98]
+- PATCH: fix a bug where some functions returning a `Bool` were returning
+  `False` instead of throwing an exception and vice versa. See PR
+  [#105](https://github.com/haskell-cryptography/botan/pull/105). These functions
+  are:
+  - `pubKeyCheckKey`
+  - `x509CertHostnameMatch`
+  - `x509IsRevoked`
 
 ## 0.0.2.0 -- 2025-09-17
 

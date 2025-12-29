@@ -28,10 +28,6 @@ module Botan.Low.Make (
   , mkGetSize_csize
   , mkGetSizes2
   , mkGetSizes3
-  , GetSuccessCode
-  , GetSuccessCode_csize
-  , mkGetSuccessCode
-  , mkGetSuccessCode_csize
   , GetBoolCode
   , GetBoolCode_csize
   , mkGetBoolCode
@@ -365,25 +361,6 @@ mkGetSizes3 withPtr get typ = withPtr typ $ \ typPtr -> do
 -- NOTE: Get...Code nomenclature signifies that we get the desired return value
 --  from the error code error code, eg they use something other than throwBotanIfNegative_
 --
-
-
-type GetSuccessCode ptr = ptr -> IO CInt
-type GetSuccessCode_csize ptr = ptr -> CSize -> IO CInt
-
-mkGetSuccessCode
-    :: WithPtr typ ptr
-    -> GetSuccessCode ptr
-    -> typ -> IO Bool
-mkGetSuccessCode withPtr get typ = withPtr typ $ \ typPtr -> do
-    throwBotanCatchingSuccess $ get typPtr
-
-mkGetSuccessCode_csize
-    :: WithPtr typ ptr
-    -> GetSuccessCode_csize ptr
-    -> typ -> Int -> IO Bool
-mkGetSuccessCode_csize withPtr get typ sz = withPtr typ $ \ typPtr -> do
-    throwBotanCatchingSuccess $ get typPtr (fromIntegral sz)
-
 
 type GetBoolCode ptr = ptr -> IO CInt
 type GetBoolCode_csize ptr = ptr -> CSize -> IO CInt
