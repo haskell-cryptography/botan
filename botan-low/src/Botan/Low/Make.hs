@@ -382,19 +382,19 @@ mkGetBoolCode_csize withPtr get typ sz = withPtr typ $ \ typPtr -> do
 type GetIntCode ptr = ptr -> IO CInt
 type GetIntCode_csize ptr = ptr -> CSize -> IO CInt
 
-mkGetIntCode
-    :: WithPtr typ ptr
-    -> GetIntCode ptr
-    -> typ -> IO Int
+mkGetIntCode ::
+     WithPtr typ ptr
+  -> GetIntCode ptr
+  -> typ -> IO Int
 mkGetIntCode withPtr get typ = withPtr typ $ \ typPtr -> do
-    throwBotanCatchingInt $ get typPtr
+    fmap fromIntegral $ throwBotanIfNegative $ get typPtr
 
-mkGetIntCode_csize
-    :: WithPtr typ ptr
-    -> GetIntCode_csize ptr
-    -> typ -> CSize -> IO Int
+mkGetIntCode_csize ::
+     WithPtr typ ptr
+  -> GetIntCode_csize ptr
+  -> typ -> CSize -> IO Int
 mkGetIntCode_csize withPtr get typ sz = withPtr typ $ \ typPtr -> do
-    throwBotanCatchingInt $ get typPtr sz
+    fmap fromIntegral $ throwBotanIfNegative $ get typPtr sz
 
 {-
 Effectful actions

@@ -47,7 +47,6 @@ module Botan.Low.Error.Internal (
   , throwBotanCatchingInvalidInput
   , throwBotanCatchingBool
   , throwBotanCatching
-  , throwBotanCatchingInt
   , throwBotanErrorWithCallstack
   ) where
 
@@ -254,16 +253,6 @@ throwBotanCatchingBool act = do
         0 -> return False
         1 -> return True
         _ -> throwBotanErrorWithCallstack result callStack
-
--- TODO: remove throwBotanCatchingInt. See issue #60.
---
--- NOTE: Catches positive numbers including zero, throws all other values
--- Equivalent to fromIntegral . throwBotanIfNegative
-throwBotanCatchingInt :: HasCallStack => IO CInt -> IO Int
-throwBotanCatchingInt act = do
-    result <- act
-    when (result < 0) $ throwBotanErrorWithCallstack result callStack
-    return (fromIntegral result)
 
 throwBotanErrorWithCallstack :: CInt -> CallStack -> IO a
 throwBotanErrorWithCallstack e cs =  do
