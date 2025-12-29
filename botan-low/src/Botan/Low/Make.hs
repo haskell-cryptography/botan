@@ -66,7 +66,7 @@ module Botan.Low.Make (
 
 import           Botan.Bindings.Error
 import           Botan.Low.Error.Internal
-import           Botan.Low.Prelude
+import           Botan.Low.Internal.ByteString
 import           Control.DeepSeq
 import           Control.Exception
 import           Data.ByteString (ByteString)

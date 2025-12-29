@@ -42,7 +42,7 @@ module Botan.Low.RNG (
 import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Bindings.RNG
 import           Botan.Low.Error.Internal
-import           Botan.Low.Prelude
+import           Botan.Low.Internal.ByteString
 import           Botan.Low.Remake
 import           Data.ByteString (ByteString)
 import           Foreign.C.Types

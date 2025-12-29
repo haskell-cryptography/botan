@@ -24,7 +24,7 @@ module Botan.Low.PubKey.Verify (
 import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Bindings.PubKey.Verify
 import           Botan.Low.Error.Internal
-import           Botan.Low.Prelude
+import           Botan.Low.Internal.ByteString
 import           Botan.Low.PubKey
 import           Botan.Low.PubKey.Sign (SigningFlags)
 import           Botan.Low.Remake

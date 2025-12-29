@@ -31,8 +31,8 @@ module Botan.Low.ZFEC (
 import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Bindings.ZFEC
 import           Botan.Low.Error.Internal
+import           Botan.Low.Internal.ByteString
 import           Botan.Low.Make
-import           Botan.Low.Prelude
 import           Control.DeepSeq
 import           Data.ByteString (ByteString)
 import qualified Data.ByteString as ByteString

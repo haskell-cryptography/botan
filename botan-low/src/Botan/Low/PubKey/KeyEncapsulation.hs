@@ -40,9 +40,9 @@ module Botan.Low.PubKey.KeyEncapsulation (
 import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Bindings.PubKey.KeyEncapsulation
 import           Botan.Low.Error.Internal
+import           Botan.Low.Internal.ByteString
 import           Botan.Low.KDF
 import           Botan.Low.Make
-import           Botan.Low.Prelude
 import           Botan.Low.PubKey
 import           Botan.Low.Remake
 import           Botan.Low.RNG

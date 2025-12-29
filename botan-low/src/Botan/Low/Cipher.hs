@@ -98,8 +98,9 @@ import           Botan.Bindings.Cipher
 import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Low.BlockCipher
 import           Botan.Low.Error.Internal
+import           Botan.Low.Internal.ByteString
+import           Botan.Low.Internal.String
 import           Botan.Low.Make
-import           Botan.Low.Prelude
 import           Botan.Low.Remake
 import           Control.Exception
 import           Data.ByteString (ByteString)

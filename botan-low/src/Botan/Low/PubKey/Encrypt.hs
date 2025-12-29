@@ -24,8 +24,8 @@ module Botan.Low.PubKey.Encrypt (
 import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Bindings.PubKey.Encrypt
 import           Botan.Low.Error.Internal (throwBotanIfNegative_)
+import           Botan.Low.Internal.ByteString
 import           Botan.Low.Make
-import           Botan.Low.Prelude
 import           Botan.Low.PubKey
 import           Botan.Low.Remake
 import           Botan.Low.RNG

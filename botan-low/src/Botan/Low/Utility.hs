@@ -26,8 +26,8 @@ module Botan.Low.Utility (
 import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Bindings.Utility
 import           Botan.Low.Error.Internal
+import           Botan.Low.Internal.ByteString
 import           Botan.Low.Make
-import           Botan.Low.Prelude
 import           Data.ByteString (ByteString)
 import           Data.Text
 import qualified Data.Text.Encoding as Text

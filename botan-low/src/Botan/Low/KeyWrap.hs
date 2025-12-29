@@ -32,8 +32,8 @@ module Botan.Low.KeyWrap (
 import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Bindings.KeyWrap
 import           Botan.Low.BlockCipher
+import           Botan.Low.Internal.ByteString
 import           Botan.Low.Make
-import           Botan.Low.Prelude
 import           Data.ByteString (ByteString)
 
 nistKeyWrapEncode

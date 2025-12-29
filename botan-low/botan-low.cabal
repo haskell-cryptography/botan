@@ -122,8 +122,9 @@ library
 
   other-modules:
     Botan.Low.Error.Internal
+    Botan.Low.Internal.ByteString
+    Botan.Low.Internal.String
     Botan.Low.Make
-    Botan.Low.Prelude
     Botan.Low.Remake
 
   build-depends:

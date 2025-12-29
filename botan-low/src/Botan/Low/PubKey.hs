@@ -183,9 +183,10 @@ import           Botan.Bindings.PubKey
 import           Botan.Bindings.RNG
 import           Botan.Low.Error.Internal
 import           Botan.Low.Hash
+import           Botan.Low.Internal.ByteString
+import           Botan.Low.Internal.String
 import           Botan.Low.Make
 import           Botan.Low.MPI
-import           Botan.Low.Prelude
 import           Botan.Low.Remake
 import           Botan.Low.RNG
 import           Data.ByteString (ByteString)
@@ -829,3 +830,11 @@ mkPubKeyLoad4 load a b c d = withMany withMP [a,b,c,d] $ \case
     [aPtr,bPtr,cPtr,dPtr] -> do
       createPubKey $ \ out -> load out aPtr bPtr cPtr dPtr
     _ -> error "mkPubKeyLoad4: impossible"
+
+withMany ::
+     (forall a . object -> (cobject -> IO a) -> IO a)
+  -> [object]
+  -> ([cobject] -> IO b)
+  -> IO b
+withMany _withObject []         act = act []
+withMany withObject  (obj:objs) act = withObject obj $ \ cobj -> withMany withObject objs (act . (cobj:))

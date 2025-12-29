@@ -26,8 +26,8 @@ module Botan.Low.Remake (
 
 import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Low.Error.Internal
+import           Botan.Low.Internal.ByteString
 import           Botan.Low.Make
-import           Botan.Low.Prelude
 import           Control.Exception
 import           Data.ByteString (ByteString)
 import           Data.Word
@@ -95,6 +95,8 @@ mkCreateObjectCString
 -- mkCreateObjectCString createObject init cstr = withCString cstr $ \ namePtr -> do
 --     createObject $ \ outPtr -> init outPtr (ConstPtr namePtr)
 mkCreateObjectCString createObject = mkCreateObjectWith createObject withConstCString
+  where
+    withConstCString bs k = withCString bs $ \ptr -> k (ConstPtr ptr)
 
 -- TODO: Rename mkCreateCString1
 mkCreateObjectCString1

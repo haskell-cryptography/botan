@@ -80,8 +80,8 @@ import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Bindings.X509
 import           Botan.Low.Error.Internal
 import           Botan.Low.Hash (HashName)
+import           Botan.Low.Internal.ByteString
 import           Botan.Low.Make
-import           Botan.Low.Prelude
 import           Botan.Low.PubKey
 import           Botan.Low.Remake
 import           Control.Monad

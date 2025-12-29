@@ -59,8 +59,8 @@ module Botan.Low.MPI (
 import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Bindings.MPI
 import           Botan.Low.Error.Internal
+import           Botan.Low.Internal.ByteString
 import           Botan.Low.Make
-import           Botan.Low.Prelude
 import           Botan.Low.Remake
 import           Botan.Low.RNG
 import           Data.ByteString (ByteString)

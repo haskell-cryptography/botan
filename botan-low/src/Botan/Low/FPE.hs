@@ -49,8 +49,8 @@ module Botan.Low.FPE (
 import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Bindings.FPE
 import           Botan.Low.Error.Internal
+import           Botan.Low.Internal.ByteString
 import           Botan.Low.MPI
-import           Botan.Low.Prelude
 import           Botan.Low.Remake
 import           Data.ByteString (ByteString)
 import           Data.Word
