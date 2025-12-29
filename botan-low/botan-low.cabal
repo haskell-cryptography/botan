@@ -148,6 +148,7 @@ test-suite test
     tasty,
     tasty-hspec,
     tasty-hunit,
+    tasty-quickcheck,
     text,
 
   other-modules:
@@ -183,6 +184,7 @@ test-suite test
     Test.Botan.Low.SRP6.Example
     Test.Botan.Low.TOTP
     Test.Botan.Low.Utility
+    Test.Botan.Low.Version
     Test.Botan.Low.X509
     Test.Botan.Low.ZFEC
     Test.Util.ByteString

@@ -32,6 +32,7 @@ import qualified Test.Botan.Low.SRP6
 import qualified Test.Botan.Low.SRP6.Example
 import qualified Test.Botan.Low.TOTP
 import qualified Test.Botan.Low.Utility
+import qualified Test.Botan.Low.Version
 import qualified Test.Botan.Low.X509
 import qualified Test.Botan.Low.ZFEC
 import           Test.Tasty
@@ -110,6 +111,7 @@ tests = do
           ]
       , totpTests
       , utilityTests
+      , Test.Botan.Low.Version.tests
       , x509Tests
       , zfecTests
       ]
