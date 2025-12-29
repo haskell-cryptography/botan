@@ -46,12 +46,17 @@ module Botan.Low.FPE (
 
   ) where
 
+import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Bindings.FPE
-
 import           Botan.Low.Error.Internal
+import           Botan.Low.Internal.ByteString
 import           Botan.Low.MPI
-import           Botan.Low.Prelude
 import           Botan.Low.Remake
+import           Data.ByteString (ByteString)
+import           Data.Word
+import           Foreign.C.Types
+import           Foreign.ForeignPtr
+import           Foreign.Ptr
 
 -- NOTE: This module lacks documentation, and is not mentioned in the FFI bindings.
 --  It is mentioned in the C++ docs, but the construction significantly differs.

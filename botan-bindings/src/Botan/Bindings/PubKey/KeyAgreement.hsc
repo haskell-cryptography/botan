@@ -23,9 +23,14 @@ module Botan.Bindings.PubKey.KeyAgreement (
   , botan_pk_op_key_agreement
   ) where
 
-import Botan.Bindings.Prelude
+import Botan.Bindings.ConstPtr
 import Botan.Bindings.PubKey
 import Botan.Bindings.View
+import Data.Word
+import Foreign.C.Types
+import Foreign.ForeignPtr
+import Foreign.Ptr
+import Foreign.Storable
 
 #include <botan/ffi.h>
 

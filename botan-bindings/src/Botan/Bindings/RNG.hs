@@ -9,7 +9,8 @@ Stability   : experimental
 Portability : POSIX
 -}
 
-{-# LANGUAGE CApiFFI #-}
+{-# LANGUAGE CApiFFI           #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Botan.Bindings.RNG (
     BotanRNGStruct
@@ -34,7 +35,13 @@ module Botan.Bindings.RNG (
   , botan_rng_add_entropy
   ) where
 
-import           Botan.Bindings.Prelude
+import           Botan.Bindings.ConstPtr
+import           Data.String
+import           Data.Word
+import           Foreign.C.Types
+import           Foreign.ForeignPtr
+import           Foreign.Ptr
+import           Foreign.Storable
 
 -- | Opaque RNG struct
 data {-# CTYPE "botan/ffi.h" "struct botan_rng_struct" #-} BotanRNGStruct

@@ -15,9 +15,7 @@ module Botan.Low.PubKey.DH (
   ) where
 
 import           Botan.Bindings.PubKey.DH
-
 import           Botan.Low.MPI
-import           Botan.Low.Prelude
 import           Botan.Low.PubKey
 
 privKeyLoadDH

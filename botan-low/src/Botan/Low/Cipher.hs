@@ -14,6 +14,8 @@ a mode of operation applies the block cipher’s single block operation
 repeatedly to encrypt an entire message.
 -}
 
+{-# LANGUAGE OverloadedStrings #-}
+
 module Botan.Low.Cipher (
 
   -- * Cipher
@@ -95,12 +97,22 @@ module Botan.Low.Cipher (
   ) where
 
 import           Botan.Bindings.Cipher
+import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Low.BlockCipher
 import           Botan.Low.Error.Internal
+import           Botan.Low.Internal.ByteString
+import           Botan.Low.Internal.String
 import           Botan.Low.Make
-import           Botan.Low.Prelude
 import           Botan.Low.Remake
+import           Control.Exception
+import           Data.ByteString (ByteString)
 import qualified Data.ByteString as ByteString
+import           Data.Word
+import           Foreign.C.Types
+import           Foreign.ForeignPtr
+import           Foreign.Marshal.Alloc
+import           Foreign.Ptr
+import           Foreign.Storable
 
 {- $introduction
 

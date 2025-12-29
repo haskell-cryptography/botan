@@ -27,7 +27,8 @@ accidentally use the same input key and salt in some other context, you
 still use different keys in the two contexts.
 -}
 
-{-# LANGUAGE CApiFFI #-}
+{-# LANGUAGE CApiFFI           #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Botan.Bindings.KDF (
     pattern BOTAN_KDF_HKDF
@@ -46,7 +47,11 @@ module Botan.Bindings.KDF (
   , botan_kdf
   ) where
 
-import           Botan.Bindings.Prelude
+import           Botan.Bindings.ConstPtr
+import           Data.String
+import           Data.Word
+import           Foreign.C.Types
+import           Foreign.Ptr
 
 pattern BOTAN_KDF_HKDF
     ,   BOTAN_KDF_HKDF_EXTRACT

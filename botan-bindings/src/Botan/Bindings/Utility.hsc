@@ -26,7 +26,10 @@ module Botan.Bindings.Utility (
   , botan_base64_decode
   ) where
 
-import Botan.Bindings.Prelude
+import Botan.Bindings.ConstPtr
+import Data.Word
+import Foreign.C.Types
+import Foreign.Ptr
 
 #include <botan/ffi.h>
 

@@ -64,11 +64,21 @@ module Botan.Low.Make (
   , withPtrs
   ) where
 
-import qualified Data.ByteString as ByteString
-
 import           Botan.Bindings.Error
 import           Botan.Low.Error.Internal
-import           Botan.Low.Prelude hiding (init)
+import           Botan.Low.Internal.ByteString
+import           Control.DeepSeq
+import           Control.Exception
+import           Data.ByteString (ByteString)
+import qualified Data.ByteString as ByteString
+import           Data.Word
+import           Foreign.C.String
+import           Foreign.C.Types
+import           Foreign.ForeignPtr
+import           Foreign.Marshal.Alloc
+import           Foreign.Ptr
+import           Foreign.Storable
+import           Prelude hiding (init)
 
 {-
 Basic botan type template

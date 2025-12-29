@@ -26,6 +26,8 @@ the arguments concatenated. After completing a hash computation (eg using
 hashFinal), the internal state is reset to begin hashing a new message.
 -}
 
+{-# LANGUAGE OverloadedStrings #-}
+
 module Botan.Low.Hash (
 
   -- * Hashing
@@ -93,11 +95,15 @@ module Botan.Low.Hash (
   ) where
 
 import           Botan.Bindings.Hash
-
 import           Botan.Low.Error.Internal
+import           Botan.Low.Internal.ByteString
+import           Botan.Low.Internal.String
 import           Botan.Low.Make
-import           Botan.Low.Prelude
 import           Botan.Low.Remake
+import           Data.ByteString (ByteString)
+import           Foreign.C.Types
+import           Foreign.ForeignPtr
+import           Foreign.Ptr
 
 {- $introduction
 

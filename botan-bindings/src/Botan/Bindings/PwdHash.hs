@@ -13,7 +13,8 @@ Deriviation](https://botan.randombit.net/handbook/api_ref/pbkdf.html) section of
 the C++ API reference.
 -}
 
-{-# LANGUAGE CApiFFI #-}
+{-# LANGUAGE CApiFFI           #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Botan.Bindings.PwdHash (
     botan_pwdhash
@@ -29,7 +30,11 @@ module Botan.Bindings.PwdHash (
   , pattern BOTAN_PBKDF_OPENPGP_S2K
   ) where
 
-import           Botan.Bindings.Prelude
+import           Botan.Bindings.ConstPtr
+import           Data.String
+import           Data.Word
+import           Foreign.C.Types
+import           Foreign.Ptr
 
 {-------------------------------------------------------------------------------
   Password hashing

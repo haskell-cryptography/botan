@@ -18,9 +18,12 @@ module Botan.Bindings.PubKey.RSA (
   , botan_pubkey_load_rsa
   ) where
 
+import           Botan.Bindings.ConstPtr
 import           Botan.Bindings.MPI
-import           Botan.Bindings.Prelude
 import           Botan.Bindings.PubKey
+import           Data.Word
+import           Foreign.C.Types
+import           Foreign.Ptr
 
 foreign import capi safe "botan/ffi.h botan_privkey_load_rsa"
     botan_privkey_load_rsa

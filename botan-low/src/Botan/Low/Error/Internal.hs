@@ -49,8 +49,9 @@ module Botan.Low.Error.Internal (
   , throwBotanErrorWithCallstack
   ) where
 
+import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Bindings.Error
-import           Botan.Low.Prelude (ConstPtr (..), peekCString)
+import           Botan.Low.Internal.ByteString
 import           Control.Exception
 import           Control.Monad
 import           Data.ByteString (ByteString)

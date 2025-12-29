@@ -23,11 +23,16 @@ module Botan.Low.Utility (
   , base64Decode
   ) where
 
+import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Bindings.Utility
 import           Botan.Low.Error.Internal
-import           Botan.Low.Make (allocBytesQuerying, allocBytesQueryingCString)
-import           Botan.Low.Prelude
+import           Botan.Low.Internal.ByteString
+import           Botan.Low.Make
+import           Data.ByteString (ByteString)
+import           Data.Text
 import qualified Data.Text.Encoding as Text
+import           Data.Word
+import           Foreign.Ptr
 
 -- | Returns 0 if x[0..len] == y[0..len], -1 otherwise.
 constantTimeCompare ::

@@ -21,8 +21,11 @@ module Botan.Bindings.Bcrypt (
   , botan_bcrypt_is_valid
   ) where
 
-import           Botan.Bindings.Prelude
+import           Botan.Bindings.ConstPtr
 import           Botan.Bindings.RNG
+import           Data.Word
+import           Foreign.C.Types
+import           Foreign.Ptr
 
 -- TODO: Maybe move to Botan.Low.Bcrypt
 pattern BOTAN_BCRYPT_WORK_FACTOR_FAST

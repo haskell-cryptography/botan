@@ -76,18 +76,25 @@ module Botan.Low.X509 (
 
   ) where
 
-import           Data.ByteString (packCString)
-import qualified Data.ByteString.Char8 as Char8
-import qualified Foreign.C.String as String (withCString)
-
+import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Bindings.X509
-
 import           Botan.Low.Error.Internal
 import           Botan.Low.Hash (HashName)
+import           Botan.Low.Internal.ByteString
 import           Botan.Low.Make
-import           Botan.Low.Prelude
 import           Botan.Low.PubKey
 import           Botan.Low.Remake
+import           Control.Monad
+import           Data.ByteString (ByteString, packCString)
+import qualified Data.ByteString.Char8 as Char8
+import           Data.Word
+import qualified Foreign.C.String as String (withCString)
+import           Foreign.C.Types
+import           Foreign.ForeignPtr
+import           Foreign.Marshal.Alloc
+import           Foreign.Marshal.Array
+import           Foreign.Ptr
+import           Foreign.Storable
 
 -- TODO: Use *.Make module to ensure consistency
 

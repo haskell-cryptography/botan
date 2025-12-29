@@ -15,6 +15,8 @@ Ciphers](https://botan.randombit.net/handbook/api_ref/block_cipher.html) section
 of the C++ API reference.
 -}
 
+{-# LANGUAGE OverloadedStrings #-}
+
 module Botan.Low.BlockCipher (
     -- * Introduction
     -- $introduction
@@ -70,13 +72,20 @@ module Botan.Low.BlockCipher (
   ) where
 
 import           Botan.Bindings.BlockCipher
+import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Low.Error.Internal
 import           Botan.Low.Hash
+import           Botan.Low.Internal.ByteString
+import           Botan.Low.Internal.String
 import           Botan.Low.Make
-import           Botan.Low.Prelude
 import           Botan.Low.Remake
+import           Control.Monad
+import           Data.ByteString (ByteString)
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Char8 as BSC
+import           Foreign.C.Types
+import           Foreign.ForeignPtr
+import           Foreign.Ptr
 
 {- $setup
 >>> import Control.Monad

@@ -15,6 +15,7 @@ repeatedly to encrypt an entire message.
 -}
 
 {-# LANGUAGE CApiFFI #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Botan.Bindings.Cipher (
     BotanCipherStruct
@@ -62,7 +63,13 @@ module Botan.Bindings.Cipher (
   , botan_cipher_clear
   ) where
 
-import Botan.Bindings.Prelude
+import Botan.Bindings.ConstPtr
+import Data.String
+import Data.Word
+import Foreign.C.Types
+import Foreign.ForeignPtr
+import Foreign.Ptr
+import Foreign.Storable
 
 #include <botan/ffi.h>
 

@@ -50,7 +50,12 @@ module Botan.Bindings.TOTP (
   , botan_totp_check
   ) where
 
-import           Botan.Bindings.Prelude
+import           Botan.Bindings.ConstPtr
+import           Data.Word
+import           Foreign.C.Types
+import           Foreign.ForeignPtr
+import           Foreign.Ptr
+import           Foreign.Storable
 
 -- NOTE: RFC 6238
 

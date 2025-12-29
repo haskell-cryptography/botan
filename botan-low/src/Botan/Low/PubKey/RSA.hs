@@ -17,11 +17,11 @@ module Botan.Low.PubKey.RSA (
   ) where
 
 import           Botan.Bindings.PubKey.RSA
-
 import           Botan.Low.MPI
-import           Botan.Low.Prelude
 import           Botan.Low.PubKey
 import           Botan.Low.Remake
+import           Data.ByteString (ByteString)
+import           Data.Word
 
 -- /*
 -- * Algorithm specific key operations: RSA

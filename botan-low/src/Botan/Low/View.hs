@@ -24,11 +24,8 @@ module Botan.Low.View (
   , viewStr
   ) where
 
-import           System.IO
-
 import           Botan.Bindings.View
-
-import           Botan.Low.Prelude
+import           Control.Exception
 
 viewBin :: BotanViewBinFn ctx -> (BotanViewBinCallback ctx -> IO a) -> IO a
 viewBin f = bracket (mallocBotanViewBinCallback f) freeBotanViewBinCallback

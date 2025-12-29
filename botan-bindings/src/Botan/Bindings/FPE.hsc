@@ -47,7 +47,12 @@ module Botan.Bindings.FPE (
   ) where
 
 import Botan.Bindings.MPI
-import Botan.Bindings.Prelude
+import Botan.Bindings.ConstPtr
+import Data.Word
+import Foreign.C.Types
+import Foreign.ForeignPtr
+import Foreign.Ptr
+import Foreign.Storable
 
 #include <botan/ffi.h>
 

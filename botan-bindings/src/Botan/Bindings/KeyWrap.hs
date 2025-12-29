@@ -29,7 +29,10 @@ module Botan.Bindings.KeyWrap (
   , botan_nist_kw_dec
   ) where
 
-import           Botan.Bindings.Prelude
+import           Botan.Bindings.ConstPtr
+import           Data.Word
+import           Foreign.C.Types
+import           Foreign.Ptr
 
 foreign import capi safe "botan/ffi.h botan_nist_kw_enc"
     botan_nist_kw_enc

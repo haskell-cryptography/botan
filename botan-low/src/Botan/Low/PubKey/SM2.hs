@@ -4,10 +4,9 @@ module Botan.Low.PubKey.SM2 (
   ) where
 
 import           Botan.Bindings.PubKey.SM2
-
 import           Botan.Low.MPI
-import           Botan.Low.Prelude
 import           Botan.Low.PubKey
+import           Data.ByteString (ByteString)
 
 privKeyLoadSM2
     :: MP           -- ^ __scalar__

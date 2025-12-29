@@ -30,11 +30,15 @@ module Botan.Low.PwdHash (
   , openPGP_S2K
   ) where
 
+import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Bindings.PwdHash
-
 import           Botan.Low.Error.Internal
 import           Botan.Low.Hash
-import           Botan.Low.Prelude
+import           Botan.Low.Internal.ByteString
+import           Botan.Low.Internal.String
+import           Data.ByteString (ByteString)
+import           Foreign.Marshal.Alloc
+import           Foreign.Storable
 
 {- $setup
 >>> import Botan.Low.Hash

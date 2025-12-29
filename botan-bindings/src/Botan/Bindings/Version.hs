@@ -25,7 +25,9 @@ module Botan.Bindings.Version (
   , botan_version_datestamp
   ) where
 
-import           Botan.Bindings.Prelude
+import           Botan.Bindings.ConstPtr
+import           Data.Word
+import           Foreign.C.Types
 
 -- TODO: consider making these bindings unsafe. See issue #47.
 

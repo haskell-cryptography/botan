@@ -17,11 +17,11 @@ module Botan.Low.PubKey.X25519 (
   ) where
 
 import           Botan.Bindings.PubKey.X25519
-
 import           Botan.Low.Error.Internal
-import           Botan.Low.Prelude
+import           Botan.Low.Internal.ByteString
 import           Botan.Low.PubKey
 import           Botan.Low.Remake
+import           Data.ByteString (ByteString)
 
 -- /*
 -- * Algorithm specific key operations: X25519

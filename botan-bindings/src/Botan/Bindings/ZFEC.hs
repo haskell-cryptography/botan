@@ -42,7 +42,10 @@ module Botan.Bindings.ZFEC (
   , botan_zfec_decode
   ) where
 
-import           Botan.Bindings.Prelude
+import           Botan.Bindings.ConstPtr
+import           Data.Word
+import           Foreign.C.Types
+import           Foreign.Ptr
 
 -- | Encode some bytes with certain ZFEC parameters.
 foreign import capi safe "botan/ffi.h botan_zfec_encode"

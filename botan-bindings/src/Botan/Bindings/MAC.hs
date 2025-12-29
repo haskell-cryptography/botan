@@ -35,7 +35,8 @@ The Botan MAC computation is split into five stages.
 - Finalize the MAC computation.
 -}
 
-{-# LANGUAGE CApiFFI #-}
+{-# LANGUAGE CApiFFI           #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Botan.Bindings.MAC (
     BotanMACStruct
@@ -60,7 +61,13 @@ module Botan.Bindings.MAC (
   , botan_mac_get_keyspec
   ) where
 
-import           Botan.Bindings.Prelude
+import           Botan.Bindings.ConstPtr
+import           Data.String
+import           Data.Word
+import           Foreign.C.Types
+import           Foreign.ForeignPtr
+import           Foreign.Ptr
+import           Foreign.Storable
 
 -- | Opaque MAC struct
 data {-# CTYPE "botan/ffi.h" "struct botan_mac_struct" #-} BotanMACStruct

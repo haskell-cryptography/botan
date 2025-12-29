@@ -25,16 +25,23 @@ module Botan.Low.PubKey.Sign (
 
   ) where
 
-import qualified Data.ByteString as ByteString
-
+import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Bindings.PubKey.Sign
-
 import           Botan.Low.Error.Internal
+import           Botan.Low.Internal.ByteString
 import           Botan.Low.Make
-import           Botan.Low.Prelude
 import           Botan.Low.PubKey
 import           Botan.Low.Remake
 import           Botan.Low.RNG
+import           Control.DeepSeq
+import           Data.ByteString (ByteString)
+import qualified Data.ByteString as ByteString
+import           Data.Word
+import           Foreign.C.Types
+import           Foreign.ForeignPtr
+import           Foreign.Marshal.Alloc
+import           Foreign.Ptr
+import           Foreign.Storable
 
 -- /*
 -- * Signature Generation

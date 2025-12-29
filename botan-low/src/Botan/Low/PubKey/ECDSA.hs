@@ -4,10 +4,9 @@ module Botan.Low.PubKey.ECDSA (
   ) where
 
 import           Botan.Bindings.PubKey.ECDSA
-
 import           Botan.Low.MPI
-import           Botan.Low.Prelude
 import           Botan.Low.PubKey
+import           Data.ByteString (ByteString)
 
 privKeyLoadECDSA
     :: MP           -- ^ __scalar__

@@ -79,10 +79,6 @@ common language
 library
   import: warnings, language
   hs-source-dirs: src
-  default-extensions:
-    NoImplicitPrelude
-    OverloadedStrings
-
   exposed-modules:
     Botan.Low.Bcrypt
     Botan.Low.BlockCipher
@@ -123,8 +119,9 @@ library
 
   other-modules:
     Botan.Low.Error.Internal
+    Botan.Low.Internal.ByteString
+    Botan.Low.Internal.String
     Botan.Low.Make
-    Botan.Low.Prelude
     Botan.Low.Remake
 
   build-depends:

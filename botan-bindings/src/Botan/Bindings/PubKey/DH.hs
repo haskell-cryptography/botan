@@ -17,8 +17,9 @@ module Botan.Bindings.PubKey.DH (
   ) where
 
 import           Botan.Bindings.MPI
-import           Botan.Bindings.Prelude
 import           Botan.Bindings.PubKey
+import           Foreign.C.Types
+import           Foreign.Ptr
 
 -- | Loads Diffie Hellman private key
 foreign import capi safe "botan/ffi.h botan_privkey_load_dh"

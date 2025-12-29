@@ -47,7 +47,12 @@ module Botan.Bindings.HOTP (
   , botan_hotp_check
   ) where
 
-import           Botan.Bindings.Prelude
+import           Botan.Bindings.ConstPtr
+import           Data.Word
+import           Foreign.C.Types
+import           Foreign.ForeignPtr
+import           Foreign.Ptr
+import           Foreign.Storable
 
 -- | Opaque HOTP struct
 data {-# CTYPE "botan/ffi.h" "struct botan_hotp_struct" #-} BotanHOTPStruct

@@ -24,9 +24,19 @@ module Botan.Low.Remake (
   , mkWithObjectSetterCBytesLen
   ) where
 
+import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Low.Error.Internal
-import           Botan.Low.Make (allocBytesQuerying)
-import           Botan.Low.Prelude hiding (init)
+import           Botan.Low.Internal.ByteString
+import           Botan.Low.Make
+import           Control.Exception
+import           Data.ByteString (ByteString)
+import           Data.Word
+import           Foreign.C.Types
+import           Foreign.ForeignPtr
+import           Foreign.Marshal.Alloc
+import           Foreign.Ptr
+import           Foreign.Storable
+import           Prelude hiding (init)
 
 mkBindings
     ::  (Storable botan)
@@ -85,6 +95,8 @@ mkCreateObjectCString
 -- mkCreateObjectCString createObject init cstr = withCString cstr $ \ namePtr -> do
 --     createObject $ \ outPtr -> init outPtr (ConstPtr namePtr)
 mkCreateObjectCString createObject = mkCreateObjectWith createObject withConstCString
+  where
+    withConstCString bs k = withCString bs $ \ptr -> k (ConstPtr ptr)
 
 -- TODO: Rename mkCreateCString1
 mkCreateObjectCString1

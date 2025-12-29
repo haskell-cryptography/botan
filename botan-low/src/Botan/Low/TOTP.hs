@@ -50,12 +50,20 @@ module Botan.Low.TOTP (
 
   ) where
 
+import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Bindings.TOTP
-
 import           Botan.Low.Error.Internal
 import           Botan.Low.Hash
-import           Botan.Low.Prelude
+import           Botan.Low.Internal.ByteString
 import           Botan.Low.Remake
+import           Control.Monad
+import           Data.ByteString (ByteString)
+import           Data.Word
+import           Foreign.C.Types
+import           Foreign.ForeignPtr
+import           Foreign.Marshal.Alloc
+import           Foreign.Ptr
+import           Foreign.Storable
 
 -- NOTE: RFC 6238
 
