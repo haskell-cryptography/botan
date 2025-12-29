@@ -224,12 +224,13 @@ totpGenerate totp timestamp = withTOTP totp $ \ totpPtr -> do
         peek outPtr
 
 -- | Verify a TOTP code
-totpCheck
-    :: TOTP             -- ^ __totp__: the TOTP object
-    -> TOTPCode         -- ^ __totp_code__: the presented OTP
-    -> TOTPTimestamp    -- ^ __timestamp__: the current local timestamp
-    -> Int              -- ^ __acceptable_clock_drift__: specifies the acceptable amount
-                        --   of clock drift (in terms of time steps) between the two hosts.
-    -> IO Bool
-totpCheck totp code timestamp drift = withTOTP totp $ \ totpPtr -> do
-    throwBotanCatchingSuccess $ botan_totp_check totpPtr code timestamp (fromIntegral drift)
+totpCheck ::
+     TOTP             -- ^ __totp__: the TOTP object
+  -> TOTPCode         -- ^ __totp_code__: the presented OTP
+  -> TOTPTimestamp    -- ^ __timestamp__: the current local timestamp
+  -> Int              -- ^ __acceptable_clock_drift__: specifies the acceptable amount
+                      --   of clock drift (in terms of time steps) between the two hosts.
+  -> IO Bool
+totpCheck totp code timestamp drift =
+    withTOTP totp $ \ totpPtr ->
+    throwBotanCatchingInvalidVerifier $ botan_totp_check totpPtr code timestamp (fromIntegral drift)

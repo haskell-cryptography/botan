@@ -43,9 +43,10 @@ module Botan.Low.Error.Internal (
   , throwBotanError
   , throwBotanIfNegative
   , throwBotanIfNegative_
-  , throwBotanCatchingSuccess
+  , throwBotanCatchingInvalidVerifier
+  , throwBotanCatchingInvalidInput
   , throwBotanCatchingBool
-  , throwBotanCatchingInt
+  , throwBotanCatching
   , throwBotanErrorWithCallstack
   ) where
 
@@ -225,18 +226,24 @@ throwBotanIfNegative_ act = do
     e <- act
     when (e < 0) $ throwBotanErrorWithCallstack e callStack
 
--- TODO: Rename to throwBotanCatchingInvalidIdentifier, add new
--- throwBotanCatchingSuccess. See issue #46.
---
--- NOTE: Catches 0 / Success as True and 1 / InvalidIdentifier as False, throws
--- all other values
-throwBotanCatchingSuccess :: HasCallStack => IO CInt -> IO Bool
-throwBotanCatchingSuccess act = do
+-- | 'throwBotanCatching' with @retCode = 'BOTAN_FFI_INVALID_VERIFIER'@.
+throwBotanCatchingInvalidVerifier :: HasCallStack => IO CInt -> IO Bool
+throwBotanCatchingInvalidVerifier = throwBotanCatching BOTAN_FFI_INVALID_VERIFIER
+
+-- | 'throwBotanCatching' with @retCode = 'BOTAN_FFI_ERROR_INVALID_INPUT'@.
+throwBotanCatchingInvalidInput :: HasCallStack => IO CInt -> IO Bool
+throwBotanCatchingInvalidInput = throwBotanCatching BOTAN_FFI_ERROR_INVALID_INPUT
+
+-- | @'throwBotanCatching' retCode action@ runs the @action@ and catches return
+-- code 0 (Success) as True and @retCode@ as False. All other return codes are
+-- thrown as exceptions.
+throwBotanCatching :: HasCallStack => CInt -> IO CInt -> IO Bool
+throwBotanCatching x act = do
     result <- act
     case result of
-        BOTAN_FFI_SUCCESS           -> return True
-        BOTAN_FFI_INVALID_VERIFIER  -> return False
-        _                           -> throwBotanErrorWithCallstack result callStack
+      BOTAN_FFI_SUCCESS -> return True
+      _ | x == result   -> return False
+        | otherwise     -> throwBotanErrorWithCallstack result callStack
 
 -- NOTE: Catches 1 as True and 0 as False, throws all other values
 throwBotanCatchingBool :: HasCallStack => IO CInt -> IO Bool
@@ -246,16 +253,6 @@ throwBotanCatchingBool act = do
         0 -> return False
         1 -> return True
         _ -> throwBotanErrorWithCallstack result callStack
-
--- TODO: remove throwBotanCatchingInt. See issue #60.
---
--- NOTE: Catches positive numbers including zero, throws all other values
--- Equivalent to fromIntegral . throwBotanIfNegative
-throwBotanCatchingInt :: HasCallStack => IO CInt -> IO Int
-throwBotanCatchingInt act = do
-    result <- act
-    when (result < 0) $ throwBotanErrorWithCallstack result callStack
-    return (fromIntegral result)
 
 throwBotanErrorWithCallstack :: CInt -> CallStack -> IO a
 throwBotanErrorWithCallstack e cs =  do

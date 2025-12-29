@@ -150,10 +150,11 @@ Returns True iff this password/hash combination is valid,
 False if the combination is not valid (but otherwise well formed),
 and otherwise throws an exception on error.
 -}
-bcryptIsValid
-    :: BcryptPassword   -- ^ __password__: The password to check against
-    -> BcryptDigest     -- ^ __hash__: The stored hash to check against
-    -> IO Bool
-bcryptIsValid password hash = asCString password $ \ passwordPtr -> do
-    asCString hash $ \ hashPtr -> do
-        throwBotanCatchingSuccess $ botan_bcrypt_is_valid (ConstPtr passwordPtr) (ConstPtr hashPtr)
+bcryptIsValid ::
+     BcryptPassword   -- ^ __password__: The password to check against
+  -> BcryptDigest     -- ^ __hash__: The stored hash to check against
+  -> IO Bool
+bcryptIsValid password hash =
+    asCString password $ \ passwordPtr ->
+    asCString hash $ \ hashPtr ->
+    throwBotanCatchingInvalidVerifier $ botan_bcrypt_is_valid (ConstPtr passwordPtr) (ConstPtr hashPtr)

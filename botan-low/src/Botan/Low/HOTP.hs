@@ -229,14 +229,15 @@ hotpGenerate hotp counter = withHOTP hotp $ \ hotpPtr -> do
 --      invalid then always returns (false,starting_counter), since the
 --      last successful authentication counter has not changed. ""
 -- NOTE: "Depending on the environment a resync_range of 3 to 10 might be appropriate."
-hotpCheck
-    :: HOTP                     -- ^ __hotp__
-    -> HOTPCode                 -- ^ __hotp_code__
-    -> HOTPCounter              -- ^ __hotp_counter__
-    -> Int                      -- ^ __resync_range__
-    -> IO (Bool, HOTPCounter)   -- ^ __(valid,next_counter)__
-hotpCheck hotp code counter resync = withHOTP hotp $ \ hotpPtr -> do
+hotpCheck ::
+     HOTP                     -- ^ __hotp__
+  -> HOTPCode                 -- ^ __hotp_code__
+  -> HOTPCounter              -- ^ __hotp_counter__
+  -> Int                      -- ^ __resync_range__
+  -> IO (Bool, HOTPCounter)   -- ^ __(valid,next_counter)__
+hotpCheck hotp code counter resync =
+    withHOTP hotp $ \ hotpPtr ->
     alloca $ \ outPtr -> do
-        valid <- throwBotanCatchingSuccess $ botan_hotp_check hotpPtr outPtr code counter (fromIntegral resync)
-        nextCounter <- peek outPtr
-        return (valid, nextCounter)
+      valid <- throwBotanCatchingInvalidVerifier $ botan_hotp_check hotpPtr outPtr code counter (fromIntegral resync)
+      nextCounter <- peek outPtr
+      return (valid, nextCounter)
