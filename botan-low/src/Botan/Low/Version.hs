@@ -45,7 +45,7 @@ botanFFISupportsAPI version = do
     throwBotanCatchingInvalidInput $ botan_ffi_supports_api (fromIntegral version)
 
 botanVersionString :: IO ByteString
-botanVersionString = botan_version_string >>= peekCString . unConstPtr
+botanVersionString = botan_version_string >>= peekCString . (.unConstPtr)
 
 -- | Returns the major version of the library
 botanVersionMajor :: IO Int

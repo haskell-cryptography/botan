@@ -288,8 +288,8 @@ privKeyDestroy  :: PrivKey -> IO ()
 createPrivKey   :: (Ptr BotanPrivKey -> IO CInt) -> IO PrivKey
 (withPrivKey, privKeyDestroy, createPrivKey)
     = mkBindings
-        MkBotanPrivKey runBotanPrivKey
-        MkPrivKey getPrivKeyForeignPtr
+        MkBotanPrivKey (.runBotanPrivKey)
+        MkPrivKey (.getPrivKeyForeignPtr)
         botan_privkey_destroy
 
 type PKName = ByteString
@@ -679,8 +679,8 @@ pubKeyDestroy  :: PubKey -> IO ()
 createPubKey   :: (Ptr BotanPubKey -> IO CInt) -> IO PubKey
 (withPubKey, pubKeyDestroy, createPubKey)
     = mkBindings
-        MkBotanPubKey runBotanPubKey
-        MkPubKey getPubKeyForeignPtr
+        MkBotanPubKey (.runBotanPubKey)
+        MkPubKey (.getPubKeyForeignPtr)
         botan_pubkey_destroy
 
 pubKeyLoad

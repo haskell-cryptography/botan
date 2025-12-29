@@ -80,8 +80,8 @@ fpeDestroy  :: FPE -> IO ()
 createFPE   :: (Ptr BotanFPE -> IO CInt) -> IO FPE
 (withFPE, fpeDestroy, createFPE)
     = mkBindings
-        MkBotanFPE runBotanFPE
-        MkFPE getFPEForeignPtr
+        MkBotanFPE (.runBotanFPE)
+        MkFPE (.getFPEForeignPtr)
         botan_fpe_destroy
 
 data FPEFlags =

@@ -44,8 +44,8 @@ verifyDestroy  :: Verify -> IO ()
 createVerify   :: (Ptr BotanPKOpVerify -> IO CInt) -> IO Verify
 (withVerify, verifyDestroy, createVerify)
     = mkBindings
-        MkBotanPKOpVerify runBotanPKOpVerify
-        MkVerify getVerifyForeignPtr
+        MkBotanPKOpVerify (.runBotanPKOpVerify)
+        MkVerify (.getVerifyForeignPtr)
         botan_pk_op_verify_destroy
 
 verifyCreate

@@ -92,8 +92,8 @@ mpDestroy  :: MP -> IO ()
 createMP   :: (Ptr BotanMP -> IO CInt) -> IO MP
 (withMP, mpDestroy, createMP)
     = mkBindings
-        MkBotanMP runBotanMP
-        MkMP getMPForeignPtr
+        MkBotanMP (.runBotanMP)
+        MkMP (.getMPForeignPtr)
         botan_mp_destroy
 
 mpInit :: IO MP

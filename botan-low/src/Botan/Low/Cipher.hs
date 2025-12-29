@@ -203,8 +203,8 @@ cipherDestroy  :: Cipher -> IO ()
 createCipher   :: (Ptr BotanCipher -> IO CInt) -> IO Cipher
 (withCipher, cipherDestroy, createCipher)
     = mkBindings
-        MkBotanCipher runBotanCipher
-        MkCipher getCipherForeignPtr
+        MkBotanCipher (.runBotanCipher)
+        MkCipher (.getCipherForeignPtr)
         botan_cipher_destroy
 
 type CipherNonce = ByteString

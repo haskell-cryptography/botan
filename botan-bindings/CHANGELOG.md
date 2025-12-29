@@ -32,6 +32,10 @@
   "Cascade" ciphers respectively.
 * PATCH: restrict the version of the C++ library to `<4`. See PR
   [#103](https://github.com/haskell-cryptography/botan/pull/103).
+* BREAKING: enable `NoFieldSelectors`. See PR
+  [#106](https://github.com/haskell-cryptography/botan/pull/106). As a result,
+  this package no longer exports field selectors for datatypes defined in the
+  package.
 
 ## 0.1.0.0 -- 2025-09-17
 

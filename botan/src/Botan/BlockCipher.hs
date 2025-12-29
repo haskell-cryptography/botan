@@ -243,10 +243,10 @@ isBlockCipher128 :: BlockCipher -> Bool
 isBlockCipher128 = isJust . blockCipher128
 
 blockCipher128Name :: BlockCipher128 -> Low.BlockCipherName
-blockCipher128Name = blockCipherName . unBlockCipher128
+blockCipher128Name = blockCipherName . (.unBlockCipher128)
 
 blockCipher128KeySpec :: BlockCipher128 -> BlockCipherKeySpec
-blockCipher128KeySpec = blockCipherKeySpec . unBlockCipher128
+blockCipher128KeySpec = blockCipherKeySpec . (.unBlockCipher128)
 
 -- Associated types
 
@@ -436,7 +436,7 @@ data MutableBlockCipher = MkMutableBlockCipher
 -- Destructor
 
 destroyBlockCipher :: (MonadIO m) => MutableBlockCipher -> m ()
-destroyBlockCipher = liftIO . Low.blockCipherDestroy . mutableBlockCipherCtx
+destroyBlockCipher = liftIO . Low.blockCipherDestroy . (.mutableBlockCipherCtx)
 
 -- Initializers
 
@@ -454,20 +454,20 @@ getBlockCipherName
     :: (MonadIO m)
     => MutableBlockCipher   -- ^ The cipher object
     -> m (Low.BlockCipherName)  -- ^ The cipher name
-getBlockCipherName = liftIO . Low.blockCipherName . mutableBlockCipherCtx
+getBlockCipherName = liftIO . Low.blockCipherName . (.mutableBlockCipherCtx)
 
 getBlockCipherBlockSize
     :: (MonadIO m)
     => MutableBlockCipher  -- ^ The cipher object
     -> m Int
-getBlockCipherBlockSize = liftIO . Low.blockCipherBlockSize . mutableBlockCipherCtx
+getBlockCipherBlockSize = liftIO . Low.blockCipherBlockSize . (.mutableBlockCipherCtx)
 
 getBlockCipherKeySpec
     :: (MonadIO m)
     => MutableBlockCipher  -- ^ The cipher object
     -> m BlockCipherKeySpec
 getBlockCipherKeySpec mc = do
-    (mn,mx,md) <- liftIO $ Low.blockCipherGetKeyspec (mutableBlockCipherCtx mc)
+    (mn,mx,md) <- liftIO $ Low.blockCipherGetKeyspec mc.mutableBlockCipherCtx
     return $ keySpec mn mx md
 
 setBlockCipherKey
@@ -479,14 +479,14 @@ setBlockCipherKey k mc = do
     valid <- keySizeIsValid (ByteString.length k) <$> getBlockCipherKeySpec mc
     if valid
     then do
-        liftIO $ Low.blockCipherSetKey (mutableBlockCipherCtx mc) k
+        liftIO $ Low.blockCipherSetKey mc.mutableBlockCipherCtx k
         return True
     else return False
 
 -- Accessory functions
 
 clearBlockCipher :: (MonadIO m) => MutableBlockCipher -> m ()
-clearBlockCipher = liftIO . Low.blockCipherClear . mutableBlockCipherCtx
+clearBlockCipher = liftIO . Low.blockCipherClear . (.mutableBlockCipherCtx)
 
 -- Mutable algorithm
 
@@ -497,7 +497,7 @@ encryptBlockCipherBlocks
     => MutableBlockCipher
     -> ByteString
     -> m BlockCipherText
-encryptBlockCipherBlocks mc pt = liftIO $ Low.blockCipherEncryptBlocks (mutableBlockCipherCtx mc) pt
+encryptBlockCipherBlocks mc pt = liftIO $ Low.blockCipherEncryptBlocks mc.mutableBlockCipherCtx pt
 
 -- NOTE: Not maybe because it should never fail in a proper context (ie, having set the key successfully)
 decryptBlockCipherBlocks
@@ -505,7 +505,7 @@ decryptBlockCipherBlocks
     => MutableBlockCipher
     -> BlockCipherText
     -> m ByteString
-decryptBlockCipherBlocks mc ct = liftIO $ Low.blockCipherDecryptBlocks (mutableBlockCipherCtx mc) ct
+decryptBlockCipherBlocks mc ct = liftIO $ Low.blockCipherDecryptBlocks mc.mutableBlockCipherCtx ct
 
 autoEncryptBlockCipherBlocks
     :: (MonadIO m)

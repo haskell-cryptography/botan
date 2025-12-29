@@ -48,8 +48,8 @@ decryptDestroy  :: Decrypt -> IO ()
 createDecrypt   :: (Ptr BotanPKOpDecrypt -> IO CInt) -> IO Decrypt
 (withDecrypt, decryptDestroy, createDecrypt)
     = mkBindings
-        MkBotanPKOpDecrypt runBotanPKOpDecrypt
-        MkDecrypt getDecryptForeignPtr
+        MkBotanPKOpDecrypt (.runBotanPKOpDecrypt)
+        MkDecrypt (.getDecryptForeignPtr)
         botan_pk_op_decrypt_destroy
 
 decryptCreate

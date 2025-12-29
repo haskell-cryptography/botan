@@ -73,7 +73,7 @@ newtype BotanErrorCode = BotanErrorCode CInt
 botanErrorDescription :: BotanErrorCode -> IO ByteString
 botanErrorDescription (BotanErrorCode e) = do
     descPtr <- botan_error_description e
-    peekCString (unConstPtr descPtr)
+    peekCString descPtr.unConstPtr
 
 newtype BotanErrorMessage = BotanErrorMessage ByteString
   deriving newtype Show
@@ -84,7 +84,7 @@ newtype BotanErrorMessage = BotanErrorMessage ByteString
 botanErrorLastExceptionMessage :: IO BotanErrorMessage
 botanErrorLastExceptionMessage = do
     msgPtr <- botan_error_last_exception_message
-    BotanErrorMessage <$> peekCString (unConstPtr msgPtr)
+    BotanErrorMessage <$> peekCString msgPtr.unConstPtr
 
 {-------------------------------------------------------------------------------
   Exception hierarchy

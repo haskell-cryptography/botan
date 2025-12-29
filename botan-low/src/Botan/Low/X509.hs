@@ -111,7 +111,7 @@ withX509Cert     :: X509Cert -> (BotanX509Cert -> IO a) -> IO a
 x509CertDestroy  :: X509Cert -> IO ()
 createX509Cert   :: (Ptr BotanX509Cert -> IO CInt) -> IO X509Cert
 (withX509Cert, x509CertDestroy, createX509Cert)
-    = mkBindings MkBotanX509Cert runBotanX509Cert MkX509Cert getX509CertForeignPtr botan_x509_cert_destroy
+    = mkBindings MkBotanX509Cert (.runBotanX509Cert) MkX509Cert (.getX509CertForeignPtr) botan_x509_cert_destroy
 
 x509CertLoad
     :: ByteString   -- ^ __cert[]__
@@ -357,7 +357,7 @@ x509CertValidationStatus code = do
     status <- botan_x509_cert_validation_status (fromIntegral code)
     if status == ConstPtr nullPtr
         then return Nothing
-        else Just <$> packCString (unConstPtr status)
+        else Just <$> packCString status.unConstPtr
 
 -- /*
 -- * X.509 CRL
@@ -371,7 +371,7 @@ withX509CRL     :: X509CRL -> (BotanX509CRL -> IO a) -> IO a
 x509CRLDestroy  :: X509CRL -> IO ()
 createX509CRL   :: (Ptr BotanX509CRL -> IO CInt) -> IO X509CRL
 (withX509CRL, x509CRLDestroy, createX509CRL)
-    = mkBindings MkBotanX509CRL runBotanX509CRL MkX509CRL getX509CRLForeignPtr botan_x509_crl_destroy
+    = mkBindings MkBotanX509CRL (.runBotanX509CRL) MkX509CRL (.getX509CRLForeignPtr) botan_x509_crl_destroy
 
 x509CRLLoad
     :: ByteString   -- ^ __crl_bits[]__

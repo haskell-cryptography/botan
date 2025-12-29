@@ -169,8 +169,8 @@ macDestroy  :: MAC -> IO ()
 createMAC   :: (Ptr BotanMAC -> IO CInt) -> IO MAC
 (withMAC, macDestroy, createMAC)
     = mkBindings
-        MkBotanMAC runBotanMAC
-        MkMAC getMACForeignPtr
+        MkBotanMAC (.runBotanMAC)
+        MkMAC (.getMACForeignPtr)
         botan_mac_destroy
 
 type MACName = ByteString

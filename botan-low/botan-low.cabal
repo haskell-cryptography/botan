@@ -70,9 +70,11 @@ common language
   default-language: GHC2021
   default-extensions:
     DerivingStrategies
+    DuplicateRecordFields
     LambdaCase
+    NoFieldSelectors
+    OverloadedRecordDot
     PatternSynonyms
-    RecordWildCards
     RoleAnnotations
     ViewPatterns
 

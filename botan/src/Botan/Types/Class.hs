@@ -265,7 +265,7 @@ newtype GSecretKey = MkGSecretKey { unGSecretKey :: ByteString }
     deriving newtype (Eq, Ord, Encodable)
 
 instance Show GSecretKey where
-    show = showByteStringHex . unGSecretKey
+    show = showByteStringHex . (.unGSecretKey)
 
 -- NOTE: Cannot do g- / default implementation of new keys since we do not yet
 -- have the secret key constructor.
@@ -303,7 +303,7 @@ newtype GNonce = MkGNonce { unGNonce :: ByteString }
     deriving newtype (Eq, Ord, Encodable)
 
 instance Show GNonce where
-    show = showByteStringHex . unGNonce
+    show = showByteStringHex . (.unGNonce)
 
 -- HACK: Grodiest bytestring incrementer ever
 instance IsNonce GNonce where
@@ -329,7 +329,7 @@ newtype GSalt = MkGSalt { unGSalt :: ByteString }
     deriving newtype (Eq, Ord, Encodable)
 
 instance Show GSalt where
-    show = showByteStringHex . unGSalt
+    show = showByteStringHex . (.unGSalt)
 
 --
 -- Password
@@ -344,7 +344,7 @@ newtype GPassword = MkGPassword { unGPassword :: Text }
     deriving newtype (Eq, Ord, Encodable)
 
 instance Show GPassword where
-    show = Text.unpack . unGPassword
+    show = Text.unpack . (.unGPassword)
 
 --
 -- Digest
@@ -358,7 +358,7 @@ newtype GDigest = MkGDigest { unGDigest :: ByteString }
     deriving newtype (Eq, Ord, Encodable)
 
 instance Show GDigest where
-    show = showByteStringHex . unGDigest
+    show = showByteStringHex . (.unGDigest)
 
 --
 -- Ciphertext
@@ -372,7 +372,7 @@ newtype GCiphertext = MkGCiphertext { unGCiphertext :: ByteString }
     deriving newtype (Eq, Ord, Encodable)
 
 instance Show GCiphertext where
-    show = showByteStringHex . unGCiphertext
+    show = showByteStringHex . (.unGCiphertext)
 
 --
 -- Incremental Ciphertext
@@ -390,7 +390,7 @@ newtype GLazyCiphertext = MkGLazyCiphertext { unGLazyCiphertext :: Lazy.ByteStri
     deriving newtype (Eq, Ord, Encodable, LazyEncodable)
 
 instance Show GLazyCiphertext where
-    show = showByteStringHex . ByteString.toStrict . unGLazyCiphertext
+    show = showByteStringHex . ByteString.toStrict . (.unGLazyCiphertext)
 
 --
 -- TODO: classes / data families for:

@@ -193,7 +193,7 @@ type MACDigest = ByteString
 macName :: MAC -> ByteString
 macName (CMAC bc)       = Low.cmac (blockCipherName bc)
 macName (GMAC bc)       = Low.gmac (blockCipherName bc)
-macName (HMAC h)        = Low.hmac (hashName (unCryptoHash h))
+macName (HMAC h)        = Low.hmac (hashName h.unCryptoHash)
 macName Poly1305        = Low.Poly1305
 macName (SipHash ir fr) = Low.sipHash ir fr
 macName X9_19_MAC       = Low.X9_19_MAC
@@ -232,7 +232,7 @@ generateMACKeySpec = do
 macDigestLength :: MAC -> Int
 macDigestLength (CMAC bc)     = blockCipherBlockSize bc
 macDigestLength (GMAC _)      = 16    -- Always 16
-macDigestLength (HMAC h)      = hashDigestSize (unCryptoHash h)
+macDigestLength (HMAC h)      = hashDigestSize h.unCryptoHash
 macDigestLength Poly1305      = 16
 -- TODO: Check more variants
 macDigestLength (SipHash 2 4) = 8
@@ -303,7 +303,7 @@ destroyMAC
     :: (MonadIO m)
     => MutableMAC
     -> m ()
-destroyMAC = liftIO . Low.macDestroy . mutableMACCtx
+destroyMAC = liftIO . Low.macDestroy . (.mutableMACCtx)
 
 -- Initializers
 
@@ -321,21 +321,21 @@ getMACName
     :: (MonadIO m)
     => MutableMAC
     -> m Low.MACName
-getMACName = liftIO . Low.macName . mutableMACCtx
+getMACName = liftIO . Low.macName . (.mutableMACCtx)
 
 getMACKeySpec
     :: (MonadIO m)
     => MutableMAC
     -> m MACKeySpec
 getMACKeySpec mm = do
-    (mn,mx,md) <- liftIO $ Low.macGetKeyspec (mutableMACCtx mm)
+    (mn,mx,md) <- liftIO $ Low.macGetKeyspec mm.mutableMACCtx
     return $ keySpec mn mx md
 
 getMACDigestLength
     :: (MonadIO m)
     => MutableMAC
     -> m Int
-getMACDigestLength = liftIO . Low.macOutputLength . mutableMACCtx
+getMACDigestLength = liftIO . Low.macOutputLength . (.mutableMACCtx)
 
 setMACKey
     :: (MonadIO m)
@@ -346,7 +346,7 @@ setMACKey k mm = do
     valid <- keySizeIsValid (ByteString.length k) <$> getMACKeySpec mm
     if valid
     then do
-        liftIO $ Low.macSetKey (mutableMACCtx mm) k
+        liftIO $ Low.macSetKey mm.mutableMACCtx k
         return True
     else return False
 
@@ -372,7 +372,7 @@ clearMAC
     :: (MonadIO m)
     => MutableMAC
     -> m ()
-clearMAC = liftIO . Low.macClear . mutableMACCtx
+clearMAC = liftIO . Low.macClear . (.mutableMACCtx)
 
 -- Mutable algorithm
 
@@ -391,14 +391,14 @@ updateMACChunks
     => MutableMAC
     -> [ByteString]
     -> m ()
-updateMACChunks mm chunks = let ctx = mutableMACCtx mm in
-    liftIO $ traverse_ (Low.macUpdate ctx) chunks
+updateMACChunks mm chunks =
+    liftIO $ traverse_ (Low.macUpdate mm.mutableMACCtx) chunks
 
 finalizeMAC
     :: (MonadIO m)
     => MutableMAC
     -> m MACDigest
-finalizeMAC = liftIO . Low.macFinal . mutableMACCtx
+finalizeMAC = liftIO . Low.macFinal . (.mutableMACCtx)
 
 updateFinalizeMAC
     :: (MonadIO m)

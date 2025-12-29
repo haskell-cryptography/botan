@@ -484,7 +484,7 @@ destroyHash
     :: (MonadIO m)
     => MutableHash
     -> m ()
-destroyHash = liftIO . Low.hashDestroy . mutableHashCtx
+destroyHash = liftIO . Low.hashDestroy . (.mutableHashCtx)
 
 -- Initializers
 
@@ -502,19 +502,19 @@ getHashName
     :: (MonadIO m)
     => MutableHash
     -> m Low.HashName
-getHashName = liftIO . Low.hashName . mutableHashCtx
+getHashName = liftIO . Low.hashName . (.mutableHashCtx)
 
 getHashBlockSize
     :: (MonadIO m)
     => MutableHash
     -> m Int
-getHashBlockSize = liftIO . Low.hashBlockSize . mutableHashCtx
+getHashBlockSize = liftIO . Low.hashBlockSize . (.mutableHashCtx)
 
 getHashDigestSize
     :: (MonadIO m)
     => MutableHash
     -> m Int
-getHashDigestSize = liftIO . Low.hashOutputLength . mutableHashCtx
+getHashDigestSize = liftIO . Low.hashOutputLength . (.mutableHashCtx)
 
 -- Accessory functions
 
@@ -523,14 +523,14 @@ copyHashState
     => MutableHash
     -> m MutableHash
 copyHashState mh = do
-    ctx <- liftIO $ Low.hashCopyState $ mutableHashCtx mh
-    return $ MkMutableHash (mutableHashType mh) ctx
+    ctx <- liftIO $ Low.hashCopyState mh.mutableHashCtx
+    return $ MkMutableHash mh.mutableHashType ctx
 
 clearHash
     :: (MonadIO m)
     => MutableHash
     -> m ()
-clearHash = liftIO . Low.hashClear . mutableHashCtx
+clearHash = liftIO . Low.hashClear . (.mutableHashCtx)
 
 -- Mutable algorithm
 -- TODO: Flip?
@@ -547,14 +547,14 @@ updateHashChunks
     => MutableHash
     -> [ByteString]
     -> m ()
-updateHashChunks mh chunks = let ctx = mutableHashCtx mh in
-    liftIO $ traverse_ (Low.hashUpdate ctx) chunks
+updateHashChunks mh chunks =
+    liftIO $ traverse_ (Low.hashUpdate mh.mutableHashCtx) chunks
 
 finalizeHash
     :: (MonadIO m)
     => MutableHash
     -> m HashDigest
-finalizeHash = liftIO . Low.hashFinal . mutableHashCtx
+finalizeHash = liftIO . Low.hashFinal . (.mutableHashCtx)
 
 updateFinalizeHash
     :: (MonadIO m)
