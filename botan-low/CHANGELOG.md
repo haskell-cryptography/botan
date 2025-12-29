@@ -67,6 +67,7 @@
   - `CheckKeyFlags`
   - `PrivKeyExportFlags`
   - `HexEncodingFlags`
+- BREAKING: remove the `botan-low-bench` benchmark. See PR [#98]
 
 ## 0.0.2.0 -- 2025-09-17
 

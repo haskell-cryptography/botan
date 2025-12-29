@@ -190,24 +190,3 @@ test-suite test
 
   other-modules: Paths_botan_low
   autogen-modules: Paths_botan_low
-
-benchmark botan-low-bench
-  import: warnings, language
-  hs-source-dirs: bench
-  main-is: Bcrypt.hs
-  type: exitcode-stdio-1.0
-  build-depends:
-    base,
-    botan-low,
-    bytestring,
-    crypton,
-    tasty-bench,
-
-  default-extensions:
-    NoImplicitPrelude
-    OverloadedStrings
-
-  ghc-options: -with-rtsopts=-A32m
-
-  if impl(ghc >=8.6)
-    ghc-options: -fproc-alignment=64
