@@ -12,7 +12,8 @@ Public key cryptography is a collection of techniques allowing
 for encryption, signatures, and key agreement.
 -}
 
-{-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE LambdaCase        #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Botan.Low.PubKey (
 

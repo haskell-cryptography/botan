@@ -14,6 +14,8 @@ the entire original input.
 
 -}
 
+{-# LANGUAGE OverloadedStrings #-}
+
 module Botan.Low.ZFEC (
 
   -- * Forward Error Correction

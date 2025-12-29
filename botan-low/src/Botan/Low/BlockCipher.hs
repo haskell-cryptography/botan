@@ -15,6 +15,8 @@ Ciphers](https://botan.randombit.net/handbook/api_ref/block_cipher.html) section
 of the C++ API reference.
 -}
 
+{-# LANGUAGE OverloadedStrings #-}
+
 module Botan.Low.BlockCipher (
     -- * Introduction
     -- $introduction

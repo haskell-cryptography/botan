@@ -35,6 +35,8 @@ The Botan MAC computation is split into five stages.
 - Finalize the MAC computation.
 -}
 
+{-# LANGUAGE OverloadedStrings #-}
+
 module Botan.Low.MAC (
 
   -- * Message authentication codes

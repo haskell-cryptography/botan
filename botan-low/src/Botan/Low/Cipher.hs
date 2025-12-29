@@ -14,6 +14,8 @@ a mode of operation applies the block cipher’s single block operation
 repeatedly to encrypt an entire message.
 -}
 
+{-# LANGUAGE OverloadedStrings #-}
+
 module Botan.Low.Cipher (
 
   -- * Cipher

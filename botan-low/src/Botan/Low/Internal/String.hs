@@ -1,8 +1,9 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Botan.Low.Internal.String (
     (//)
   , (/$)
   ) where
-
 
 import           Data.String (IsString (..))
 
