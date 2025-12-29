@@ -29,11 +29,12 @@ module Botan.Low.KeyWrap (
 
   ) where
 
+import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Bindings.KeyWrap
-
 import           Botan.Low.BlockCipher
 import           Botan.Low.Make
 import           Botan.Low.Prelude
+import           Data.ByteString (ByteString)
 
 nistKeyWrapEncode
     :: BlockCipherName  -- ^ __cipher_algo__

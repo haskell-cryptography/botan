@@ -21,13 +21,17 @@ module Botan.Low.PubKey.Verify (
 
   ) where
 
+import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Bindings.PubKey.Verify
-
 import           Botan.Low.Error.Internal
 import           Botan.Low.Prelude
 import           Botan.Low.PubKey
 import           Botan.Low.PubKey.Sign (SigningFlags)
 import           Botan.Low.Remake
+import           Data.ByteString (ByteString)
+import           Foreign.C.Types
+import           Foreign.ForeignPtr
+import           Foreign.Ptr
 
 -- /*
 -- * Signature Verification

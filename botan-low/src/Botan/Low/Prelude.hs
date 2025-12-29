@@ -1,23 +1,5 @@
 module Botan.Low.Prelude (
-    module Prelude
-  , module Control.Monad
-  , module Control.Exception
-  , module Control.DeepSeq
-  , module Data.ByteString
-  , module Data.String
-  , module Data.Text
-  , module Data.Word
-  , module System.IO
-  , module Foreign.C.String
-  , module Foreign.C.Types
-  , module Foreign.ForeignPtr
-  , module Foreign.Marshal.Alloc
-  , module Foreign.Marshal.Array
-  , module Foreign.Ptr
-  , module Foreign.Storable
-  , module GHC.Stack
-  , ConstPtr(..)
-  , peekCString
+    peekCString
   , withCString
   , withCBytes
   , withCBytesLen
@@ -39,14 +21,8 @@ module Botan.Low.Prelude (
   , showBytes
   ) where
 
--- Re-exported modules
-
-import           Prelude
-
+import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Control.DeepSeq
-import           Control.Exception
-import           Control.Monad
-
 import           Data.ByteString (ByteString)
 import qualified Data.ByteString as ByteString
 import qualified Data.ByteString.Char8 as Char8
@@ -56,21 +32,12 @@ import           Data.String (IsString (..))
 import           Data.Text (Text)
 import qualified Data.Text.Encoding as Text
 import           Data.Word
-
-import           System.IO
-
 import           Foreign.C.String hiding (peekCString, peekCStringLen,
                      withCString, withCStringLen)
 import           Foreign.C.Types
 import           Foreign.ForeignPtr
-import           Foreign.Marshal.Alloc
-import           Foreign.Marshal.Array
 import           Foreign.Ptr
-import           Foreign.Storable
-
-import           GHC.Stack
-
-import           Botan.Bindings.ConstPtr (ConstPtr (..))
+import           Prelude
 
 {-
 Small rant: CString is a bit of a mess

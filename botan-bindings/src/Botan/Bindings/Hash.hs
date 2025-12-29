@@ -26,7 +26,7 @@ the arguments concatenated. After completing a hash computation (eg using
 hashFinal), the internal state is reset to begin hashing a new message.
 -}
 
-{-# LANGUAGE CApiFFI #-}
+{-# LANGUAGE CApiFFI           #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Botan.Bindings.Hash (

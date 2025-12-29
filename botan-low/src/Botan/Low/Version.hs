@@ -23,11 +23,10 @@ module Botan.Low.Version (
   , botanVersionDatestamp
   ) where
 
-import           Data.Bool
-
+import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Bindings.Version
-
 import           Botan.Low.Prelude
+import           Data.ByteString (ByteString)
 
 -- | Returns the version of the currently supported FFI API. This is expressed in the form YYYYMMDD of the release date of this version of the API.
 botanFFIAPIVersion :: IO Int

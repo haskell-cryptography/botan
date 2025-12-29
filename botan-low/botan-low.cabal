@@ -80,7 +80,6 @@ library
   import: warnings, language
   hs-source-dirs: src
   default-extensions:
-    NoImplicitPrelude
     OverloadedStrings
 
   exposed-modules:

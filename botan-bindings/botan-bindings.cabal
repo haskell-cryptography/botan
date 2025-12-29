@@ -71,7 +71,6 @@ common language
 library
   import: warnings, language
   hs-source-dirs: src
-
   exposed-modules:
     Botan.Bindings.Bcrypt
     Botan.Bindings.BlockCipher

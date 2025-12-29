@@ -9,7 +9,7 @@ Stability   : experimental
 Portability : POSIX
 -}
 
-{-# LANGUAGE CApiFFI #-}
+{-# LANGUAGE CApiFFI           #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Botan.Bindings.RNG (

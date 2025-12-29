@@ -35,13 +35,16 @@ module Botan.Low.Bcrypt (
 
   ) where
 
-import qualified Data.ByteString as ByteString
-
 import           Botan.Bindings.Bcrypt
-
+import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Low.Error.Internal
 import           Botan.Low.Prelude
 import           Botan.Low.RNG
+import           Data.ByteString (ByteString)
+import qualified Data.ByteString as ByteString
+import           Foreign.Marshal.Alloc
+import           Foreign.Ptr
+import           Foreign.Storable
 
 {- $introduction
 

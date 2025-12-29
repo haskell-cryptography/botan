@@ -78,12 +78,15 @@ module Botan.Low.MAC (
   ) where
 
 import           Botan.Bindings.MAC
-
 import           Botan.Low.BlockCipher
 import           Botan.Low.Error.Internal
 import           Botan.Low.Make
 import           Botan.Low.Prelude
 import           Botan.Low.Remake
+import           Data.ByteString (ByteString)
+import           Foreign.C.Types
+import           Foreign.ForeignPtr
+import           Foreign.Ptr
 
 {- $introduction
 

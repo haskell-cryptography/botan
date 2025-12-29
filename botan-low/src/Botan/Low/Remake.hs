@@ -24,9 +24,19 @@ module Botan.Low.Remake (
   , mkWithObjectSetterCBytesLen
   ) where
 
+import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Low.Error.Internal
-import           Botan.Low.Make (allocBytesQuerying)
-import           Botan.Low.Prelude hiding (init)
+import           Botan.Low.Make
+import           Botan.Low.Prelude
+import           Control.Exception
+import           Data.ByteString (ByteString)
+import           Data.Word
+import           Foreign.C.Types
+import           Foreign.ForeignPtr
+import           Foreign.Marshal.Alloc
+import           Foreign.Ptr
+import           Foreign.Storable
+import           Prelude hiding (init)
 
 mkBindings
     ::  (Storable botan)

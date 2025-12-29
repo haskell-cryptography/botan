@@ -69,12 +69,13 @@ module Botan.Low.KDF (
 
   ) where
 
+import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Bindings.KDF
-
 import           Botan.Low.Error.Internal
 import           Botan.Low.Hash
 import           Botan.Low.MAC
 import           Botan.Low.Prelude
+import           Data.ByteString (ByteString)
 
 type KDFName = ByteString
 

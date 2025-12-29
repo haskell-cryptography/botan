@@ -13,7 +13,7 @@ Deriviation](https://botan.randombit.net/handbook/api_ref/pbkdf.html) section of
 the C++ API reference.
 -}
 
-{-# LANGUAGE CApiFFI #-}
+{-# LANGUAGE CApiFFI           #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Botan.Bindings.PwdHash (

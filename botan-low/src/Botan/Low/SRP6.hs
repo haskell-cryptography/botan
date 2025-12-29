@@ -41,16 +41,22 @@ module Botan.Low.SRP6 (
   , pattern MODP_SRP_8192
   ) where
 
-import qualified Data.ByteString.Internal as BS
-
+import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Bindings.SRP6
-
 import           Botan.Low.Error.Internal
 import           Botan.Low.Hash
 import           Botan.Low.Prelude
 import           Botan.Low.PubKey
 import           Botan.Low.Remake
 import           Botan.Low.RNG
+import           Data.ByteString (ByteString)
+import qualified Data.ByteString.Internal as BS
+import           Data.Word
+import           Foreign.C.Types
+import           Foreign.ForeignPtr
+import           Foreign.Marshal.Alloc
+import           Foreign.Ptr
+import           Foreign.Storable
 
 {-------------------------------------------------------------------------------
   Example usage

@@ -28,13 +28,19 @@ module Botan.Low.ZFEC (
 
   ) where
 
-import qualified Data.ByteString as ByteString
-
+import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Bindings.ZFEC
-
 import           Botan.Low.Error.Internal
 import           Botan.Low.Make
 import           Botan.Low.Prelude
+import           Control.DeepSeq
+import           Data.ByteString (ByteString)
+import qualified Data.ByteString as ByteString
+import           Data.Word
+import           Foreign.C.Types
+import           Foreign.Marshal.Alloc
+import           Foreign.Marshal.Array
+import           Foreign.Ptr
 
 {- $introduction
 

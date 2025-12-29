@@ -16,9 +16,7 @@ module Botan.Low.PubKey.ElGamal (
   ) where
 
 import           Botan.Bindings.PubKey.ElGamal
-
 import           Botan.Low.MPI
-import           Botan.Low.Prelude
 import           Botan.Low.PubKey
 import           Botan.Low.RNG
 

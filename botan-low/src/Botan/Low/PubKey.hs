@@ -177,12 +177,10 @@ module Botan.Low.PubKey (
 
   ) where
 
-import qualified Data.ByteString as ByteString
-
+import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Bindings.MPI
 import           Botan.Bindings.PubKey
 import           Botan.Bindings.RNG
-
 import           Botan.Low.Error.Internal
 import           Botan.Low.Hash
 import           Botan.Low.Make
@@ -190,6 +188,14 @@ import           Botan.Low.MPI
 import           Botan.Low.Prelude
 import           Botan.Low.Remake
 import           Botan.Low.RNG
+import           Data.ByteString (ByteString)
+import qualified Data.ByteString as ByteString
+import           Data.Word
+import           Foreign.C.Types
+import           Foreign.ForeignPtr
+import           Foreign.Marshal.Alloc
+import           Foreign.Ptr
+import           Foreign.Storable
 
 {- $introduction
 

@@ -4,10 +4,9 @@ module Botan.Low.PubKey.ECDH (
   ) where
 
 import           Botan.Bindings.PubKey.ECDH
-
 import           Botan.Low.MPI
-import           Botan.Low.Prelude
 import           Botan.Low.PubKey
+import           Data.ByteString (ByteString)
 
 privKeyLoadECDH
     :: MP           -- ^ __scalar__

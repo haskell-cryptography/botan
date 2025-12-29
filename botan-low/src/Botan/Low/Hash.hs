@@ -93,11 +93,14 @@ module Botan.Low.Hash (
   ) where
 
 import           Botan.Bindings.Hash
-
 import           Botan.Low.Error.Internal
 import           Botan.Low.Make
 import           Botan.Low.Prelude
 import           Botan.Low.Remake
+import           Data.ByteString (ByteString)
+import           Foreign.C.Types
+import           Foreign.ForeignPtr
+import           Foreign.Ptr
 
 {- $introduction
 

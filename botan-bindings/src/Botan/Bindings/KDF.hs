@@ -27,7 +27,7 @@ accidentally use the same input key and salt in some other context, you
 still use different keys in the two contexts.
 -}
 
-{-# LANGUAGE CApiFFI #-}
+{-# LANGUAGE CApiFFI           #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Botan.Bindings.KDF (

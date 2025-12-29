@@ -21,6 +21,7 @@ module Botan.Low.PubKey.Encrypt (
 
   ) where
 
+import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Bindings.PubKey.Encrypt
 import           Botan.Low.Error.Internal (throwBotanIfNegative_)
 import           Botan.Low.Make
@@ -28,8 +29,14 @@ import           Botan.Low.Prelude
 import           Botan.Low.PubKey
 import           Botan.Low.Remake
 import           Botan.Low.RNG
+import           Data.ByteString (ByteString)
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Internal as BSI
+import           Foreign.C.Types
+import           Foreign.ForeignPtr
+import           Foreign.Marshal.Alloc
+import           Foreign.Ptr
+import           Foreign.Storable
 
 -- /*
 -- * Public Key Encryption
