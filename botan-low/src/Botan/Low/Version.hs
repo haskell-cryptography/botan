@@ -25,21 +25,24 @@ module Botan.Low.Version (
 
 import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Bindings.Version
+import           Botan.Low.Error.Internal (throwBotanCatchingInvalidInput)
 import           Botan.Low.Internal.ByteString
 import           Data.ByteString (ByteString)
 
--- | Returns the version of the currently supported FFI API. This is expressed in the form YYYYMMDD of the release date of this version of the API.
+-- | Returns the version of the currently supported FFI API. This is expressed
+-- in the form YYYYMMDD of the release date of this version of the API.
 botanFFIAPIVersion :: IO Int
 botanFFIAPIVersion = fromIntegral <$> botan_ffi_api_version
 
--- | Returns 0 iff the FFI version specified is supported by this library. Otherwise returns -1. The expression botan_ffi_supports_api(botan_ffi_api_version()) will always evaluate to 0. A particular version of the library may also support other (older) versions of the FFI API.
+-- | Returns 'True' iff the FFI version specified is supported by this library,
+-- otherwise returns 'False'.
+--
+-- The expression @'botanFFIAPIVersion' >>= 'botanFFISupportsAPI'@  will always
+-- evaluate to 'True'. A particular version of the library may also support
+-- other (older) versions of the FFI API.
 botanFFISupportsAPI :: Int -> IO Bool
 botanFFISupportsAPI version = do
-    supports <- botan_ffi_supports_api $ fromIntegral version
-    -- TODO: use new @throwBotanCachingSuccess@. See issue #46
-    case supports of
-        0 -> return True
-        _ -> return False
+    throwBotanCatchingInvalidInput $ botan_ffi_supports_api (fromIntegral version)
 
 botanVersionString :: IO ByteString
 botanVersionString = botan_version_string >>= peekCString . unConstPtr
@@ -56,6 +59,7 @@ botanVersionMinor = fromIntegral <$> botan_version_minor
 botanVersionPatch :: IO Int
 botanVersionPatch = fromIntegral <$> botan_version_patch
 
--- | Returns the date this version was released as an integer YYYYMMDD, or 0 if an unreleased version
+-- | Returns the date this version was released as an integer YYYYMMDD, or 0 if
+-- an unreleased version
 botanVersionDatestamp :: IO Int
 botanVersionDatestamp = fromIntegral <$> botan_version_datestamp
