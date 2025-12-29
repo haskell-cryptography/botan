@@ -127,74 +127,60 @@ createKeyAgreement   :: (Ptr BotanPKOpKeyAgreement -> IO CInt) -> IO KeyAgreemen
         botan_pk_op_key_agreement_destroy
 
 -- NOTE: Silently uses the system RNG
-keyAgreementCreate
-    :: PrivKey          -- ^ __key__
-    -> KDFName          -- ^ __kdf__
-    -> IO KeyAgreement  -- ^ __op__
-keyAgreementCreate sk algo = withPrivKey sk $ \ skPtr -> do
-    asCString algo $ \ algoPtr -> do
-        createKeyAgreement $ \ out -> botan_pk_op_key_agreement_create
-            out
-            skPtr
-            (ConstPtr algoPtr)
-            0
+keyAgreementCreate ::
+     PrivKey          -- ^ __key__
+  -> KDFName          -- ^ __kdf__
+  -> IO KeyAgreement  -- ^ __op__
+keyAgreementCreate sk algo =
+    withPrivKey sk $ \ skPtr ->
+    asCString algo $ \ algoPtr ->
+    createKeyAgreement $ \ out ->
+      botan_pk_op_key_agreement_create
+        out
+        skPtr
+        (ConstPtr algoPtr)
+        0
 
 -- NOTE: I do not know if this provides a different functionality than just being
 --  an alias for botan_privkey_export_pubkey / privKeyExportPubKey
 --  Observe that it *does* just take a privkey, instead of a keyagreement
 --  It may simply be here for convenience.
-{-
-int botan_pk_op_key_agreement_export_public(botan_privkey_t key, uint8_t out[], size_t* out_len) {
-   return copy_view_bin(out, out_len, botan_pk_op_key_agreement_view_public, key);
-}
-
-int botan_pk_op_key_agreement_view_public(botan_privkey_t key, botan_view_ctx ctx, botan_view_bin_fn view) {
-   return BOTAN_FFI_VISIT(key, [=](const auto& k) -> int {
-      if(auto kak = dynamic_cast<const Botan::PK_Key_Agreement_Key*>(&k))
-         return invoke_view_callback(view, ctx, kak->public_value());
-      else
-         return BOTAN_FFI_ERROR_INVALID_INPUT;
-   });
-}
--}
-keyAgreementExportPublic
-    :: PrivKey          -- ^ __key__
-    -> IO ByteString    -- ^ __out[]__
-keyAgreementExportPublic sk = withPrivKey sk $ \ skPtr -> do
-    allocBytesQuerying $ \ outPtr outLen -> botan_pk_op_key_agreement_export_public
+keyAgreementExportPublic ::
+     PrivKey          -- ^ __key__
+  -> IO ByteString    -- ^ __out[]__
+keyAgreementExportPublic sk =
+    withPrivKey sk $ \ skPtr ->
+    allocBytesQuerying $ \ outPtr outLen ->
+      botan_pk_op_key_agreement_export_public
         skPtr
         outPtr
         outLen
 
-keyAgreementSize
-    :: KeyAgreement -- ^ __op__
-    -> IO Int       -- ^ __out_len__
+keyAgreementSize ::
+     KeyAgreement -- ^ __op__
+  -> IO Int       -- ^ __out_len__
 keyAgreementSize = mkGetSize withKeyAgreement botan_pk_op_key_agreement_size
 
--- | TODO: This function was leaking memory and causing crashes. Please observe
--- carefully and report any future leaks. See issue #35.
-keyAgreement
-    :: KeyAgreement     -- ^ __op__
-    -> ByteString       -- ^ __out[]__
-    -> ByteString       -- ^ __other_key[]__
-    -> IO ByteString    -- ^ __salt[]__
-keyAgreement ka key salt = withKeyAgreement ka $ \ kaPtr -> do
-    asBytesLen key $ \ keyPtr keyLen -> do
-        asBytesLen salt $ \ saltPtr saltLen -> do
-            outSz <- keyAgreementSize ka
-            alloca $ \ szPtr -> do
-                -- NOTE: This poke was necessary to stop a memory leak
-                -- Similar pokes have been needed elsewere
-                -- TODO: Ensure that all alloca szPtr elsewhere are properly poked
-                poke szPtr (fromIntegral outSz)
-                out <- allocBytes outSz $ \ outPtr -> do
-                    throwBotanIfNegative_ $ botan_pk_op_key_agreement
-                        kaPtr
-                        outPtr
-                        szPtr
-                        (ConstPtr keyPtr)
-                        keyLen
-                        (ConstPtr saltPtr)
-                        saltLen
-                sz <- fromIntegral <$> peek szPtr
-                return $! ByteString.take sz out
+keyAgreement ::
+     KeyAgreement     -- ^ __op__
+  -> ByteString       -- ^ __out[]__
+  -> ByteString       -- ^ __other_key[]__
+  -> IO ByteString    -- ^ __salt[]__
+keyAgreement ka key salt =
+    withKeyAgreement ka $ \ kaPtr ->
+    asBytesLen key $ \ keyPtr keyLen ->
+    asBytesLen salt $ \ saltPtr saltLen -> do
+      outSz <- keyAgreementSize ka
+      alloca $ \ szPtr -> do
+        poke szPtr (fromIntegral outSz)
+        out <- allocBytes outSz $ \ outPtr -> do
+            throwBotanIfNegative_ $ botan_pk_op_key_agreement
+                kaPtr
+                outPtr
+                szPtr
+                (ConstPtr keyPtr)
+                keyLen
+                (ConstPtr saltPtr)
+                saltLen
+        sz <- fromIntegral <$> peek szPtr
+        return $! ByteString.take sz out
