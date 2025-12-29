@@ -115,6 +115,6 @@ library
 
   if flag(pkg-config)
     -- NB: pkg-config is available on windows as well when using msys2
-    pkgconfig-depends: botan-3 >=3.0.0
+    pkgconfig-depends: botan-3 >=3.0.0 && <4
   else
     extra-libraries: botan-3

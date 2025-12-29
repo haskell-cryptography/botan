@@ -30,6 +30,8 @@
 * NON-BREAKING: in the `BlockCipher` module, add new pattern synonyms
   `BOTAN_BLOCK_CIPHER_LION` and `BOTAN_BLOCK_CIPHER_CASCADE` for the "Lion" and
   "Cascade" ciphers respectively.
+* PATCH: restrict the version of the C++ library to `<4`. See PR
+  [#103](https://github.com/haskell-cryptography/botan/pull/103).
 
 ## 0.1.0.0 -- 2025-09-17
 
