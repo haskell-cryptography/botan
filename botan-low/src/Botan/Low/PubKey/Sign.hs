@@ -54,8 +54,8 @@ signDestroy  :: Sign -> IO ()
 createSign   :: (Ptr BotanPKOpSign -> IO CInt) -> IO Sign
 (withSign, signDestroy, createSign)
     = mkBindings
-        MkBotanPKOpSign runBotanPKOpSign
-        MkSign getSignForeignPtr
+        MkBotanPKOpSign (.runBotanPKOpSign)
+        MkSign (.getSignForeignPtr)
         botan_pk_op_sign_destroy
 
 type SigningFlags = Word32

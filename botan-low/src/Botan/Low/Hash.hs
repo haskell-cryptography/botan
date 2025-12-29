@@ -146,8 +146,8 @@ hashDestroy  :: Hash -> IO ()
 createHash   :: (Ptr BotanHash -> IO CInt) -> IO Hash
 (withHash, hashDestroy, createHash)
     = mkBindings
-        MkBotanHash runBotanHash
-        MkHash getHashForeignPtr
+        MkBotanHash (.runBotanHash)
+        MkHash (.getHashForeignPtr)
         botan_hash_destroy
 
 type HashName = ByteString

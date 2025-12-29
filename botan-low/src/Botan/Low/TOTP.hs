@@ -167,8 +167,8 @@ totpDestroy  :: TOTP -> IO ()
 createTOTP   :: (Ptr BotanTOTP -> IO CInt) -> IO TOTP
 (withTOTP, totpDestroy, createTOTP)
     = mkBindings
-        MkBotanTOTP runBotanTOTP
-        MkTOTP getTOTPForeignPtr
+        MkBotanTOTP (.runBotanTOTP)
+        MkTOTP (.getTOTPForeignPtr)
         botan_totp_destroy
 
 type TOTPHashName = HashName

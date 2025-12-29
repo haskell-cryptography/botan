@@ -122,8 +122,8 @@ keyAgreementDestroy  :: KeyAgreement -> IO ()
 createKeyAgreement   :: (Ptr BotanPKOpKeyAgreement -> IO CInt) -> IO KeyAgreement
 (withKeyAgreement, keyAgreementDestroy, createKeyAgreement)
     = mkBindings
-        MkBotanPKOpKeyAgreement runBotanPKOpKeyAgreement
-        MkKeyAgreement getKeyAgreementForeignPtr
+        MkBotanPKOpKeyAgreement (.runBotanPKOpKeyAgreement)
+        MkKeyAgreement (.getKeyAgreementForeignPtr)
         botan_pk_op_key_agreement_destroy
 
 -- NOTE: Silently uses the system RNG

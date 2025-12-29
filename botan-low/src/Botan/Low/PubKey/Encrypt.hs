@@ -49,8 +49,8 @@ encryptDestroy  :: Encrypt -> IO ()
 createEncrypt   :: (Ptr BotanPKOpEncrypt -> IO CInt) -> IO Encrypt
 (withEncrypt, encryptDestroy, createEncrypt)
     = mkBindings
-        MkBotanPKOpEncrypt runBotanPKOpEncrypt
-        MkEncrypt getEncryptForeignPtr
+        MkBotanPKOpEncrypt (.runBotanPKOpEncrypt)
+        MkEncrypt (.getEncryptForeignPtr)
         botan_pk_op_encrypt_destroy
 
 encryptCreate

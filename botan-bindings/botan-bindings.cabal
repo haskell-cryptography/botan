@@ -64,8 +64,10 @@ common language
   default-language: GHC2021
   default-extensions:
     DerivingStrategies
+    DuplicateRecordFields
+    NoFieldSelectors
+    OverloadedRecordDot
     PatternSynonyms
-    RecordWildCards
     RoleAnnotations
 
 library

@@ -127,8 +127,8 @@ kemEncryptDestroy  :: KEMEncrypt -> IO ()
 createKEMEncrypt   :: (Ptr BotanPKOpKEMEncrypt -> IO CInt) -> IO KEMEncrypt
 (withKEMEncrypt, kemEncryptDestroy, createKEMEncrypt)
     = mkBindings
-        MkBotanPKOpKEMEncrypt runBotanPKOpKEMEncrypt
-        MkKEMEncrypt getKEMEncryptForeignPtr
+        MkBotanPKOpKEMEncrypt (.runBotanPKOpKEMEncrypt)
+        MkKEMEncrypt (.getKEMEncryptForeignPtr)
         botan_pk_op_kem_encrypt_destroy
 
 
@@ -198,8 +198,8 @@ kemDecryptDestroy  :: KEMDecrypt -> IO ()
 createKEMDecrypt   :: (Ptr BotanPKOpKEMDecrypt -> IO CInt) -> IO KEMDecrypt
 (withKEMDecrypt, kemDecryptDestroy, createKEMDecrypt)
     = mkBindings
-        MkBotanPKOpKEMDecrypt runBotanPKOpKEMDecrypt
-        MkKEMDecrypt getKEMDecryptForeignPtr
+        MkBotanPKOpKEMDecrypt (.runBotanPKOpKEMDecrypt)
+        MkKEMDecrypt (.getKEMDecryptForeignPtr)
         botan_pk_op_kem_decrypt_destroy
 
 kemDecryptCreate

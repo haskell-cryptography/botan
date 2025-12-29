@@ -173,8 +173,8 @@ hotpDestroy  :: HOTP -> IO ()
 createHOTP   :: (Ptr BotanHOTP -> IO CInt) -> IO HOTP
 (withHOTP, hotpDestroy, createHOTP)
     = mkBindings
-        MkBotanHOTP runBotanHOTP
-        MkHOTP getHOTPForeignPtr
+        MkBotanHOTP (.runBotanHOTP)
+        MkHOTP (.getHOTPForeignPtr)
         botan_hotp_destroy
 
 type HOTPHashName = HashName

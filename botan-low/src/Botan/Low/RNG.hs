@@ -97,7 +97,7 @@ withRNG     :: RNG -> (BotanRNG -> IO a) -> IO a
 rngDestroy  :: RNG -> IO ()
 createRNG   :: (Ptr BotanRNG -> IO CInt) -> IO RNG
 (withRNG, rngDestroy, createRNG)
-    = mkBindings MkBotanRNG runBotanRNG MkRNG getRNGForeignPtr botan_rng_destroy
+    = mkBindings MkBotanRNG (.runBotanRNG) MkRNG (.getRNGForeignPtr) botan_rng_destroy
 
 type RNGType = ByteString
 
