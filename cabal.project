@@ -10,3 +10,11 @@ packages:
 
 tests: True
 benchmarks: True
+
+source-repository-package
+  type: git
+  location: https://github.com/well-typed/hs-bindgen
+  tag: d3986457d8f2f3a1a2b6fe722e764c4160b4d9b5
+  subdir:
+    hs-bindgen-runtime
+    c-expr-runtime

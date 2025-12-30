@@ -67,6 +67,10 @@ jobs:
         - sys: { os: ubuntu-latest, shell: bash }
           ghc-version: "9.6"
           cabal-version: "3.16"
+          botan-version: "3.1.0"
+        - sys: { os: ubuntu-latest, shell: bash }
+          ghc-version: "9.6"
+          cabal-version: "3.16"
           botan-version: "3.1.1"
         - sys: { os: ubuntu-latest, shell: bash }
           ghc-version: "9.6"
@@ -87,11 +91,23 @@ jobs:
         - sys: { os: ubuntu-latest, shell: bash }
           ghc-version: "9.6"
           cabal-version: "3.16"
+          botan-version: "3.6.0"
+        - sys: { os: ubuntu-latest, shell: bash }
+          ghc-version: "9.6"
+          cabal-version: "3.16"
           botan-version: "3.6.1"
         - sys: { os: ubuntu-latest, shell: bash }
           ghc-version: "9.6"
           cabal-version: "3.16"
+          botan-version: "3.7.0"
+        - sys: { os: ubuntu-latest, shell: bash }
+          ghc-version: "9.6"
+          cabal-version: "3.16"
           botan-version: "3.7.1"
+        - sys: { os: ubuntu-latest, shell: bash }
+          ghc-version: "9.6"
+          cabal-version: "3.16"
+          botan-version: "3.8.0"
         - sys: { os: ubuntu-latest, shell: bash }
           ghc-version: "9.6"
           cabal-version: "3.16"
@@ -206,7 +222,7 @@ jobs:
 
     - name: 🛠️ Setup cabal-docspec (Linux)
       if: ${{ runner.os == 'Linux' && !startsWith(matrix.ghc-version, '9.2') && !startsWith(matrix.ghc-version, '9.4') }}
-      uses: jorisdral/actions/setup-cabal-docspec@main
+      uses: jorisdral/actions/setup-cabal-docspec@setup-cabal-docspec-v0
 
     - name: 🧪 Test with cabal-docspec (Linux)
       if: ${{ runner.os == 'Linux' && !startsWith(matrix.ghc-version, '9.2') && !startsWith(matrix.ghc-version, '9.4') }}
@@ -299,7 +315,7 @@ jobs:
         # The index-state is fixed to enable caching and ensure that the version
         # regardless of the current state of Hackage head.
         # If you want a newer version of stylish-haskell, use a more recent time.
-        hackage-index-state: "2025-09-15T11:44:03Z"
+        hackage-index-state: "2025-12-08T00:00:00Z"
 
     - name: 🎗️ Lint with stylish-haskell
       run: ./scripts/format-stylish-haskell.sh && git diff --exit-code
