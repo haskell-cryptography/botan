@@ -9,41 +9,22 @@ Stability   : experimental
 Portability : POSIX
 -}
 
-{-# LANGUAGE CApiFFI #-}
-
 module Botan.Bindings.PubKey.Ed25519 (
     botan_privkey_load_ed25519
   , botan_pubkey_load_ed25519
-  , botan_privkey_ed25519_get_privkey
-  , botan_pubkey_ed25519_get_pubkey
+  , Safe.botan_privkey_ed25519_get_privkey
+  , Safe.botan_pubkey_ed25519_get_pubkey
   ) where
 
-import           Botan.Bindings.ConstPtr
-import           Botan.Bindings.PubKey
-import           Data.Word
-import           Foreign.C.Types
-import           Foreign.Ptr
+import qualified Botan.Bindings.Generated as Types
+import qualified Botan.Bindings.Generated.Safe as Safe
+import           Data.Word (Word8)
+import           Foreign.C.Types (CInt)
+import           Foreign.Ptr (Ptr)
+import           HsBindgen.Runtime.ConstPtr (ConstPtr)
 
-foreign import capi safe "botan/ffi.h botan_privkey_load_ed25519"
-    botan_privkey_load_ed25519
-        :: Ptr BotanPrivKey -- ^ __key__
-        -> ConstPtr Word8   -- ^ __privkey[32]__
-        -> IO CInt
+botan_privkey_load_ed25519 :: Ptr Types.Botan_privkey_t -> ConstPtr Word8 -> IO CInt
+botan_privkey_load_ed25519 = Safe.botan_privkey_load_ed25519_wrapper
 
-foreign import capi safe "botan/ffi.h botan_pubkey_load_ed25519"
-    botan_pubkey_load_ed25519
-        :: Ptr BotanPubKey  -- ^ __key__
-        -> ConstPtr Word8   -- ^ __pubkey[32]__
-        -> IO CInt
-
-foreign import capi safe "botan/ffi.h botan_privkey_ed25519_get_privkey"
-    botan_privkey_ed25519_get_privkey
-        :: BotanPrivKey     -- ^ __key__
-        -> Ptr Word8        -- ^ __output[64]__
-        -> IO CInt
-
-foreign import capi safe "botan/ffi.h botan_pubkey_ed25519_get_pubkey"
-    botan_pubkey_ed25519_get_pubkey
-        :: BotanPubKey      -- ^ __key__
-        -> Ptr Word8        -- ^ __pubkey[32]__
-        -> IO CInt
+botan_pubkey_load_ed25519 :: Ptr Types.Botan_pubkey_t -> ConstPtr Word8 -> IO CInt
+botan_pubkey_load_ed25519 = Safe.botan_pubkey_load_ed25519_wrapper

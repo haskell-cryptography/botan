@@ -24,9 +24,9 @@ module Botan.Low.PubKey.Sign (
 
   ) where
 
-import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Bindings.PubKey.Sign
 import           Botan.Low.Error.Internal
+import qualified Botan.Low.Internal as Internal
 import           Botan.Low.Internal.ByteString
 import           Botan.Low.Make
 import           Botan.Low.PubKey
@@ -41,29 +41,30 @@ import           Foreign.ForeignPtr
 import           Foreign.Marshal.Alloc
 import           Foreign.Ptr
 import           Foreign.Storable
+import           HsBindgen.Runtime.ConstPtr (ConstPtr (..))
 
 -- /*
 -- * Signature Generation
 -- */
 
-newtype Sign = MkSign { getSignForeignPtr :: ForeignPtr BotanPKOpSignStruct }
+newtype Sign = MkSign { getSignForeignPtr :: ForeignPtr Botan_pk_op_sign_struct }
 
-withSign     :: Sign -> (BotanPKOpSign -> IO a) -> IO a
+withSign     :: Sign -> (Botan_pk_op_sign_t -> IO a) -> IO a
 signDestroy  :: Sign -> IO ()
-createSign   :: (Ptr BotanPKOpSign -> IO CInt) -> IO Sign
+createSign   :: (Ptr Botan_pk_op_sign_t -> IO CInt) -> IO Sign
 (withSign, signDestroy, createSign)
     = mkBindings
-        MkBotanPKOpSign (.runBotanPKOpSign)
+        Botan_pk_op_sign_t (.un_Botan_pk_op_sign_t)
         MkSign (.getSignForeignPtr)
-        botan_pk_op_sign_destroy
+        (Internal.funPtrIgnoreRetCode botan_pk_op_sign_destroy_ptr)
 
 data SigningFlags =
     StandardFormatSignature
   | DERFormatSignature
 
 signingFlags :: SigningFlags -> Word32
-signingFlags StandardFormatSignature = BOTAN_PUBKEY_STD_FORMAT_SIGNATURE
-signingFlags DERFormatSignature      = BOTAN_PUBKEY_DER_FORMAT_SIGNATURE
+signingFlags StandardFormatSignature = 0
+signingFlags DERFormatSignature = fromIntegral bOTAN_PUBKEY_DER_FORMAT_SIGNATURE
 
 signCreate
     :: PrivKey      -- ^ __key__

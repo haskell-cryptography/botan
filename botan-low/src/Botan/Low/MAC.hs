@@ -82,6 +82,7 @@ module Botan.Low.MAC (
 import           Botan.Bindings.MAC
 import           Botan.Low.BlockCipher
 import           Botan.Low.Error.Internal
+import qualified Botan.Low.Internal as Internal
 import           Botan.Low.Internal.ByteString
 import           Botan.Low.Internal.String
 import           Botan.Low.Make
@@ -162,16 +163,16 @@ If you must use GMAC, a nonce needs to be set:
 -- * Message Authentication type
 -- */
 
-newtype MAC = MkMAC { getMACForeignPtr :: ForeignPtr BotanMACStruct }
+newtype MAC = MkMAC { getMACForeignPtr :: ForeignPtr Botan_mac_struct }
 
-withMAC     :: MAC -> (BotanMAC -> IO a) -> IO a
+withMAC     :: MAC -> (Botan_mac_t -> IO a) -> IO a
 macDestroy  :: MAC -> IO ()
-createMAC   :: (Ptr BotanMAC -> IO CInt) -> IO MAC
+createMAC   :: (Ptr Botan_mac_t -> IO CInt) -> IO MAC
 (withMAC, macDestroy, createMAC)
     = mkBindings
-        MkBotanMAC (.runBotanMAC)
+        Botan_mac_t (.un_Botan_mac_t)
         MkMAC (.getMACForeignPtr)
-        botan_mac_destroy
+        (Internal.funPtrIgnoreRetCode botan_mac_destroy_ptr)
 
 type MACName = ByteString
 

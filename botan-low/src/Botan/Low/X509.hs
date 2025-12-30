@@ -68,10 +68,10 @@ module Botan.Low.X509 (
 
   ) where
 
-import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Bindings.X509
 import           Botan.Low.Error.Internal
 import           Botan.Low.Hash (HashName)
+import qualified Botan.Low.Internal as Internal
 import           Botan.Low.Internal.ByteString
 import           Botan.Low.Make
 import           Botan.Low.PubKey
@@ -88,6 +88,8 @@ import           Foreign.Marshal.Alloc
 import           Foreign.Marshal.Array
 import           Foreign.Ptr
 import           Foreign.Storable
+import           HsBindgen.Runtime.CEnum (CEnum (fromCEnum))
+import           HsBindgen.Runtime.ConstPtr (ConstPtr (..))
 
 -- TODO: Use *.Make module to ensure consistency
 
@@ -97,14 +99,14 @@ import           Foreign.Storable
 
 type DistinguishedName = ByteString
 
-newtype X509Cert = MkX509Cert { getX509CertForeignPtr :: ForeignPtr BotanX509CertStruct }
+newtype X509Cert = MkX509Cert { getX509CertForeignPtr :: ForeignPtr Botan_x509_cert_struct }
 
-withX509Cert     :: X509Cert -> (BotanX509Cert -> IO a) -> IO a
+withX509Cert     :: X509Cert -> (Botan_x509_cert_t -> IO a) -> IO a
 -- | Destroy an x509 cert object immediately
 x509CertDestroy  :: X509Cert -> IO ()
-createX509Cert   :: (Ptr BotanX509Cert -> IO CInt) -> IO X509Cert
+createX509Cert   :: (Ptr Botan_x509_cert_t -> IO CInt) -> IO X509Cert
 (withX509Cert, x509CertDestroy, createX509Cert)
-    = mkBindings MkBotanX509Cert (.runBotanX509Cert) MkX509Cert (.getX509CertForeignPtr) botan_x509_cert_destroy
+    = mkBindings Botan_x509_cert_t (.un_Botan_x509_cert_t) MkX509Cert (.getX509CertForeignPtr) (Internal.funPtrIgnoreRetCode botan_x509_cert_destroy_ptr)
 
 x509CertLoad
     :: ByteString   -- ^ __cert[]__
@@ -247,16 +249,16 @@ data X509KeyConstraints =
   | DecipherOnly
 
 x509KeyConstraints :: X509KeyConstraints -> CUInt
-x509KeyConstraints NoConstraints    = NO_CONSTRAINTS
-x509KeyConstraints DigitalSignature = DIGITAL_SIGNATURE
-x509KeyConstraints NonRepudiation   = NON_REPUDIATION
-x509KeyConstraints KeyEncipherment  = KEY_ENCIPHERMENT
-x509KeyConstraints DataEncipherment = DATA_ENCIPHERMENT
-x509KeyConstraints KeyAgreement     = KEY_AGREEMENT
-x509KeyConstraints KeyCertSign      = KEY_CERT_SIGN
-x509KeyConstraints CRLSign          = CRL_SIGN
-x509KeyConstraints EncipherOnly     = ENCIPHER_ONLY
-x509KeyConstraints DecipherOnly     = DECIPHER_ONLY
+x509KeyConstraints NoConstraints    = fromCEnum NO_CONSTRAINTS
+x509KeyConstraints DigitalSignature = fromCEnum DIGITAL_SIGNATURE
+x509KeyConstraints NonRepudiation   = fromCEnum NON_REPUDIATION
+x509KeyConstraints KeyEncipherment  = fromCEnum KEY_ENCIPHERMENT
+x509KeyConstraints DataEncipherment = fromCEnum DATA_ENCIPHERMENT
+x509KeyConstraints KeyAgreement     = fromCEnum KEY_AGREEMENT
+x509KeyConstraints KeyCertSign      = fromCEnum KEY_CERT_SIGN
+x509KeyConstraints CRLSign          = fromCEnum CRL_SIGN
+x509KeyConstraints EncipherOnly     = fromCEnum ENCIPHER_ONLY
+x509KeyConstraints DecipherOnly     = fromCEnum DECIPHER_ONLY
 
 x509KeyConstraintsList :: [X509KeyConstraints] -> CUInt
 x509KeyConstraintsList [] = x509KeyConstraints NoConstraints
@@ -352,13 +354,13 @@ x509CertValidationStatus code = do
 
 -- TODO: Move to Botan.Low.X509.CRL after merging extended FFI
 
-newtype X509CRL = MkX509CRL { getX509CRLForeignPtr :: ForeignPtr BotanX509CRLStruct }
+newtype X509CRL = MkX509CRL { getX509CRLForeignPtr :: ForeignPtr Botan_x509_crl_struct }
 
-withX509CRL     :: X509CRL -> (BotanX509CRL -> IO a) -> IO a
+withX509CRL     :: X509CRL -> (Botan_x509_crl_t -> IO a) -> IO a
 x509CRLDestroy  :: X509CRL -> IO ()
-createX509CRL   :: (Ptr BotanX509CRL -> IO CInt) -> IO X509CRL
+createX509CRL   :: (Ptr Botan_x509_crl_t -> IO CInt) -> IO X509CRL
 (withX509CRL, x509CRLDestroy, createX509CRL)
-    = mkBindings MkBotanX509CRL (.runBotanX509CRL) MkX509CRL (.getX509CRLForeignPtr) botan_x509_crl_destroy
+    = mkBindings Botan_x509_crl_t (.un_Botan_x509_crl_t) MkX509CRL (.getX509CRLForeignPtr) (Internal.funPtrIgnoreRetCode botan_x509_crl_destroy_ptr)
 
 x509CRLLoad
     :: ByteString   -- ^ __crl_bits[]__

@@ -27,9 +27,9 @@ module Botan.Low.PubKey.KeyAgreement (
 
   ) where
 
-import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Bindings.PubKey.KeyAgreement
 import           Botan.Low.Error.Internal
+import qualified Botan.Low.Internal as Internal
 import           Botan.Low.Internal.ByteString
 import           Botan.Low.KDF
 import           Botan.Low.Make
@@ -42,6 +42,7 @@ import           Foreign.ForeignPtr
 import           Foreign.Marshal.Alloc
 import           Foreign.Ptr
 import           Foreign.Storable
+import           HsBindgen.Runtime.ConstPtr (ConstPtr (..))
 
 {- $introduction
 
@@ -115,16 +116,16 @@ agreed-upon salt:
 
 -}
 
-newtype KeyAgreement = MkKeyAgreement { getKeyAgreementForeignPtr :: ForeignPtr BotanPKOpKeyAgreementStruct }
+newtype KeyAgreement = MkKeyAgreement { getKeyAgreementForeignPtr :: ForeignPtr Botan_pk_op_ka_struct }
 
-withKeyAgreement     :: KeyAgreement -> (BotanPKOpKeyAgreement -> IO a) -> IO a
+withKeyAgreement     :: KeyAgreement -> (Botan_pk_op_ka_t -> IO a) -> IO a
 keyAgreementDestroy  :: KeyAgreement -> IO ()
-createKeyAgreement   :: (Ptr BotanPKOpKeyAgreement -> IO CInt) -> IO KeyAgreement
+createKeyAgreement   :: (Ptr Botan_pk_op_ka_t -> IO CInt) -> IO KeyAgreement
 (withKeyAgreement, keyAgreementDestroy, createKeyAgreement)
     = mkBindings
-        MkBotanPKOpKeyAgreement (.runBotanPKOpKeyAgreement)
+        Botan_pk_op_ka_t (.un_Botan_pk_op_ka_t)
         MkKeyAgreement (.getKeyAgreementForeignPtr)
-        botan_pk_op_key_agreement_destroy
+        (Internal.funPtrIgnoreRetCode botan_pk_op_key_agreement_destroy_ptr)
 
 -- NOTE: Silently uses the system RNG
 keyAgreementCreate ::

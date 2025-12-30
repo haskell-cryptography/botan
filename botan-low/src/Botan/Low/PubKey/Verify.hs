@@ -21,9 +21,9 @@ module Botan.Low.PubKey.Verify (
 
   ) where
 
-import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Bindings.PubKey.Verify
 import           Botan.Low.Error.Internal
+import qualified Botan.Low.Internal as Internal
 import           Botan.Low.Internal.ByteString
 import           Botan.Low.PubKey
 import           Botan.Low.PubKey.Sign (SigningFlags, signingFlags)
@@ -32,21 +32,22 @@ import           Data.ByteString (ByteString)
 import           Foreign.C.Types
 import           Foreign.ForeignPtr
 import           Foreign.Ptr
+import           HsBindgen.Runtime.ConstPtr (ConstPtr (..))
 
 -- /*
 -- * Signature Verification
 -- */
 
-newtype Verify = MkVerify { getVerifyForeignPtr :: ForeignPtr BotanPKOpVerifyStruct }
+newtype Verify = MkVerify { getVerifyForeignPtr :: ForeignPtr Botan_pk_op_verify_struct }
 
-withVerify     :: Verify -> (BotanPKOpVerify -> IO a) -> IO a
+withVerify     :: Verify -> (Botan_pk_op_verify_t -> IO a) -> IO a
 verifyDestroy  :: Verify -> IO ()
-createVerify   :: (Ptr BotanPKOpVerify -> IO CInt) -> IO Verify
+createVerify   :: (Ptr Botan_pk_op_verify_t -> IO CInt) -> IO Verify
 (withVerify, verifyDestroy, createVerify)
     = mkBindings
-        MkBotanPKOpVerify (.runBotanPKOpVerify)
+        Botan_pk_op_verify_t (.un_Botan_pk_op_verify_t)
         MkVerify (.getVerifyForeignPtr)
-        botan_pk_op_verify_destroy
+        (Internal.funPtrIgnoreRetCode botan_pk_op_verify_destroy_ptr)
 
 verifyCreate
     :: PubKey       -- ^ __key__

@@ -74,6 +74,7 @@ import           Foreign.ForeignPtr
 import           Foreign.Marshal.Alloc
 import           Foreign.Ptr
 import           Foreign.Storable
+import           HsBindgen.Runtime.CEnum (CEnum (toCEnum))
 import           Prelude hiding (init)
 
 {-
@@ -480,7 +481,7 @@ allocBytesQuerying fn = do
     alloca $ \ szPtr -> do
         poke szPtr 0
         code <- fn nullPtr szPtr
-        case code of
+        case toCEnum code of
             BOTAN_FFI_ERROR_INSUFFICIENT_BUFFER_SPACE -> do
                 sz <- fromIntegral <$> peek szPtr
                 allocBytes sz $ \ outPtr -> throwBotanIfNegative_ $ fn outPtr szPtr

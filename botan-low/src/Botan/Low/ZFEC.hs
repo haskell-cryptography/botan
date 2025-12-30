@@ -30,7 +30,6 @@ module Botan.Low.ZFEC (
 
   ) where
 
-import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Bindings.ZFEC
 import           Botan.Low.Error.Internal
 import           Botan.Low.Internal.ByteString
@@ -43,6 +42,7 @@ import           Foreign.C.Types
 import           Foreign.Marshal.Alloc
 import           Foreign.Marshal.Array
 import           Foreign.Ptr
+import           HsBindgen.Runtime.ConstPtr (ConstPtr (..))
 
 {- $introduction
 

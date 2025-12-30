@@ -15,21 +15,21 @@ Ciphers](https://botan.randombit.net/handbook/api_ref/block_cipher.html) section
 of the C++ API reference.
 -}
 
-{-# LANGUAGE CApiFFI           #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Botan.Bindings.BlockCipher (
-    BotanBlockCipherStruct
-  , BotanBlockCipher (..)
-  , botan_block_cipher_destroy
-  , botan_block_cipher_init
-  , botan_block_cipher_clear
+    Types.Botan_block_cipher_t(..)
+  , Types.Botan_block_cipher_struct
+  , Safe.botan_block_cipher_destroy
+  , botan_block_cipher_destroy_ptr
+  , Safe.botan_block_cipher_init
+  , Safe.botan_block_cipher_clear
   , botan_block_cipher_set_key
-  , botan_block_cipher_block_size
+  , Safe.botan_block_cipher_block_size
   , botan_block_cipher_encrypt_blocks
   , botan_block_cipher_decrypt_blocks
-  , botan_block_cipher_name
-  , botan_block_cipher_get_keyspec
+  , Safe.botan_block_cipher_name
+  , Safe.botan_block_cipher_get_keyspec
     -- * Available ciphers
     -- $available-ciphers
   , pattern BOTAN_BLOCK_CIPHER_AES_128
@@ -58,95 +58,27 @@ module Botan.Bindings.BlockCipher (
   , pattern BOTAN_BLOCK_CIPHER_TWOFISH
   ) where
 
-import           Botan.Bindings.ConstPtr
-import           Data.String
-import           Data.Word
-import           Foreign.C.Types
-import           Foreign.ForeignPtr
-import           Foreign.Ptr
-import           Foreign.Storable
+import qualified Botan.Bindings.Generated as Types
+import qualified Botan.Bindings.Generated.FunPtr as FunPtr
+import qualified Botan.Bindings.Generated.Safe as Safe
+import           Data.String (IsString)
+import           Data.Word (Word8)
+import           Foreign.C.Types (CInt, CSize)
+import           Foreign.Ptr (FunPtr, Ptr)
+import           HsBindgen.Runtime.ConstPtr (ConstPtr)
 
-{-------------------------------------------------------------------------------
-  Block ciphers
--------------------------------------------------------------------------------}
 
--- | Opaque BlockCipher struct
-data {-# CTYPE "botan/ffi.h" "struct botan_block_cipher_struct" #-} BotanBlockCipherStruct
+botan_block_cipher_destroy_ptr :: FunPtr (Types.Botan_block_cipher_t -> IO CInt)
+botan_block_cipher_destroy_ptr = FunPtr.botan_block_cipher_destroy
 
--- | Botan BlockCipher object
-newtype {-# CTYPE "botan/ffi.h" "botan_block_cipher_t" #-} BotanBlockCipher
-    = MkBotanBlockCipher { runBotanBlockCipher :: Ptr BotanBlockCipherStruct }
-        deriving newtype (Eq, Ord, Storable)
+botan_block_cipher_set_key :: Types.Botan_block_cipher_t -> ConstPtr Word8 -> CSize -> IO CInt
+botan_block_cipher_set_key = Safe.botan_block_cipher_set_key_wrapper
 
--- | Destroy a block cipher object
---
--- NOTE: this a binding to the /address/ of the @botan_block_cipher_destroy@ C
--- function.
-foreign import capi safe "botan/ffi.h &botan_block_cipher_destroy"
-  botan_block_cipher_destroy
-    :: FinalizerPtr BotanBlockCipherStruct
+botan_block_cipher_encrypt_blocks :: Types.Botan_block_cipher_t -> ConstPtr Word8 -> Ptr Word8 -> CSize -> IO CInt
+botan_block_cipher_encrypt_blocks = Safe.botan_block_cipher_encrypt_blocks_wrapper
 
--- | Initialize a block cipher object
-foreign import capi safe "botan/ffi.h botan_block_cipher_init"
-  botan_block_cipher_init
-    :: Ptr BotanBlockCipher -- ^ __bc__
-    -> ConstPtr CChar       -- ^ __cipher_name__
-    -> IO CInt
-
--- | Reinitializes the block cipher
-foreign import capi safe "botan/ffi.h botan_block_cipher_clear"
-  botan_block_cipher_clear
-    :: BotanBlockCipher -- ^ __bc__
-    -> IO CInt          -- ^ 0 on success, a negative value on failure
-
--- | Set the key for a block cipher instance
-foreign import capi safe "botan/ffi.h botan_block_cipher_set_key"
-  botan_block_cipher_set_key
-    :: BotanBlockCipher -- ^ __bc__
-    -> ConstPtr Word8   -- ^ __key[]__
-    -> CSize            -- ^ __len__
-    -> IO CInt
-
--- | Return the positive block size of this block cipher, or negative to indicate an error
-foreign import capi safe "botan/ffi.h botan_block_cipher_block_size"
-  botan_block_cipher_block_size
-    :: BotanBlockCipher -- ^ __bc__
-    -> IO CInt
-
--- | Encrypt one or more blocks with the cipher
-foreign import capi safe "botan/ffi.h botan_block_cipher_encrypt_blocks"
-  botan_block_cipher_encrypt_blocks
-    :: BotanBlockCipher -- ^ __bc__
-    -> ConstPtr Word8   -- ^ __in[]__
-    -> Ptr Word8        -- ^ __out[]__
-    -> CSize            -- ^ __blocks__
-    -> IO CInt
-
--- | Decrypt one or more blocks with the cipher
-foreign import capi safe "botan/ffi.h botan_block_cipher_decrypt_blocks"
-  botan_block_cipher_decrypt_blocks
-    :: BotanBlockCipher -- ^ __bc__
-    -> ConstPtr Word8   -- ^ __in[]__
-    -> Ptr Word8        -- ^ __out[]__
-    -> CSize            -- ^ __blocks__
-    -> IO CInt
-
--- | Get the name of this block cipher
-foreign import capi safe "botan/ffi.h botan_block_cipher_name"
-  botan_block_cipher_name
-    :: BotanBlockCipher -- ^ __cipher__: the object to read
-    -> Ptr CChar        -- ^ __name__: output buffer
-    -> Ptr CSize        -- ^ __name_len__: on input, the length of buffer, on success the number of bytes written
-    -> IO CInt
-
--- | Get the key length limits of this block cipher
-foreign import capi safe "botan/ffi.h botan_block_cipher_get_keyspec"
-  botan_block_cipher_get_keyspec
-    :: BotanBlockCipher -- ^ __cipher__: the object to read
-    -> Ptr CSize        -- ^ __out_minimum_keylength__: if non-NULL, will be set to minimum keylength of cipher
-    -> Ptr CSize        -- ^ __out_maximum_keylength__: if non-NULL, will be set to maximum keylength of cipher
-    -> Ptr CSize        -- ^ __out_keylength_modulo__: if non-NULL will be set to byte multiple of valid keys
-    -> IO CInt
+botan_block_cipher_decrypt_blocks :: Types.Botan_block_cipher_t -> ConstPtr Word8 -> Ptr Word8 -> CSize -> IO CInt
+botan_block_cipher_decrypt_blocks = Safe.botan_block_cipher_decrypt_blocks_wrapper
 
 {-------------------------------------------------------------------------------
   Available ciphers

@@ -178,12 +178,12 @@ module Botan.Low.PubKey (
 
   ) where
 
-import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Bindings.MPI
 import           Botan.Bindings.PubKey
 import           Botan.Bindings.RNG
 import           Botan.Low.Error.Internal
 import           Botan.Low.Hash
+import qualified Botan.Low.Internal as Internal
 import           Botan.Low.Internal.ByteString
 import           Botan.Low.Internal.String
 import           Botan.Low.Make
@@ -192,12 +192,13 @@ import           Botan.Low.Remake
 import           Botan.Low.RNG
 import           Data.ByteString (ByteString)
 import qualified Data.ByteString as ByteString
-import           Data.Word
+import           Data.Word (Word32)
 import           Foreign.C.Types
 import           Foreign.ForeignPtr
 import           Foreign.Marshal.Alloc
 import           Foreign.Ptr
 import           Foreign.Storable
+import           HsBindgen.Runtime.ConstPtr (ConstPtr (..))
 
 {- $introduction
 
@@ -281,16 +282,16 @@ Verify a message:
 -- * Public/private key creation, import, ...
 -- */
 
-newtype PrivKey = MkPrivKey { getPrivKeyForeignPtr :: ForeignPtr BotanPrivKeyStruct }
+newtype PrivKey = MkPrivKey { getPrivKeyForeignPtr :: ForeignPtr Botan_privkey_struct }
 
-withPrivKey     :: PrivKey -> (BotanPrivKey -> IO a) -> IO a
+withPrivKey     :: PrivKey -> (Botan_privkey_t -> IO a) -> IO a
 privKeyDestroy  :: PrivKey -> IO ()
-createPrivKey   :: (Ptr BotanPrivKey -> IO CInt) -> IO PrivKey
+createPrivKey   :: (Ptr Botan_privkey_t -> IO CInt) -> IO PrivKey
 (withPrivKey, privKeyDestroy, createPrivKey)
     = mkBindings
-        MkBotanPrivKey (.runBotanPrivKey)
+        Botan_privkey_t (.un_Botan_privkey_t)
         MkPrivKey (.getPrivKeyForeignPtr)
-        botan_privkey_destroy
+        (Internal.funPtrIgnoreRetCode botan_privkey_destroy_ptr)
 
 type PKName = ByteString
 
@@ -558,8 +559,8 @@ data CheckKeyFlags =
   | CheckKeyExpensiveTests
 
 checkKeyFlags :: CheckKeyFlags -> Word32
-checkKeyFlags CheckKeyNormalTests    = BOTAN_CHECK_KEY_NORMAL_TESTS
-checkKeyFlags CheckKeyExpensiveTests = BOTAN_CHECK_KEY_EXPENSIVE_TESTS
+checkKeyFlags CheckKeyNormalTests    = 0
+checkKeyFlags CheckKeyExpensiveTests = fromIntegral bOTAN_CHECK_KEY_EXPENSIVE_TESTS
 
 -- TODO: Probably catch -1 (INVALID_INPUT), return Bool
 -- | Check the validity of a private key
@@ -593,7 +594,7 @@ privKeyLoad bits password = asBytesLen bits $ \ bitsPtr bitsLen -> do
     asCStringNullable password $ \ passwordPtr -> do
         createPrivKey $ \ out -> botan_privkey_load
             out
-            (MkBotanRNG nullPtr)
+            (Botan_rng_t nullPtr)
             (ConstPtr bitsPtr)
             bitsLen
             (ConstPtr passwordPtr)
@@ -603,8 +604,8 @@ data PrivKeyExportFlags =
   | PrivKeyExportPEM
 
 privKeyExportFlags :: PrivKeyExportFlags -> Word32
-privKeyExportFlags PrivKeyExportDER = BOTAN_PRIVKEY_EXPORT_FLAG_DER
-privKeyExportFlags PrivKeyExportPEM = BOTAN_PRIVKEY_EXPORT_FLAG_PEM
+privKeyExportFlags PrivKeyExportDER = fromIntegral bOTAN_PRIVKEY_EXPORT_FLAG_DER
+privKeyExportFlags PrivKeyExportPEM = fromIntegral bOTAN_PRIVKEY_EXPORT_FLAG_PEM
 
 -- NOTE: Different from allocBytesQuerying / INSUFFICIENT_BUFFER_SPACE
 {- |
@@ -630,17 +631,17 @@ privKeyExport sk flags = withPrivKey sk $ \ skPtr -> do
 -- TODO:
 -- View the private key's DER encoding
 -- privKeyViewDER
---         :: BotanPrivKey                         -- ^ __key__
---         -> BotanViewContext ctx                 -- ^ __ctx__
---         -> FunPtr (BotanViewBinCallback ctx)    -- ^ __view__
+--         :: Botan_privkey_t               -- ^ __key__
+--         -> Botan_view_ctx             -- ^ __ctx__
+--         -> FunPtr (Botan_view_bin_fn) -- ^ __view__
 --         -> IO CInt
 
 -- TODO:
 -- View the private key's PEM encoding
 -- privKeyViewPEM
---         :: BotanPrivKey                         -- ^ __key__
---         -> BotanViewContext ctx                 -- ^ __ctx__
---         -> FunPtr (BotanViewStrCallback ctx)    -- ^ __view__
+--         :: Botan_privkey_t                   -- ^ __key__
+--         -> Botan_view_ctx                 -- ^ __ctx__
+--         -> FunPtr (Botan_view_str_fn ctx) -- ^ __view__
 --         -> IO CInt
 
 privKeyAlgoName
@@ -672,16 +673,16 @@ privKeyAlgoName = mkGetCString withPrivKey botan_privkey_algo_name
 --     -> IO ByteString
 -- privKeyExportEncryptedPBKDFIter = undefined
 
-newtype PubKey = MkPubKey { getPubKeyForeignPtr :: ForeignPtr BotanPubKeyStruct }
+newtype PubKey = MkPubKey { getPubKeyForeignPtr :: ForeignPtr Botan_pubkey_struct }
 
-withPubKey     :: PubKey -> (BotanPubKey -> IO a) -> IO a
+withPubKey     :: PubKey -> (Botan_pubkey_t -> IO a) -> IO a
 pubKeyDestroy  :: PubKey -> IO ()
-createPubKey   :: (Ptr BotanPubKey -> IO CInt) -> IO PubKey
+createPubKey   :: (Ptr Botan_pubkey_t -> IO CInt) -> IO PubKey
 (withPubKey, pubKeyDestroy, createPubKey)
     = mkBindings
-        MkBotanPubKey (.runBotanPubKey)
+        Botan_pubkey_t (.un_Botan_pubkey_t)
         MkPubKey (.getPubKeyForeignPtr)
-        botan_pubkey_destroy
+        (Internal.funPtrIgnoreRetCode botan_pubkey_destroy_ptr)
 
 pubKeyLoad
     :: ByteString   -- ^ __bits[]__
@@ -776,14 +777,14 @@ privKeyGetField mp sk field = withMP mp $ \ mpPtr -> do
 -- Helpers
 
 mkPrivKeyLoad1_name
-    :: (Ptr BotanPrivKey -> BotanMP -> ConstPtr CChar -> IO CInt)
+    :: (Ptr Botan_privkey_t -> Botan_mp_t -> ConstPtr CChar -> IO CInt)
     -> MP -> ByteString -> IO PrivKey
 mkPrivKeyLoad1_name load a name = withMP a $ \ aPtr -> do
     asCString name $ \ namePtr -> do
         createPrivKey $ \ out -> load out aPtr (ConstPtr namePtr)
 
 mkPrivKeyLoad3
-    :: (Ptr BotanPrivKey -> BotanMP -> BotanMP -> BotanMP -> IO CInt)
+    :: (Ptr Botan_privkey_t -> Botan_mp_t -> Botan_mp_t -> Botan_mp_t -> IO CInt)
     -> MP -> MP -> MP -> IO PrivKey
 mkPrivKeyLoad3 load a b c = withMany withMP [a,b,c] $ \case
     [aPtr,bPtr,cPtr] -> do
@@ -791,7 +792,7 @@ mkPrivKeyLoad3 load a b c = withMany withMP [a,b,c] $ \case
     _ -> error "mkPrivKeyLoad3: impossible"
 
 mkPrivKeyLoad4
-    :: (Ptr BotanPrivKey -> BotanMP -> BotanMP -> BotanMP -> BotanMP -> IO CInt)
+    :: (Ptr Botan_privkey_t -> Botan_mp_t -> Botan_mp_t -> Botan_mp_t -> Botan_mp_t -> IO CInt)
     -> MP -> MP -> MP -> MP -> IO PrivKey
 mkPrivKeyLoad4 load a b c d = withMany withMP [a,b,c,d] $ \case
     [aPtr,bPtr,cPtr,dPtr] -> do
@@ -801,7 +802,7 @@ mkPrivKeyLoad4 load a b c d = withMany withMP [a,b,c,d] $ \case
 --
 
 mkPubKeyLoad2
-    :: (Ptr BotanPubKey -> BotanMP -> BotanMP -> IO CInt)
+    :: (Ptr Botan_pubkey_t -> Botan_mp_t -> Botan_mp_t -> IO CInt)
     -> MP -> MP -> IO PubKey
 mkPubKeyLoad2 load a b = withMany withMP [a,b] $ \case
     [aPtr,bPtr] -> do
@@ -809,7 +810,7 @@ mkPubKeyLoad2 load a b = withMany withMP [a,b] $ \case
     _ -> error "mkPubKeyLoad2: impossible"
 
 mkPubKeyLoad2_name
-    :: (Ptr BotanPubKey -> BotanMP -> BotanMP -> ConstPtr CChar -> IO CInt)
+    :: (Ptr Botan_pubkey_t -> Botan_mp_t -> Botan_mp_t -> ConstPtr CChar -> IO CInt)
     -> MP -> MP -> ByteString -> IO PubKey
 mkPubKeyLoad2_name load x y name = withMany withMP [x,y] $ \case
     [xPtr,yPtr] -> do
@@ -818,7 +819,7 @@ mkPubKeyLoad2_name load x y name = withMany withMP [x,y] $ \case
     _ -> error "mkPubKeyLoad2_name: impossible"
 
 mkPubKeyLoad3
-    :: (Ptr BotanPubKey -> BotanMP -> BotanMP -> BotanMP -> IO CInt)
+    :: (Ptr Botan_pubkey_t -> Botan_mp_t -> Botan_mp_t -> Botan_mp_t -> IO CInt)
     -> MP -> MP -> MP -> IO PubKey
 mkPubKeyLoad3 load a b c = withMany withMP [a,b,c] $ \case
     [aPtr,bPtr,cPtr] -> do
@@ -826,7 +827,7 @@ mkPubKeyLoad3 load a b c = withMany withMP [a,b,c] $ \case
     _ -> error "mkPubKeyLoad3: impossible"
 
 mkPubKeyLoad4
-    :: (Ptr BotanPubKey -> BotanMP -> BotanMP -> BotanMP -> BotanMP -> IO CInt)
+    :: (Ptr Botan_pubkey_t -> Botan_mp_t -> Botan_mp_t -> Botan_mp_t -> Botan_mp_t -> IO CInt)
     -> MP -> MP -> MP -> MP -> IO PubKey
 mkPubKeyLoad4 load a b c d = withMany withMP [a,b,c,d] $ \case
     [aPtr,bPtr,cPtr,dPtr] -> do

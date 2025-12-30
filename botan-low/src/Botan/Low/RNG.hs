@@ -39,15 +39,16 @@ module Botan.Low.RNG (
 
   ) where
 
-import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Bindings.RNG
 import           Botan.Low.Error.Internal
+import qualified Botan.Low.Internal as Internal
 import           Botan.Low.Internal.ByteString
 import           Botan.Low.Remake
 import           Data.ByteString (ByteString)
 import           Foreign.C.Types
 import           Foreign.ForeignPtr
 import           Foreign.Ptr
+import           HsBindgen.Runtime.ConstPtr (ConstPtr (..))
 
 {- $introduction
 
@@ -90,14 +91,14 @@ You can also seed it with your own entropy; this is safe and can never
 -- NOTE: Uses ConstPtr / unConstPtr manually
 -- TODO: Take advantage of Remake / better peek / (peekConst or constPeek) functions
 
-newtype RNG = MkRNG { getRNGForeignPtr :: ForeignPtr BotanRNGStruct }
+newtype RNG = MkRNG { getRNGForeignPtr :: ForeignPtr Botan_rng_struct }
 
-withRNG     :: RNG -> (BotanRNG -> IO a) -> IO a
+withRNG     :: RNG -> (Botan_rng_t -> IO a) -> IO a
 -- | Destroy a random number generator object immediately
 rngDestroy  :: RNG -> IO ()
-createRNG   :: (Ptr BotanRNG -> IO CInt) -> IO RNG
+createRNG   :: (Ptr Botan_rng_t -> IO CInt) -> IO RNG
 (withRNG, rngDestroy, createRNG)
-    = mkBindings MkBotanRNG (.runBotanRNG) MkRNG (.getRNGForeignPtr) botan_rng_destroy
+    = mkBindings Botan_rng_t (.un_Botan_rng_t) MkRNG (.getRNGForeignPtr) (Internal.funPtrIgnoreRetCode botan_rng_destroy_ptr)
 
 type RNGType = ByteString
 

@@ -16,14 +16,13 @@ section of the C Botan FFI documentation.
 module Botan.Low.Utility (
     constantTimeCompare
   , scrubMem
-  , HexEncodingFlags(..)
+  , HexEncodingFlags (..)
   , hexEncode
   , hexDecode
   , base64Encode
   , base64Decode
   ) where
 
-import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Bindings.Utility
 import           Botan.Low.Error.Internal
 import           Botan.Low.Internal.ByteString
@@ -33,6 +32,7 @@ import           Data.Text
 import qualified Data.Text.Encoding as Text
 import           Data.Word
 import           Foreign.Ptr
+import           HsBindgen.Runtime.ConstPtr (ConstPtr (..))
 
 -- | Returns 0 if x[0..len] == y[0..len], -1 otherwise.
 constantTimeCompare ::
@@ -62,8 +62,8 @@ data HexEncodingFlags =
   | HexLowerCase
 
 hexEncodingFlags :: HexEncodingFlags -> Word32
-hexEncodingFlags HexUpperCase = BOTAN_FFI_HEX_UPPER_CASE
-hexEncodingFlags HexLowerCase = BOTAN_FFI_HEX_LOWER_CASE
+hexEncodingFlags HexUpperCase = 0
+hexEncodingFlags HexLowerCase = fromIntegral bOTAN_FFI_HEX_LOWER_CASE
 
 hexEncode ::
      ByteString           -- ^ __x__

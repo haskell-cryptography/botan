@@ -48,10 +48,10 @@ module Botan.Low.HOTP (
 
   ) where
 
-import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Bindings.HOTP
 import           Botan.Low.Error.Internal
 import           Botan.Low.Hash
+import qualified Botan.Low.Internal as Internal
 import           Botan.Low.Internal.ByteString
 import           Botan.Low.Remake
 import           Control.Monad
@@ -62,6 +62,7 @@ import           Foreign.ForeignPtr
 import           Foreign.Marshal.Alloc
 import           Foreign.Ptr
 import           Foreign.Storable
+import           HsBindgen.Runtime.ConstPtr (ConstPtr (..))
 
 -- NOTE: RFC 4226
 -- NOTE: I think this *only* takes SHA-2, specificaly "SHA-256" and "SHA-512",
@@ -166,16 +167,16 @@ The user should then be notified.
 
 -}
 
-newtype HOTP = MkHOTP { getHOTPForeignPtr :: ForeignPtr BotanHOTPStruct }
+newtype HOTP = MkHOTP { getHOTPForeignPtr :: ForeignPtr Botan_hotp_struct }
 
-withHOTP     :: HOTP -> (BotanHOTP -> IO a) -> IO a
+withHOTP     :: HOTP -> (Botan_hotp_t -> IO a) -> IO a
 hotpDestroy  :: HOTP -> IO ()
-createHOTP   :: (Ptr BotanHOTP -> IO CInt) -> IO HOTP
+createHOTP   :: (Ptr Botan_hotp_t -> IO CInt) -> IO HOTP
 (withHOTP, hotpDestroy, createHOTP)
     = mkBindings
-        MkBotanHOTP (.runBotanHOTP)
+        Botan_hotp_t (.un_Botan_hotp_t)
         MkHOTP (.getHOTPForeignPtr)
-        botan_hotp_destroy
+        (Internal.funPtrIgnoreRetCode botan_hotp_destroy_ptr)
 
 type HOTPHashName = HashName
 

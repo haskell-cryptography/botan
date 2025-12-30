@@ -72,9 +72,9 @@ module Botan.Low.BlockCipher (
   ) where
 
 import           Botan.Bindings.BlockCipher
-import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Low.Error.Internal
 import           Botan.Low.Hash
+import qualified Botan.Low.Internal as Internal
 import           Botan.Low.Internal.ByteString
 import           Botan.Low.Internal.String
 import           Botan.Low.Make
@@ -86,6 +86,7 @@ import qualified Data.ByteString.Char8 as BSC
 import           Foreign.C.Types
 import           Foreign.ForeignPtr
 import           Foreign.Ptr
+import           HsBindgen.Runtime.ConstPtr (ConstPtr (..))
 
 {- $setup
 >>> import Control.Monad
@@ -189,17 +190,17 @@ True
 -------------------------------------------------------------------------------}
 
 -- | A mutable block cipher object
-newtype BlockCipher = MkBlockCipher { getBlockCipherForeignPtr :: ForeignPtr BotanBlockCipherStruct }
+newtype BlockCipher = MkBlockCipher { getBlockCipherForeignPtr :: ForeignPtr Botan_block_cipher_struct }
 
-withBlockCipher     :: BlockCipher -> (BotanBlockCipher -> IO a) -> IO a
+withBlockCipher     :: BlockCipher -> (Botan_block_cipher_t -> IO a) -> IO a
 -- | Destroy a block cipher object immediately
 blockCipherDestroy  :: BlockCipher -> IO ()
-createBlockCipher   :: (Ptr BotanBlockCipher -> IO CInt) -> IO BlockCipher
+createBlockCipher   :: (Ptr Botan_block_cipher_t -> IO CInt) -> IO BlockCipher
 (withBlockCipher, blockCipherDestroy, createBlockCipher)
     = mkBindings
-        MkBotanBlockCipher (.runBotanBlockCipher)
+        Botan_block_cipher_t (.un_Botan_block_cipher_t)
         MkBlockCipher (.getBlockCipherForeignPtr)
-        botan_block_cipher_destroy
+        (Internal.funPtrIgnoreRetCode botan_block_cipher_destroy_ptr)
 
 
 -- | A block cipher secret key

@@ -36,7 +36,6 @@ module Botan.Low.Bcrypt (
   ) where
 
 import           Botan.Bindings.Bcrypt
-import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Low.Error.Internal
 import           Botan.Low.Internal.ByteString
 import           Botan.Low.RNG
@@ -45,6 +44,7 @@ import qualified Data.ByteString as ByteString
 import           Foreign.Marshal.Alloc
 import           Foreign.Ptr
 import           Foreign.Storable
+import           HsBindgen.Runtime.ConstPtr (ConstPtr (..))
 
 {- $introduction
 
@@ -97,13 +97,13 @@ pattern BcryptFast
     ::  BcryptWorkFactor
 
 -- | Should not cause noticable CPU usage
-pattern BcryptFast    = BOTAN_BCRYPT_WORK_FACTOR_FAST
+pattern BcryptFast    = 12
 
 -- | May cause noticable CPU usage
-pattern BcryptGood    = BOTAN_BCRYPT_WORK_FACTOR_GOOD
+pattern BcryptGood    = 14
 
 -- | May block for several seconds
-pattern BcryptStrong  = BOTAN_BCRYPT_WORK_FACTOR_STRONG
+pattern BcryptStrong  = 16
 
 -- | A bcrypt password.
 type BcryptPassword = ByteString

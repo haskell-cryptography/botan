@@ -69,7 +69,6 @@ module Botan.Low.KDF (
 
   ) where
 
-import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Bindings.KDF
 import           Botan.Low.Error.Internal
 import           Botan.Low.Hash
@@ -77,6 +76,7 @@ import           Botan.Low.Internal.ByteString
 import           Botan.Low.Internal.String
 import           Botan.Low.MAC
 import           Data.ByteString (ByteString)
+import           HsBindgen.Runtime.ConstPtr (ConstPtr (..))
 
 type KDFName = ByteString
 

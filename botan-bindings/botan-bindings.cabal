@@ -83,7 +83,6 @@ library
     Botan.Bindings.Bcrypt
     Botan.Bindings.BlockCipher
     Botan.Bindings.Cipher
-    Botan.Bindings.ConstPtr
     Botan.Bindings.Error
     Botan.Bindings.FPE
     Botan.Bindings.HOTP

@@ -220,15 +220,18 @@ jobs:
       run: |
         cabal test all -j1 --test-show-details=direct
 
-    - name: 🛠️ Setup cabal-docspec (Linux)
-      if: ${{ runner.os == 'Linux' && !startsWith(matrix.ghc-version, '9.2') && !startsWith(matrix.ghc-version, '9.4') }}
-      uses: jorisdral/actions/setup-cabal-docspec@setup-cabal-docspec-v0
+    # TODO: temporarily disabled testing with cabal-docspec, because it can not
+    # parse the cabal file now that it has a custom-setup component
 
-    - name: 🧪 Test with cabal-docspec (Linux)
-      if: ${{ runner.os == 'Linux' && !startsWith(matrix.ghc-version, '9.2') && !startsWith(matrix.ghc-version, '9.4') }}
-      run: ./scripts/test-cabal-docspec.sh
-      env:
-        SKIP_CABAL_BUILD: true
+    # - name: 🛠️ Setup cabal-docspec (Linux)
+    #   if: ${{ runner.os == 'Linux' && !startsWith(matrix.ghc-version, '9.2') && !startsWith(matrix.ghc-version, '9.4') }}
+    #   uses: jorisdral/actions/setup-cabal-docspec@setup-cabal-docspec-v0
+
+    # - name: 🧪 Test with cabal-docspec (Linux)
+    #   if: ${{ runner.os == 'Linux' && !startsWith(matrix.ghc-version, '9.2') && !startsWith(matrix.ghc-version, '9.4') }}
+    #   run: ./scripts/test-cabal-docspec.sh
+    #   env:
+    #     SKIP_CABAL_BUILD: true
 
   ################################################################################
   # Lint with cabal-gild

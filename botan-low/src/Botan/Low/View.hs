@@ -14,21 +14,30 @@ section of the C Botan FFI documentation.
 -}
 
 module Botan.Low.View (
+    Botan_view_ctx (..)
     -- * View binary
-    BotanViewBinFn
-  , BotanViewBinCallback
+  , Botan_view_bin_fn (..)
+  , Botan_view_bin_fn_Aux (..)
   , viewBin
     -- * View string
-  , BotanViewStrFn
-  , BotanViewStrCallback
+  , Botan_view_str_fn (..)
+  , Botan_view_str_fn_Aux (..)
   , viewStr
   ) where
 
-import           Botan.Bindings.View
+import           Botan.Bindings.View as BB
 import           Control.Exception
+import           Foreign.Ptr (freeHaskellFunPtr)
+import           HsBindgen.Runtime.FunPtr
 
-viewBin :: BotanViewBinFn ctx -> (BotanViewBinCallback ctx -> IO a) -> IO a
-viewBin f = bracket (mallocBotanViewBinCallback f) freeBotanViewBinCallback
+viewBin :: Botan_view_bin_fn_Aux -> (Botan_view_bin_fn -> IO a) -> IO a
+viewBin f =
+    bracket
+      (BB.Botan_view_bin_fn <$> toFunPtr f)
+      (freeHaskellFunPtr . BB.un_Botan_view_bin_fn)
 
-viewStr :: BotanViewStrFn ctx -> (BotanViewStrCallback ctx -> IO a) -> IO a
-viewStr f = bracket (mallocBotanViewStrCallback f) freeBotanViewStrCallback
+viewStr :: Botan_view_str_fn_Aux -> (Botan_view_str_fn -> IO a) -> IO a
+viewStr f =
+    bracket
+      (BB.Botan_view_str_fn <$> toFunPtr f)
+      (freeHaskellFunPtr . BB.un_Botan_view_str_fn)
