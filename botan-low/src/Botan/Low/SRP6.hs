@@ -41,10 +41,10 @@ module Botan.Low.SRP6 (
   , pattern MODP_SRP_8192
   ) where
 
-import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Bindings.SRP6
 import           Botan.Low.Error.Internal
 import           Botan.Low.Hash
+import qualified Botan.Low.Internal as Internal
 import           Botan.Low.Internal.ByteString
 import           Botan.Low.PubKey
 import           Botan.Low.Remake
@@ -57,6 +57,7 @@ import           Foreign.ForeignPtr
 import           Foreign.Marshal.Alloc
 import           Foreign.Ptr
 import           Foreign.Storable
+import           HsBindgen.Runtime.ConstPtr (ConstPtr (..))
 
 {-------------------------------------------------------------------------------
   Example usage
@@ -276,17 +277,17 @@ type SRP6BValue = ByteString
 type SRP6AValue = ByteString
 type SRP6SharedSecret = ByteString
 
-newtype SRP6ServerSession = MkSRP6ServerSession { getSRP6ServerSessionForeignPtr :: ForeignPtr BotanSRP6ServerSessionStruct }
+newtype SRP6ServerSession = MkSRP6ServerSession { getSRP6ServerSessionForeignPtr :: ForeignPtr Botan_srp6_server_session_struct }
 
-withSRP6ServerSession     :: SRP6ServerSession -> (BotanSRP6ServerSession -> IO a) -> IO a
+withSRP6ServerSession     :: SRP6ServerSession -> (Botan_srp6_server_session_t -> IO a) -> IO a
 -- | Frees all resources of the SRP-6 server session object
 srp6ServerSessionDestroy  :: SRP6ServerSession -> IO ()
-createSRP6ServerSession   :: (Ptr BotanSRP6ServerSession -> IO CInt) -> IO SRP6ServerSession
+createSRP6ServerSession   :: (Ptr Botan_srp6_server_session_t -> IO CInt) -> IO SRP6ServerSession
 (withSRP6ServerSession, srp6ServerSessionDestroy, createSRP6ServerSession)
     = mkBindings
-        MkBotanSRP6ServerSession (.runBotanSRP6ServerSession)
+        Botan_srp6_server_session_t (.un_Botan_srp6_server_session_t)
         MkSRP6ServerSession (.getSRP6ServerSessionForeignPtr)
-        botan_srp6_server_session_destroy
+        (Internal.funPtrIgnoreRetCode botan_srp6_server_session_destroy_ptr)
 
 -- | Initialize an SRP-6 server session object
 srp6ServerSessionInit ::

@@ -46,9 +46,9 @@ module Botan.Low.FPE (
 
   ) where
 
-import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Bindings.FPE
 import           Botan.Low.Error.Internal
+import qualified Botan.Low.Internal as Internal
 import           Botan.Low.Internal.ByteString
 import           Botan.Low.MPI
 import           Botan.Low.Remake
@@ -57,6 +57,7 @@ import           Data.Word
 import           Foreign.C.Types
 import           Foreign.ForeignPtr
 import           Foreign.Ptr
+import           HsBindgen.Runtime.ConstPtr (ConstPtr (..))
 
 -- NOTE: This module lacks documentation, and is not mentioned in the FFI bindings.
 --  It is mentioned in the C++ docs, but the construction significantly differs.
@@ -73,24 +74,24 @@ import           Foreign.Ptr
 -- * Format Preserving Encryption
 -- */
 
-newtype FPE = MkFPE { getFPEForeignPtr :: ForeignPtr BotanFPEStruct }
+newtype FPE = MkFPE { getFPEForeignPtr :: ForeignPtr Botan_fpe_struct }
 
-withFPE     :: FPE -> (BotanFPE -> IO a) -> IO a
+withFPE     :: FPE -> (Botan_fpe_t -> IO a) -> IO a
 fpeDestroy  :: FPE -> IO ()
-createFPE   :: (Ptr BotanFPE -> IO CInt) -> IO FPE
+createFPE   :: (Ptr Botan_fpe_t -> IO CInt) -> IO FPE
 (withFPE, fpeDestroy, createFPE)
     = mkBindings
-        MkBotanFPE (.runBotanFPE)
+        Botan_fpe_t (.un_Botan_fpe_t)
         MkFPE (.getFPEForeignPtr)
-        botan_fpe_destroy
+        (Internal.funPtrIgnoreRetCode botan_fpe_destroy_ptr)
 
 data FPEFlags =
     FPENone
   | FPEFE1CompatMode
 
 fPEFlags :: FPEFlags -> Word32
-fPEFlags FPENone          = BOTAN_FPE_FLAG_NONE
-fPEFlags FPEFE1CompatMode = BOTAN_FPE_FLAG_FE1_COMPAT_MODE
+fPEFlags FPENone          = 0
+fPEFlags FPEFE1CompatMode = fromIntegral bOTAN_FPE_FLAG_FE1_COMPAT_MODE
 
 -- | Initialize a FE1 FPE context
 fpeInitFE1

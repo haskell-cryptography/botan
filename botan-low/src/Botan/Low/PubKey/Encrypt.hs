@@ -21,9 +21,9 @@ module Botan.Low.PubKey.Encrypt (
 
   ) where
 
-import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Bindings.PubKey.Encrypt
 import           Botan.Low.Error.Internal (throwBotanIfNegative_)
+import qualified Botan.Low.Internal as Internal
 import           Botan.Low.Internal.ByteString
 import           Botan.Low.Make
 import           Botan.Low.PubKey
@@ -37,21 +37,22 @@ import           Foreign.ForeignPtr
 import           Foreign.Marshal.Alloc
 import           Foreign.Ptr
 import           Foreign.Storable
+import           HsBindgen.Runtime.ConstPtr (ConstPtr (..))
 
 -- /*
 -- * Public Key Encryption
 -- */
 
-newtype Encrypt = MkEncrypt { getEncryptForeignPtr :: ForeignPtr BotanPKOpEncryptStruct }
+newtype Encrypt = MkEncrypt { getEncryptForeignPtr :: ForeignPtr Botan_pk_op_encrypt_struct }
 
-withEncrypt     :: Encrypt -> (BotanPKOpEncrypt -> IO a) -> IO a
+withEncrypt     :: Encrypt -> (Botan_pk_op_encrypt_t -> IO a) -> IO a
 encryptDestroy  :: Encrypt -> IO ()
-createEncrypt   :: (Ptr BotanPKOpEncrypt -> IO CInt) -> IO Encrypt
+createEncrypt   :: (Ptr Botan_pk_op_encrypt_t -> IO CInt) -> IO Encrypt
 (withEncrypt, encryptDestroy, createEncrypt)
     = mkBindings
-        MkBotanPKOpEncrypt (.runBotanPKOpEncrypt)
+        Botan_pk_op_encrypt_t (.un_Botan_pk_op_encrypt_t)
         MkEncrypt (.getEncryptForeignPtr)
-        botan_pk_op_encrypt_destroy
+        (Internal.funPtrIgnoreRetCode botan_pk_op_encrypt_destroy_ptr)
 
 encryptCreate
     :: PubKey       -- ^ __key__
@@ -90,6 +91,6 @@ encrypt enc rng ptext =
             botanRNG
             outPtr
             szPtr
-            ptextPtr
+            (ConstPtr ptextPtr)
             ptextLen
         fromIntegral <$> peek szPtr

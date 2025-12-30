@@ -21,9 +21,9 @@ module Botan.Low.PubKey.Decrypt (
 
   ) where
 
-import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Bindings.PubKey.Decrypt
 import           Botan.Low.Error.Internal (throwBotanIfNegative_)
+import qualified Botan.Low.Internal as Internal
 import           Botan.Low.Internal.ByteString
 import           Botan.Low.Make
 import           Botan.Low.PubKey
@@ -36,21 +36,22 @@ import           Foreign.ForeignPtr
 import           Foreign.Marshal.Alloc
 import           Foreign.Ptr
 import           Foreign.Storable
+import           HsBindgen.Runtime.ConstPtr (ConstPtr (..))
 
 -- /*
 -- * Public Key Decryption
 -- */
 
-newtype Decrypt = MkDecrypt { getDecryptForeignPtr :: ForeignPtr BotanPKOpDecryptStruct }
+newtype Decrypt = MkDecrypt { getDecryptForeignPtr :: ForeignPtr Botan_pk_op_decrypt_struct }
 
-withDecrypt     :: Decrypt -> (BotanPKOpDecrypt -> IO a) -> IO a
+withDecrypt     :: Decrypt -> (Botan_pk_op_decrypt_t -> IO a) -> IO a
 decryptDestroy  :: Decrypt -> IO ()
-createDecrypt   :: (Ptr BotanPKOpDecrypt -> IO CInt) -> IO Decrypt
+createDecrypt   :: (Ptr Botan_pk_op_decrypt_t -> IO CInt) -> IO Decrypt
 (withDecrypt, decryptDestroy, createDecrypt)
     = mkBindings
-        MkBotanPKOpDecrypt (.runBotanPKOpDecrypt)
+        Botan_pk_op_decrypt_t (.un_Botan_pk_op_decrypt_t)
         MkDecrypt (.getDecryptForeignPtr)
-        botan_pk_op_decrypt_destroy
+        (Internal.funPtrIgnoreRetCode botan_pk_op_decrypt_destroy_ptr)
 
 decryptCreate
     :: PrivKey  -- ^ __key__
@@ -61,8 +62,8 @@ decryptCreate sk padding =  withPrivKey sk $ \ skPtr -> do
         createDecrypt $ \ out -> botan_pk_op_decrypt_create
             out
             skPtr
-            paddingPtr
-            BOTAN_PUBKEY_DECRYPT_FLAGS_NONE
+            (ConstPtr paddingPtr)
+            0
 
 decryptOutputLength
     :: Decrypt  -- ^ __op__

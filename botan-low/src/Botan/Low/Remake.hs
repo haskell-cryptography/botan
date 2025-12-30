@@ -24,7 +24,6 @@ module Botan.Low.Remake (
   , mkWithObjectSetterCBytesLen
   ) where
 
-import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Low.Error.Internal
 import           Botan.Low.Internal.ByteString
 import           Botan.Low.Make
@@ -36,6 +35,7 @@ import           Foreign.ForeignPtr
 import           Foreign.Marshal.Alloc
 import           Foreign.Ptr
 import           Foreign.Storable
+import           HsBindgen.Runtime.ConstPtr (ConstPtr (..))
 import           Prelude hiding (init)
 
 mkBindings

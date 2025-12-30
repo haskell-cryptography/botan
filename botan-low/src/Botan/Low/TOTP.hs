@@ -50,10 +50,10 @@ module Botan.Low.TOTP (
 
   ) where
 
-import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Bindings.TOTP
 import           Botan.Low.Error.Internal
 import           Botan.Low.Hash
+import qualified Botan.Low.Internal as Internal
 import           Botan.Low.Internal.ByteString
 import           Botan.Low.Remake
 import           Control.Monad
@@ -64,6 +64,7 @@ import           Foreign.ForeignPtr
 import           Foreign.Marshal.Alloc
 import           Foreign.Ptr
 import           Foreign.Storable
+import           HsBindgen.Runtime.ConstPtr (ConstPtr (..))
 
 -- NOTE: RFC 6238
 
@@ -160,16 +161,16 @@ The user should then be notified.
 
 -}
 
-newtype TOTP = MkTOTP { getTOTPForeignPtr :: ForeignPtr BotanTOTPStruct }
+newtype TOTP = MkTOTP { getTOTPForeignPtr :: ForeignPtr Botan_totp_struct }
 
-withTOTP     :: TOTP -> (BotanTOTP -> IO a) -> IO a
+withTOTP     :: TOTP -> (Botan_totp_t -> IO a) -> IO a
 totpDestroy  :: TOTP -> IO ()
-createTOTP   :: (Ptr BotanTOTP -> IO CInt) -> IO TOTP
+createTOTP   :: (Ptr Botan_totp_t -> IO CInt) -> IO TOTP
 (withTOTP, totpDestroy, createTOTP)
     = mkBindings
-        MkBotanTOTP (.runBotanTOTP)
+        Botan_totp_t (.un_Botan_totp_t)
         MkTOTP (.getTOTPForeignPtr)
-        botan_totp_destroy
+        (Internal.funPtrIgnoreRetCode botan_totp_destroy_ptr)
 
 type TOTPHashName = HashName
 

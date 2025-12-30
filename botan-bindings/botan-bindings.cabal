@@ -1,17 +1,14 @@
-cabal-version: 3.0
+cabal-version: 3.14
 name: botan-bindings
 version: 0.2.0.0
 synopsis: Raw Botan bindings
 description:
   Welcome to botan-bindings
-
   Raw bindings to the [Botan](https://botan.randombit.net/) cryptography library.
-
   > Botan's goal is to be the best option for cryptography in C++ by offering the
   > tools necessary to implement a range of practical systems, such as TLS protocol,
   > X.509 certificates, modern AEAD ciphers, PKCS#11 and TPM hardware support,
   > password hashing, and post quantum crypto schemes.
-
   For more information, see the [README on Github](https://github.com/haskell-cryptography/botan)
 
 author: Leo D.
@@ -22,13 +19,23 @@ copyright:
   Copyright (c) 2023-2024, Apotheca Labs
   Copyright (c) 2024-2025, Haskell Foundation
 
-build-type: Simple
+tested-with:
+  ghc ==9.2 || ==9.4 || ==9.6 || ==9.8 || ==9.10 || ==9.12
+
+build-type: Hooks
 category: Cryptography
 extra-doc-files:
   CHANGELOG.md
   README.md
 
-tested-with: ghc ==9.2 || ==9.4 || ==9.6 || ==9.8 || ==9.10 || ==9.12
+extra-source-files:
+  KnownVersions.cfg
+  include/HsBotanBindings.h
+  src-generated/Botan/Bindings/Generated/**/*.hs
+
+extra-tmp-files:
+  HsBotanBindingsVersions.info
+  include/HsBotanBindingsVersions.h
 
 source-repository head
   type: git
@@ -44,7 +51,7 @@ source-repository this
 flag pkg-config
   default: True
   manual: False
-  description: Use @pkg-config(1)@ to locate foreign @botan-3@ library.
+  description: Use @pkg-config(1)@ to locate foreign @botan@ library.
 
 common warnings
   ghc-options:
@@ -65,7 +72,6 @@ common language
   default-extensions:
     DerivingStrategies
     DuplicateRecordFields
-    NoFieldSelectors
     OverloadedRecordDot
     PatternSynonyms
     RoleAnnotations
@@ -77,7 +83,6 @@ library
     Botan.Bindings.Bcrypt
     Botan.Bindings.BlockCipher
     Botan.Bindings.Cipher
-    Botan.Bindings.ConstPtr
     Botan.Bindings.Error
     Botan.Bindings.FPE
     Botan.Bindings.HOTP
@@ -112,7 +117,7 @@ library
     Botan.Bindings.X509
     Botan.Bindings.ZFEC
 
-  build-depends: base >=4.16 && <4.22
+  build-depends: base >=4.16 && <4.22, primitive ^>=0.9
   includes: botan/ffi.h
 
   if flag(pkg-config)
@@ -120,3 +125,32 @@ library
     pkgconfig-depends: botan-3 >=3.0.0 && <4
   else
     extra-libraries: botan-3
+
+  include-dirs: include
+  install-includes:
+    HsBotanBindings.h
+
+  -- * Generated bindings
+  hs-source-dirs: src-generated
+  build-depends:
+    hs-bindgen-runtime ^>=0.1,
+    c-expr-runtime ^>=0.1
+
+  other-modules:
+    Botan.Bindings.Generated
+    Botan.Bindings.Generated.FunPtr
+    Botan.Bindings.Generated.Safe
+    Botan.Bindings.Generated.Unsafe
+
+  ghc-options:
+    -Wno-missing-export-lists
+    -optc
+    -Wno-deprecated-declarations
+
+custom-setup
+  setup-depends:
+    Cabal-hooks >=3.14 && <3.17,
+    base >=4.16 && <4.22,
+    directory ^>= 1.3,
+    filepath ^>= 1.5 || ^>=1.4,
+    split ^>= 0.2,

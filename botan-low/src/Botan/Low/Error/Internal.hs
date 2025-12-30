@@ -50,7 +50,6 @@ module Botan.Low.Error.Internal (
   , throwBotanErrorWithCallstack
   ) where
 
-import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Bindings.Error
 import           Botan.Low.Internal.ByteString
 import           Control.Exception
@@ -59,6 +58,8 @@ import           Data.ByteString (ByteString)
 import           Data.Typeable
 import           Foreign.C.Types
 import           GHC.Stack
+import           HsBindgen.Runtime.CEnum
+import           HsBindgen.Runtime.ConstPtr (ConstPtr (..))
 import           Prelude
 
 {-------------------------------------------------------------------------------
@@ -79,8 +80,9 @@ newtype BotanErrorMessage = BotanErrorMessage ByteString
   deriving newtype Show
 
 -- | Returns a static string stored in a thread local variable which contains
---  the last exception message thrown. WARNING: This string buffer is
---  overwritten on the next call to the FFI layer
+-- the last exception message thrown.
+--
+-- WARNING: This string buffer is overwritten on the next call to the FFI layer
 botanErrorLastExceptionMessage :: IO BotanErrorMessage
 botanErrorLastExceptionMessage = do
     msgPtr <- botan_error_last_exception_message
@@ -237,12 +239,12 @@ throwBotanCatchingInvalidInput = throwBotanCatching BOTAN_FFI_ERROR_INVALID_INPU
 -- | @'throwBotanCatching' retCode action@ runs the @action@ and catches return
 -- code 0 (Success) as True and @retCode@ as False. All other return codes are
 -- thrown as exceptions.
-throwBotanCatching :: HasCallStack => CInt -> IO CInt -> IO Bool
+throwBotanCatching :: HasCallStack => BOTAN_FFI_ERROR -> IO CInt -> IO Bool
 throwBotanCatching x act = do
     result <- act
-    case result of
+    case toCEnum result of
       BOTAN_FFI_SUCCESS -> return True
-      _ | x == result   -> return False
+      y | x == y   -> return False
         | otherwise     -> throwBotanErrorWithCallstack result callStack
 
 -- NOTE: Catches 1 as True and 0 as False, throws all other values
@@ -257,7 +259,7 @@ throwBotanCatchingBool act = do
 throwBotanErrorWithCallstack :: CInt -> CallStack -> IO a
 throwBotanErrorWithCallstack e cs =  do
     emsg <- botanErrorLastExceptionMessage
-    case e of
+    case toCEnum e of
         -- Note: we do not include a case for @BOTAN_FFI_SUCCESS@ since it
         -- signals that the function call was successful.
         BOTAN_FFI_INVALID_VERIFIER                  -> throwIO $ InvalidVerifierException bec emsg cs

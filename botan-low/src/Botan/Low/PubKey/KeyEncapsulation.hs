@@ -37,9 +37,9 @@ module Botan.Low.PubKey.KeyEncapsulation (
 
   ) where
 
-import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Bindings.PubKey.KeyEncapsulation
 import           Botan.Low.Error.Internal
+import qualified Botan.Low.Internal as Internal
 import           Botan.Low.Internal.ByteString
 import           Botan.Low.KDF
 import           Botan.Low.Make
@@ -54,6 +54,7 @@ import           Foreign.ForeignPtr
 import           Foreign.Marshal.Alloc
 import           Foreign.Ptr
 import           Foreign.Storable
+import           HsBindgen.Runtime.ConstPtr (ConstPtr (..))
 
 {- $introduction
 
@@ -120,16 +121,16 @@ Then, this shared key may be used for any suitable purpose.
 type KEMSharedKey = ByteString
 type KEMEncapsulatedKey = ByteString
 
-newtype KEMEncrypt = MkKEMEncrypt { getKEMEncryptForeignPtr :: ForeignPtr BotanPKOpKEMEncryptStruct }
+newtype KEMEncrypt = MkKEMEncrypt { getKEMEncryptForeignPtr :: ForeignPtr Botan_pk_op_kem_encrypt_struct }
 
-withKEMEncrypt     :: KEMEncrypt -> (BotanPKOpKEMEncrypt -> IO a) -> IO a
+withKEMEncrypt     :: KEMEncrypt -> (Botan_pk_op_kem_encrypt_t -> IO a) -> IO a
 kemEncryptDestroy  :: KEMEncrypt -> IO ()
-createKEMEncrypt   :: (Ptr BotanPKOpKEMEncrypt -> IO CInt) -> IO KEMEncrypt
+createKEMEncrypt   :: (Ptr Botan_pk_op_kem_encrypt_t -> IO CInt) -> IO KEMEncrypt
 (withKEMEncrypt, kemEncryptDestroy, createKEMEncrypt)
     = mkBindings
-        MkBotanPKOpKEMEncrypt (.runBotanPKOpKEMEncrypt)
+        Botan_pk_op_kem_encrypt_t (.un_Botan_pk_op_kem_encrypt_t)
         MkKEMEncrypt (.getKEMEncryptForeignPtr)
-        botan_pk_op_kem_encrypt_destroy
+        (Internal.funPtrIgnoreRetCode botan_pk_op_kem_encrypt_destroy_ptr)
 
 
 
@@ -191,16 +192,16 @@ kemEncryptCreateSharedKey ke rng salt desiredLen = withKEMEncrypt ke $ \ kePtr -
                                 encapPtr
                                 encapSzPtr
 
-newtype KEMDecrypt = MkKEMDecrypt { getKEMDecryptForeignPtr :: ForeignPtr BotanPKOpKEMDecryptStruct }
+newtype KEMDecrypt = MkKEMDecrypt { getKEMDecryptForeignPtr :: ForeignPtr Botan_pk_op_kem_decrypt_struct }
 
-withKEMDecrypt     :: KEMDecrypt -> (BotanPKOpKEMDecrypt -> IO a) -> IO a
+withKEMDecrypt     :: KEMDecrypt -> (Botan_pk_op_kem_decrypt_t -> IO a) -> IO a
 kemDecryptDestroy  :: KEMDecrypt -> IO ()
-createKEMDecrypt   :: (Ptr BotanPKOpKEMDecrypt -> IO CInt) -> IO KEMDecrypt
+createKEMDecrypt   :: (Ptr Botan_pk_op_kem_decrypt_t -> IO CInt) -> IO KEMDecrypt
 (withKEMDecrypt, kemDecryptDestroy, createKEMDecrypt)
     = mkBindings
-        MkBotanPKOpKEMDecrypt (.runBotanPKOpKEMDecrypt)
+        Botan_pk_op_kem_decrypt_t (.un_Botan_pk_op_kem_decrypt_t)
         MkKEMDecrypt (.getKEMDecryptForeignPtr)
-        botan_pk_op_kem_decrypt_destroy
+        (Internal.funPtrIgnoreRetCode botan_pk_op_kem_decrypt_destroy_ptr)
 
 kemDecryptCreate
     :: PrivKey          -- ^ __key__

@@ -56,9 +56,9 @@ module Botan.Low.MPI (
 
   ) where
 
-import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Bindings.MPI
 import           Botan.Low.Error.Internal
+import qualified Botan.Low.Internal as Internal
 import           Botan.Low.Internal.ByteString
 import           Botan.Low.Make
 import           Botan.Low.Remake
@@ -71,6 +71,7 @@ import           Foreign.ForeignPtr
 import           Foreign.Marshal.Alloc
 import           Foreign.Ptr
 import           Foreign.Storable
+import           HsBindgen.Runtime.ConstPtr (ConstPtr (..))
 
 -- Yes, the module is named MPI, but the type is MP.
 -- I'm probably renaming the module / type to `Botan.Integer` for ergonomics,
@@ -85,16 +86,16 @@ import           Foreign.Storable
 -- NOTE: This whole module is not idiomatic - some methods mutate, some have a destination argument
 --  It will need furter wrapping.
 
-newtype MP = MkMP { getMPForeignPtr :: ForeignPtr BotanMPStruct }
+newtype MP = MkMP { getMPForeignPtr :: ForeignPtr Botan_mp_struct }
 
-withMP     :: MP -> (BotanMP -> IO a) -> IO a
+withMP     :: MP -> (Botan_mp_t -> IO a) -> IO a
 mpDestroy  :: MP -> IO ()
-createMP   :: (Ptr BotanMP -> IO CInt) -> IO MP
+createMP   :: (Ptr Botan_mp_t -> IO CInt) -> IO MP
 (withMP, mpDestroy, createMP)
     = mkBindings
-        MkBotanMP (.runBotanMP)
+        Botan_mp_t (.un_Botan_mp_t)
         MkMP (.getMPForeignPtr)
-        botan_mp_destroy
+        (Internal.funPtrIgnoreRetCode botan_mp_destroy_ptr)
 
 mpInit :: IO MP
 -- mpInit = mkInit MkMP botan_mp_init botan_mp_destroy

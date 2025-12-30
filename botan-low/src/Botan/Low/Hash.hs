@@ -96,6 +96,7 @@ module Botan.Low.Hash (
 
 import           Botan.Bindings.Hash
 import           Botan.Low.Error.Internal
+import qualified Botan.Low.Internal as Internal
 import           Botan.Low.Internal.ByteString
 import           Botan.Low.Internal.String
 import           Botan.Low.Make
@@ -139,16 +140,16 @@ You can clear a hash's state, leaving it ready for reuse:
 
 -}
 
-newtype Hash = MkHash { getHashForeignPtr :: ForeignPtr BotanHashStruct }
+newtype Hash = MkHash { getHashForeignPtr :: ForeignPtr Botan_hash_struct }
 
-withHash     :: Hash -> (BotanHash -> IO a) -> IO a
+withHash     :: Hash -> (Botan_hash_t -> IO a) -> IO a
 hashDestroy  :: Hash -> IO ()
-createHash   :: (Ptr BotanHash -> IO CInt) -> IO Hash
+createHash   :: (Ptr Botan_hash_t -> IO CInt) -> IO Hash
 (withHash, hashDestroy, createHash)
     = mkBindings
-        MkBotanHash (.runBotanHash)
+        Botan_hash_t (.un_Botan_hash_t)
         MkHash (.getHashForeignPtr)
-        botan_hash_destroy
+        (Internal.funPtrIgnoreRetCode botan_hash_destroy_ptr)
 
 type HashName = ByteString
 

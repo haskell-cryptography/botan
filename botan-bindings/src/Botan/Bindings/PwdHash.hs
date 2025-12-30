@@ -17,6 +17,7 @@ the C++ API reference.
 {-# LANGUAGE OverloadedStrings #-}
 
 module Botan.Bindings.PwdHash (
+    -- $password-hashing
     botan_pwdhash
   , botan_pwdhash_timed
     -- * Available schemes
@@ -30,75 +31,48 @@ module Botan.Bindings.PwdHash (
   , pattern BOTAN_PBKDF_OPENPGP_S2K
   ) where
 
-import           Botan.Bindings.ConstPtr
-import           Data.String
-import           Data.Word
-import           Foreign.C.Types
-import           Foreign.Ptr
+import qualified Botan.Bindings.Generated.Safe as Safe
+import           Data.String (IsString)
+import           Data.Word (Word32, Word8)
+import           Foreign.C.Types (CChar, CInt, CSize)
+import           Foreign.Ptr (Ptr)
+import           HsBindgen.Runtime.ConstPtr (ConstPtr)
 
 {-------------------------------------------------------------------------------
   Password hashing
 -------------------------------------------------------------------------------}
 
--- | Derive a cryptographic key from a passphrase using algorithm-specific parameters
---
--- NOTE: the interpretation of parameters @param1@, @param2@, and @param3@ are
--- different depending on the PBKDF algorithm that is picked. See the
--- documentation of the
--- [@from_params@](https://botan.randombit.net/handbook/api_ref/pbkdf.html#passwordhash)
--- C++ function for more information about the meaning of the parameters.
---
-foreign import capi safe "botan/ffi.h botan_pwdhash"
-  botan_pwdhash
-    :: ConstPtr CChar  -- ^ __algo__: PBKDF algorithm, e.g., "PBKDF2(SHA-256)" or "Scrypt"
-    -> CSize           -- ^ __param1__: the first PBKDF algorithm parameter
-    -> CSize           -- ^ __param2__: the second PBKDF algorithm parameter (may be zero if unneeded)
-    -> CSize           -- ^ __param3__: the third PBKDF algorithm parameter (may be zero if unneeded)
-    -> Ptr Word8       -- ^ __out[]__: buffer to store the derived key, must be of out_len bytes
-    -> CSize           -- ^ __out_len__: the desired length of the key to produce
-    -> ConstPtr CChar  -- ^ __passphrase__: the password to derive the key from
-    -> CSize           -- ^ __passphrase_len__: if > 0, specifies length of password. If len == 0, then
-                       -- strlen will be called on passphrase to compute the length.
-    -> ConstPtr Word8  -- ^ __salt[]__: a randomly chosen salt
-    -> CSize           -- ^ __salt_len__: length of salt in bytes
-    -> IO CInt         -- ^ 0 on success, a negative value on failure
+{- $password-hashing
 
--- | Derive a cryptographic key from a passphrase using algorithm-specific
--- parameters that are tuned automatically for a desired running time of the
--- algorithm.
---
--- NOTE: for the @Argon2@ and @Scrypt@ PBKDF algorithms, 'botan_pwdhash_timed'
--- returns parameters in a different order than the order in which they should
--- be passed to 'botan_pwdhash'. This is a known issue with the Botan C++
--- library. See <https://github.com/randombit/botan/issues/2144> for more
--- information.
---
--- 'botan_pwdhash_timed' always returns parameters in this order:
---
--- > (iterations, parallelism, memoryParam)
---
--- 'botan_pwdhash' shoulds be given parameters in this order for the
--- @Argon2@ and @Scrypt@ algorithms:
---
--- > param1 = memoryParam
--- > param2 = iterations
--- > param3 = parallelism
---
-foreign import capi safe "botan/ffi.h botan_pwdhash_timed"
-  botan_pwdhash_timed
-    :: ConstPtr CChar  -- ^ __algo__: PBKDF algorithm, e.g., "Scrypt" or "PBKDF2(SHA-256)"
-    -> Word32          -- ^ __msec__: the desired runtime in milliseconds
-    -> Ptr CSize       -- ^ __param1__: will be set to the first PBKDF algorithm parameter
-    -> Ptr CSize       -- ^ __param2__: will be set to the second PBKDF algorithm parameter (may be zero if unneeded)
-    -> Ptr CSize       -- ^ __param3__: will be set to the third PBKDF algorithm parameter (may be zero if unneeded)
-    -> Ptr Word8       -- ^ __out[]__: buffer to store the derived key, must be of out_len bytes
-    -> CSize           -- ^ __out_len__: the desired length of the key to produce
-    -> ConstPtr CChar  -- ^ __passphrase__: the password to derive the key from
-    -> CSize           -- ^ __passphrase_len__: if > 0, specifies length of password. If len == 0, then
-                       --   strlen will be called on passphrase to compute the length.
-    -> ConstPtr Word8  -- ^ __salt[]__: a randomly chosen salt
-    -> CSize           -- ^ __salt_len__: length of salt in bytes
-    -> IO CInt         -- ^ 0 on success, a negative value on failure
+For 'Safe.botan_pwdhash' the interpretation of parameters @param1@,
+@param2@, and @param3@ are different depending on the PBKDF algorithm that is
+picked. See the documentation of the
+[@from_params@](https://botan.randombit.net/handbook/api_ref/pbkdf.html#passwordhash)
+C++ function for more information about the meaning of the parameters.
+
+For the @Argon2@ and @Scrypt@ PBKDF algorithms, 'Safe.botan_pwdhash_timed'
+returns parameters in a different order than the order in which they should
+be passed to 'Safe.botan_pwdhash'. This is a known issue with the Botan C++
+library. See <https://github.com/randombit/botan/issues/2144> for more
+information.
+
+'Safe.botan_pwdhash_timed' always returns parameters in this order:
+
+> (iterations, parallelism, memoryParam)
+
+'Safe.botan_pwdhash' should be given parameters in this order for the
+@Argon2@ and @Scrypt@ algorithms:
+
+> param1 = memoryParam
+> param2 = iterations
+> param3 = parallelism
+-}
+
+botan_pwdhash :: ConstPtr CChar -> CSize -> CSize -> CSize -> Ptr Word8 -> CSize -> ConstPtr CChar -> CSize -> ConstPtr Word8 -> CSize -> IO CInt
+botan_pwdhash = Safe.botan_pwdhash_wrapper
+
+botan_pwdhash_timed :: ConstPtr CChar -> Word32 -> Ptr CSize -> Ptr CSize -> Ptr CSize -> Ptr Word8 -> CSize -> ConstPtr CChar -> CSize -> ConstPtr Word8 -> CSize -> IO CInt
+botan_pwdhash_timed = Safe.botan_pwdhash_timed_wrapper
 
 {-------------------------------------------------------------------------------
   Available schemes

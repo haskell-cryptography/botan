@@ -43,4 +43,4 @@ module Botan.Low.Error (
   , Internal.UnknownException(..)
   ) where
 
-import           Botan.Low.Error.Internal as Internal
+import qualified Botan.Low.Error.Internal as Internal

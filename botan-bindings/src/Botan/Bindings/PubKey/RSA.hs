@@ -9,48 +9,19 @@ Stability   : experimental
 Portability : POSIX
 -}
 
-{-# LANGUAGE CApiFFI #-}
-
 module Botan.Bindings.PubKey.RSA (
-    botan_privkey_load_rsa
+    Safe.botan_privkey_load_rsa
   , botan_privkey_load_rsa_pkcs1
-  , botan_privkey_rsa_get_privkey
-  , botan_pubkey_load_rsa
+  , Safe.botan_privkey_rsa_get_privkey
+  , Safe.botan_pubkey_load_rsa
   ) where
 
-import           Botan.Bindings.ConstPtr
-import           Botan.Bindings.MPI
-import           Botan.Bindings.PubKey
-import           Data.Word
-import           Foreign.C.Types
-import           Foreign.Ptr
+import qualified Botan.Bindings.Generated as Types
+import qualified Botan.Bindings.Generated.Safe as Safe
+import           Data.Word (Word8)
+import           Foreign.C.Types (CInt, CSize)
+import           Foreign.Ptr (Ptr)
+import           HsBindgen.Runtime.ConstPtr (ConstPtr)
 
-foreign import capi safe "botan/ffi.h botan_privkey_load_rsa"
-    botan_privkey_load_rsa
-        :: Ptr BotanPrivKey    -- ^ __key__
-        -> BotanMP             -- ^ __p__
-        -> BotanMP             -- ^ __q__
-        -> BotanMP             -- ^ __e__
-        -> IO CInt
-
-foreign import capi safe "botan/ffi.h botan_privkey_load_rsa_pkcs1"
-    botan_privkey_load_rsa_pkcs1
-        :: Ptr BotanPrivKey    -- ^ __key__
-        -> ConstPtr Word8      -- ^ __bits[]__
-        -> CSize               -- ^ __len__
-        -> IO CInt
-
-foreign import capi safe "botan/ffi.h botan_privkey_rsa_get_privkey"
-    botan_privkey_rsa_get_privkey
-        :: BotanPrivKey    -- ^ __rsa_key__
-        -> Ptr Word8       -- ^ __out[]__
-        -> Ptr CSize       -- ^ __out_len__
-        -> Word32          -- ^ __flags__
-        -> IO CInt
-
-foreign import capi safe "botan/ffi.h botan_pubkey_load_rsa"
-    botan_pubkey_load_rsa
-        :: Ptr BotanPubKey    -- ^ __key__
-        -> BotanMP            -- ^ __n__
-        -> BotanMP            -- ^ __e__
-        -> IO CInt
+botan_privkey_load_rsa_pkcs1 :: Ptr Types.Botan_privkey_t -> ConstPtr Word8 -> CSize -> IO CInt
+botan_privkey_load_rsa_pkcs1 = Safe.botan_privkey_load_rsa_pkcs1_wrapper

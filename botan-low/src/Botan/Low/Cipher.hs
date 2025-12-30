@@ -97,9 +97,9 @@ module Botan.Low.Cipher (
   ) where
 
 import           Botan.Bindings.Cipher
-import           Botan.Bindings.ConstPtr (ConstPtr (..))
 import           Botan.Low.BlockCipher
 import           Botan.Low.Error.Internal
+import qualified Botan.Low.Internal as Internal
 import           Botan.Low.Internal.ByteString
 import           Botan.Low.Internal.String
 import           Botan.Low.Make
@@ -113,6 +113,7 @@ import           Foreign.ForeignPtr
 import           Foreign.Marshal.Alloc
 import           Foreign.Ptr
 import           Foreign.Storable
+import           HsBindgen.Runtime.ConstPtr (ConstPtr (..))
 
 {- $introduction
 
@@ -195,17 +196,17 @@ If you are encrypting or decrypting multiple messages with the same key, you can
 
 -- NOTE: This is *symmetric* ciphers  For the 'raw' interface to ECB mode block ciphers, see BlockCipher.hs
 
-newtype Cipher = MkCipher { getCipherForeignPtr :: ForeignPtr BotanCipherStruct }
+newtype Cipher = MkCipher { getCipherForeignPtr :: ForeignPtr Botan_cipher_struct }
 
-withCipher     :: Cipher -> (BotanCipher -> IO a) -> IO a
+withCipher     :: Cipher -> (Botan_cipher_t -> IO a) -> IO a
 -- | Destroy the cipher object immediately
 cipherDestroy  :: Cipher -> IO ()
-createCipher   :: (Ptr BotanCipher -> IO CInt) -> IO Cipher
+createCipher   :: (Ptr Botan_cipher_t -> IO CInt) -> IO Cipher
 (withCipher, cipherDestroy, createCipher)
     = mkBindings
-        MkBotanCipher (.runBotanCipher)
+        Botan_cipher_t (.un_Botan_cipher_t)
         MkCipher (.getCipherForeignPtr)
-        botan_cipher_destroy
+        (Internal.funPtrIgnoreRetCode botan_cipher_destroy_ptr)
 
 type CipherNonce = ByteString
 type CipherKey = ByteString
@@ -317,9 +318,9 @@ data CipherInitFlags =
   deriving stock (Show, Eq)
 
 cipherInitFlags :: CipherInitFlags -> Word32
-cipherInitFlags CipherMaskDirection = BOTAN_CIPHER_INIT_FLAG_MASK_DIRECTION
-cipherInitFlags CipherEncrypt       = BOTAN_CIPHER_INIT_FLAG_ENCRYPT
-cipherInitFlags CipherDecrypt       = BOTAN_CIPHER_INIT_FLAG_DECRYPT
+cipherInitFlags CipherMaskDirection = fromIntegral bOTAN_CIPHER_INIT_FLAG_MASK_DIRECTION
+cipherInitFlags CipherEncrypt       = fromIntegral bOTAN_CIPHER_INIT_FLAG_ENCRYPT
+cipherInitFlags CipherDecrypt       = fromIntegral bOTAN_CIPHER_INIT_FLAG_DECRYPT
 
 data CipherUpdateFlags =
     CipherUpdate
@@ -327,8 +328,8 @@ data CipherUpdateFlags =
   deriving stock (Show, Eq)
 
 cipherUpdateFlags :: CipherUpdateFlags -> Word32
-cipherUpdateFlags CipherUpdate = BOTAN_CIPHER_UPDATE_FLAG_NONE
-cipherUpdateFlags CipherFinal  = BOTAN_CIPHER_UPDATE_FLAG_FINAL
+cipherUpdateFlags CipherUpdate = 0
+cipherUpdateFlags CipherFinal  = fromIntegral bOTAN_CIPHER_UPDATE_FLAG_FINAL
 
 -- |Initialize a cipher object
 cipherInit

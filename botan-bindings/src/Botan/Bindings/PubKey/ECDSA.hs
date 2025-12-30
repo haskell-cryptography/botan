@@ -9,30 +9,9 @@ Stability   : experimental
 Portability : POSIX
 -}
 
-{-# LANGUAGE CApiFFI #-}
-
 module Botan.Bindings.PubKey.ECDSA (
-    botan_privkey_load_ecdsa
-  , botan_pubkey_load_ecdsa
+    Safe.botan_privkey_load_ecdsa
+  , Safe.botan_pubkey_load_ecdsa
   ) where
 
-import           Botan.Bindings.ConstPtr
-import           Botan.Bindings.MPI
-import           Botan.Bindings.PubKey
-import           Foreign.C.Types
-import           Foreign.Ptr
-
-foreign import capi safe "botan/ffi.h botan_privkey_load_ecdsa"
-    botan_privkey_load_ecdsa
-        :: Ptr BotanPrivKey    -- ^ __key__
-        -> BotanMP             -- ^ __scalar__
-        -> ConstPtr CChar      -- ^ __curve_name__
-        -> IO CInt
-
-foreign import capi safe "botan/ffi.h botan_pubkey_load_ecdsa"
-    botan_pubkey_load_ecdsa
-        :: Ptr BotanPubKey    -- ^ __key__
-        -> BotanMP            -- ^ __public_x__
-        -> BotanMP            -- ^ __public_y__
-        -> ConstPtr CChar     -- ^ __curve_name__
-        -> IO CInt
+import qualified Botan.Bindings.Generated.Safe as Safe
