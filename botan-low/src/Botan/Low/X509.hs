@@ -49,17 +49,9 @@ module Botan.Low.X509 (
 
   -- * X509 Key constraints
 
-  , X509KeyConstraints
-  , pattern NoConstraints
-  , pattern DigitalSignature
-  , pattern NonRepudiation
-  , pattern KeyEncipherment
-  , pattern DataEncipherment
-  , pattern KeyAgreement
-  , pattern KeyCertSign
-  , pattern CRLSign
-  , pattern EncipherOnly
-  , pattern DecipherOnly
+  , X509KeyConstraints (..)
+  , x509KeyConstraints
+  , x509KeyConstraintsList
 
   -- * X509 Certificate revocation list
 
@@ -85,6 +77,7 @@ import           Botan.Low.Make
 import           Botan.Low.PubKey
 import           Botan.Low.Remake
 import           Control.Monad
+import           Data.Bits
 import           Data.ByteString (ByteString, packCString)
 import qualified Data.ByteString.Char8 as Char8
 import           Data.Word
@@ -241,39 +234,33 @@ x509CertToString = mkGetCString withX509Cert botan_x509_cert_to_string
 --  only be present if at least one of the bits is set, and
 --  usage is unrestricted if the extension is not present.
 --  That is, it is an optional restriction.
--- pattern NoConstraints = BOTAN_X509_CERT_KEY_CONSTRAINTS_NO_CONSTRAINTS
--- pattern DigitalSignature = BOTAN_X509_CERT_KEY_CONSTRAINTS_DIGITAL_SIGNATURE
--- pattern NonRepudiation = BOTAN_X509_CERT_KEY_CONSTRAINTS_NON_REPUDIATION
--- pattern KeyEncipherment = BOTAN_X509_CERT_KEY_CONSTRAINTS_KEY_ENCIPHERMENT
--- pattern DataEncipherment = BOTAN_X509_CERT_KEY_CONSTRAINTS_DATA_ENCIPHERMENT
--- pattern KeyAgreement = BOTAN_X509_CERT_KEY_CONSTRAINTS_KEY_AGREEMENT
--- pattern KeyCertSign = BOTAN_X509_CERT_KEY_CONSTRAINTS_KEY_CERT_SIGN
--- pattern CRLSign = BOTAN_X509_CERT_KEY_CONSTRAINTS_CRL_SIGN
--- pattern EncipherOnly = BOTAN_X509_CERT_KEY_CONSTRAINTS_ENCIPHER_ONLY
--- pattern DecipherOnly = BOTAN_X509_CERT_KEY_CONSTRAINTS_DECIPHER_ONLY
-type X509KeyConstraints = CUInt
+data X509KeyConstraints =
+    NoConstraints
+  | DigitalSignature
+  | NonRepudiation
+  | KeyEncipherment
+  | DataEncipherment
+  | KeyAgreement
+  | KeyCertSign
+  | CRLSign
+  | EncipherOnly
+  | DecipherOnly
 
-pattern NoConstraints
-    ,   DigitalSignature
-    ,   NonRepudiation
-    ,   KeyEncipherment
-    ,   DataEncipherment
-    ,   KeyAgreement
-    ,   KeyCertSign
-    ,   CRLSign
-    ,   EncipherOnly
-    ,   DecipherOnly
-    ::  X509KeyConstraints
-pattern NoConstraints = NO_CONSTRAINTS
-pattern DigitalSignature = DIGITAL_SIGNATURE
-pattern NonRepudiation = NON_REPUDIATION
-pattern KeyEncipherment = KEY_ENCIPHERMENT
-pattern DataEncipherment = DATA_ENCIPHERMENT
-pattern KeyAgreement = KEY_AGREEMENT
-pattern KeyCertSign = KEY_CERT_SIGN
-pattern CRLSign = CRL_SIGN
-pattern EncipherOnly = ENCIPHER_ONLY
-pattern DecipherOnly = DECIPHER_ONLY
+x509KeyConstraints :: X509KeyConstraints -> CUInt
+x509KeyConstraints NoConstraints    = NO_CONSTRAINTS
+x509KeyConstraints DigitalSignature = DIGITAL_SIGNATURE
+x509KeyConstraints NonRepudiation   = NON_REPUDIATION
+x509KeyConstraints KeyEncipherment  = KEY_ENCIPHERMENT
+x509KeyConstraints DataEncipherment = DATA_ENCIPHERMENT
+x509KeyConstraints KeyAgreement     = KEY_AGREEMENT
+x509KeyConstraints KeyCertSign      = KEY_CERT_SIGN
+x509KeyConstraints CRLSign          = CRL_SIGN
+x509KeyConstraints EncipherOnly     = ENCIPHER_ONLY
+x509KeyConstraints DecipherOnly     = DECIPHER_ONLY
+
+x509KeyConstraintsList :: [X509KeyConstraints] -> CUInt
+x509KeyConstraintsList [] = x509KeyConstraints NoConstraints
+x509KeyConstraintsList (kc:kcs) = x509KeyConstraints kc .|. x509KeyConstraintsList kcs
 
 -- |
 --
@@ -284,11 +271,11 @@ pattern DecipherOnly = DECIPHER_ONLY
 -- Note: unexplained function, best-guess implementation
 x509CertAllowedUsage ::
      X509Cert             -- ^ __cert__
-  -> X509KeyConstraints   -- ^ __key_usage__
+  -> [X509KeyConstraints] -- ^ __key_usage__
   -> IO Bool
 x509CertAllowedUsage cert usage =
     withX509Cert cert $ \ certPtr ->
-    throwBotanCatchingInvalidVerifier $ botan_x509_cert_allowed_usage certPtr usage
+    throwBotanCatchingInvalidVerifier $ botan_x509_cert_allowed_usage certPtr (x509KeyConstraintsList usage)
 
 {- |
 Check if the certificate matches the specified hostname via alternative name or CN match.

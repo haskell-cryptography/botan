@@ -152,7 +152,7 @@ spec_x509 = do
         pass
     it "x509CertAllowedUsage" $ do
         cert <- x509CertLoad testCert
-        _allowed <- x509CertAllowedUsage cert NoConstraints
+        _allowed <- x509CertAllowedUsage cert []
         pass
     it "x509CertHostnameMatch" $ do
         cert <- x509CertLoad testCert

@@ -1,5 +1,17 @@
 # Changelog
 
+## ?.?.?.? -- ????-??-??
+
+* BREAKING: change more flags from numbers into datatypes. See PR
+  [#113](https://github.com/haskell-cryptography/botan/pull/113). The flag
+  datatypes come with new helper functions to convert the datatype into a
+  number. The changed flag types are:
+  - `SigningFlags`
+  - `X509KeyConstraints`
+* BREAKING: `x509CertAllowedUsage` now takes a list of `X509KeyConstraints`
+  instead of a single value. See PR
+  [#113](https://github.com/haskell-cryptography/botan/pull/113).
+
 ## 0.1.0.0 -- 2025-12-30
 
 * BREAKING: remove experimental FFI code related to `x509`. See PR

@@ -26,7 +26,7 @@ import           Botan.Bindings.PubKey.Verify
 import           Botan.Low.Error.Internal
 import           Botan.Low.Internal.ByteString
 import           Botan.Low.PubKey
-import           Botan.Low.PubKey.Sign (SigningFlags)
+import           Botan.Low.PubKey.Sign (SigningFlags, signingFlags)
 import           Botan.Low.Remake
 import           Data.ByteString (ByteString)
 import           Foreign.C.Types
@@ -59,7 +59,7 @@ verifyCreate pk algo flags =  withPubKey pk $ \ pkPtr -> do
             out
             pkPtr
             (ConstPtr algoPtr)
-            flags
+            (signingFlags flags)
 
 verifyUpdate
     :: Verify       -- ^ __op__

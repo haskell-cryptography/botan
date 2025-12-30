@@ -13,9 +13,8 @@ module Botan.Low.PubKey.Sign (
 
   -- * Public key signatures
     Sign(..)
-  , SigningFlags
-  , pattern StandardFormatSignature
-  , pattern DERFormatSignature
+  , SigningFlags (..)
+  , signingFlags
   , withSign
   , signCreate
   , signDestroy
@@ -58,13 +57,13 @@ createSign   :: (Ptr BotanPKOpSign -> IO CInt) -> IO Sign
         MkSign (.getSignForeignPtr)
         botan_pk_op_sign_destroy
 
-type SigningFlags = Word32
+data SigningFlags =
+    StandardFormatSignature
+  | DERFormatSignature
 
-pattern StandardFormatSignature   -- ^ Not an actual flags
-    ,   DERFormatSignature
-    ::  SigningFlags
-pattern StandardFormatSignature = BOTAN_PUBKEY_STD_FORMAT_SIGNATURE
-pattern DERFormatSignature = BOTAN_PUBKEY_DER_FORMAT_SIGNATURE
+signingFlags :: SigningFlags -> Word32
+signingFlags StandardFormatSignature = BOTAN_PUBKEY_STD_FORMAT_SIGNATURE
+signingFlags DERFormatSignature      = BOTAN_PUBKEY_DER_FORMAT_SIGNATURE
 
 signCreate
     :: PrivKey      -- ^ __key__
@@ -77,7 +76,7 @@ signCreate sk algo flags = withPrivKey sk $ \ skPtr -> do
             out
             skPtr
             (ConstPtr algoPtr)
-            flags
+            (signingFlags flags)
 
 signOutputLength
     :: Sign     -- ^ __op__
