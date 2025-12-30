@@ -1,18 +1,12 @@
 index-state:
   -- Bump this if you need newer packages from Hackage
-  -- current date: REASON
-  , hackage.haskell.org 2025-11-17T00:00:00Z
+  -- current date: release botan-bindings-0.2.0.0
+  , hackage.haskell.org 2025-12-30T00:00:00Z
 
 packages:
-
-    -- Raw FFI bindings
-    botan-bindings
-
-    -- Low-level ByteString / IO interface
-    botan-low
-
-    -- High-level idiomatic interface
-    botan
+  botan-bindings
+  botan-low
+  botan
 
 tests: True
 benchmarks: True
