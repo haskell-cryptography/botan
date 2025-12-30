@@ -12,7 +12,7 @@ description:
   > X.509 certificates, modern AEAD ciphers, PKCS#11 and TPM hardware support,
   > password hashing, and post quantum crypto schemes.
 
-  For more information, see the [README on Github](https://github.com/haskellfoundation/botan)
+  For more information, see the [README on Github](https://github.com/haskell-cryptography/botan)
 
 author: Leo D.
 maintainer: joris@well-typed.com, leo@apotheca.io
@@ -43,12 +43,12 @@ tested-with:
 
 source-repository head
   type: git
-  location: https://github.com/haskellfoundation/botan
+  location: https://github.com/haskell-cryptography/botan
   subdir: botan-low
 
 source-repository this
   type: git
-  location: https://github.com/haskellfoundation/botan
+  location: https://github.com/haskell-cryptography/botan
   subdir: botan-low
   tag: botan-low-0.0.2.0
 
