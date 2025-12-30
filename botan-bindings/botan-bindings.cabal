@@ -1,6 +1,6 @@
 cabal-version: 3.0
 name: botan-bindings
-version: 0.1.0.0
+version: 0.2.0.0
 synopsis: Raw Botan bindings
 description:
   Welcome to botan-bindings
@@ -12,7 +12,7 @@ description:
   > X.509 certificates, modern AEAD ciphers, PKCS#11 and TPM hardware support,
   > password hashing, and post quantum crypto schemes.
 
-  For more information, see the [README on Github](https://github.com/haskellfoundation/botan)
+  For more information, see the [README on Github](https://github.com/haskell-cryptography/botan)
 
 author: Leo D.
 maintainer: joris@well-typed.com, leo@apotheca.io
@@ -32,14 +32,14 @@ tested-with: ghc ==9.2 || ==9.4 || ==9.6 || ==9.8 || ==9.10 || ==9.12
 
 source-repository head
   type: git
-  location: https://github.com/haskellfoundation/botan
+  location: https://github.com/haskell-cryptography/botan
   subdir: botan-bindings
 
 source-repository this
   type: git
-  location: https://github.com/haskellfoundation/botan
+  location: https://github.com/haskell-cryptography/botan
   subdir: botan-bindings
-  tag: botan-bindings-0.1.0.0
+  tag: botan-bindings-0.2.0.0
 
 flag pkg-config
   default: True

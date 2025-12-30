@@ -7,4 +7,5 @@ Raw bindings to the [Botan](https://botan.randombit.net/) cryptography library.
 > protocol, X.509 certificates, modern AEAD ciphers, PKCS#11 and TPM hardware
 > support, password hashing, and post quantum crypto schemes.
 
-For more information, see the [README on Github](https://github.com/haskellfoundation/botan)
+For more information, see the [README on
+Github](https://github.com/haskell-cryptography/botan).

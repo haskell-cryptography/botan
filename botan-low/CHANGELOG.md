@@ -1,9 +1,10 @@
 # Changelog
 
-## ?.?.?.? -- ????-??-??
+## 0.1.0.0 -- 2025-12-30
 
-* BREAKING: remove experimental FFI code related to `x509`. This code might be
-  restored in some form in the future, but as of now it does not compile any
+* BREAKING: remove experimental FFI code related to `x509`. See PR
+  [#49](https://github.com/haskell-cryptography/botan/pull/49). This code might
+  be restored in some form in the future, but as of now it does not compile any
   more, so it is removed. The modules that are removed are:
   - `Botan.Low.X509.CA`
   - `Botan.Low.X509.CRL`
@@ -13,39 +14,54 @@
   - `Botan.Low.X509.Options`
   - `Botan.Low.X509.Path`
   - `Botan.Low.X509.Store`
-* BREAKING: remove the `XFFI` cabal flag. It has no effect now that the
-  experimental `x509` code is moved.
-* PATCH: enable `-Wall` in addition to a number of other GHC warnings.
-* PATCH: use `GHC2021` as the default language.
-* PATCH: update documentation in the `Botan.Low.Error` module.
-* PATCH: update documentation in the `Botan.Low.Utility` module.
-* PATCH: update documentation in the `Botan.Low.Version` module.
-* PATCH: update documentation in the `Botan.Low.View` module.
+* BREAKING: remove the `XFFI` cabal flag. See PR
+  [#49](https://github.com/haskell-cryptography/botan/pull/49). It has no effect
+  now that the experimental `x509` code is moved.
+* PATCH: enable `-Wall` in addition to a number of other GHC warnings. See PR
+  [#52](https://github.com/haskell-cryptography/botan/pull/52).
+* PATCH: use `GHC2021` as the default language. See PR
+  [#52](https://github.com/haskell-cryptography/botan/pull/52).
+* PATCH: update documentation in the `Botan.Low.Error` module. See PR
+  [#62](https://github.com/haskell-cryptography/botan/pull/62).
+* PATCH: update documentation in the `Botan.Low.Utility` module. See PR
+  [#62](https://github.com/haskell-cryptography/botan/pull/62).
+* PATCH: update documentation in the `Botan.Low.Version` module. See PR
+  [#62](https://github.com/haskell-cryptography/botan/pull/62).
+* PATCH: update documentation in the `Botan.Low.View` module. See PR
+  [#62](https://github.com/haskell-cryptography/botan/pull/62).
 * BREAKING: `Botan.Low.PwdHash.pbkdf2` now takes a `HashName` instead of a
-  `MacName`.
-* PATCH: update documentation in the `Botan.Low.PwdHash` module.
+  `MacName`. See PR
+  [#63](https://github.com/haskell-cryptography/botan/pull/63).
+* PATCH: update documentation in the `Botan.Low.PwdHash` module. See PR
+  [#63](https://github.com/haskell-cryptography/botan/pull/63).
 * PATCH: introduce a work-around for a bug found in
   `Botan.Low.SRP6.srp6ServerSessionStep1`, which would always throw an
-  exception. See issue
-  [#28](https://github.com/haskell-cryptography/botan/issues/28).
+  exception. See PR
+  [#65](https://github.com/haskell-cryptography/botan/pull/65).
 * BREAKING: add a `DLGroupName` function argument to
-  `Botan.Low.SRP6.srp6ServerSessionStep2`.
-* PATCH: update documentation in the `Botan.Low.SRP6` module.
-* PATCH: update documentation in the `Botan.Low.BlockCipher` module.
+  `Botan.Low.SRP6.srp6ServerSessionStep2`. See PR
+  [#65](https://github.com/haskell-cryptography/botan/pull/65).
+* PATCH: update documentation in the `Botan.Low.SRP6` module. See PR
+  [#65](https://github.com/haskell-cryptography/botan/pull/65).
+* PATCH: update documentation in the `Botan.Low.BlockCipher` module. See PR
+  [#74](https://github.com/haskell-cryptography/botan/pull/74).
 * BREAKING: remove the `BlockCipher128Name` type synonym from
-  `Botan.Low.BlockCipher`.
+  `Botan.Low.BlockCipher`. See PR
+  [#74](https://github.com/haskell-cryptography/botan/pull/74).
 * NON-BREAKING: in the `BlockCipher` module, add new pattern synonyms `Lion` and
   `Cascade` and accompanying utility functions `lion` and `cascade` for the
-  "Lion" and "Cascade" ciphers respectively.
+  "Lion" and "Cascade" ciphers respectively. See PR
+  [#74](https://github.com/haskell-cryptography/botan/pull/74).
 * PATCH: fix an "address out of bounds" bug in `blockCipherEncryptBlocks` and
-  `blockCipherDecryptBlocks` that occasionally caused segfaults.
+  `blockCipherDecryptBlocks` that occasionally caused segfaults. See PR
+  [#74](https://github.com/haskell-cryptography/botan/pull/74).
 * PATCH: fix an "insufficient buffer space" bug in
   `Botan.Low.PubKey.Encrypt.encrypt` and `Botan.Low.PubKey.Decrypt.decrypt`. See
   PR [#79](https://github.com/haskell-cryptography/botan/pull/79), PR
   [#87](https://github.com/haskell-cryptography/botan/pull/87).
 * PATCH: Fix an "insufficient buffer space" bug in
   `Botan.Low.Cipher.cipherUpdate`. See PR
-  [#84](https://github.com/haskell-cryptography/botan/pull/84)
+  [#84](https://github.com/haskell-cryptography/botan/pull/84).
 * BREAKING: rework errors. See PR
   [#94](https://github.com/haskell-cryptography/botan/pull/94).
   - Change `BotanErrorCode` from a type synonym to a newtype around `CInt`.
@@ -71,8 +87,8 @@
   [#98](https://github.com/haskell-cryptography/botan/pull/98).
 * PATCH: fix a bug where some functions returning a `Bool` were returning
   `False` instead of throwing an exception and vice versa. See PR
-  [#105](https://github.com/haskell-cryptography/botan/pull/105). These functions
-  are:
+  [#105](https://github.com/haskell-cryptography/botan/pull/105). These
+  functions are:
   - `pubKeyCheckKey`
   - `x509CertHostnameMatch`
   - `x509IsRevoked`
