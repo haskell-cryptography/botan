@@ -293,8 +293,8 @@ gmac _ _ _ _ = error "Expected GMAC"
 -- Tagged mutable context
 
 data MutableMAC = MkMutableMAC
-    { mutableMACType :: MAC
-    , mutableMACCtx  :: Low.MAC
+    { algo :: MAC
+    , ctx  :: Low.MAC
     }
 
 -- Destructor
@@ -303,7 +303,7 @@ destroyMAC
     :: (MonadIO m)
     => MutableMAC
     -> m ()
-destroyMAC = liftIO . Low.macDestroy . (.mutableMACCtx)
+destroyMAC = liftIO . Low.macDestroy . (.ctx)
 
 -- Initializers
 
@@ -321,21 +321,21 @@ getMACName
     :: (MonadIO m)
     => MutableMAC
     -> m Low.MACName
-getMACName = liftIO . Low.macName . (.mutableMACCtx)
+getMACName = liftIO . Low.macName . (.ctx)
 
 getMACKeySpec
     :: (MonadIO m)
     => MutableMAC
     -> m MACKeySpec
 getMACKeySpec mm = do
-    (mn,mx,md) <- liftIO $ Low.macGetKeyspec mm.mutableMACCtx
+    (mn,mx,md) <- liftIO $ Low.macGetKeyspec mm.ctx
     return $ keySpec mn mx md
 
 getMACDigestLength
     :: (MonadIO m)
     => MutableMAC
     -> m Int
-getMACDigestLength = liftIO . Low.macOutputLength . (.mutableMACCtx)
+getMACDigestLength = liftIO . Low.macOutputLength . (.ctx)
 
 setMACKey
     :: (MonadIO m)
@@ -346,7 +346,7 @@ setMACKey k mm = do
     valid <- keySizeIsValid (ByteString.length k) <$> getMACKeySpec mm
     if valid
     then do
-        liftIO $ Low.macSetKey mm.mutableMACCtx k
+        liftIO $ Low.macSetKey mm.ctx k
         return True
     else return False
 
@@ -372,7 +372,7 @@ clearMAC
     :: (MonadIO m)
     => MutableMAC
     -> m ()
-clearMAC = liftIO . Low.macClear . (.mutableMACCtx)
+clearMAC = liftIO . Low.macClear . (.ctx)
 
 -- Mutable algorithm
 
@@ -392,13 +392,13 @@ updateMACChunks
     -> [ByteString]
     -> m ()
 updateMACChunks mm chunks =
-    liftIO $ traverse_ (Low.macUpdate mm.mutableMACCtx) chunks
+    liftIO $ traverse_ (Low.macUpdate mm.ctx) chunks
 
 finalizeMAC
     :: (MonadIO m)
     => MutableMAC
     -> m MACDigest
-finalizeMAC = liftIO . Low.macFinal . (.mutableMACCtx)
+finalizeMAC = liftIO . Low.macFinal . (.ctx)
 
 updateFinalizeMAC
     :: (MonadIO m)

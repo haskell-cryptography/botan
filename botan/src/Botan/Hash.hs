@@ -474,8 +474,8 @@ hashFileLazy h fp = do
 -- Tagged mutable context
 
 data MutableHash = MkMutableHash
-    { mutableHashType :: Hash
-    , mutableHashCtx  :: Low.Hash
+    { algo :: Hash
+    , ctx  :: Low.Hash
     }
 
 -- Destructor
@@ -484,7 +484,7 @@ destroyHash
     :: (MonadIO m)
     => MutableHash
     -> m ()
-destroyHash = liftIO . Low.hashDestroy . (.mutableHashCtx)
+destroyHash = liftIO . Low.hashDestroy . (.ctx)
 
 -- Initializers
 
@@ -502,19 +502,19 @@ getHashName
     :: (MonadIO m)
     => MutableHash
     -> m Low.HashName
-getHashName = liftIO . Low.hashName . (.mutableHashCtx)
+getHashName = liftIO . Low.hashName . (.ctx)
 
 getHashBlockSize
     :: (MonadIO m)
     => MutableHash
     -> m Int
-getHashBlockSize = liftIO . Low.hashBlockSize . (.mutableHashCtx)
+getHashBlockSize = liftIO . Low.hashBlockSize . (.ctx)
 
 getHashDigestSize
     :: (MonadIO m)
     => MutableHash
     -> m Int
-getHashDigestSize = liftIO . Low.hashOutputLength . (.mutableHashCtx)
+getHashDigestSize = liftIO . Low.hashOutputLength . (.ctx)
 
 -- Accessory functions
 
@@ -523,14 +523,14 @@ copyHashState
     => MutableHash
     -> m MutableHash
 copyHashState mh = do
-    ctx <- liftIO $ Low.hashCopyState mh.mutableHashCtx
-    return $ MkMutableHash mh.mutableHashType ctx
+    ctx <- liftIO $ Low.hashCopyState mh.ctx
+    return $ MkMutableHash mh.algo ctx
 
 clearHash
     :: (MonadIO m)
     => MutableHash
     -> m ()
-clearHash = liftIO . Low.hashClear . (.mutableHashCtx)
+clearHash = liftIO . Low.hashClear . (.ctx)
 
 -- Mutable algorithm
 -- TODO: Flip?
@@ -548,13 +548,13 @@ updateHashChunks
     -> [ByteString]
     -> m ()
 updateHashChunks mh chunks =
-    liftIO $ traverse_ (Low.hashUpdate mh.mutableHashCtx) chunks
+    liftIO $ traverse_ (Low.hashUpdate mh.ctx) chunks
 
 finalizeHash
     :: (MonadIO m)
     => MutableHash
     -> m HashDigest
-finalizeHash = liftIO . Low.hashFinal . (.mutableHashCtx)
+finalizeHash = liftIO . Low.hashFinal . (.ctx)
 
 updateFinalizeHash
     :: (MonadIO m)

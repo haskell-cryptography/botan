@@ -513,16 +513,16 @@ aeadDecrypt c k n ad ct = unsafePerformIO $ do
 -- Tagged mutable context
 
 data MutableCipher = MkMutableCipher
-    { mutableCipherType      :: Cipher
-    , mutableCipherDirection :: CipherDirection
-    , mutableCipherCtx       :: Low.Cipher
+    { algo      :: Cipher
+    , direction :: CipherDirection
+    , ctx       :: Low.Cipher
     -- , mutableCipherProcessed    :: Int
     }
 
 -- Destructor
 
 destroyCipher :: (MonadIO m) => MutableCipher -> m ()
-destroyCipher = liftIO . Low.cipherDestroy . (.mutableCipherCtx)
+destroyCipher = liftIO . Low.cipherDestroy . (.ctx)
 
 -- Associated types
 
@@ -560,29 +560,29 @@ newCipher c dir = do
 -- Accessors
 
 getCipherName :: (MonadIO m) => MutableCipher -> m ByteString
-getCipherName = liftIO . Low.cipherName . (.mutableCipherCtx)
+getCipherName = liftIO . Low.cipherName . (.ctx)
 
 getCipherKeySpec :: (MonadIO m) => MutableCipher -> m CipherKeySpec
 getCipherKeySpec c = do
-    (mn,mx,md) <- liftIO $ Low.cipherGetKeyspec c.mutableCipherCtx
+    (mn,mx,md) <- liftIO $ Low.cipherGetKeyspec c.ctx
     return $ keySpec mn mx md
 
 
 getCipherDefaultNonceSize :: (MonadIO m) => MutableCipher -> m Int
-getCipherDefaultNonceSize = liftIO . Low.cipherGetDefaultNonceLength . (.mutableCipherCtx)
+getCipherDefaultNonceSize = liftIO . Low.cipherGetDefaultNonceLength . (.ctx)
 
 getCipherNonceSizeIsValid :: (MonadIO m) => MutableCipher -> Int -> m Bool
-getCipherNonceSizeIsValid c n = liftIO $ Low.cipherValidNonceLength c.mutableCipherCtx n
+getCipherNonceSizeIsValid c n = liftIO $ Low.cipherValidNonceLength c.ctx n
 
 -- TODO: Rename getAEADTagLength? getAETagLength?
 getCipherTagSize :: (MonadIO m) => MutableCipher -> m Int
-getCipherTagSize = liftIO . Low.cipherGetTagLength . (.mutableCipherCtx)
+getCipherTagSize = liftIO . Low.cipherGetTagLength . (.ctx)
 
 getCipherUpdateGranularity :: (MonadIO m) => MutableCipher -> m Int
-getCipherUpdateGranularity = liftIO . Low.cipherGetUpdateGranularity . (.mutableCipherCtx)
+getCipherUpdateGranularity = liftIO . Low.cipherGetUpdateGranularity . (.ctx)
 
 getCipherIdealUpdateGranularity :: (MonadIO m) => MutableCipher -> m Int
-getCipherIdealUpdateGranularity = liftIO . Low.cipherGetIdealUpdateGranularity . (.mutableCipherCtx)
+getCipherIdealUpdateGranularity = liftIO . Low.cipherGetIdealUpdateGranularity . (.ctx)
 
 -- NOTE: out + ug + tag is safe overestimate for encryption
 -- NOTE: out + ug - tag may not be a safe overestimate for decryption
@@ -591,34 +591,34 @@ getCipherEstimateOutputLength ctx input = do
     o <- getCipherOutputLength ctx input  -- NOTE: Flawed but usable
     u <- getCipherUpdateGranularity ctx -- TODO: When u == 1, it should be just input + t, right?
     t <- getCipherTagSize ctx
-    if ctx.mutableCipherDirection == CipherEncrypt
+    if ctx.direction == CipherEncrypt
         then return (o + u + t)
         else return (o + u - t) -- TODO: Maybe just 'o'...
 
 -- NOTE: Supposed to be an upper bound, may not always be valid? - needs checking
 {-# WARNING getCipherOutputLength "Needs to be confirmed accurate, use getCipherEstimateOutputLength" #-}
 getCipherOutputLength :: (MonadIO m) => MutableCipher -> Int -> m Int
-getCipherOutputLength c n = liftIO $ Low.cipherOutputLength c.mutableCipherCtx n
+getCipherOutputLength c n = liftIO $ Low.cipherOutputLength c.ctx n
 
 setCipherKey :: (MonadIO m) => MutableCipher -> CipherKey -> m ()
-setCipherKey c key = liftIO $ Low.cipherSetKey c.mutableCipherCtx key
+setCipherKey c key = liftIO $ Low.cipherSetKey c.ctx key
 
 -- TODO: Consider flipping
 setAEADAssociatedData :: (MonadIO m) => MutableCipher -> ByteString -> m ()
-setAEADAssociatedData c ad = liftIO $ Low.cipherSetAssociatedData c.mutableCipherCtx ad
+setAEADAssociatedData c ad = liftIO $ Low.cipherSetAssociatedData c.ctx ad
 
 -- Accessory functions
 
 clearCipher :: (MonadIO m) => MutableCipher -> m ()
-clearCipher = liftIO . Low.cipherClear . (.mutableCipherCtx)
+clearCipher = liftIO . Low.cipherClear . (.ctx)
 
 resetCipher :: (MonadIO m) => MutableCipher -> m ()
-resetCipher = liftIO . Low.cipherReset . (.mutableCipherCtx)
+resetCipher = liftIO . Low.cipherReset . (.ctx)
 
 -- Mutable algorithm
 
 startCipher :: (MonadIO m) => MutableCipher -> CipherNonce -> m ()
-startCipher c n = liftIO $ Low.cipherStart c.mutableCipherCtx n
+startCipher c n = liftIO $ Low.cipherStart c.ctx n
 
 -- NOTE: DOES NOT USE ESTIMATED OUTPUT LENGTH
 updateCipher
@@ -628,7 +628,7 @@ updateCipher
     -> m (Int, ByteString)
 updateCipher c msg = do
     o <- getCipherOutputLength c (ByteString.length msg)
-    liftIO $ Low.cipherUpdate c.mutableCipherCtx (cipherUpdateFlag CipherUpdate) o msg
+    liftIO $ Low.cipherUpdate c.ctx (cipherUpdateFlag CipherUpdate) o msg
 
 -- updateCipherChunks :: _
 -- updateCipherChunks = undefined
@@ -643,7 +643,7 @@ finalizeCipher
     -> m ByteString
 finalizeCipher c msg = do
     o <- getCipherOutputLength c (ByteString.length msg)
-    (_,out) <- liftIO $ Low.cipherUpdate c.mutableCipherCtx (cipherUpdateFlag CipherFinal) o msg
+    (_,out) <- liftIO $ Low.cipherUpdate c.ctx (cipherUpdateFlag CipherFinal) o msg
     return out
 
 finalizeResetCipher
