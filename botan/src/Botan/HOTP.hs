@@ -45,9 +45,9 @@ type HOTPKey = ByteString
 -- TODO: Bring in MVar to capture everything
 data HOTPCtx
     = HOTPCtx
-    { hotpCtx     :: Low.HOTP
-    , hotpCounter :: Low.HOTPCounter
-    , hotpResync  :: Int
+    { ctx     :: Low.HOTP
+    , counter :: Low.HOTPCounter
+    , resync  :: Int
     }
 
 data HOTPLength
@@ -62,9 +62,9 @@ newHOTP :: HOTP -> HOTPLength -> Int -> ByteString -> IO HOTPCtx
 newHOTP hotp len resync key = do
     ctx <- Low.hotpInit key (hotpAlgo hotp) (hotpLength len)
     return $ HOTPCtx
-        { hotpCtx = ctx
-        , hotpCounter = 0
-        , hotpResync = resync
+        { ctx = ctx
+        , counter = 0
+        , resync = resync
         }
 
 hotpGenerate :: HOTPCtx -> IO Low.HOTPCode

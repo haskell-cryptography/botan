@@ -36,10 +36,10 @@ tests = do
 -------------------------------------------------------------------------------}
 
 data TestParams = TestParams {
-    testPbkdfName        :: PBKDFName
-  , testIterationsParam  :: Int
-  , testParallelismParam :: Int
-  , testMemoryParam      :: Int
+    pbkdfName        :: PBKDFName
+  , iterationsParam  :: Int
+  , parallelismParam :: Int
+  , memoryParam      :: Int
   }
   deriving stock (Show, Eq)
 
