@@ -41,15 +41,15 @@ import           Foreign.Storable
 -- * Public Key Decryption
 -- */
 
-newtype Decrypt = MkDecrypt { getDecryptForeignPtr :: ForeignPtr BotanPKOpDecryptStruct }
+newtype Decrypt = MkDecrypt { foreignPtr :: ForeignPtr BotanPKOpDecryptStruct }
 
 withDecrypt     :: Decrypt -> (BotanPKOpDecrypt -> IO a) -> IO a
 decryptDestroy  :: Decrypt -> IO ()
 createDecrypt   :: (Ptr BotanPKOpDecrypt -> IO CInt) -> IO Decrypt
 (withDecrypt, decryptDestroy, createDecrypt)
     = mkBindings
-        MkBotanPKOpDecrypt (.runBotanPKOpDecrypt)
-        MkDecrypt (.getDecryptForeignPtr)
+        MkBotanPKOpDecrypt (.ptr)
+        MkDecrypt (.foreignPtr)
         botan_pk_op_decrypt_destroy
 
 decryptCreate

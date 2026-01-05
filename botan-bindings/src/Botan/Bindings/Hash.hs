@@ -84,7 +84,7 @@ data {-# CTYPE "botan/ffi.h" "struct botan_hash_struct" #-} BotanHashStruct
 
 -- | Botan Hash object
 newtype {-# CTYPE "botan/ffi.h" "botan_hash_t" #-} BotanHash
-    = MkBotanHash { runBotanHash :: Ptr BotanHashStruct }
+    = MkBotanHash { ptr :: Ptr BotanHashStruct }
         deriving newtype (Eq, Ord, Storable)
 
 -- | Frees all resources of the hash object

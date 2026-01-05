@@ -162,15 +162,15 @@ If you must use GMAC, a nonce needs to be set:
 -- * Message Authentication type
 -- */
 
-newtype MAC = MkMAC { getMACForeignPtr :: ForeignPtr BotanMACStruct }
+newtype MAC = MkMAC { foreignPtr :: ForeignPtr BotanMACStruct }
 
 withMAC     :: MAC -> (BotanMAC -> IO a) -> IO a
 macDestroy  :: MAC -> IO ()
 createMAC   :: (Ptr BotanMAC -> IO CInt) -> IO MAC
 (withMAC, macDestroy, createMAC)
     = mkBindings
-        MkBotanMAC (.runBotanMAC)
-        MkMAC (.getMACForeignPtr)
+        MkBotanMAC (.ptr)
+        MkMAC (.foreignPtr)
         botan_mac_destroy
 
 type MACName = ByteString

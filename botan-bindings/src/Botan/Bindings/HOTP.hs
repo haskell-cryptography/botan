@@ -59,7 +59,7 @@ data {-# CTYPE "botan/ffi.h" "struct botan_hotp_struct" #-} BotanHOTPStruct
 
 -- | Botan HOTP object
 newtype {-# CTYPE "botan/ffi.h" "botan_hotp_t" #-} BotanHOTP
-    = MkBotanHOTP { runBotanHOTP :: Ptr BotanHOTPStruct }
+    = MkBotanHOTP { ptr :: Ptr BotanHOTPStruct }
         deriving newtype (Eq, Ord, Storable)
 
 -- | Destroy a HOTP instance

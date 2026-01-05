@@ -42,15 +42,15 @@ import           Foreign.Storable
 -- * Public Key Encryption
 -- */
 
-newtype Encrypt = MkEncrypt { getEncryptForeignPtr :: ForeignPtr BotanPKOpEncryptStruct }
+newtype Encrypt = MkEncrypt { foreignPtr :: ForeignPtr BotanPKOpEncryptStruct }
 
 withEncrypt     :: Encrypt -> (BotanPKOpEncrypt -> IO a) -> IO a
 encryptDestroy  :: Encrypt -> IO ()
 createEncrypt   :: (Ptr BotanPKOpEncrypt -> IO CInt) -> IO Encrypt
 (withEncrypt, encryptDestroy, createEncrypt)
     = mkBindings
-        MkBotanPKOpEncrypt (.runBotanPKOpEncrypt)
-        MkEncrypt (.getEncryptForeignPtr)
+        MkBotanPKOpEncrypt (.ptr)
+        MkEncrypt (.foreignPtr)
         botan_pk_op_encrypt_destroy
 
 encryptCreate

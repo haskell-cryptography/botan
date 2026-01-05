@@ -197,7 +197,7 @@ data Hash
 --     | Comb4P Hash Hash
     deriving stock (Eq, Ord, Show)
 
-newtype CryptoHash = MkCryptoHash { unCryptoHash :: Hash }
+newtype CryptoHash = MkCryptoHash { un :: Hash }
     deriving stock (Eq, Ord, Show)
 
 isCryptoHash :: Hash -> Bool
@@ -229,7 +229,7 @@ isCryptoHash Streebog512    = True
 isCryptoHash Whirlpool      = True
 isCryptoHash _              = False
 
-newtype Checksum = MkChecksum { unChecksum :: Hash }
+newtype Checksum = MkChecksum { un :: Hash }
     deriving stock (Eq, Ord, Show)
 
 isChecksum :: Hash -> Bool
@@ -474,7 +474,7 @@ hashFileLazy h fp = do
 -- Tagged mutable context
 
 data MutableHash = MkMutableHash
-    { algo :: Hash
+    { inner :: Hash
     , ctx  :: Low.Hash
     }
 
@@ -524,7 +524,7 @@ copyHashState
     -> m MutableHash
 copyHashState mh = do
     ctx <- liftIO $ Low.hashCopyState mh.ctx
-    return $ MkMutableHash mh.algo ctx
+    return $ MkMutableHash mh.inner ctx
 
 clearHash
     :: (MonadIO m)

@@ -261,11 +261,11 @@ class (HasSecretKey alg, Monad m) => SecretKeyGen alg m where
     newSecretKey :: m (SecretKey alg)
     newSecretKeyMaybe :: Int -> m (Maybe (SecretKey alg))
 
-newtype GSecretKey = MkGSecretKey { unGSecretKey :: ByteString }
+newtype GSecretKey = MkGSecretKey { un :: ByteString }
     deriving newtype (Eq, Ord, Encodable)
 
 instance Show GSecretKey where
-    show = showByteStringHex . (.unGSecretKey)
+    show = showByteStringHex . (.un)
 
 -- NOTE: Cannot do g- / default implementation of new keys since we do not yet
 -- have the secret key constructor.
@@ -299,11 +299,11 @@ class (HasNonce alg, Monad m) => NonceGen alg m where
     newNonce :: m (Nonce alg)
     newNonceMaybe :: Int -> m (Maybe (Nonce alg))
 
-newtype GNonce = MkGNonce { unGNonce :: ByteString }
+newtype GNonce = MkGNonce { un :: ByteString }
     deriving newtype (Eq, Ord, Encodable)
 
 instance Show GNonce where
-    show = showByteStringHex . (.unGNonce)
+    show = showByteStringHex . (.un)
 
 -- HACK: Grodiest bytestring incrementer ever
 instance IsNonce GNonce where
@@ -325,11 +325,11 @@ class (HasSalt alg, Monad m) => SaltGen alg m where
     newSalt :: m (Salt alg)
     newSaltMaybe :: Int -> m (Maybe (Salt alg))
 
-newtype GSalt = MkGSalt { unGSalt :: ByteString }
+newtype GSalt = MkGSalt { un :: ByteString }
     deriving newtype (Eq, Ord, Encodable)
 
 instance Show GSalt where
-    show = showByteStringHex . (.unGSalt)
+    show = showByteStringHex . (.un)
 
 --
 -- Password
@@ -340,11 +340,11 @@ instance Show GSalt where
 
 data family Password alg
 
-newtype GPassword = MkGPassword { unGPassword :: Text }
+newtype GPassword = MkGPassword { un :: Text }
     deriving newtype (Eq, Ord, Encodable)
 
 instance Show GPassword where
-    show = Text.unpack . (.unGPassword)
+    show = Text.unpack . (.un)
 
 --
 -- Digest
@@ -354,11 +354,11 @@ data family Digest alg
 
 class (Eq (Digest alg), Ord (Digest alg), Encodable (Digest alg)) => HasDigest alg where
 
-newtype GDigest = MkGDigest { unGDigest :: ByteString }
+newtype GDigest = MkGDigest { un :: ByteString }
     deriving newtype (Eq, Ord, Encodable)
 
 instance Show GDigest where
-    show = showByteStringHex . (.unGDigest)
+    show = showByteStringHex . (.un)
 
 --
 -- Ciphertext
@@ -368,11 +368,11 @@ data family Ciphertext alg
 
 class (Eq (Ciphertext alg), Ord (Ciphertext alg), Encodable (Ciphertext alg)) => HasCiphertext alg where
 
-newtype GCiphertext = MkGCiphertext { unGCiphertext :: ByteString }
+newtype GCiphertext = MkGCiphertext { un :: ByteString }
     deriving newtype (Eq, Ord, Encodable)
 
 instance Show GCiphertext where
-    show = showByteStringHex . (.unGCiphertext)
+    show = showByteStringHex . (.un)
 
 --
 -- Incremental Ciphertext
@@ -386,11 +386,11 @@ class (HasCiphertext alg, Eq (LazyCiphertext alg), Ord (LazyCiphertext alg), Laz
     fromStrictCiphertext :: Ciphertext alg -> LazyCiphertext alg
     fromStrictCiphertext = unsafeDecodeLazy . ByteString.fromStrict . encode
 
-newtype GLazyCiphertext = MkGLazyCiphertext { unGLazyCiphertext :: Lazy.ByteString }
+newtype GLazyCiphertext = MkGLazyCiphertext { un :: Lazy.ByteString }
     deriving newtype (Eq, Ord, Encodable, LazyEncodable)
 
 instance Show GLazyCiphertext where
-    show = showByteStringHex . ByteString.toStrict . (.unGLazyCiphertext)
+    show = showByteStringHex . ByteString.toStrict . (.un)
 
 --
 -- TODO: classes / data families for:

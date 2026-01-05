@@ -276,7 +276,7 @@ type SRP6BValue = ByteString
 type SRP6AValue = ByteString
 type SRP6SharedSecret = ByteString
 
-newtype SRP6ServerSession = MkSRP6ServerSession { getSRP6ServerSessionForeignPtr :: ForeignPtr BotanSRP6ServerSessionStruct }
+newtype SRP6ServerSession = MkSRP6ServerSession { foreignPtr :: ForeignPtr BotanSRP6ServerSessionStruct }
 
 withSRP6ServerSession     :: SRP6ServerSession -> (BotanSRP6ServerSession -> IO a) -> IO a
 -- | Frees all resources of the SRP-6 server session object
@@ -284,8 +284,8 @@ srp6ServerSessionDestroy  :: SRP6ServerSession -> IO ()
 createSRP6ServerSession   :: (Ptr BotanSRP6ServerSession -> IO CInt) -> IO SRP6ServerSession
 (withSRP6ServerSession, srp6ServerSessionDestroy, createSRP6ServerSession)
     = mkBindings
-        MkBotanSRP6ServerSession (.runBotanSRP6ServerSession)
-        MkSRP6ServerSession (.getSRP6ServerSessionForeignPtr)
+        MkBotanSRP6ServerSession (.ptr)
+        MkSRP6ServerSession (.foreignPtr)
         botan_srp6_server_session_destroy
 
 -- | Initialize an SRP-6 server session object

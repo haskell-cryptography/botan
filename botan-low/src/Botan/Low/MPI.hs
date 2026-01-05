@@ -85,15 +85,15 @@ import           Foreign.Storable
 -- NOTE: This whole module is not idiomatic - some methods mutate, some have a destination argument
 --  It will need furter wrapping.
 
-newtype MP = MkMP { getMPForeignPtr :: ForeignPtr BotanMPStruct }
+newtype MP = MkMP { foreignPtr :: ForeignPtr BotanMPStruct }
 
 withMP     :: MP -> (BotanMP -> IO a) -> IO a
 mpDestroy  :: MP -> IO ()
 createMP   :: (Ptr BotanMP -> IO CInt) -> IO MP
 (withMP, mpDestroy, createMP)
     = mkBindings
-        MkBotanMP (.runBotanMP)
-        MkMP (.getMPForeignPtr)
+        MkBotanMP (.ptr)
+        MkMP (.foreignPtr)
         botan_mp_destroy
 
 mpInit :: IO MP

@@ -201,7 +201,7 @@ blockCiphers =
 
 -- 128-bit block cipher type
 
-newtype BlockCipher128 = MkBlockCipher128 { unBlockCipher128 :: BlockCipher }
+newtype BlockCipher128 = MkBlockCipher128 { un :: BlockCipher }
     deriving stock (Eq, Ord, Show)
 
 blockCipher128 :: BlockCipher -> Maybe BlockCipher128
@@ -243,10 +243,10 @@ isBlockCipher128 :: BlockCipher -> Bool
 isBlockCipher128 = isJust . blockCipher128
 
 blockCipher128Name :: BlockCipher128 -> Low.BlockCipherName
-blockCipher128Name = blockCipherName . (.unBlockCipher128)
+blockCipher128Name = blockCipherName . (.un)
 
 blockCipher128KeySpec :: BlockCipher128 -> BlockCipherKeySpec
-blockCipher128KeySpec = blockCipherKeySpec . (.unBlockCipher128)
+blockCipher128KeySpec = blockCipherKeySpec . (.un)
 
 -- Associated types
 
@@ -429,7 +429,7 @@ blockCipherDecryptLazy = undefined
 -- Tagged mutable context
 
 data MutableBlockCipher = MkMutableBlockCipher
-    { algo :: BlockCipher
+    { inner :: BlockCipher
     , ctx  :: Low.BlockCipher
     }
 

@@ -82,7 +82,7 @@ data {-# CTYPE "botan/ffi.h" "struct botan_x509_cert_struct" #-} BotanX509CertSt
 
 -- | Botan X509Cert object
 newtype {-# CTYPE "botan/ffi.h" "botan_x509_cert_t" #-} BotanX509Cert
-    = MkBotanX509Cert { runBotanX509Cert :: Ptr BotanX509CertStruct }
+    = MkBotanX509Cert { ptr :: Ptr BotanX509CertStruct }
         deriving newtype (Eq, Ord, Storable)
 
 -- | Destroy a X509Cert instance
@@ -295,7 +295,7 @@ data {-# CTYPE "botan/ffi.h" "struct botan_x509_crl_struct" #-} BotanX509CRLStru
 
 -- | Botan X509CRL object
 newtype {-# CTYPE "botan/ffi.h" "botan_x509_crl_t" #-} BotanX509CRL
-    = MkBotanX509CRL { runBotanX509CRL :: Ptr BotanX509CRLStruct }
+    = MkBotanX509CRL { ptr :: Ptr BotanX509CRLStruct }
         deriving newtype (Eq, Ord, Storable)
 
 -- | Destroy a X509CRL instance

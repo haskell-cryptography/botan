@@ -74,7 +74,7 @@ data {-# CTYPE "botan/ffi.h" "struct botan_mac_struct" #-} BotanMACStruct
 
 -- | Botan MAC object
 newtype {-# CTYPE "botan/ffi.h" "botan_mac_t" #-} BotanMAC
-    = MkBotanMAC { runBotanMAC :: Ptr BotanMACStruct }
+    = MkBotanMAC { ptr :: Ptr BotanMACStruct }
         deriving newtype (Eq, Ord, Storable)
 
 -- | Frees all resources of the MAC object

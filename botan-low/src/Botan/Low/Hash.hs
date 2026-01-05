@@ -139,15 +139,15 @@ You can clear a hash's state, leaving it ready for reuse:
 
 -}
 
-newtype Hash = MkHash { getHashForeignPtr :: ForeignPtr BotanHashStruct }
+newtype Hash = MkHash { foreignPtr :: ForeignPtr BotanHashStruct }
 
 withHash     :: Hash -> (BotanHash -> IO a) -> IO a
 hashDestroy  :: Hash -> IO ()
 createHash   :: (Ptr BotanHash -> IO CInt) -> IO Hash
 (withHash, hashDestroy, createHash)
     = mkBindings
-        MkBotanHash (.runBotanHash)
-        MkHash (.getHashForeignPtr)
+        MkBotanHash (.ptr)
+        MkHash (.foreignPtr)
         botan_hash_destroy
 
 type HashName = ByteString

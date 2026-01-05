@@ -36,7 +36,7 @@ data {-# CTYPE "botan/ffi.h" "struct botan_pk_op_decrypt_struct" #-} BotanPKOpDe
 
 -- | Botan decrypt object
 newtype {-# CTYPE "botan/ffi.h" "botan_pk_op_decrypt_t" #-} BotanPKOpDecrypt
-    = MkBotanPKOpDecrypt { runBotanPKOpDecrypt :: Ptr BotanPKOpDecryptStruct }
+    = MkBotanPKOpDecrypt { ptr :: Ptr BotanPKOpDecryptStruct }
         deriving newtype (Eq, Ord, Storable)
 
 -- | Destroy a decrypt object

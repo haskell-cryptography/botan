@@ -61,7 +61,7 @@ data {-# CTYPE "botan/ffi.h" "struct botan_fpe_struct" #-} BotanFPEStruct
 
 -- | Botan FPE object
 newtype {-# CTYPE "botan/ffi.h" "botan_fpe_t" #-} BotanFPE
-    = MkBotanFPE { runBotanFPE :: Ptr BotanFPEStruct }
+    = MkBotanFPE { ptr :: Ptr BotanFPEStruct }
         deriving newtype (Eq, Ord, Storable)
 
 -- | Destroy the FPE object

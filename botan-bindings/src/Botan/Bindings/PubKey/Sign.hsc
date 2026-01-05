@@ -39,7 +39,7 @@ data {-# CTYPE "botan/ffi.h" "struct botan_pk_op_sign_struct" #-} BotanPKOpSignS
 
 -- | Botan sign object
 newtype {-# CTYPE "botan/ffi.h" "botan_pk_op_sign_t" #-} BotanPKOpSign
-    = MkBotanPKOpSign { runBotanPKOpSign :: Ptr BotanPKOpSignStruct }
+    = MkBotanPKOpSign { ptr :: Ptr BotanPKOpSignStruct }
         deriving newtype (Eq, Ord, Storable)
 
 -- | Destroy a sign object

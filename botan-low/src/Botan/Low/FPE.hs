@@ -73,15 +73,15 @@ import           Foreign.Ptr
 -- * Format Preserving Encryption
 -- */
 
-newtype FPE = MkFPE { getFPEForeignPtr :: ForeignPtr BotanFPEStruct }
+newtype FPE = MkFPE { foreignPtr :: ForeignPtr BotanFPEStruct }
 
 withFPE     :: FPE -> (BotanFPE -> IO a) -> IO a
 fpeDestroy  :: FPE -> IO ()
 createFPE   :: (Ptr BotanFPE -> IO CInt) -> IO FPE
 (withFPE, fpeDestroy, createFPE)
     = mkBindings
-        MkBotanFPE (.runBotanFPE)
-        MkFPE (.getFPEForeignPtr)
+        MkBotanFPE (.ptr)
+        MkFPE (.foreignPtr)
         botan_fpe_destroy
 
 data FPEFlags =

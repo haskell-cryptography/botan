@@ -195,7 +195,7 @@ If you are encrypting or decrypting multiple messages with the same key, you can
 
 -- NOTE: This is *symmetric* ciphers  For the 'raw' interface to ECB mode block ciphers, see BlockCipher.hs
 
-newtype Cipher = MkCipher { getCipherForeignPtr :: ForeignPtr BotanCipherStruct }
+newtype Cipher = MkCipher { foreignPtr :: ForeignPtr BotanCipherStruct }
 
 withCipher     :: Cipher -> (BotanCipher -> IO a) -> IO a
 -- | Destroy the cipher object immediately
@@ -203,8 +203,8 @@ cipherDestroy  :: Cipher -> IO ()
 createCipher   :: (Ptr BotanCipher -> IO CInt) -> IO Cipher
 (withCipher, cipherDestroy, createCipher)
     = mkBindings
-        MkBotanCipher (.runBotanCipher)
-        MkCipher (.getCipherForeignPtr)
+        MkBotanCipher (.ptr)
+        MkCipher (.foreignPtr)
         botan_cipher_destroy
 
 type CipherNonce = ByteString

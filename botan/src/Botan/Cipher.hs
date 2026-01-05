@@ -215,7 +215,7 @@ data CBCPadding
 
 -- AEAD data type
 
-newtype AEAD = MkAEAD { unAEAD :: Cipher }
+newtype AEAD = MkAEAD { un :: Cipher }
     deriving stock (Eq, Ord, Show)
 
 aead :: Cipher -> Maybe AEAD
@@ -240,7 +240,7 @@ ciphers = concat
     [ [ CBC bc pd                               | bc <- blockCiphers, pd <- cbcPaddings ]
     , [ CFB bc (8 * blockCipherBlockSize bc)    | bc <- blockCiphers ]
     , [ XTS bc                                  | bc <- blockCiphers ]
-    , fmap (.unAEAD) aeads
+    , fmap (.un) aeads
     ]
 
 cbcPaddings :: [ CBCPadding ]
@@ -363,7 +363,7 @@ cipherNonceSizeIsValid n (CFB bc _)         = n == blockCipherBlockSize bc
 cipherNonceSizeIsValid n (XTS bc)           = 1 <= n && n <= blockCipherBlockSize bc -- Always [ 1 .. 16 ]
 cipherNonceSizeIsValid n _haCha20Poly1305   = n `elem` [ 8, 12, 24 ]
 cipherNonceSizeIsValid n (GCM _ _)          = 1 <= n && n <= internalMaximumCipherNonceSize -- True if unbounded
-cipherNonceSizeIsValid n (OCB bc128 _)      = 1 <= n && n <= blockCipherBlockSize bc128.unBlockCipher128 - 1 -- Always [ 1 .. 15 ]
+cipherNonceSizeIsValid n (OCB bc128 _)      = 1 <= n && n <= blockCipherBlockSize bc128.un - 1 -- Always [ 1 .. 15 ]
 cipherNonceSizeIsValid n (EAX _ _)          = 1 <= n && n <= internalMaximumCipherNonceSize -- True if unbounded
 cipherNonceSizeIsValid n (SIV _)            = 1 <= n && n <= internalMaximumCipherNonceSize -- True if unbounded
 cipherNonceSizeIsValid n (CCM _ _ _)        = n == 12
@@ -419,8 +419,8 @@ cipherUpdateGranularity (CBC bc _)          = blockCipherBlockSize bc
 cipherUpdateGranularity (CFB bc _)          = blockCipherBlockSize bc
 cipherUpdateGranularity (XTS bc)            = 2 * blockCipherBlockSize bc
 cipherUpdateGranularity ChaCha20Poly1305    = 1
-cipherUpdateGranularity (GCM bc128 _)       = blockCipherBlockSize bc128.unBlockCipher128 -- always 16
-cipherUpdateGranularity (OCB bc128 _)       = blockCipherBlockSize bc128.unBlockCipher128 -- always 16
+cipherUpdateGranularity (GCM bc128 _)       = blockCipherBlockSize bc128.un -- always 16
+cipherUpdateGranularity (OCB bc128 _)       = blockCipherBlockSize bc128.un -- always 16
 cipherUpdateGranularity (EAX _ _)           = 1
 cipherUpdateGranularity (SIV _)             = 1
 cipherUpdateGranularity (CCM _ _ _)         = 1
@@ -489,7 +489,7 @@ cipherDecryptLazy = undefined
 -- TODO: Wrap in Maybe
 aeadEncrypt :: AEAD -> CipherKey -> CipherNonce -> AEADAssociatedData -> ByteString -> Ciphertext
 aeadEncrypt c k n ad msg = unsafePerformIO $ do
-    ctx <- newCipher c.unAEAD CipherEncrypt
+    ctx <- newCipher c.un CipherEncrypt
     setCipherKey ctx k
     setAEADAssociatedData ctx ad
     startCipher ctx n
@@ -498,7 +498,7 @@ aeadEncrypt c k n ad msg = unsafePerformIO $ do
 
 aeadDecrypt ::  AEAD -> CipherKey -> CipherNonce -> AEADAssociatedData -> Ciphertext -> Maybe ByteString
 aeadDecrypt c k n ad ct = unsafePerformIO $ do
-    ctx <- newCipher c.unAEAD CipherDecrypt
+    ctx <- newCipher c.un CipherDecrypt
     setCipherKey ctx k
     setAEADAssociatedData ctx ad
     startCipher ctx n

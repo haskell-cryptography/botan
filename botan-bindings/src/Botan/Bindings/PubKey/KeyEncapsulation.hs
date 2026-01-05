@@ -41,7 +41,7 @@ data {-# CTYPE "botan/ffi.h" "struct botan_pk_op_kem_encrypt_struct" #-} BotanPK
 
 -- | Botan KEM encrypt object
 newtype {-# CTYPE "botan/ffi.h" "botan_pk_op_kem_encrypt_t" #-} BotanPKOpKEMEncrypt
-    = MkBotanPKOpKEMEncrypt { runBotanPKOpKEMEncrypt :: Ptr BotanPKOpKEMEncryptStruct }
+    = MkBotanPKOpKEMEncrypt { ptr :: Ptr BotanPKOpKEMEncryptStruct }
         deriving newtype (Eq, Ord, Storable)
 
 -- | Destroy a KEM encrypt object
@@ -87,7 +87,7 @@ data {-# CTYPE "botan/ffi.h" "struct botan_pk_op_kem_decrypt_struct" #-} BotanPK
 
 -- | Botan KEM decrypt object
 newtype {-# CTYPE "botan/ffi.h" "botan_pk_op_kem_decrypt_t" #-} BotanPKOpKEMDecrypt
-    = MkBotanPKOpKEMDecrypt { runBotanPKOpKEMDecrypt :: Ptr BotanPKOpKEMDecryptStruct }
+    = MkBotanPKOpKEMDecrypt { ptr :: Ptr BotanPKOpKEMDecryptStruct }
         deriving newtype (Eq, Ord, Storable)
 
 -- | Destroy a KEM decrypt object

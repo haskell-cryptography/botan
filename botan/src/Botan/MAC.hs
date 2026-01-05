@@ -193,7 +193,7 @@ type MACDigest = ByteString
 macName :: MAC -> ByteString
 macName (CMAC bc)       = Low.cmac (blockCipherName bc)
 macName (GMAC bc)       = Low.gmac (blockCipherName bc)
-macName (HMAC h)        = Low.hmac (hashName h.unCryptoHash)
+macName (HMAC h)        = Low.hmac (hashName h.un)
 macName Poly1305        = Low.Poly1305
 macName (SipHash ir fr) = Low.sipHash ir fr
 macName X9_19_MAC       = Low.X9_19_MAC
@@ -232,7 +232,7 @@ generateMACKeySpec = do
 macDigestLength :: MAC -> Int
 macDigestLength (CMAC bc)     = blockCipherBlockSize bc
 macDigestLength (GMAC _)      = 16    -- Always 16
-macDigestLength (HMAC h)      = hashDigestSize h.unCryptoHash
+macDigestLength (HMAC h)      = hashDigestSize h.un
 macDigestLength Poly1305      = 16
 -- TODO: Check more variants
 macDigestLength (SipHash 2 4) = 8
@@ -293,7 +293,7 @@ gmac _ _ _ _ = error "Expected GMAC"
 -- Tagged mutable context
 
 data MutableMAC = MkMutableMAC
-    { algo :: MAC
+    { inner :: MAC
     , ctx  :: Low.MAC
     }
 

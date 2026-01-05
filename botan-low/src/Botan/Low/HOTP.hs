@@ -166,15 +166,15 @@ The user should then be notified.
 
 -}
 
-newtype HOTP = MkHOTP { getHOTPForeignPtr :: ForeignPtr BotanHOTPStruct }
+newtype HOTP = MkHOTP { foreignPtr :: ForeignPtr BotanHOTPStruct }
 
 withHOTP     :: HOTP -> (BotanHOTP -> IO a) -> IO a
 hotpDestroy  :: HOTP -> IO ()
 createHOTP   :: (Ptr BotanHOTP -> IO CInt) -> IO HOTP
 (withHOTP, hotpDestroy, createHOTP)
     = mkBindings
-        MkBotanHOTP (.runBotanHOTP)
-        MkHOTP (.getHOTPForeignPtr)
+        MkBotanHOTP (.ptr)
+        MkHOTP (.foreignPtr)
         botan_hotp_destroy
 
 type HOTPHashName = HashName

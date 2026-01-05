@@ -97,14 +97,14 @@ import           Foreign.Storable
 
 type DistinguishedName = ByteString
 
-newtype X509Cert = MkX509Cert { getX509CertForeignPtr :: ForeignPtr BotanX509CertStruct }
+newtype X509Cert = MkX509Cert { foreignPtr :: ForeignPtr BotanX509CertStruct }
 
 withX509Cert     :: X509Cert -> (BotanX509Cert -> IO a) -> IO a
 -- | Destroy an x509 cert object immediately
 x509CertDestroy  :: X509Cert -> IO ()
 createX509Cert   :: (Ptr BotanX509Cert -> IO CInt) -> IO X509Cert
 (withX509Cert, x509CertDestroy, createX509Cert)
-    = mkBindings MkBotanX509Cert (.runBotanX509Cert) MkX509Cert (.getX509CertForeignPtr) botan_x509_cert_destroy
+    = mkBindings MkBotanX509Cert (.ptr) MkX509Cert (.foreignPtr) botan_x509_cert_destroy
 
 x509CertLoad
     :: ByteString   -- ^ __cert[]__
@@ -352,13 +352,13 @@ x509CertValidationStatus code = do
 
 -- TODO: Move to Botan.Low.X509.CRL after merging extended FFI
 
-newtype X509CRL = MkX509CRL { getX509CRLForeignPtr :: ForeignPtr BotanX509CRLStruct }
+newtype X509CRL = MkX509CRL { foreignPtr :: ForeignPtr BotanX509CRLStruct }
 
 withX509CRL     :: X509CRL -> (BotanX509CRL -> IO a) -> IO a
 x509CRLDestroy  :: X509CRL -> IO ()
 createX509CRL   :: (Ptr BotanX509CRL -> IO CInt) -> IO X509CRL
 (withX509CRL, x509CRLDestroy, createX509CRL)
-    = mkBindings MkBotanX509CRL (.runBotanX509CRL) MkX509CRL (.getX509CRLForeignPtr) botan_x509_crl_destroy
+    = mkBindings MkBotanX509CRL (.ptr) MkX509CRL (.foreignPtr) botan_x509_crl_destroy
 
 x509CRLLoad
     :: ByteString   -- ^ __crl_bits[]__
