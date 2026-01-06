@@ -513,7 +513,7 @@ aeadDecrypt c k n ad ct = unsafePerformIO $ do
 -- Tagged mutable context
 
 data MutableCipher = MkMutableCipher
-    { algo      :: Cipher
+    { inner      :: Cipher
     , direction :: CipherDirection
     , ctx       :: Low.Cipher
     -- , mutableCipherProcessed    :: Int
