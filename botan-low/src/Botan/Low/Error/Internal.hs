@@ -1,3 +1,5 @@
+{-# LANGUAGE CPP         #-}
+
 {-|
 Module      : Botan.Low.Error
 Description : Error codes and exception handling
@@ -73,7 +75,11 @@ newtype BotanErrorCode = BotanErrorCode CInt
 botanErrorDescription :: BotanErrorCode -> IO ByteString
 botanErrorDescription (BotanErrorCode e) = do
     descPtr <- botan_error_description e
-    peekCString descPtr.unConstPtr
+#if MIN_VERSION_base (4,18,0)
+    peekCString (unConstPtr descPtr)
+#else
+    peekCString descPtr.ptr
+#endif
 
 newtype BotanErrorMessage = BotanErrorMessage ByteString
   deriving newtype Show
@@ -84,7 +90,11 @@ newtype BotanErrorMessage = BotanErrorMessage ByteString
 botanErrorLastExceptionMessage :: IO BotanErrorMessage
 botanErrorLastExceptionMessage = do
     msgPtr <- botan_error_last_exception_message
-    BotanErrorMessage <$> peekCString msgPtr.unConstPtr
+#if MIN_VERSION_base (4,18,0)
+    BotanErrorMessage <$> peekCString (unConstPtr msgPtr)
+#else
+    BotanErrorMessage <$> peekCString msgPtr.ptr
+#endif
 
 {-------------------------------------------------------------------------------
   Exception hierarchy

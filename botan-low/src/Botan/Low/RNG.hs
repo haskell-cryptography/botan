@@ -87,7 +87,7 @@ You can also seed it with your own entropy; this is safe and can never
 -}
 
 -- NOTE: Does not take advantage of Remake
--- NOTE: Uses ConstPtr / unConstPtr manually
+-- NOTE: Uses ConstPtr / ptr manually (unConstPtr if base <= 4.18 )
 -- TODO: Take advantage of Remake / better peek / (peekConst or constPeek) functions
 
 newtype RNG = MkRNG { foreignPtr :: ForeignPtr BotanRNGStruct }

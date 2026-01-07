@@ -475,7 +475,7 @@ hashFileLazy h fp = do
 
 data MutableHash = MkMutableHash
     { inner :: Hash
-    , ctx  :: Low.Hash
+    , ctx   :: Low.Hash
     }
 
 -- Destructor

@@ -294,7 +294,7 @@ gmac _ _ _ _ = error "Expected GMAC"
 
 data MutableMAC = MkMutableMAC
     { inner :: MAC
-    , ctx  :: Low.MAC
+    , ctx   :: Low.MAC
     }
 
 -- Destructor

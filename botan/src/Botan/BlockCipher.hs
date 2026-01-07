@@ -430,7 +430,7 @@ blockCipherDecryptLazy = undefined
 
 data MutableBlockCipher = MkMutableBlockCipher
     { inner :: BlockCipher
-    , ctx  :: Low.BlockCipher
+    , ctx   :: Low.BlockCipher
     }
 
 -- Destructor

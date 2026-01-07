@@ -414,16 +414,16 @@ generateCipherTagLength = do
 -}
 
 cipherUpdateGranularity :: Cipher -> Int
-cipherUpdateGranularity (CBC bc CTS)        = 2 * blockCipherBlockSize bc
-cipherUpdateGranularity (CBC bc _)          = blockCipherBlockSize bc
-cipherUpdateGranularity (CFB bc _)          = blockCipherBlockSize bc
-cipherUpdateGranularity (XTS bc)            = 2 * blockCipherBlockSize bc
-cipherUpdateGranularity ChaCha20Poly1305    = 1
-cipherUpdateGranularity (GCM bc128 _)       = blockCipherBlockSize bc128.un -- always 16
-cipherUpdateGranularity (OCB bc128 _)       = blockCipherBlockSize bc128.un -- always 16
-cipherUpdateGranularity (EAX _ _)           = 1
-cipherUpdateGranularity (SIV _)             = 1
-cipherUpdateGranularity (CCM _ _ _)         = 1
+cipherUpdateGranularity (CBC bc CTS)     = 2 * blockCipherBlockSize bc
+cipherUpdateGranularity (CBC bc _)       = blockCipherBlockSize bc
+cipherUpdateGranularity (CFB bc _)       = blockCipherBlockSize bc
+cipherUpdateGranularity (XTS bc)         = 2 * blockCipherBlockSize bc
+cipherUpdateGranularity ChaCha20Poly1305 = 1
+cipherUpdateGranularity (GCM bc128 _)    = blockCipherBlockSize bc128.un -- always 16
+cipherUpdateGranularity (OCB bc128 _)    = blockCipherBlockSize bc128.un -- always 16
+cipherUpdateGranularity (EAX _ _)        = 1
+cipherUpdateGranularity (SIV _)          = 1
+cipherUpdateGranularity (CCM _ _ _)      = 1
 -- NOTE: Extracted / confirmed from inspecting:
 {-
 generateCipherUpdateGranularity :: IO ()
@@ -513,7 +513,7 @@ aeadDecrypt c k n ad ct = unsafePerformIO $ do
 -- Tagged mutable context
 
 data MutableCipher = MkMutableCipher
-    { inner      :: Cipher
+    { inner     :: Cipher
     , direction :: CipherDirection
     , ctx       :: Low.Cipher
     -- , mutableCipherProcessed    :: Int
