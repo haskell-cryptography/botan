@@ -46,15 +46,15 @@ import           Foreign.Storable
 -- * Signature Generation
 -- */
 
-newtype Sign = MkSign { getSignForeignPtr :: ForeignPtr BotanPKOpSignStruct }
+newtype Sign = MkSign { foreignPtr :: ForeignPtr BotanPKOpSignStruct }
 
 withSign     :: Sign -> (BotanPKOpSign -> IO a) -> IO a
 signDestroy  :: Sign -> IO ()
 createSign   :: (Ptr BotanPKOpSign -> IO CInt) -> IO Sign
 (withSign, signDestroy, createSign)
     = mkBindings
-        MkBotanPKOpSign (.runBotanPKOpSign)
-        MkSign (.getSignForeignPtr)
+        MkBotanPKOpSign (.ptr)
+        MkSign (.foreignPtr)
         botan_pk_op_sign_destroy
 
 data SigningFlags =

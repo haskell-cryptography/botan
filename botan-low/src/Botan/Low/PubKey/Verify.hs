@@ -37,15 +37,15 @@ import           Foreign.Ptr
 -- * Signature Verification
 -- */
 
-newtype Verify = MkVerify { getVerifyForeignPtr :: ForeignPtr BotanPKOpVerifyStruct }
+newtype Verify = MkVerify { foreignPtr :: ForeignPtr BotanPKOpVerifyStruct }
 
 withVerify     :: Verify -> (BotanPKOpVerify -> IO a) -> IO a
 verifyDestroy  :: Verify -> IO ()
 createVerify   :: (Ptr BotanPKOpVerify -> IO CInt) -> IO Verify
 (withVerify, verifyDestroy, createVerify)
     = mkBindings
-        MkBotanPKOpVerify (.runBotanPKOpVerify)
-        MkVerify (.getVerifyForeignPtr)
+        MkBotanPKOpVerify (.ptr)
+        MkVerify (.foreignPtr)
         botan_pk_op_verify_destroy
 
 verifyCreate

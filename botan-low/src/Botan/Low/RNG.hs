@@ -87,17 +87,17 @@ You can also seed it with your own entropy; this is safe and can never
 -}
 
 -- NOTE: Does not take advantage of Remake
--- NOTE: Uses ConstPtr / unConstPtr manually
+-- NOTE: Uses ConstPtr / ptr manually (unConstPtr if base <= 4.18 )
 -- TODO: Take advantage of Remake / better peek / (peekConst or constPeek) functions
 
-newtype RNG = MkRNG { getRNGForeignPtr :: ForeignPtr BotanRNGStruct }
+newtype RNG = MkRNG { foreignPtr :: ForeignPtr BotanRNGStruct }
 
 withRNG     :: RNG -> (BotanRNG -> IO a) -> IO a
 -- | Destroy a random number generator object immediately
 rngDestroy  :: RNG -> IO ()
 createRNG   :: (Ptr BotanRNG -> IO CInt) -> IO RNG
 (withRNG, rngDestroy, createRNG)
-    = mkBindings MkBotanRNG (.runBotanRNG) MkRNG (.getRNGForeignPtr) botan_rng_destroy
+    = mkBindings MkBotanRNG (.ptr) MkRNG (.foreignPtr) botan_rng_destroy
 
 type RNGType = ByteString
 

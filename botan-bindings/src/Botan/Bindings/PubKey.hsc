@@ -159,7 +159,7 @@ data {-# CTYPE "botan/ffi.h" "struct botan_privkey_struct" #-} BotanPrivKeyStruc
 
 -- | Botan PrivKey object
 newtype {-# CTYPE "botan/ffi.h" "botan_privkey_t" #-} BotanPrivKey
-    = MkBotanPrivKey { runBotanPrivKey :: Ptr BotanPrivKeyStruct }
+    = MkBotanPrivKey { ptr :: Ptr BotanPrivKeyStruct }
         deriving newtype (Eq, Ord, Storable)
 
 -- | Frees all resources of the PrivKey object
@@ -547,7 +547,7 @@ data {-# CTYPE "botan/ffi.h" "struct botan_pubkey_struct" #-} BotanPubKeyStruct
 
 -- | Botan PubKey object
 newtype {-# CTYPE "botan/ffi.h" "botan_pubkey_t" #-} BotanPubKey
-    = MkBotanPubKey { runBotanPubKey :: Ptr BotanPubKeyStruct }
+    = MkBotanPubKey { ptr :: Ptr BotanPubKeyStruct }
         deriving newtype (Eq, Ord, Storable)
 
 -- | Frees all resources of the PubKey object

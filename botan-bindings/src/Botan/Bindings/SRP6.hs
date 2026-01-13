@@ -40,7 +40,7 @@ data {-# CTYPE "botan/ffi.h" "struct botan_srp6_server_session_struct" #-} Botan
 
 -- | SRP-6 server session object
 newtype {-# CTYPE "botan/ffi.h" "botan_srp6_server_session_t" #-} BotanSRP6ServerSession
-  = MkBotanSRP6ServerSession { runBotanSRP6ServerSession :: Ptr BotanSRP6ServerSessionStruct }
+  = MkBotanSRP6ServerSession { ptr :: Ptr BotanSRP6ServerSessionStruct }
       deriving newtype (Eq, Ord, Storable)
 
 -- | Frees all resources of the SRP-6 server session object

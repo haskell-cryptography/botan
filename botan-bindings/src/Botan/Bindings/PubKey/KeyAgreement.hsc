@@ -41,7 +41,7 @@ data {-# CTYPE "botan/ffi.h" "struct botan_pk_op_ka_struct" #-} BotanPKOpKeyAgre
 
 -- | Botan key agreement object
 newtype {-# CTYPE "botan/ffi.h" "botan_pk_op_ka_t" #-} BotanPKOpKeyAgreement
-    = MkBotanPKOpKeyAgreement { runBotanPKOpKeyAgreement :: Ptr BotanPKOpKeyAgreementStruct }
+    = MkBotanPKOpKeyAgreement { ptr :: Ptr BotanPKOpKeyAgreementStruct }
         deriving newtype (Eq, Ord, Storable)
 
 -- | Destroy a key agreement object

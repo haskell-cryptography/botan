@@ -281,15 +281,15 @@ Verify a message:
 -- * Public/private key creation, import, ...
 -- */
 
-newtype PrivKey = MkPrivKey { getPrivKeyForeignPtr :: ForeignPtr BotanPrivKeyStruct }
+newtype PrivKey = MkPrivKey { foreignPtr :: ForeignPtr BotanPrivKeyStruct }
 
 withPrivKey     :: PrivKey -> (BotanPrivKey -> IO a) -> IO a
 privKeyDestroy  :: PrivKey -> IO ()
 createPrivKey   :: (Ptr BotanPrivKey -> IO CInt) -> IO PrivKey
 (withPrivKey, privKeyDestroy, createPrivKey)
     = mkBindings
-        MkBotanPrivKey (.runBotanPrivKey)
-        MkPrivKey (.getPrivKeyForeignPtr)
+        MkBotanPrivKey (.ptr)
+        MkPrivKey (.foreignPtr)
         botan_privkey_destroy
 
 type PKName = ByteString
@@ -672,15 +672,15 @@ privKeyAlgoName = mkGetCString withPrivKey botan_privkey_algo_name
 --     -> IO ByteString
 -- privKeyExportEncryptedPBKDFIter = undefined
 
-newtype PubKey = MkPubKey { getPubKeyForeignPtr :: ForeignPtr BotanPubKeyStruct }
+newtype PubKey = MkPubKey { foreignPtr :: ForeignPtr BotanPubKeyStruct }
 
 withPubKey     :: PubKey -> (BotanPubKey -> IO a) -> IO a
 pubKeyDestroy  :: PubKey -> IO ()
 createPubKey   :: (Ptr BotanPubKey -> IO CInt) -> IO PubKey
 (withPubKey, pubKeyDestroy, createPubKey)
     = mkBindings
-        MkBotanPubKey (.runBotanPubKey)
-        MkPubKey (.getPubKeyForeignPtr)
+        MkBotanPubKey (.ptr)
+        MkPubKey (.foreignPtr)
         botan_pubkey_destroy
 
 pubKeyLoad

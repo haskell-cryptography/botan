@@ -120,15 +120,15 @@ Then, this shared key may be used for any suitable purpose.
 type KEMSharedKey = ByteString
 type KEMEncapsulatedKey = ByteString
 
-newtype KEMEncrypt = MkKEMEncrypt { getKEMEncryptForeignPtr :: ForeignPtr BotanPKOpKEMEncryptStruct }
+newtype KEMEncrypt = MkKEMEncrypt { foreignPtr :: ForeignPtr BotanPKOpKEMEncryptStruct }
 
 withKEMEncrypt     :: KEMEncrypt -> (BotanPKOpKEMEncrypt -> IO a) -> IO a
 kemEncryptDestroy  :: KEMEncrypt -> IO ()
 createKEMEncrypt   :: (Ptr BotanPKOpKEMEncrypt -> IO CInt) -> IO KEMEncrypt
 (withKEMEncrypt, kemEncryptDestroy, createKEMEncrypt)
     = mkBindings
-        MkBotanPKOpKEMEncrypt (.runBotanPKOpKEMEncrypt)
-        MkKEMEncrypt (.getKEMEncryptForeignPtr)
+        MkBotanPKOpKEMEncrypt (.ptr)
+        MkKEMEncrypt (.foreignPtr)
         botan_pk_op_kem_encrypt_destroy
 
 
@@ -191,15 +191,15 @@ kemEncryptCreateSharedKey ke rng salt desiredLen = withKEMEncrypt ke $ \ kePtr -
                                 encapPtr
                                 encapSzPtr
 
-newtype KEMDecrypt = MkKEMDecrypt { getKEMDecryptForeignPtr :: ForeignPtr BotanPKOpKEMDecryptStruct }
+newtype KEMDecrypt = MkKEMDecrypt { foreignPtr :: ForeignPtr BotanPKOpKEMDecryptStruct }
 
 withKEMDecrypt     :: KEMDecrypt -> (BotanPKOpKEMDecrypt -> IO a) -> IO a
 kemDecryptDestroy  :: KEMDecrypt -> IO ()
 createKEMDecrypt   :: (Ptr BotanPKOpKEMDecrypt -> IO CInt) -> IO KEMDecrypt
 (withKEMDecrypt, kemDecryptDestroy, createKEMDecrypt)
     = mkBindings
-        MkBotanPKOpKEMDecrypt (.runBotanPKOpKEMDecrypt)
-        MkKEMDecrypt (.getKEMDecryptForeignPtr)
+        MkBotanPKOpKEMDecrypt (.ptr)
+        MkKEMDecrypt (.foreignPtr)
         botan_pk_op_kem_decrypt_destroy
 
 kemDecryptCreate

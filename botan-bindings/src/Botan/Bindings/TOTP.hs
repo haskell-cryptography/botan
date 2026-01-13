@@ -64,7 +64,7 @@ data {-# CTYPE "botan/ffi.h" "struct botan_totp_struct" #-} BotanTOTPStruct
 
 -- | Botan TOTP object
 newtype {-# CTYPE "botan/ffi.h" "botan_totp_t" #-} BotanTOTP
-    = MkBotanTOTP { runBotanTOTP :: Ptr BotanTOTPStruct }
+    = MkBotanTOTP { ptr :: Ptr BotanTOTPStruct }
         deriving newtype (Eq, Ord, Storable)
 
 -- | Destroy a TOTP instance

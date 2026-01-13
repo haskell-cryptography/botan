@@ -189,7 +189,7 @@ True
 -------------------------------------------------------------------------------}
 
 -- | A mutable block cipher object
-newtype BlockCipher = MkBlockCipher { getBlockCipherForeignPtr :: ForeignPtr BotanBlockCipherStruct }
+newtype BlockCipher = MkBlockCipher { foreignPtr :: ForeignPtr BotanBlockCipherStruct }
 
 withBlockCipher     :: BlockCipher -> (BotanBlockCipher -> IO a) -> IO a
 -- | Destroy a block cipher object immediately
@@ -197,8 +197,8 @@ blockCipherDestroy  :: BlockCipher -> IO ()
 createBlockCipher   :: (Ptr BotanBlockCipher -> IO CInt) -> IO BlockCipher
 (withBlockCipher, blockCipherDestroy, createBlockCipher)
     = mkBindings
-        MkBotanBlockCipher (.runBotanBlockCipher)
-        MkBlockCipher (.getBlockCipherForeignPtr)
+        MkBotanBlockCipher (.ptr)
+        MkBlockCipher (.foreignPtr)
         botan_block_cipher_destroy
 
 

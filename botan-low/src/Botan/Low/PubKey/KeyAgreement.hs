@@ -115,15 +115,15 @@ agreed-upon salt:
 
 -}
 
-newtype KeyAgreement = MkKeyAgreement { getKeyAgreementForeignPtr :: ForeignPtr BotanPKOpKeyAgreementStruct }
+newtype KeyAgreement = MkKeyAgreement { foreignPtr :: ForeignPtr BotanPKOpKeyAgreementStruct }
 
 withKeyAgreement     :: KeyAgreement -> (BotanPKOpKeyAgreement -> IO a) -> IO a
 keyAgreementDestroy  :: KeyAgreement -> IO ()
 createKeyAgreement   :: (Ptr BotanPKOpKeyAgreement -> IO CInt) -> IO KeyAgreement
 (withKeyAgreement, keyAgreementDestroy, createKeyAgreement)
     = mkBindings
-        MkBotanPKOpKeyAgreement (.runBotanPKOpKeyAgreement)
-        MkKeyAgreement (.getKeyAgreementForeignPtr)
+        MkBotanPKOpKeyAgreement (.ptr)
+        MkKeyAgreement (.foreignPtr)
         botan_pk_op_key_agreement_destroy
 
 -- NOTE: Silently uses the system RNG

@@ -27,7 +27,7 @@ import           Foreign.Storable
 --  botan_version_string
 type ConstPtr :: Type -> Type
 type role ConstPtr phantom
-newtype ConstPtr a = ConstPtr { unConstPtr :: Ptr a }
+newtype ConstPtr a = ConstPtr { ptr :: Ptr a }
     deriving stock (Data)
     deriving newtype (Eq, Ord, Storable)
 

@@ -36,7 +36,7 @@ data {-# CTYPE "botan/ffi.h" "struct botan_pk_op_verify_struct" #-} BotanPKOpVer
 
 -- | Botan verify object
 newtype {-# CTYPE "botan/ffi.h" "botan_pk_op_verify_t" #-} BotanPKOpVerify
-    = MkBotanPKOpVerify { runBotanPKOpVerify :: Ptr BotanPKOpVerifyStruct }
+    = MkBotanPKOpVerify { ptr :: Ptr BotanPKOpVerifyStruct }
         deriving newtype (Eq, Ord, Storable)
 
 -- | Destroy a verify object

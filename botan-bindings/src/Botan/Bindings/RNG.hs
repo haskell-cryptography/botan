@@ -48,7 +48,7 @@ data {-# CTYPE "botan/ffi.h" "struct botan_rng_struct" #-} BotanRNGStruct
 
 -- | Botan RNG object
 newtype {-# CTYPE "botan/ffi.h" "botan_rng_t" #-} BotanRNG
-    = MkBotanRNG { runBotanRNG :: Ptr BotanRNGStruct }
+    = MkBotanRNG { ptr :: Ptr BotanRNGStruct }
         deriving newtype (Eq, Ord, Storable)
 
 -- | Frees all resources of the random number generator object

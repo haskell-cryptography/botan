@@ -160,15 +160,15 @@ The user should then be notified.
 
 -}
 
-newtype TOTP = MkTOTP { getTOTPForeignPtr :: ForeignPtr BotanTOTPStruct }
+newtype TOTP = MkTOTP { foreignPtr :: ForeignPtr BotanTOTPStruct }
 
 withTOTP     :: TOTP -> (BotanTOTP -> IO a) -> IO a
 totpDestroy  :: TOTP -> IO ()
 createTOTP   :: (Ptr BotanTOTP -> IO CInt) -> IO TOTP
 (withTOTP, totpDestroy, createTOTP)
     = mkBindings
-        MkBotanTOTP (.runBotanTOTP)
-        MkTOTP (.getTOTPForeignPtr)
+        MkBotanTOTP (.ptr)
+        MkTOTP (.foreignPtr)
         botan_totp_destroy
 
 type TOTPHashName = HashName

@@ -75,7 +75,7 @@ data {-# CTYPE "botan/ffi.h" "struct botan_block_cipher_struct" #-} BotanBlockCi
 
 -- | Botan BlockCipher object
 newtype {-# CTYPE "botan/ffi.h" "botan_block_cipher_t" #-} BotanBlockCipher
-    = MkBotanBlockCipher { runBotanBlockCipher :: Ptr BotanBlockCipherStruct }
+    = MkBotanBlockCipher { ptr :: Ptr BotanBlockCipherStruct }
         deriving newtype (Eq, Ord, Storable)
 
 -- | Destroy a block cipher object

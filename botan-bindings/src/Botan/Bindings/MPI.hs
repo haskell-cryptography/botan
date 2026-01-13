@@ -68,7 +68,7 @@ data {-# CTYPE "botan/ffi.h" "struct botan_mp_struct" #-} BotanMPStruct
 
 -- | Botan MP object
 newtype {-# CTYPE "botan/ffi.h" "botan_mp_t" #-} BotanMP
-    = MkBotanMP { runBotanMP :: Ptr BotanMPStruct }
+    = MkBotanMP { ptr :: Ptr BotanMPStruct }
         deriving newtype (Eq, Ord, Storable)
 
 -- | Destroy (deallocate) an MPI
