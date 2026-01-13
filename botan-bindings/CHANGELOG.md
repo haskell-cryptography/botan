@@ -1,5 +1,15 @@
 # Changelog
 
+## ?.?.?.? -- ????-??-??
+
+* BREAKING: for all newtypes with a record field name like `run*`, change the
+  name to `ptr`. See PR's
+  [#114](https://github.com/haskell-cryptography/botan/pull/114) and
+  [#117](https://github.com/haskell-cryptography/botan/pull/117). For example.
+  `runBotanBlockCipher` is changed to `ptr`.
+* BREAKING: re-enable `FieldSelectors` for the `ConstPtr` module. See PR
+  [#117](https://github.com/haskell-cryptography/botan/pull/117).
+
 ## 0.2.0.0 -- 2025-12-30
 
 * BREAKING: remove experimental FFI code related to `x509`. See PR
