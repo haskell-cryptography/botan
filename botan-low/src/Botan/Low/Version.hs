@@ -1,5 +1,3 @@
-{-# LANGUAGE CPP #-}
-
 {-|
 Module      : Botan.Low.Version
 Description : Botan version info
@@ -45,12 +43,9 @@ botanFFIAPIVersion = fromIntegral <$> botan_ffi_api_version
 botanFFISupportsAPI :: Int -> IO Bool
 botanFFISupportsAPI version = do
     throwBotanCatchingInvalidInput $ botan_ffi_supports_api (fromIntegral version)
+
 botanVersionString :: IO ByteString
-#if MIN_VERSION_base (4,18,0)
-botanVersionString = botan_version_string >>= peekCString . unConstPtr
-#else
-botanVersionString = botan_version_string >>= peekCString . (.ptr)
-#endif
+botanVersionString = botan_version_string >>= peekCString . (.unConstPtr)
 
 -- | Returns the major version of the library
 botanVersionMajor :: IO Int
