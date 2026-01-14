@@ -11,6 +11,11 @@
 * BREAKING: `x509CertAllowedUsage` now takes a list of `X509KeyConstraints`
   instead of a single value. See PR
   [#113](https://github.com/haskell-cryptography/botan/pull/113).
+* BREAKING: for all newtypes with a record field name like `get*ForeignPtr`,
+  change the name to `foreignPtr`. See PR's
+  [#114](https://github.com/haskell-cryptography/botan/pull/114) and
+  [#117](https://github.com/haskell-cryptography/botan/pull/117). For example.
+  `getBlockCipherForeignPtr` is changed to `foreignPtr`.
 
 ## 0.1.0.0 -- 2025-12-30
 

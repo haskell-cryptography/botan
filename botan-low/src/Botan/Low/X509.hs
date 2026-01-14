@@ -346,12 +346,8 @@ x509CertValidationStatus code = do
     status <- botan_x509_cert_validation_status (fromIntegral code)
     if status == ConstPtr nullPtr
         then return Nothing
-        else
-#if MIN_VERSION_base (4,18,0)
-            Just <$> packCString (unConstPtr status)
-#else
-            Just <$> packCString status.ptr
-#endif
+        else Just <$> packCString status.unConstPtr
+
 -- /*
 -- * X.509 CRL
 -- **************************/
