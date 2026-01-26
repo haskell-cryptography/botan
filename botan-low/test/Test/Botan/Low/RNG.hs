@@ -16,11 +16,6 @@ tests = do
     specs <- testSpec "spec_rng" spec_rng
     pure $ testGroup "Test.Botan.Low.RNG" [
         specs
-#ifdef darwin_HOST_OS
-        -- TODO: temporarily disabled because the test suite fails. See issue
-        -- #33.
-      | False
-#endif
       ]
 
 rngs :: [RNGType]
@@ -28,7 +23,9 @@ rngs =
     [ SystemRNG
     , UserRNG
     , UserThreadsafeRNG
+#if x86_64_HOST_ARCH
     , RDRandRNG -- NOTES: Not available on all processors
+#endif
     ]
 
 spec_rng :: Spec
