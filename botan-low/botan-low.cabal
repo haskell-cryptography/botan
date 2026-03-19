@@ -123,6 +123,7 @@ library
     Botan.Low.Version
     Botan.Low.View
     Botan.Low.X509
+    Botan.Low.XOF
     Botan.Low.ZFEC
 
   other-modules:
@@ -195,6 +196,7 @@ test-suite test
     Test.Botan.Low.Utility
     Test.Botan.Low.Version
     Test.Botan.Low.X509
+    Test.Botan.Low.XOF
     Test.Botan.Low.ZFEC
     Test.Util.ByteString
     Test.Util.Hspec
