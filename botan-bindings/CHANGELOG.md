@@ -1,6 +1,6 @@
 # Changelog
 
-## ?.?.?.? -- ????-??-??
+## 0.3.0.0 -- 2026-03-23
 
 * BREAKING: for all newtypes with a record field name like `run*`, change the
   name to `ptr`. See PR's

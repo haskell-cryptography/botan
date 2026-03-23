@@ -1,6 +1,6 @@
 # Changelog
 
-## ?.?.?.? -- ????-??-??
+## 0.2.0.0 -- 2026-03-23
 
 * BREAKING: change more flags from numbers into datatypes. See PR
   [#113](https://github.com/haskell-cryptography/botan/pull/113). The flag

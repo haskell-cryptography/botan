@@ -1,7 +1,7 @@
 index-state:
   -- Bump this if you need newer packages from Hackage
-  -- current date: release botan-low-0.1.0.0 and botan-bindings-0.2.0.0
-  , hackage.haskell.org 2025-12-30T00:00:00Z
+  -- current date: release botan-low-0.2.0.0 and botan-bindings-0.3.0.0
+  , hackage.haskell.org 2026-03-23T00:00:00Z
 
 packages:
   botan-bindings
