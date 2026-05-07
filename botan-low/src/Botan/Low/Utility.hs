@@ -24,15 +24,19 @@ module Botan.Low.Utility (
   ) where
 
 import           Botan.Bindings.ConstPtr (ConstPtr (..))
+import           Botan.Bindings.Error
 import           Botan.Bindings.Utility
 import           Botan.Low.Error.Internal
 import           Botan.Low.Internal.ByteString
 import           Botan.Low.Make
 import           Data.ByteString (ByteString)
-import           Data.Text
+import qualified Data.ByteString as BS
+import           Data.Text (Text)
 import qualified Data.Text.Encoding as Text
 import           Data.Word
+import           Foreign.Marshal.Alloc
 import           Foreign.Ptr
+import           Foreign.Storable
 
 -- | Returns 0 if x[0..len] == y[0..len], -1 otherwise.
 constantTimeCompare ::
@@ -109,9 +113,18 @@ base64Decode ::
   -> IO ByteString    -- ^ __out__
 base64Decode txt =
     asBytesLen (Text.encodeUtf8 txt) $ \ base64Ptr base64Len ->
-    allocBytesQueryingCString $ \ bytesPtr szPtr ->
-    botan_base64_decode
-      (ConstPtr base64Ptr)
-      base64Len
-      bytesPtr
-      szPtr
+    alloca $ \ szPtr -> do
+        poke szPtr 0
+        -- Botan 3.12.0 added an any_null_pointers guard on botan_base64_decode that
+        -- rejects a NULL out, so use a non-null zero-byte sentinel for the size-query call.
+        code <- allocaBytes 0 $ \ sentinelPtr ->
+            botan_base64_decode (ConstPtr base64Ptr) base64Len sentinelPtr szPtr
+        case code of
+            BOTAN_FFI_ERROR_INSUFFICIENT_BUFFER_SPACE -> do
+                sz <- fromIntegral <$> peek szPtr
+                bs <- allocBytes sz $ \ outPtr ->
+                    throwBotanIfNegative_ $ botan_base64_decode
+                      (ConstPtr base64Ptr) base64Len outPtr szPtr
+                actual <- fromIntegral <$> peek szPtr
+                return $! BS.take actual bs
+            _ -> throwBotanError code

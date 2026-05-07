@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+* PATCH: fix `base64Decode` failing against `botan` 3.12.0, which now rejects a
+  `NULL` output pointer in `botan_base64_decode`. The size-query call now uses
+  a non-null zero-byte sentinel buffer. See PR
+  [#126](https://github.com/haskell-cryptography/botan/pull/126).
+
 ## 0.2.0.0 -- 2026-03-23
 
 * BREAKING: change more flags from numbers into datatypes. See PR
