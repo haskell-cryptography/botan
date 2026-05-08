@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.0.1 -- 2026-05-08
 
 * PATCH: fix `base64Decode` failing against `botan` 3.12.0, which now rejects a
   `NULL` output pointer in `botan_base64_decode`. The size-query call now uses
