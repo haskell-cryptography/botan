@@ -148,7 +148,7 @@ test-suite test
     containers,
     hspec,
     tasty,
-    tasty-hspec,
+    tasty-hspec >=1.2,
     tasty-hunit,
     tasty-quickcheck,
     text,
