@@ -112,7 +112,7 @@ library
     Botan.Bindings.X509
     Botan.Bindings.ZFEC
 
-  build-depends: base >=4.16 && <4.22
+  build-depends: base >=4.16 && <4.23
   includes: botan/ffi.h
 
   if flag(pkg-config)

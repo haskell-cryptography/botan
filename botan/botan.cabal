@@ -155,7 +155,7 @@ library
     Botan.Prelude
 
   build-depends:
-    base >=4.16 && <4.22,
+    base >=4.16 && <4.23,
     botan-low ^>=0.2,
     bytestring >=0.11 && <0.13,
     deepseq >=1.1 && <2,
