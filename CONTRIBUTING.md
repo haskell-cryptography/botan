@@ -54,10 +54,9 @@ To perform a pre-commit code formatting pass, run all the following:
 
 ```console
 ./scripts/format-cabal-gild.sh
-./scripts/format-fix-whitespace.sh
-./scripts/format-stylish-haskell
-./scripts/lint-cabal
-./scripts/test-cabal-docspec
+./scripts/format-stylish-haskell.sh
+./scripts/lint-cabal.sh
+./scripts/test-cabal-docspec.sh
 ```
 
 ## Pull requests
