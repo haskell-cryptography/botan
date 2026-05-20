@@ -39,6 +39,7 @@ module Botan.Bindings.Error (
   , pattern BOTAN_FFI_ERROR_TLS_ERROR
   , pattern BOTAN_FFI_ERROR_HTTP_ERROR
   , pattern BOTAN_FFI_ERROR_ROUGHTIME_ERROR
+  , pattern BOTAN_FFI_ERROR_TPM_ERROR
   , pattern BOTAN_FFI_ERROR_UNKNOWN_ERROR
   , botan_error_description
   , botan_error_last_exception_message
@@ -73,6 +74,7 @@ pattern BOTAN_FFI_SUCCESS
     ,   BOTAN_FFI_ERROR_TLS_ERROR
     ,   BOTAN_FFI_ERROR_HTTP_ERROR
     ,   BOTAN_FFI_ERROR_ROUGHTIME_ERROR
+    ,   BOTAN_FFI_ERROR_TPM_ERROR
     ,   BOTAN_FFI_ERROR_UNKNOWN_ERROR
     ::  (Eq a, Num a) => a
 
@@ -139,10 +141,11 @@ pattern BOTAN_FFI_ERROR_HTTP_ERROR = #const BOTAN_FFI_ERROR_HTTP_ERROR
 -- | Note: this code is undocumented in @botan/ffi.h@.
 pattern BOTAN_FFI_ERROR_ROUGHTIME_ERROR = #const BOTAN_FFI_ERROR_ROUGHTIME_ERROR
 
+-- | An error occurred when performing TPM2 interactions.
+pattern BOTAN_FFI_ERROR_TPM_ERROR = #const BOTAN_FFI_ERROR_TPM_ERROR
+
 -- | Something bad happened, but we are not sure why or how.
 pattern BOTAN_FFI_ERROR_UNKNOWN_ERROR = #const BOTAN_FFI_ERROR_UNKNOWN_ERROR
-
--- TODO: add a binding for BOTAN_FFI_TEMP_ERROR. See issue #44.
 
 foreign import capi safe "botan/ffi.h botan_error_description"
     botan_error_description
