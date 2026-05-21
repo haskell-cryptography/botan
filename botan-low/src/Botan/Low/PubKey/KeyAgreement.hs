@@ -10,13 +10,13 @@ Portability : POSIX
 -}
 
 module Botan.Low.PubKey.KeyAgreement (
+    -- * PK Key Agreement
+    -- $introduction
 
-  -- * PK Key Agreement
-  -- $introduction
-  -- * Usage
-  -- $usage
+    -- * Usage
+    -- $usage
 
-  -- * Key agreement
+    -- * Key agreement
     KeyAgreement(..)
   , withKeyAgreement
   , keyAgreementCreate
@@ -76,42 +76,61 @@ on the shared secret to produce an output of the desired length.
 
 {- $usage
 
+This is a simplified, executable example showing how Alice and Bob can derive the
+same shared secret using key agreement.
+
+>>> :{
+{-# OPTIONS_GHC -Wall #-}
+import Botan.Low.Hash
+import Botan.Low.KDF
+import Botan.Low.PubKey
+import Botan.Low.PubKey.KeyAgreement
+import Botan.Low.RNG
+import Data.ByteString (ByteString)
+:}
+
 First, Alice and Bob generate their private keys:
 
-> import Botan.Low.PubKey
-> import Botan.Low.PubKey.KeyAgreement
-> import Botan.Low.RNG
-> import Botan.Low.Hash
-> import Botan.Low.KDF
-> rng <- rngInit "system"
-> -- Alice creates her private key
-> alicePrivKey <- privKeyCreate ECDH Secp521r1 rng
-> -- Bob creates his private key
-> bobPrivKey <-  privKeyCreate ECDH Secp521r1 rng
+>>> :{
+generateKeys :: IO (PrivKey, PrivKey)
+generateKeys = do
+  rng <- rngInit UserRNG
+  alicePrivKey <- privKeyCreate ECDH Secp521r1 rng
+  bobPrivKey <- privKeyCreate ECDH Secp521r1 rng
+  pure (alicePrivKey, bobPrivKey)
+:}
 
-Then, they exchange their public keys using any channel, private or public:
+Then, they exchange their public keys using any channel, private or public
+and independently derive shared keys.
 
-> -- Alice and Bob exchange public keys
-> alicePubKey <- keyAgreementExportPublic alicePrivKey
-> bobPubKey <- keyAgreementExportPublic bobPrivKey
-> -- ...
+Alice and Bob exchange public keys:
 
-Then, they may separately generate the same agreed-upon key and a randomized,
-agreed-upon salt:
+>>> :{
+deriveSharedKeys :: PrivKey -> PrivKey -> IO (ByteString, ByteString)
+deriveSharedKeys alicePrivKey bobPrivKey = do
+  rng <- rngInit UserRNG
+  alicePubKey <- keyAgreementExportPublic alicePrivKey
+  bobPubKey <- keyAgreementExportPublic bobPrivKey
+  salt <- rngGet rng 4
+  aliceKeyAgreement <- keyAgreementCreate alicePrivKey (kdf2 SHA256)
+  aliceSharedKey <- keyAgreement aliceKeyAgreement bobPubKey salt
+  bobKeyAgreement <- keyAgreementCreate bobPrivKey (kdf2 SHA256)
+  bobSharedKey <- keyAgreement bobKeyAgreement alicePubKey salt
+  pure (aliceSharedKey, bobSharedKey)
+:}
 
-> salt <- rngGet rng 4
-> -- Alice generates her shared key:
-> aliceKeyAgreement <- keyAgreementCreate alicePrivKey (kdf2 SHA256)
-> aliceSharedKey    <- keyAgreement aliceKeyAgreement bobPubKey salt
-> -- Bob generates his shared key:
-> bobKeyAgreement   <- keyAgreementCreate bobPrivKey (kdf2 SHA256)
-> bobSharedKey      <- keyAgreement bobKeyAgreement alicePubKey salt
-> -- They are the same
-> aliceSharedKey == bobSharedKey
-> -- True
+Now we can check that both parties derive the same shared key using the same salt:
 
-> WARNING: There used to be a memory leak in keyAgreement. Please
-> report this bug to the maintainers if it returns.
+>>> :{
+main :: IO ()
+main = do
+  (alicePrivKey, bobPrivKey) <- generateKeys
+  (aliceSharedKey, bobSharedKey) <- deriveSharedKeys alicePrivKey bobPrivKey
+  print (aliceSharedKey == bobSharedKey)
+:}
+
+>>> main
+True
 
 -}
 

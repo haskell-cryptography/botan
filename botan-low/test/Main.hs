@@ -20,6 +20,7 @@ import qualified Test.Botan.Low.PubKey.Ed25519
 import qualified Test.Botan.Low.PubKey.ElGamal
 import qualified Test.Botan.Low.PubKey.Encrypt
 import qualified Test.Botan.Low.PubKey.KeyAgreement
+import qualified Test.Botan.Low.PubKey.KeyAgreement.Example
 import qualified Test.Botan.Low.PubKey.KeyEncapsulation
 import qualified Test.Botan.Low.PubKey.RSA
 import qualified Test.Botan.Low.PubKey.Sign
@@ -97,6 +98,9 @@ tests = do
       , pubKeyElGamalTests
       , pubKeyEncryptTests
       , pubKeyKeyAgreementTests
+      , testGroup "Test.Botan.Low.PubKey.KeyAgreement.Example"
+          [ testCase "example" Test.Botan.Low.PubKey.KeyAgreement.Example.main
+          ]
       , pubKeyKeyEncapsulationTests
       , pubKeyRsaTests
       , pubKeySignTests
