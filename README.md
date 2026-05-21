@@ -1,10 +1,12 @@
 # Welcome to botan
 
+![License: BSD-3-Clause](https://img.shields.io/badge/license-BSD--3--Clause-lightgray.svg)
 [![Hackage: botan-bindings](https://img.shields.io/hackage/v/botan-bindings?label=Hackage:%20botan-bindings)](https://hackage.haskell.org/package/botan-bindings)
 [![Hackage: botan-low](https://img.shields.io/hackage/v/botan-low?label=Hackage:%20botan-low)](https://hackage.haskell.org/package/botan-low)
 [![Hackage: botan](https://img.shields.io/hackage/v/botan?label=Hackage:%20botan)](https://hackage.haskell.org/package/botan)
-[![Build](https://img.shields.io/github/actions/workflow/status/haskell-cryptography/botan/ci.yml?label=Build)](https://github.com/haskell-cryptography/botan/actions/workflows/ci.yml)
 [![Haddocks](https://img.shields.io/badge/documentation-Haddocks-purple)](https://haskell-cryptography.github.io/botan/)
+[![CI](https://img.shields.io/github/actions/workflow/status/haskell-cryptography/botan/ci.yml?label=CI)](https://github.com/haskell-cryptography/botan/actions/workflows/ci.yml)
+[![CI: documentation](https://img.shields.io/github/actions/workflow/status/haskell-cryptography/botan/documentation.yml?label=CI:%20documentation)](https://github.com/haskell-cryptography/botan/actions/workflows/documentation.yml)
 
 # Acknowledgements
 

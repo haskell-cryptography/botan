@@ -16,98 +16,163 @@ permissions:
 
 jobs:
   ################################################################################
+  # Build: setup matrix
+  ################################################################################
+  build-setup-matrix:
+    name: "Build: setup matrix"
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    outputs:
+      matrix: ${{ steps.output-matrix.outputs.matrix }}
+
+    defaults:
+      run:
+        shell: bash
+
+    env:
+      sys-ubuntu:  '{"os": "ubuntu-latest" , "shell": "bash" }'
+      sys-macos:   '{"os": "macos-latest"  , "shell": "bash" }'
+      sys-windows: '{"os": "windows-latest", "shell": "C:/msys64/usr/bin/bash.exe -e {0}" }'
+      botan-default: '"3.12.0"'
+      ghc-default:   '"9.8"'
+      cabal-default: '"3.16"'
+
+    steps:
+    # TODO: ideally, we would be able to detect automatically that the matrix
+    # should be updated to include newer Botan versions (or GHC versions for
+    # that matter). The setup-botan action already contains a TODO that would
+    # allow us to specify incomplete Botan versions like 3 and 3.8 that would
+    # then automatically be resolved to the greatest complete versions, e.g.,
+    # 3.10.0 and 3.8.1. Similarly, haskell-actions/setup@v2 allows specifying
+    # incomplete GHC and Cabal versions that are resolved to complete
+    # versions. However, if a new Botan MAJOR and/or MINOR version is released
+    # (or a new GHC major version), then we would want to include it as a new
+    # matrix combination while keeping the older combinations. Automatic
+    # resolving does not solve this. See issue #40.
+
+    # PR: we only run one combination per OS for fast feedback.
+
+    - name: 🛠️ Setup matrix (PR)
+      if: ${{ github.event_name == 'pull_request' }}
+      run: |
+        { echo 'MATRIX_COMBINATIONS<<EOF'
+          # Build one combination per OS for fast feedback
+          echo '{"sys": ${{ env.sys-ubuntu }} , "ghc-version": ${{env.ghc-default}}, "cabal-version": ${{env.cabal-default}}, "botan-version": ${{env.botan-default}}},'
+          echo '{"sys": ${{ env.sys-macos }}  , "ghc-version": ${{env.ghc-default}}, "cabal-version": ${{env.cabal-default}}, "botan-version": ${{env.botan-default}}},'
+          echo '{"sys": ${{ env.sys-windows }}, "ghc-version": ${{env.ghc-default}}, "cabal-version": ${{env.cabal-default}}, "botan-version": ${{env.botan-default}}},'
+          echo EOF
+        } >> "$GITHUB_ENV"
+
+    # MR, push to main: we extensively test the code using various combinations.
+    # We don't want combinatorial explosion, so we do not test all combinations
+    # exhaustively.
+    #
+    # NOTE: For caching purposes, the matrix combinations that we test on pull
+    # requests should be a subset of the matrix combinations we run on the merge
+    # queue and pushes to main.
+    - name: 🛠️ Setup matrix (MQ, push to main)
+      if: ${{ github.event_name != 'pull_request' }}
+      run: |
+        { echo 'MATRIX_COMBINATIONS<<EOF'
+          ## Build and test with all Botan versions, but with a fixed OS/GHC/Cabal combination
+          echo '{"sys": ${{ env.sys-ubuntu }} , "ghc-version": ${{env.ghc-default}}, "cabal-version": ${{env.cabal-default}}, "botan-version": "3.0.0" },'
+          echo '{"sys": ${{ env.sys-ubuntu }} , "ghc-version": ${{env.ghc-default}}, "cabal-version": ${{env.cabal-default}}, "botan-version": "3.1.1" },'
+          echo '{"sys": ${{ env.sys-ubuntu }} , "ghc-version": ${{env.ghc-default}}, "cabal-version": ${{env.cabal-default}}, "botan-version": "3.2.0" },'
+          echo '{"sys": ${{ env.sys-ubuntu }} , "ghc-version": ${{env.ghc-default}}, "cabal-version": ${{env.cabal-default}}, "botan-version": "3.3.0" },'
+          echo '{"sys": ${{ env.sys-ubuntu }} , "ghc-version": ${{env.ghc-default}}, "cabal-version": ${{env.cabal-default}}, "botan-version": "3.4.0" },'
+          echo '{"sys": ${{ env.sys-ubuntu }} , "ghc-version": ${{env.ghc-default}}, "cabal-version": ${{env.cabal-default}}, "botan-version": "3.5.0" },'
+          echo '{"sys": ${{ env.sys-ubuntu }} , "ghc-version": ${{env.ghc-default}}, "cabal-version": ${{env.cabal-default}}, "botan-version": "3.6.1" },'
+          echo '{"sys": ${{ env.sys-ubuntu }} , "ghc-version": ${{env.ghc-default}}, "cabal-version": ${{env.cabal-default}}, "botan-version": "3.7.1" },'
+          echo '{"sys": ${{ env.sys-ubuntu }} , "ghc-version": ${{env.ghc-default}}, "cabal-version": ${{env.cabal-default}}, "botan-version": "3.8.1" },'
+          echo '{"sys": ${{ env.sys-ubuntu }} , "ghc-version": ${{env.ghc-default}}, "cabal-version": ${{env.cabal-default}}, "botan-version": "3.9.0" },'
+          echo '{"sys": ${{ env.sys-ubuntu }} , "ghc-version": ${{env.ghc-default}}, "cabal-version": ${{env.cabal-default}}, "botan-version": "3.10.0"},'
+          echo '{"sys": ${{ env.sys-ubuntu }} , "ghc-version": ${{env.ghc-default}}, "cabal-version": ${{env.cabal-default}}, "botan-version": "3.11.1"},'
+          ## Build and test with all GHC versions on each OS, but with a fixed Cabal/Botan combination
+          ### Ubuntu
+          echo '{"sys": ${{ env.sys-ubuntu }}  , "ghc-version": "9.2" , "cabal-version": ${{env.cabal-default}}, "botan-version": ${{env.botan-default}}},'
+          echo '{"sys": ${{ env.sys-ubuntu }}  , "ghc-version": "9.4" , "cabal-version": ${{env.cabal-default}}, "botan-version": ${{env.botan-default}}},'
+          echo '{"sys": ${{ env.sys-ubuntu }}  , "ghc-version": "9.6" , "cabal-version": ${{env.cabal-default}}, "botan-version": ${{env.botan-default}}},'
+          echo '{"sys": ${{ env.sys-ubuntu }}  , "ghc-version": "9.8" , "cabal-version": ${{env.cabal-default}}, "botan-version": ${{env.botan-default}}},'
+          echo '{"sys": ${{ env.sys-ubuntu }}  , "ghc-version": "9.10", "cabal-version": ${{env.cabal-default}}, "botan-version": ${{env.botan-default}}},'
+          echo '{"sys": ${{ env.sys-ubuntu }}  , "ghc-version": "9.12", "cabal-version": ${{env.cabal-default}}, "botan-version": ${{env.botan-default}}},'
+          ### MacOS
+          echo '{"sys": ${{ env.sys-macos }}   , "ghc-version": "9.2" , "cabal-version": ${{env.cabal-default}}, "botan-version": ${{env.botan-default}}},'
+          echo '{"sys": ${{ env.sys-macos }}   , "ghc-version": "9.4" , "cabal-version": ${{env.cabal-default}}, "botan-version": ${{env.botan-default}}},'
+          echo '{"sys": ${{ env.sys-macos }}   , "ghc-version": "9.6" , "cabal-version": ${{env.cabal-default}}, "botan-version": ${{env.botan-default}}},'
+          echo '{"sys": ${{ env.sys-macos }}   , "ghc-version": "9.8" , "cabal-version": ${{env.cabal-default}}, "botan-version": ${{env.botan-default}}},'
+          echo '{"sys": ${{ env.sys-macos }}   , "ghc-version": "9.10", "cabal-version": ${{env.cabal-default}}, "botan-version": ${{env.botan-default}}},'
+          echo '{"sys": ${{ env.sys-macos }}   , "ghc-version": "9.12", "cabal-version": ${{env.cabal-default}}, "botan-version": ${{env.botan-default}}},'
+          ### Windows
+          echo '{"sys": ${{ env.sys-windows }} , "ghc-version": "9.2" , "cabal-version": ${{env.cabal-default}}, "botan-version": ${{env.botan-default}}},'
+          echo '{"sys": ${{ env.sys-windows }} , "ghc-version": "9.4" , "cabal-version": ${{env.cabal-default}}, "botan-version": ${{env.botan-default}}},'
+          echo '{"sys": ${{ env.sys-windows }} , "ghc-version": "9.6" , "cabal-version": ${{env.cabal-default}}, "botan-version": ${{env.botan-default}}},'
+          echo '{"sys": ${{ env.sys-windows }} , "ghc-version": "9.8" , "cabal-version": ${{env.cabal-default}}, "botan-version": ${{env.botan-default}}},'
+          echo '{"sys": ${{ env.sys-windows }} , "ghc-version": "9.10", "cabal-version": ${{env.cabal-default}}, "botan-version": ${{env.botan-default}}},'
+          echo '{"sys": ${{ env.sys-windows }} , "ghc-version": "9.12", "cabal-version": ${{env.cabal-default}}, "botan-version": ${{env.botan-default}}},'
+          echo EOF
+        } >> "$GITHUB_ENV"
+
+    - name: 🛠️ Output matrix
+      id: output-matrix
+      run: |
+        echo $MATRIX_COMBINATIONS
+        MATRIX="{\"include\":[$MATRIX_COMBINATIONS]}"
+        echo $MATRIX
+        {
+          echo 'MATRIX<<EOF'
+          echo "$MATRIX"
+          echo EOF
+        } >> "$GITHUB_OUTPUT"
+
+  ################################################################################
+  # Build: check success
+  ################################################################################
+  check-success:
+    name: "Build: check success"
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    needs:
+    - build
+
+    defaults:
+      run:
+        shell: bash
+
+    if: ${{ !cancelled() }}
+
+    steps:
+    - name: 🧪 Report failure
+      if: ${{ needs.build.result == 'failure' }}
+      run: |
+        echo "Some jobs failed"
+        exit 1
+
+    - name: 🧪 Report success
+      if: ${{ needs.build.result == 'success'  }}
+      run: |
+        echo "All jobs succeeded"
+        exit 0
+
+  ################################################################################
   # Build
   ################################################################################
   build:
+    name: Build (${{ matrix.sys.os}}, GHC-${{matrix.ghc-version}}, Cabal-${{matrix.cabal-version}}, Botan-${{matrix.botan-version}})
     runs-on: ${{ matrix.sys.os }}
     timeout-minutes: 60
+
+    needs:
+    - build-setup-matrix
 
     defaults:
       run:
         shell: ${{ matrix.sys.shell }}
 
     strategy:
+      matrix: ${{ fromJSON(needs.build-setup-matrix.outputs.matrix) }}
       fail-fast: false
-      # Picking matrix combinations is tricky as it's a trade-off: on the one
-      # hand we want to test as many interesting combinations as possible, but
-      # on the other hand we don't want combinatorial explosion. We strike a
-      # balance as follows:
-      #
-      # * Build and test with all combinations of OS/GHC/Cabal, but with a fixed
-      #   Botan version, preferably the latest version which is currently
-      #   Botan-3.12.0.
-      #
-      # * Build and test with all Botan versions, but with a fixed OS/GHC/Cabal
-      #   combination, preferably Linux/GHC-9.6/Cabal-3.16
-      #
-      # TODO: ideally, we would be able to detect automatically that the matrix
-      # should be updated to include newer Botan versions (or GHC versions for
-      # that matter). The setup-botan action already contains a TODO that would
-      # allow us to specify incomplete Botan versions like 3 and 3.8 that would
-      # then automatically be resolved to the greatest complete versions, e.g.,
-      # 3.10.0 and 3.8.1. Similarly, haskell-actions/setup@v2 allows specifying
-      # incomplete GHC and Cabal versions that are resolved to complete
-      # versions. However, if a new Botan MAJOR and/or MINOR version is released
-      # (or a new GHC major version), then we would want to include it as a new
-      # matrix combination while keeping the older combinations. Automatic
-      # resolving does not solve this. See issue #40.
-      matrix:
-        sys:
-          - { os: windows-latest, shell: "C:/msys64/usr/bin/bash.exe -e {0}" }
-          - { os: ubuntu-latest, shell: bash }
-          - { os: macos-latest, shell: bash }
-        ghc-version: ["9.2", "9.4", "9.6", "9.8", "9.10", "9.12"]
-        cabal-version: ["3.16"]
-        botan-version: ["3.12.0"]
-        include:
-        - sys: { os: ubuntu-latest, shell: bash }
-          ghc-version: "9.6"
-          cabal-version: "3.16"
-          botan-version: "3.0.0"
-        - sys: { os: ubuntu-latest, shell: bash }
-          ghc-version: "9.6"
-          cabal-version: "3.16"
-          botan-version: "3.1.1"
-        - sys: { os: ubuntu-latest, shell: bash }
-          ghc-version: "9.6"
-          cabal-version: "3.16"
-          botan-version: "3.2.0"
-        - sys: { os: ubuntu-latest, shell: bash }
-          ghc-version: "9.6"
-          cabal-version: "3.16"
-          botan-version: "3.3.0"
-        - sys: { os: ubuntu-latest, shell: bash }
-          ghc-version: "9.6"
-          cabal-version: "3.16"
-          botan-version: "3.4.0"
-        - sys: { os: ubuntu-latest, shell: bash }
-          ghc-version: "9.6"
-          cabal-version: "3.16"
-          botan-version: "3.5.0"
-        - sys: { os: ubuntu-latest, shell: bash }
-          ghc-version: "9.6"
-          cabal-version: "3.16"
-          botan-version: "3.6.1"
-        - sys: { os: ubuntu-latest, shell: bash }
-          ghc-version: "9.6"
-          cabal-version: "3.16"
-          botan-version: "3.7.1"
-        - sys: { os: ubuntu-latest, shell: bash }
-          ghc-version: "9.6"
-          cabal-version: "3.16"
-          botan-version: "3.8.1"
-        - sys: { os: ubuntu-latest, shell: bash }
-          ghc-version: "9.6"
-          cabal-version: "3.12"
-          botan-version: "3.9.0"
-        - sys: { os: ubuntu-latest, shell: bash }
-          ghc-version: "9.6"
-          cabal-version: "3.12"
-          botan-version: "3.10.0"
-        - sys: { os: ubuntu-latest, shell: bash }
-          ghc-version: "9.6"
-          cabal-version: "3.12"
-          botan-version: "3.11.1"
 
     steps:
     - name: 📥 Checkout repository
