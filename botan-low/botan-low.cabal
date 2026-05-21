@@ -127,7 +127,7 @@ library
     Botan.Low.Remake
 
   build-depends:
-    base >=4.16 && <4.22,
+    base >=4.16 && <4.23,
     botan-bindings ^>=0.3,
     bytestring >=0.11 && <0.13,
     deepseq >=1.1 && <2,
@@ -148,7 +148,7 @@ test-suite test
     containers,
     hspec,
     tasty,
-    tasty-hspec,
+    tasty-hspec >=1.2,
     tasty-hunit,
     tasty-quickcheck,
     text,
