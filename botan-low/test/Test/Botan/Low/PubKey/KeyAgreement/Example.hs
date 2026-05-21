@@ -1,5 +1,4 @@
 {-# OPTIONS_GHC -Wall #-}
-{-# LANGUAGE OverloadedStrings #-}
 
 -- | The executable example described in the Haddock documentation of the
 -- "Botan.Low.PubKey.KeyAgreement" module.

@@ -10,13 +10,13 @@ Portability : POSIX
 -}
 
 module Botan.Low.PubKey.KeyAgreement (
+    -- * PK Key Agreement
+    -- $introduction
 
-  -- * PK Key Agreement
-  -- $introduction
-  -- * Usage
-  -- $usage
+    -- * Usage
+    -- $usage
 
-  -- * Key agreement
+    -- * Key agreement
     KeyAgreement(..)
   , withKeyAgreement
   , keyAgreementCreate
@@ -78,18 +78,14 @@ on the shared secret to produce an output of the desired length.
 
 This is a simplified, executable example showing how Alice and Bob can derive the
 same shared secret using key agreement.
--}
-
-{-
 
 >>> :{
 {-# OPTIONS_GHC -Wall #-}
-{-# LANGUAGE OverloadedStrings #-}
+import Botan.Low.Hash
+import Botan.Low.KDF
 import Botan.Low.PubKey
 import Botan.Low.PubKey.KeyAgreement
 import Botan.Low.RNG
-import Botan.Low.Hash
-import Botan.Low.KDF
 import Data.ByteString (ByteString)
 :}
 
@@ -100,7 +96,7 @@ generateKeys :: IO (PrivKey, PrivKey)
 generateKeys = do
   rng <- rngInit UserRNG
   alicePrivKey <- privKeyCreate ECDH Secp521r1 rng
-  bobPrivKey   <- privKeyCreate ECDH Secp521r1 rng
+  bobPrivKey <- privKeyCreate ECDH Secp521r1 rng
   pure (alicePrivKey, bobPrivKey)
 :}
 
@@ -116,13 +112,10 @@ deriveSharedKeys alicePrivKey bobPrivKey = do
   alicePubKey <- keyAgreementExportPublic alicePrivKey
   bobPubKey <- keyAgreementExportPublic bobPrivKey
   salt <- rngGet rng 4
-
   aliceKeyAgreement <- keyAgreementCreate alicePrivKey (kdf2 SHA256)
   aliceSharedKey <- keyAgreement aliceKeyAgreement bobPubKey salt
-
   bobKeyAgreement <- keyAgreementCreate bobPrivKey (kdf2 SHA256)
   bobSharedKey <- keyAgreement bobKeyAgreement alicePubKey salt
-
   pure (aliceSharedKey, bobSharedKey)
 :}
 
@@ -138,12 +131,6 @@ main = do
 
 >>> main
 True
-
--}
-
-{-
-> WARNING: There used to be a memory leak in keyAgreement. Please
-> report this bug to the maintainers if it returns.
 
 -}
 

@@ -16,6 +16,7 @@ C++ API reference.
 module Botan.Low.SRP6 (
     -- * Example usage
     -- $usage
+
     -- * Password hashing
     SRP6ServerSession(..)
   , withSRP6ServerSession
