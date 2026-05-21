@@ -66,6 +66,12 @@ common warnings
     -Wunused-packages
     -Wmissing-deriving-strategies
 
+  -- TODO <https://github.com/haskell-cryptography/botan/issues/137>: fix
+  -- pattern namespace deprecation warnings
+  if impl(ghc >=9.14)
+    ghc-options:
+      -Wno-pattern-namespace-specifier
+
 common language
   default-language: GHC2021
   default-extensions:

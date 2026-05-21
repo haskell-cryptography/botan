@@ -1,5 +1,25 @@
 # Changelog
 
+## Unreleased
+
+### Breaking changes
+
+None
+
+### New features
+
+None
+
+### Minor changes
+
+* Support `ghc-9.14`.  See [issue
+  #116](https://github.com/haskell-cryptography/botan/issues/116), [PR
+  #130](https://github.com/haskell-cryptography/botan/pull/130).
+
+### Bug fixes
+
+None
+
 ## 0.3.0.0 -- 2026-03-23
 
 * BREAKING: for all newtypes with a record field name like `run*`, change the

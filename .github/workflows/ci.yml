@@ -88,6 +88,7 @@ jobs:
           echo '{"sys": ${{ env.sys-ubuntu }} , "ghc-version": ${{env.ghc-default}}, "cabal-version": ${{env.cabal-default}}, "botan-version": "3.9.0" },'
           echo '{"sys": ${{ env.sys-ubuntu }} , "ghc-version": ${{env.ghc-default}}, "cabal-version": ${{env.cabal-default}}, "botan-version": "3.10.0"},'
           echo '{"sys": ${{ env.sys-ubuntu }} , "ghc-version": ${{env.ghc-default}}, "cabal-version": ${{env.cabal-default}}, "botan-version": "3.11.1"},'
+          echo '{"sys": ${{ env.sys-ubuntu }} , "ghc-version": ${{env.ghc-default}}, "cabal-version": ${{env.cabal-default}}, "botan-version": "3.12.0"},'
           ## Build and test with all GHC versions on each OS, but with a fixed Cabal/Botan combination
           ### Ubuntu
           echo '{"sys": ${{ env.sys-ubuntu }}  , "ghc-version": "9.2" , "cabal-version": ${{env.cabal-default}}, "botan-version": ${{env.botan-default}}},'
@@ -96,6 +97,7 @@ jobs:
           echo '{"sys": ${{ env.sys-ubuntu }}  , "ghc-version": "9.8" , "cabal-version": ${{env.cabal-default}}, "botan-version": ${{env.botan-default}}},'
           echo '{"sys": ${{ env.sys-ubuntu }}  , "ghc-version": "9.10", "cabal-version": ${{env.cabal-default}}, "botan-version": ${{env.botan-default}}},'
           echo '{"sys": ${{ env.sys-ubuntu }}  , "ghc-version": "9.12", "cabal-version": ${{env.cabal-default}}, "botan-version": ${{env.botan-default}}},'
+          echo '{"sys": ${{ env.sys-ubuntu }}  , "ghc-version": "9.14", "cabal-version": ${{env.cabal-default}}, "botan-version": ${{env.botan-default}}},'
           ### MacOS
           echo '{"sys": ${{ env.sys-macos }}   , "ghc-version": "9.2" , "cabal-version": ${{env.cabal-default}}, "botan-version": ${{env.botan-default}}},'
           echo '{"sys": ${{ env.sys-macos }}   , "ghc-version": "9.4" , "cabal-version": ${{env.cabal-default}}, "botan-version": ${{env.botan-default}}},'
@@ -103,6 +105,7 @@ jobs:
           echo '{"sys": ${{ env.sys-macos }}   , "ghc-version": "9.8" , "cabal-version": ${{env.cabal-default}}, "botan-version": ${{env.botan-default}}},'
           echo '{"sys": ${{ env.sys-macos }}   , "ghc-version": "9.10", "cabal-version": ${{env.cabal-default}}, "botan-version": ${{env.botan-default}}},'
           echo '{"sys": ${{ env.sys-macos }}   , "ghc-version": "9.12", "cabal-version": ${{env.cabal-default}}, "botan-version": ${{env.botan-default}}},'
+          echo '{"sys": ${{ env.sys-macos }}   , "ghc-version": "9.14", "cabal-version": ${{env.cabal-default}}, "botan-version": ${{env.botan-default}}},'
           ### Windows
           echo '{"sys": ${{ env.sys-windows }} , "ghc-version": "9.2" , "cabal-version": ${{env.cabal-default}}, "botan-version": ${{env.botan-default}}},'
           echo '{"sys": ${{ env.sys-windows }} , "ghc-version": "9.4" , "cabal-version": ${{env.cabal-default}}, "botan-version": ${{env.botan-default}}},'
@@ -110,6 +113,7 @@ jobs:
           echo '{"sys": ${{ env.sys-windows }} , "ghc-version": "9.8" , "cabal-version": ${{env.cabal-default}}, "botan-version": ${{env.botan-default}}},'
           echo '{"sys": ${{ env.sys-windows }} , "ghc-version": "9.10", "cabal-version": ${{env.cabal-default}}, "botan-version": ${{env.botan-default}}},'
           echo '{"sys": ${{ env.sys-windows }} , "ghc-version": "9.12", "cabal-version": ${{env.cabal-default}}, "botan-version": ${{env.botan-default}}},'
+          echo '{"sys": ${{ env.sys-windows }} , "ghc-version": "9.14", "cabal-version": ${{env.cabal-default}}, "botan-version": ${{env.botan-default}}},'
           echo EOF
         } >> "$GITHUB_ENV"
 

@@ -1,5 +1,25 @@
 # Changelog
 
+## Unreleased
+
+### Breaking changes
+
+None
+
+### New features
+
+None
+
+### Minor changes
+
+* Support `ghc-9.14`.  See [issue
+  #116](https://github.com/haskell-cryptography/botan/issues/116), [PR
+  #130](https://github.com/haskell-cryptography/botan/pull/130).
+
+### Bug fixes
+
+None
+
 ## 0.2.0.1 -- 2026-05-08
 
 * PATCH: fix `base64Decode` failing against `botan` 3.12.0, which now rejects a
