@@ -39,6 +39,10 @@ module Botan.Low.Error.Internal (
   , NotImplementedException(..)
   , InvalidObjectException(..)
   , UnknownException(..)
+  , TLSErrorException(..)
+  , HTTPErrorException(..)
+  , RoughtimeErrorException(..)
+  , TPMErrorException(..)
     -- ** Throwing and catching
   , throwBotanError
   , throwBotanIfNegative
@@ -203,6 +207,26 @@ data InvalidObjectException
     deriving stock (Show)
     deriving Exception via ViaSomeBotanException InvalidObjectException
 
+data TLSErrorException
+    = TLSErrorException BotanErrorCode BotanErrorMessage CallStack
+    deriving stock Show
+    deriving Exception via ViaSomeBotanException TLSErrorException
+
+data HTTPErrorException
+    = HTTPErrorException BotanErrorCode BotanErrorMessage CallStack
+    deriving stock Show
+    deriving Exception via ViaSomeBotanException HTTPErrorException
+
+data RoughtimeErrorException
+    = RoughtimeErrorException BotanErrorCode BotanErrorMessage CallStack
+    deriving stock Show
+    deriving Exception via ViaSomeBotanException RoughtimeErrorException
+
+data TPMErrorException
+    = TPMErrorException BotanErrorCode BotanErrorMessage CallStack
+    deriving stock Show
+    deriving Exception via ViaSomeBotanException TPMErrorException
+
 data UnknownException
     = UnknownException BotanErrorCode BotanErrorMessage CallStack
     deriving stock (Show)
@@ -277,6 +301,11 @@ throwBotanErrorWithCallstack e cs =  do
         BOTAN_FFI_ERROR_INVALID_OBJECT_STATE        -> throwIO $ InvalidObjectStateException bec emsg cs
         BOTAN_FFI_ERROR_NOT_IMPLEMENTED             -> throwIO $ NotImplementedException bec emsg cs
         BOTAN_FFI_ERROR_INVALID_OBJECT              -> throwIO $ InvalidObjectException bec emsg cs
+        BOTAN_FFI_ERROR_INVALID_OBJECT              -> throwIO $ InvalidObjectException bec emsg cs
+        BOTAN_FFI_ERROR_TLS_ERROR                   -> throwIO $ TLSErrorException bec emsg cs
+        BOTAN_FFI_ERROR_HTTP_ERROR                  -> throwIO $ HTTPErrorException bec emsg cs
+        BOTAN_FFI_ERROR_ROUGHTIME_ERROR             -> throwIO $ RoughtimeErrorException bec emsg cs
+        BOTAN_FFI_ERROR_TPM_ERROR                   -> throwIO $ TPMErrorException bec emsg cs
         _                                           -> throwIO $ UnknownException bec emsg cs
   where
     bec = BotanErrorCode e
