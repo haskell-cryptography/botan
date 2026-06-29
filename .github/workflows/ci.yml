@@ -234,7 +234,7 @@ jobs:
         cabal build all --dry-run
 
     - name: 💾 Restore cache
-      uses: actions/cache/restore@v5
+      uses: actions/cache/restore@v6
       id: restore-cabal-cache
       env:
         key: build-botan-${{ runner.os }}-ghc-${{ steps.setup-haskell.outputs.ghc-version }}-cabal-${{ steps.setup-haskell.outputs.cabal-version }}-Botan-${{ matrix.botan-version }}
@@ -262,7 +262,7 @@ jobs:
         cabal build all --only-dependencies
 
     - name: 💾 Save cache
-      uses: actions/cache/save@v5
+      uses: actions/cache/save@v6
       if: ${{ steps.restore-cabal-cache.outputs.cache-hit != 'true' }}
       with:
         path: ${{ steps.setup-haskell.outputs.cabal-store }}
