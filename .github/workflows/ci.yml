@@ -44,7 +44,7 @@ jobs:
     # that matter). The setup-botan action already contains a TODO that would
     # allow us to specify incomplete Botan versions like 3 and 3.8 that would
     # then automatically be resolved to the greatest complete versions, e.g.,
-    # 3.10.0 and 3.8.1. Similarly, haskell-actions/setup@v2.11.0 allows specifying
+    # 3.10.0 and 3.8.1. Similarly, haskell-actions/setup@v2.12.0 allows specifying
     # incomplete GHC and Cabal versions that are resolved to complete
     # versions. However, if a new Botan MAJOR and/or MINOR version is released
     # (or a new GHC major version), then we would want to include it as a new
@@ -184,7 +184,7 @@ jobs:
 
     - name: 🛠️ Setup Haskell
       id: setup-haskell
-      uses:  haskell-actions/setup@v2.11.0
+      uses:  haskell-actions/setup@v2.12.0
       with:
         ghc-version: ${{ matrix.ghc-version }}
         cabal-version: ${{ matrix.cabal-version }}
@@ -327,7 +327,7 @@ jobs:
 
     - name: 🛠️ Setup Haskell
       id: setup-haskell
-      uses:  haskell-actions/setup@v2.11.0
+      uses:  haskell-actions/setup@v2.12.0
       with:
         ghc-version: "9.6"
         cabal-version: "3.16"
