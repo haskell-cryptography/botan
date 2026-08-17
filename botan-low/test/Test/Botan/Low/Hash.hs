@@ -36,13 +36,28 @@ spec_hash = testSuite allHashes chars $ \ h -> do
         pass
     it "can copy the internal state" $ do
         ctx <- hashInit h
-        -- TODO: Populate with state and actually prove
-        _ctx' <- hashCopyState ctx
-        pass
+        -- Populate with state
+        hashUpdate ctx message
+        -- Copy and further populate the state
+        ctx' <- hashCopyState ctx
+        hashUpdate ctx' message
+        d' <- hashFinal ctx'
+        -- Further populate the original state equally
+        hashUpdate ctx message
+        d <- hashFinal ctx
+        -- Check if both states match by comparing their digests
+        d' `shouldBe` d
     it "can clear all internal state" $ do
         ctx <- hashInit h
-        -- TODO: Populate with state and actually prove
+        -- Populate with state
+        hashUpdate ctx message
+        d <- hashFinal ctx
+        -- Clear and repopulate with state
         hashClear ctx
+        hashUpdate ctx message
+        d' <- hashFinal ctx
+        -- Check if states match after clearing
+        d' `shouldBe` d
         pass
     it "can update the internal state with a single message block" $ do
         ctx <- hashInit h

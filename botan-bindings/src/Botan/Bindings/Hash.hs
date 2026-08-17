@@ -182,7 +182,7 @@ foreign import capi safe "botan/ffi.h botan_hash_block_size"
     botan_hash_block_size
         :: BotanHash    -- ^ __hash__: hash object
         -> Ptr CSize    -- ^ __block_size__: output buffer to hold the hash function block size
-        -> IO CInt      -- ^ 0 on success, a negative value on failure
+        -> IO CInt      -- ^ returns the hash function block size
 
 -- | Send more input to the hash function
 foreign import capi safe "botan/ffi.h botan_hash_update"

@@ -35,6 +35,7 @@ import qualified Test.Botan.Low.TOTP
 import qualified Test.Botan.Low.Utility
 import qualified Test.Botan.Low.Version
 import qualified Test.Botan.Low.X509
+import qualified Test.Botan.Low.XOF
 import qualified Test.Botan.Low.ZFEC
 import           Test.Tasty
 import           Test.Tasty.HUnit
@@ -76,6 +77,7 @@ tests = do
     totpTests <- Test.Botan.Low.TOTP.tests
     utilityTests <- Test.Botan.Low.Utility.tests
     x509Tests <- Test.Botan.Low.X509.tests
+    xofTests <- Test.Botan.Low.XOF.tests
     zfecTests <- Test.Botan.Low.ZFEC.tests
     pure $ testGroup "botan-low" [
         bcryptTests
@@ -117,5 +119,6 @@ tests = do
       , utilityTests
       , Test.Botan.Low.Version.tests
       , x509Tests
+      , xofTests
       , zfecTests
       ]
