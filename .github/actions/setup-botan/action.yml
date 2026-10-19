@@ -41,8 +41,8 @@ runs:
   # We only build the static and dynamic libraries and the executable, but not
   # the documentation or the tests.
 
-  - name: "🛠️ [Unix]: Build Botan"
-    if: ${{ runner.os == 'Linux' || runner.os == 'MacOS' }}
+  - name: "🛠️ [Linux]: Build Botan"
+    if: ${{ runner.os == 'Linux' }}
     shell: sh
     working-directory: ./tmp-botan
     run: |
@@ -50,6 +50,20 @@ runs:
         --compiler-cache=ccache \
         --build-targets=static,shared,cli \
         --without-documentation
+      make
+
+  # Workaround for <https://github.com/randombit/botan/issues/5940>: use
+  # --without-os-feature=sandbox_proc on MacOS
+  - name: "🛠️ [MacOS]: Build Botan"
+    if: ${{ runner.os == 'macOS' }}
+    shell: sh
+    working-directory: ./tmp-botan
+    run: |
+      python3 ./configure.py \
+        --compiler-cache=ccache \
+        --build-targets=static,shared,cli \
+        --without-documentation \
+        --without-os-feature=sandbox_proc
       make
 
   # Note: on Windows we assume the caller of the action is using MSYS2 with the
