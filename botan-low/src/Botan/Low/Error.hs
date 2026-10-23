@@ -40,6 +40,10 @@ module Botan.Low.Error (
   , Internal.InvalidObjectStateException(..)
   , Internal.NotImplementedException(..)
   , Internal.InvalidObjectException(..)
+  , Internal.TLSErrorException(..)
+  , Internal.HTTPErrorException(..)
+  , Internal.RoughtimeErrorException(..)
+  , Internal.TPMErrorException(..)
   , Internal.UnknownException(..)
   ) where
 
