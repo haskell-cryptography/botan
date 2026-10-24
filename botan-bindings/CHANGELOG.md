@@ -8,7 +8,8 @@ None
 
 ### New features
 
-None
+* Support eXtendable Output Functions (XOF). See PR
+  [#142](https://github.com/haskell-cryptography/botan/pull/142).
 
 ### Minor changes
 

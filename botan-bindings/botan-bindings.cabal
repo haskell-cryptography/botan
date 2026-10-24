@@ -116,6 +116,7 @@ library
     Botan.Bindings.Version
     Botan.Bindings.View
     Botan.Bindings.X509
+    Botan.Bindings.XOF
     Botan.Bindings.ZFEC
 
   build-depends: base >=4.16 && <4.23
