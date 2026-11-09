@@ -2,11 +2,16 @@
 
 module Test.Botan.Low.PubKey.Verify (tests) where
 
+import           Botan.Low.MPI
 import           Botan.Low.PubKey
+import           Botan.Low.PubKey.ECDSA
 import           Botan.Low.PubKey.Sign
 import           Botan.Low.PubKey.Verify
 import           Botan.Low.RNG
+import           Control.Exception (bracket)
 import           Data.ByteString
+import qualified Data.ByteString as BS
+import qualified Data.ByteString.Base64.URL as Base64URL
 import           Test.Hspec
 import           Test.Tasty
 import           Test.Tasty.Hspec
@@ -16,8 +21,10 @@ import           Test.Util.Hspec
 tests :: IO TestTree
 tests = do
     specs <- testSpec "spec_verify" spec_verify
+    es256 <- testSpec "spec_es256" spec_es256
     pure $ testGroup "Test.Botan.Low.PubKey.Verify" [
         specs
+      , es256
       ]
 
 -- TODO: Consolidate test values with SignSpec
@@ -89,3 +96,45 @@ spec_verify = testSuite pks pkTestName $ \ (pk, param, algo) -> do
         verified <- verifyFinish verifyCtx sig
         verified `shouldBe` True
         pass
+
+-- This is an example based on https://www.rfc-editor.org/rfc/rfc7515.html#appendix-A.3
+spec_es256 :: Spec
+spec_es256 = it "loads a P-256 public key and verifies an ES256 signature" $ do
+    -- Public coordinates from the RFC JWK
+    xBytes <- either fail pure $ Base64URL.decodeUnpadded "f83OJ3D2xF1Bg8vub9tLe1gHMzV76e8Tus9uPHvRVEU"
+    yBytes <- either fail pure $ Base64URL.decodeUnpadded "x_FEzRu9m36HLN_tue659LNpXW6pCyStikYjKIWI5a0"
+
+    let
+        -- input from the RFC
+        input = "eyJhbGciOiJFUzI1NiJ9."
+            <> "eyJpc3MiOiJqb2UiLA0KICJleHAiOjEzMDA4MTkzODAsDQogImh0dHA6Ly9leGFt"
+            <> "cGxlLmNvbS9pc19yb290Ijp0cnVlfQ"
+        -- The generated signature from the RFC, it's the concatenated R || S.
+        -- (We could compute it here using the private key `d` on the RFC and the input but we omit it for brevity)
+        signature = BS.pack $
+                [ 14, 209, 33, 83, 121, 99, 108, 72, 60, 47, 127, 21, 88
+                , 7, 212, 2, 163, 178, 40, 3, 58, 249, 124, 126, 23, 129
+                , 154, 195, 22, 158, 166, 101 ] <>
+                [ 197, 10, 7, 211, 140, 60, 112, 229, 216, 241, 45, 175
+                , 8, 74, 84, 128, 166, 101, 144, 197, 242, 147, 80, 154
+                , 143, 63, 127, 138, 131, 163, 84, 213
+                ]
+    verifyES256 xBytes yBytes input signature `shouldReturn` True
+    verifyES256 xBytes yBytes (input <> "x") signature `shouldReturn` False
+  where
+    -- ES256 is really just a convention to combine the P-256 curve, the SHA-256 hash and the R || S signature
+    verifyES256 :: ByteString -> ByteString -> ByteString -> ByteString -> IO Bool
+    verifyES256 xBytes yBytes message signature =
+        -- brackets are used to ensure the allocated objects from botan are released
+        bracket mpInit mpDestroy $ \x ->
+            bracket mpInit mpDestroy $ \y -> do
+                -- Awkard interface as mentioned in the API docs but this sets x and y
+                mpFromBin x xBytes
+                mpFromBin y yBytes
+                -- secp256r1 is p-256
+                bracket (pubKeyLoadECDSA x y "secp256r1") pubKeyDestroy $ \pubKey ->
+                    -- StandardFormatSignature is R || S
+                    bracket (verifyCreate pubKey "SHA-256" StandardFormatSignature)
+                        verifyDestroy $ \ctx -> do
+                            verifyUpdate ctx message
+                            verifyFinish ctx signature

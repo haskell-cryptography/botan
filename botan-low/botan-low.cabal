@@ -148,6 +148,7 @@ test-suite test
     QuickCheck,
     async,
     base,
+    base64-bytestring >=1.1 && <1.3,
     botan-bindings,
     botan-low,
     bytestring,
